@@ -1,4 +1,4 @@
-from typing import List, FrozenSet, Tuple
+from typing import List, FrozenSet, Tuple, Optional
 from enum import Enum
 from dataclasses import dataclass
 
@@ -14,8 +14,13 @@ class Level:
     goals: FrozenSet[Tuple[int, int]]
 
 class State:
-    def __init__(self):
-        pass
+    def __init__(self, player_pos: Tuple[int, int], boxes: FrozenSet[Tuple[int, int]], 
+                 parent: Optional[State] = None, action: Optional[Action] = None, cost: int = 0):
+        self.player_pos = player_pos
+        self.boxes = boxes
+        self.parent = parent
+        self.action = action
+        self.cost = cost
 
     def __hash__(self) -> int:
         pass
