@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 class SearchAlgorithm(ABC):
     @abstractmethod
-    def solve(self, initial_state: State) -> Optional[Tuple[State, int, int]]:
+    def solve(self, initial_state: State, level: Level) -> Optional[Tuple[State, int, int]]:
         """
         Executes the search.
         Returns: (final_goal_state, expanded_nodes_count, frontier_nodes_count)
@@ -13,12 +13,12 @@ class SearchAlgorithm(ABC):
         pass
 
 class BFS(SearchAlgorithm):
-    def solve(self, initial_state: State):
+    def solve(self, initial_state: State, level: Level):
         pass
 
 class AStar(SearchAlgorithm):
     def __init__(self, heuristic: Callable[[State, Level], float]):
         self.heuristic = heuristic
 
-    def solve(self, initial_state: State):
+    def solve(self, initial_state: State, level: Level):
         pass

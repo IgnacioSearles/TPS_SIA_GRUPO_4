@@ -16,7 +16,7 @@ class SearchResult:
 def run_search(algorithm: SearchAlgorithm, initial_state: State, level: Level) -> SearchResult:
     start_time = time.perf_counter()
 
-    result = algorithm.solve(initial_state)
+    result = algorithm.solve(initial_state, level)
 
     processing_time = time.perf_counter() - start_time
 
