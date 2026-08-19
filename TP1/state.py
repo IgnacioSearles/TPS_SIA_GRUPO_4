@@ -20,7 +20,7 @@ class Level:
 
 class State:
     def __init__(self, player_pos: Tuple[int, int], boxes: FrozenSet[Tuple[int, int]], 
-                 parent: Optional[State] = None, action: Optional[Action] = None, cost: int = 0):
+                 parent: Optional['State'] = None, action: Optional[Action] = None, cost: int = 0):
         self.player_pos = player_pos
         self.boxes = boxes
         self.parent = parent

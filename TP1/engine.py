@@ -10,7 +10,7 @@ class SearchResult:
     path: List[Action]
     cost: int
     expanded_nodes: int
-    fronteir_nodes: int
+    frontier_nodes: int
     processing_time_sec: float
 
 def run_search(algorithm: SearchAlgorithm, initial_state: State, level: Level) -> SearchResult:
@@ -43,4 +43,11 @@ def run_search(algorithm: SearchAlgorithm, initial_state: State, level: Level) -
     )
 
 def reconstruct_path(final_state: State) -> List[Action]:
-    pass
+    path = []
+    current = final_state
+    while current.parent is not None:
+        if current.action:
+            path.append(current.action)
+        current = current.parent
+    path.reverse()
+    return path

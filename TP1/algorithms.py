@@ -25,7 +25,7 @@ class BFS(SearchAlgorithm):
         while frontier:
             current_state = frontier.popleft()
 
-            if current_state.is_goal():
+            if current_state.is_goal(level):
                 return current_state, expanded_nodes, len(frontier)
 
             expanded_nodes += 1
