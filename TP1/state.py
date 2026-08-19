@@ -23,10 +23,10 @@ class State:
     def __eq__(self, other: object) -> bool:
         pass
 
-    def get_successors(self) -> List['State']:
+    def get_successors(self, level: Level) -> List['State']:
         """Generates valid child states (handling movement and basic deadlocks)."""
         pass
 
-    def is_goal(self) -> bool:
+    def is_goal(self, level: Level) -> bool:
         """Returns True if all boxes are on goals."""
         pass
