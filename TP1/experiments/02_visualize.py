@@ -14,14 +14,14 @@ def get_path_states(initial_state, path, level, pruning_mode):
     states = [initial_state]
     current = initial_state
     for action in path:
-        for successor in current.get_successors(level, pruning_mode):
-            if successor.action == action:
-                states.append(successor)
-                current = successor
+        for successor_state, successor_action, _ in current.get_successors(level, pruning_mode):
+            if successor_action == action:
+                states.append(successor_state)
+                current = successor_state
                 break
     return states
 
-def draw_state(ax, state, level):
+def draw_state(ax, state, level, cost=None):
     ax.clear()
     
     # Calculate bounds
@@ -59,7 +59,8 @@ def draw_state(ax, state, level):
     px, py = state.player_pos
     ax.plot(px, py, marker='o', markersize=15, color='blue')
     
-    ax.set_title(f"Costo (Movimientos): {state.cost}")
+    if cost is not None:
+        ax.set_title(f"Costo (Movimientos): {cost}")
 
 def main():
     parser = argparse.ArgumentParser(description="Visualize Sokoban Levels and Solutions")
@@ -142,7 +143,7 @@ def main():
         fig, ax = plt.subplots(figsize=(6, 6))
         
         def update(frame):
-            draw_state(ax, states[frame], level)
+            draw_state(ax, states[frame], level, cost=frame)
             return []
             
         anim = FuncAnimation(fig, update, frames=len(states), interval=200, blit=True)

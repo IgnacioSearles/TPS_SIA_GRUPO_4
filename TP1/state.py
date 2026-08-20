@@ -1,6 +1,6 @@
 from collections import deque
 from functools import lru_cache
-from typing import List, FrozenSet, Tuple, Optional
+from typing import List, FrozenSet, Tuple
 from enum import Enum
 from dataclasses import dataclass
 
@@ -17,7 +17,7 @@ class Action(Enum):
         self.dx = dx
         self.dy = dy
 
-@dataclass
+@dataclass(frozen=True)
 class Level:
     walls: FrozenSet[Tuple[int, int]]
     goals: FrozenSet[Tuple[int, int]]
@@ -67,29 +67,17 @@ def _dead_squares(
     return frozenset(floor - reachable - goals)
 
 
+@dataclass(frozen=True)
 class State:
-    def __init__(self, player_pos: Tuple[int, int], boxes: FrozenSet[Tuple[int, int]], 
-                 parent: Optional['State'] = None, action: Optional[Action] = None, cost: int = 0):
-        self.player_pos = player_pos
-        self.boxes = boxes
-        self.parent = parent
-        self.action = action
-        self.cost = cost
-
-    def __hash__(self) -> int:
-        return hash((self.player_pos, self.boxes))
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, State):
-            return False
-        return self.player_pos == other.player_pos and self.boxes == other.boxes
+    player_pos: Tuple[int, int]
+    boxes: FrozenSet[Tuple[int, int]]
 
     def get_successors(
         self,
         level: Level,
         pruning_mode: str = "dead_squares",
-    ) -> List['State']:
-        """Generates valid child states (handling movement and basic deadlocks)."""
+    ) -> List[Tuple['State', Action, int]]:
+        """Generates valid child states with the action and step cost."""
         if pruning_mode not in PRUNING_MODES:
             valid_modes = ", ".join(sorted(PRUNING_MODES))
             raise ValueError(
@@ -136,11 +124,10 @@ class State:
                         if blocked_vertical and blocked_horizontal:
                             continue
 
-
                 new_boxes = frozenset((self.boxes - {new_player_pos}) | {new_box_pos})
 
-            new_state = State(player_pos=new_player_pos, boxes=new_boxes, parent=self, action=action, cost=self.cost + 1)
-            successors.append(new_state)
+            new_state = State(player_pos=new_player_pos, boxes=new_boxes)
+            successors.append((new_state, action, 1))
 
         return successors
 
