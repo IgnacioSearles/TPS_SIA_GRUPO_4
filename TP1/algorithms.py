@@ -88,14 +88,23 @@ class AStar(SearchAlgorithm):
     def solve(self, initial_state: State, level: Level) -> Optional[Tuple[State, int, int]]:
         tie_breaker = count()
         frontier = []
-        initial_priority = self.heuristic(initial_state, level)
-        heapq.heappush(frontier, (initial_priority, next(tie_breaker), initial_state))
+        initial_heuristic = self.heuristic(initial_state, level)
+        initial_priority = initial_state.cost + initial_heuristic
+        heapq.heappush(
+            frontier,
+            (
+                initial_priority,
+                initial_heuristic,
+                next(tie_breaker),
+                initial_state,
+            ),
+        )
 
         best_cost = {initial_state: initial_state.cost}
         expanded_nodes = 0
 
         while frontier:
-            _, _, current_state = heapq.heappop(frontier)
+            _, _, _, current_state = heapq.heappop(frontier)
 
             # Ignore an obsolete entry superseded by a cheaper path.
             if current_state.cost != best_cost.get(current_state):
@@ -111,8 +120,17 @@ class AStar(SearchAlgorithm):
                     continue
 
                 best_cost[successor] = successor_cost
-                priority = successor_cost + self.heuristic(successor, level)
-                heapq.heappush(frontier, (priority, next(tie_breaker), successor))
+                successor_heuristic = self.heuristic(successor, level)
+                priority = successor_cost + successor_heuristic
+                heapq.heappush(
+                    frontier,
+                    (
+                        priority,
+                        successor_heuristic,
+                        next(tie_breaker),
+                        successor,
+                    ),
+                )
 
         return None
 
