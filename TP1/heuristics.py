@@ -10,19 +10,28 @@ def manhattan(a: tuple, b: tuple) -> int:
 
 # ── Simple (non-exclusive) ────────────────────────────────────────────────────
 
+@lru_cache(maxsize=None)
+def _boxes_to_goals_cached(
+    boxes: FrozenSet[tuple[int, int]],
+    goals: FrozenSet[tuple[int, int]],
+) -> int:
+    """Cached box-only Manhattan cost for a fixed box layout."""
+    return sum(
+        min(manhattan(box, goal) for goal in goals)
+        for box in boxes
+    )
+
+
 def boxes_to_goals(state: State, level: Level) -> int:
     """Sum of each box's distance to its nearest goal (goals can be shared)."""
-    return sum(
-        min(manhattan(box, goal) for goal in level.goals)
-        for box in state.boxes
-    )
+    return _boxes_to_goals_cached(state.boxes, level.goals)
 
 def boxes_to_goals_and_player(state: State, level: Level) -> int:
     """boxes_to_goals + player distance to nearest box."""
     if not state.boxes:
         return 0
     nearest_box = min(manhattan(state.player_pos, box) for box in state.boxes)
-    return boxes_to_goals(state, level) + nearest_box
+    return _boxes_to_goals_cached(state.boxes, level.goals) + nearest_box
 
 
 # ── Wall-aware reverse push distances ────────────────────────────────────────
@@ -86,15 +95,29 @@ def boxes_to_goals_push_distance(state: State, level: Level) -> int | float:
     if not state.boxes:
         return 0
 
+    return _boxes_to_goals_push_distance_cached(
+        state.boxes,
+        level.walls,
+        level.goals,
+    )
+
+
+@lru_cache(maxsize=None)
+def _boxes_to_goals_push_distance_cached(
+    boxes: FrozenSet[tuple[int, int]],
+    walls: FrozenSet[tuple[int, int]],
+    goals: FrozenSet[tuple[int, int]],
+) -> int | float:
+    """Cached wall-aware push assignment cost for a fixed box layout."""
     unreachable = 10**6
-    goals = list(level.goals)
-    boxes = list(state.boxes)
+    goals = list(goals)
+    boxes = list(boxes)
     cost_matrix = []
     for box in boxes:
         row = []
         for goal in goals:
             goal_distances = _reverse_push_distances(
-                level.walls,
+                walls,
                 frozenset({goal}),
             )
             row.append(goal_distances.get(box, unreachable))
@@ -224,8 +247,17 @@ def _hungarian(cost_matrix: list[list[int]]) -> int:
 
 def boxes_to_goals_hungarian(state: State, level: Level) -> int:
     """Optimal 1-to-1 box-to-goal assignment cost (Hungarian algorithm)."""
-    boxes = list(state.boxes)
-    goals = list(level.goals)
+    return _boxes_to_goals_hungarian_cached(state.boxes, level.goals)
+
+
+@lru_cache(maxsize=None)
+def _boxes_to_goals_hungarian_cached(
+    boxes: FrozenSet[tuple[int, int]],
+    goals: FrozenSet[tuple[int, int]],
+) -> int:
+    """Cached Hungarian assignment cost for a fixed box layout."""
+    boxes = list(boxes)
+    goals = list(goals)
     cost_matrix = [
         [manhattan(box, goal) for goal in goals]
         for box in boxes
@@ -237,4 +269,4 @@ def boxes_to_goals_hungarian_and_player(state: State, level: Level) -> int:
     if not state.boxes:
         return 0
     nearest_box = min(manhattan(state.player_pos, box) for box in state.boxes)
-    return boxes_to_goals_hungarian(state, level) + nearest_box
+    return _boxes_to_goals_hungarian_cached(state.boxes, level.goals) + nearest_box
