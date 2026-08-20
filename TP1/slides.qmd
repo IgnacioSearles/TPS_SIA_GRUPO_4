@@ -1,0 +1,48 @@
+---
+title: "Sokoban: Comparación de Algoritmos"
+author: "Grupo 4"
+format: revealjs
+---
+
+## Introducción
+
+Esta presentación compara el rendimiento de diferentes algoritmos de búsqueda (BFS, DFS) en el rompecabezas Sokoban.
+
+Métricas evaluadas:
+
+- **Tiempo de Procesamiento (ms)**
+- **Nodos Expandidos**
+- **Nodos en Frontera**
+- **Costo de la Solución (movimientos)**
+
+## Comparación Nivel 1
+
+![<small>Figura 1: Comparación de Algoritmos para Nivel 1</small>](figures/comparison_level-1.svg)
+
+## Comparación Nivel 2
+
+![<small>Figura 2: Comparación de Algoritmos para Nivel 2</small>](figures/comparison_level-2.svg)
+
+## Animación: Nivel 2
+
+A diferencia de otros niveles, DFS logra encontrar el objetivo en un número razonable de pasos.
+
+:::: {.columns}
+
+::: {.column width="50%"}
+**BFS (141 movimientos)**
+![<small>Óptimo</small>](figures/level-2_bfs_solution.gif)
+:::
+
+::: {.column width="50%"}
+**DFS (313 movimientos)**
+![<small>Subóptimo</small>](figures/level-2_dfs_solution.gif)
+:::
+
+::::
+
+## Análisis
+
+- **BFS** garantiza el camino más corto (costo óptimo) pero expande muchos nodos, requiriendo más memoria (frontera).
+- **DFS** puede encontrar soluciones usando menos memoria. 
+  - Aunque sus soluciones son subóptimas, en niveles pequeños o altamente constreñidos como el **Nivel 2**, DFS puede tener un rendimiento sorprendentemente decente debido a la restricción del espacio de estados.
