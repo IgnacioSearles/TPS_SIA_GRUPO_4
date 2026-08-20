@@ -15,6 +15,8 @@ from heuristics import (
     boxes_to_goals_push_distance,
     boxes_to_goals_push_distance_and_player_all,
     boxes_to_goals_push_distance_and_player_unsolved,
+    boxes_to_goals_push_distance_nearest,
+    boxes_to_goals_push_distance_nearest_and_player,
 )
 
 HEURISTICS = {
@@ -30,6 +32,8 @@ HEURISTICS = {
     "push_distance_player": boxes_to_goals_push_distance_and_player_unsolved,
     "push_distance_player_all": boxes_to_goals_push_distance_and_player_all,
     "push_distance_player_unsolved": boxes_to_goals_push_distance_and_player_unsolved,
+    "push_distance_nearest": boxes_to_goals_push_distance_nearest,
+    "push_distance_nearest_player": boxes_to_goals_push_distance_nearest_and_player,
 }
 
 class SearchAlgorithm(ABC):

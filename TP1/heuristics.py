@@ -166,6 +166,38 @@ def boxes_to_goals_push_distance_and_player_unsolved(
     return push_cost + _nearest_unsolved_box_distance(state, level)
 
 
+def boxes_to_goals_push_distance_nearest(
+    state: State,
+    level: Level,
+) -> int | float:
+    """Sum of each box's nearest wall-aware push distance to a goal.
+
+    Unlike the Hungarian variants, goals may be selected by more than one box
+    in this relaxed lower bound. This is cheaper to evaluate and remains
+    admissible because it can only underestimate the real assignment cost.
+    """
+    return _boxes_to_goals_push_distance_nearest_cached(
+        state.boxes,
+        level.walls,
+        level.goals,
+    )
+
+
+def boxes_to_goals_push_distance_nearest_and_player(
+    state: State,
+    level: Level,
+) -> int | float:
+    """Nearest wall-aware push cost plus distance to an unsolved box."""
+    return (
+        _boxes_to_goals_push_distance_nearest_cached(
+            state.boxes,
+            level.walls,
+            level.goals,
+        )
+        + _nearest_unsolved_box_distance(state, level)
+    )
+
+
 @lru_cache(maxsize=None)
 def _boxes_to_goals_push_distance_cached(
     boxes: FrozenSet[tuple[int, int]],
@@ -191,6 +223,32 @@ def _boxes_to_goals_push_distance_cached(
     if assignment_cost >= unreachable:
         return float("inf")
     return assignment_cost
+
+
+@lru_cache(maxsize=None)
+def _boxes_to_goals_push_distance_nearest_cached(
+    boxes: FrozenSet[tuple[int, int]],
+    walls: FrozenSet[tuple[int, int]],
+    goals: FrozenSet[tuple[int, int]],
+) -> int | float:
+    """Cached nearest-goal push cost for a fixed box layout."""
+    unreachable = 10**6
+    goal_distances = [
+        _reverse_push_distances(walls, frozenset({goal}))
+        for goal in goals
+    ]
+
+    total_cost = 0
+    for box in boxes:
+        box_cost = min(
+            distances.get(box, unreachable)
+            for distances in goal_distances
+        )
+        if box_cost >= unreachable:
+            return float("inf")
+        total_cost += box_cost
+
+    return total_cost
 
 
 # ── Hungarian (optimal 1-to-1 assignment) ─────────────────────────────────────
