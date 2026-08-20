@@ -1,10 +1,13 @@
 import sys
+import logging
 from utils import load_level
 from algorithms import ALGORITHMS, HEURISTICS
 from engine import run_search
 
 
 def main():
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+
     level_path = sys.argv[1] if len(sys.argv) > 1 else "levels/level-1.txt"
     algorithm_name = sys.argv[2].lower() if len(sys.argv) > 2 else "bfs"
     heuristic_name = sys.argv[3].lower() if len(sys.argv) > 3 else "hungarian"
