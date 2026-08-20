@@ -8,6 +8,18 @@ def manhattan(a: tuple, b: tuple) -> int:
     return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
 
+def _nearest_unsolved_box_distance(state: State, level: Level) -> int:
+    """Distance from the player to the nearest box not yet on a goal."""
+    unsolved_boxes = state.boxes - level.goals
+    if not unsolved_boxes:
+        return 0
+
+    return min(
+        manhattan(state.player_pos, box)
+        for box in unsolved_boxes
+    )
+
+
 # ── Simple (non-exclusive) ────────────────────────────────────────────────────
 
 @lru_cache(maxsize=None)
@@ -28,10 +40,10 @@ def boxes_to_goals(state: State, level: Level) -> int:
 
 def boxes_to_goals_and_player(state: State, level: Level) -> int:
     """boxes_to_goals + player distance to nearest box."""
-    if not state.boxes:
-        return 0
-    nearest_box = min(manhattan(state.player_pos, box) for box in state.boxes)
-    return _boxes_to_goals_cached(state.boxes, level.goals) + nearest_box
+    return (
+        _boxes_to_goals_cached(state.boxes, level.goals)
+        + _nearest_unsolved_box_distance(state, level)
+    )
 
 
 # ── Wall-aware reverse push distances ────────────────────────────────────────
@@ -104,16 +116,12 @@ def boxes_to_goals_push_distance(state: State, level: Level) -> int | float:
 
 def boxes_to_goals_push_distance_and_player(state: State, level: Level) -> int | float:
     """Wall-aware push assignment cost plus distance to the nearest box."""
-    if not state.boxes:
-        return 0
-
     push_cost = _boxes_to_goals_push_distance_cached(
         state.boxes,
         level.walls,
         level.goals,
     )
-    nearest_box = min(manhattan(state.player_pos, box) for box in state.boxes)
-    return push_cost + nearest_box
+    return push_cost + _nearest_unsolved_box_distance(state, level)
 
 
 @lru_cache(maxsize=None)
@@ -280,7 +288,7 @@ def _boxes_to_goals_hungarian_cached(
 
 def boxes_to_goals_hungarian_and_player(state: State, level: Level) -> int:
     """Hungarian assignment cost + player distance to nearest box."""
-    if not state.boxes:
-        return 0
-    nearest_box = min(manhattan(state.player_pos, box) for box in state.boxes)
-    return _boxes_to_goals_hungarian_cached(state.boxes, level.goals) + nearest_box
+    return (
+        _boxes_to_goals_hungarian_cached(state.boxes, level.goals)
+        + _nearest_unsolved_box_distance(state, level)
+    )
