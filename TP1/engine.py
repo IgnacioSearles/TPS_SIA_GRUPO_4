@@ -1,5 +1,6 @@
 from algorithms import SearchAlgorithm
 from state import State, Action, Level
+from node import SearchNode
 from typing import List
 from dataclasses import dataclass
 import time
@@ -30,24 +31,17 @@ def run_search(algorithm: SearchAlgorithm, initial_state: State, level: Level) -
             processing_time_sec=processing_time
         )
 
-    final_state, expanded_count, frontier_count = result
-    path = reconstruct_path(final_state)
+    final_node, expanded_count, frontier_count = result
+    path = reconstruct_path(final_node)
 
     return SearchResult(
         success=True,
         path=path,
-        cost=final_state.cost,
+        cost=final_node.cost,
         expanded_nodes=expanded_count,
         frontier_nodes=frontier_count,
         processing_time_sec=processing_time
     )
 
-def reconstruct_path(final_state: State) -> List[Action]:
-    path = []
-    current = final_state
-    while current.parent is not None:
-        if current.action:
-            path.append(current.action)
-        current = current.parent
-    path.reverse()
-    return path
+def reconstruct_path(final_node: SearchNode) -> List[Action]:
+    return final_node.reconstruct_path()

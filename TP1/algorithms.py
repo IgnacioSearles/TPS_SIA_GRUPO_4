@@ -1,4 +1,5 @@
 from state import PRUNING_MODES, Level, State
+from node import SearchNode
 from typing import Callable, Optional, Tuple
 from abc import ABC, abstractmethod
 from collections import deque
@@ -42,17 +43,17 @@ class SearchAlgorithm(ABC):
         self.pruning_mode = pruning_mode
 
     @abstractmethod
-    def solve(self, initial_state: State, level: Level) -> Optional[Tuple[State, int, int]]:
+    def solve(self, initial_state: State, level: Level) -> Optional[Tuple[SearchNode, int, int]]:
         """
         Executes the search.
-        Returns: (final_goal_state, expanded_nodes_count, frontier_nodes_count)
+        Returns: (final_goal_node, expanded_nodes_count, frontier_nodes_count)
         Returns None if no solution is found.
         """
         pass
 
 class BFS(SearchAlgorithm):
-    def solve(self, initial_state: State, level: Level) -> Optional[Tuple[State, int, int]]:
-        frontier = deque([initial_state])
+    def solve(self, initial_state: State, level: Level) -> Optional[Tuple[SearchNode, int, int]]:
+        frontier = deque([SearchNode.root(initial_state)])
 
         visited = set()
         visited.add(initial_state)
@@ -60,23 +61,23 @@ class BFS(SearchAlgorithm):
         expanded_nodes = 0
 
         while frontier:
-            current_state = frontier.popleft()
+            current_node = frontier.popleft()
 
-            if current_state.is_goal(level):
-                return current_state, expanded_nodes, len(frontier)
+            if current_node.state.is_goal(level):
+                return current_node, expanded_nodes, len(frontier)
 
             expanded_nodes += 1
-            for successor in current_state.get_successors(level, self.pruning_mode):
-                if successor not in visited:
-                    visited.add(successor)
-                    frontier.append(successor)
+            for successor_state, action, step_cost in current_node.state.get_successors(level, self.pruning_mode):
+                if successor_state not in visited:
+                    visited.add(successor_state)
+                    frontier.append(current_node.expand_child(successor_state, action, step_cost))
 
         return None
 
 
 class DFS(SearchAlgorithm):
-    def solve(self, initial_state: State, level: Level) -> Optional[Tuple[State, int, int]]:
-        frontier = [initial_state]
+    def solve(self, initial_state: State, level: Level) -> Optional[Tuple[SearchNode, int, int]]:
+        frontier = [SearchNode.root(initial_state)]
 
         visited = set()
         visited.add(initial_state)
@@ -84,16 +85,16 @@ class DFS(SearchAlgorithm):
         expanded_nodes = 0
 
         while frontier:
-            current_state = frontier.pop()
+            current_node = frontier.pop()
 
-            if current_state.is_goal(level):
-                return current_state, expanded_nodes, len(frontier)
+            if current_node.state.is_goal(level):
+                return current_node, expanded_nodes, len(frontier)
 
             expanded_nodes += 1
-            for successor in current_state.get_successors(level, self.pruning_mode):
-                if successor not in visited:
-                    visited.add(successor)
-                    frontier.append(successor)
+            for successor_state, action, step_cost in current_node.state.get_successors(level, self.pruning_mode):
+                if successor_state not in visited:
+                    visited.add(successor_state)
+                    frontier.append(current_node.expand_child(successor_state, action, step_cost))
 
         return None
 
@@ -107,42 +108,44 @@ class AStar(SearchAlgorithm):
         super().__init__(pruning_mode)
         self.heuristic = heuristic
 
-    def solve(self, initial_state: State, level: Level) -> Optional[Tuple[State, int, int]]:
+    def solve(self, initial_state: State, level: Level) -> Optional[Tuple[SearchNode, int, int]]:
         tie_breaker = count()
         frontier = []
+        initial_node = SearchNode.root(initial_state)
         initial_heuristic = self.heuristic(initial_state, level)
-        initial_priority = initial_state.cost + initial_heuristic
+        initial_priority = initial_node.cost + initial_heuristic
         heapq.heappush(
             frontier,
             (
                 initial_priority,
                 initial_heuristic,
                 next(tie_breaker),
-                initial_state,
+                initial_node,
             ),
         )
 
-        best_cost = {initial_state: initial_state.cost}
+        best_cost = {initial_state: initial_node.cost}
         expanded_nodes = 0
 
         while frontier:
-            _, _, _, current_state = heapq.heappop(frontier)
+            _, _, _, current_node = heapq.heappop(frontier)
 
             # Ignore an obsolete entry superseded by a cheaper path.
-            if current_state.cost != best_cost.get(current_state):
+            if current_node.cost != best_cost.get(current_node.state):
                 continue
 
-            if current_state.is_goal(level):
-                return current_state, expanded_nodes, len(frontier)
+            if current_node.state.is_goal(level):
+                return current_node, expanded_nodes, len(frontier)
 
             expanded_nodes += 1
-            for successor in current_state.get_successors(level, self.pruning_mode):
-                successor_cost = successor.cost
-                if successor_cost >= best_cost.get(successor, float("inf")):
+            for successor_state, action, step_cost in current_node.state.get_successors(level, self.pruning_mode):
+                successor_node = current_node.expand_child(successor_state, action, step_cost)
+                successor_cost = successor_node.cost
+                if successor_cost >= best_cost.get(successor_state, float("inf")):
                     continue
 
-                best_cost[successor] = successor_cost
-                successor_heuristic = self.heuristic(successor, level)
+                best_cost[successor_state] = successor_cost
+                successor_heuristic = self.heuristic(successor_state, level)
                 priority = successor_cost + successor_heuristic
                 heapq.heappush(
                     frontier,
@@ -150,7 +153,7 @@ class AStar(SearchAlgorithm):
                         priority,
                         successor_heuristic,
                         next(tie_breaker),
-                        successor,
+                        successor_node,
                     ),
                 )
 
@@ -166,12 +169,13 @@ class Greedy(SearchAlgorithm):
         super().__init__(pruning_mode)
         self.heuristic = heuristic
 
-    def solve(self, initial_state: State, level: Level) -> Optional[Tuple[State, int, int]]:
+    def solve(self, initial_state: State, level: Level) -> Optional[Tuple[SearchNode, int, int]]:
         tie_breaker = count()
         frontier = []
+        initial_node = SearchNode.root(initial_state)
         heapq.heappush(
             frontier,
-            (self.heuristic(initial_state, level), next(tie_breaker), initial_state),
+            (self.heuristic(initial_state, level), next(tie_breaker), initial_node),
         )
 
         visited = set()
@@ -179,17 +183,18 @@ class Greedy(SearchAlgorithm):
         expanded_nodes = 0
 
         while frontier:
-            _, _, current_state = heapq.heappop(frontier)
+            _, _, current_node = heapq.heappop(frontier)
 
-            if current_state.is_goal(level):
-                return current_state, expanded_nodes, len(frontier)
+            if current_node.state.is_goal(level):
+                return current_node, expanded_nodes, len(frontier)
 
             expanded_nodes += 1
-            for successor in current_state.get_successors(level, self.pruning_mode):
-                if successor not in visited:
-                    visited.add(successor)
-                    priority = self.heuristic(successor, level)
-                    heapq.heappush(frontier, (priority, next(tie_breaker), successor))
+            for successor_state, action, step_cost in current_node.state.get_successors(level, self.pruning_mode):
+                if successor_state not in visited:
+                    visited.add(successor_state)
+                    successor_node = current_node.expand_child(successor_state, action, step_cost)
+                    priority = self.heuristic(successor_state, level)
+                    heapq.heappush(frontier, (priority, next(tie_breaker), successor_node))
 
         return None
 
@@ -205,13 +210,14 @@ class IDDFS(SearchAlgorithm):
             raise ValueError("max_depth must be non-negative or None")
         self.max_depth = max_depth
 
-    def solve(self, initial_state: State, level: Level) -> Optional[Tuple[State, int, int]]:
+    def solve(self, initial_state: State, level: Level) -> Optional[Tuple[SearchNode, int, int]]:
         depth_limit = 0
         expanded_nodes = 0
+        initial_node = SearchNode.root(initial_state)
 
         while self.max_depth is None or depth_limit <= self.max_depth:
             result = self._depth_limited_search(
-                initial_state,
+                initial_node,
                 level,
                 depth_limit,
             )
@@ -226,36 +232,39 @@ class IDDFS(SearchAlgorithm):
 
     def _depth_limited_search(
         self,
-        initial_state: State,
+        initial_node: SearchNode,
         level: Level,
         depth_limit: int,
-    ) -> Optional[Tuple[State, int, int]]:
+    ) -> Optional[Tuple[SearchNode, int, int]]:
         expanded_nodes = 0
-        frontier = [(initial_state, 0)]
-        visited = {initial_state: 0}
+        frontier = [(initial_node, 0)]
+        visited = {initial_node.state: 0}
 
         while frontier:
-            current_state, depth = frontier.pop()
+            current_node, depth = frontier.pop()
 
             # Ignore an older occurrence of the same state reached deeper.
-            if depth != visited[current_state]:
+            if depth != visited[current_node.state]:
                 continue
 
-            if current_state.is_goal(level):
+            if current_node.state.is_goal(level):
                 self._last_iteration_expanded = expanded_nodes
-                return current_state, expanded_nodes, len(frontier)
+                return current_node, expanded_nodes, len(frontier)
 
             if depth == depth_limit:
                 continue
 
             expanded_nodes += 1
-            for successor in current_state.get_successors(level, self.pruning_mode):
+            for successor_state, action, step_cost in current_node.state.get_successors(level, self.pruning_mode):
                 successor_depth = depth + 1
-                if successor_depth >= visited.get(successor, float("inf")):
+                if successor_depth >= visited.get(successor_state, float("inf")):
                     continue
 
-                visited[successor] = successor_depth
-                frontier.append((successor, successor_depth))
+                visited[successor_state] = successor_depth
+                frontier.append((
+                    current_node.expand_child(successor_state, action, step_cost),
+                    successor_depth,
+                ))
 
         self._last_iteration_expanded = expanded_nodes
         return None
