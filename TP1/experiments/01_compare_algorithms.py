@@ -6,15 +6,30 @@ import matplotlib.pyplot as plt
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from utils import load_level
-from algorithms import ALGORITHMS
+from algorithms import ALGORITHMS, HEURISTICS
 from engine import run_search
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python 01_compare_algorithms.py <level_path>")
+        print(
+            "Usage: python 01_compare_algorithms.py "
+            "<level_path> [heuristic] [pruning_mode]"
+        )
         sys.exit(1)
-        
+
     level_path = sys.argv[1]
+    heuristic_name = sys.argv[2].lower() if len(sys.argv) > 2 else "hungarian"
+    pruning_mode = sys.argv[3].lower() if len(sys.argv) > 3 else "dead_squares"
+
+    if heuristic_name not in HEURISTICS:
+        valid_heuristics = ", ".join(sorted(HEURISTICS))
+        raise ValueError(
+            f"Unknown heuristic '{heuristic_name}'. Valid options: {valid_heuristics}"
+        )
+    if pruning_mode not in {"dead_squares", "local"}:
+        raise ValueError(
+            f"Unknown pruning mode '{pruning_mode}'. Valid options: dead_squares, local"
+        )
     
     metrics = {
         'algorithm': [],
@@ -31,7 +46,13 @@ def main():
         initial_state, level = load_level(level_path)
         
         # Instantiate the algorithm
-        algorithm = AlgoClass()
+        if algo_name in {"astar", "greedy"}:
+            algorithm = AlgoClass(
+                heuristic=HEURISTICS[heuristic_name],
+                pruning_mode=pruning_mode,
+            )
+        else:
+            algorithm = AlgoClass(pruning_mode=pruning_mode)
         result = run_search(algorithm, initial_state, level)
         
         metrics['algorithm'].append(algo_name.upper())

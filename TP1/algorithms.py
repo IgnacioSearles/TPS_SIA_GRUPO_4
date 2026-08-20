@@ -1,4 +1,4 @@
-from state import State, Level
+from state import PRUNING_MODES, Level, State
 from typing import Callable, Optional, Tuple
 from abc import ABC, abstractmethod
 from collections import deque
@@ -7,23 +7,40 @@ from itertools import count
 
 from heuristics import (
     boxes_to_goals,
-    boxes_to_goals_and_player,
+    boxes_to_goals_and_player_all,
+    boxes_to_goals_and_player_unsolved,
     boxes_to_goals_hungarian,
-    boxes_to_goals_hungarian_and_player,
+    boxes_to_goals_hungarian_and_player_all,
+    boxes_to_goals_hungarian_and_player_unsolved,
     boxes_to_goals_push_distance,
-    boxes_to_goals_push_distance_and_player,
+    boxes_to_goals_push_distance_and_player_all,
+    boxes_to_goals_push_distance_and_player_unsolved,
 )
 
 HEURISTICS = {
     "manhattan": boxes_to_goals,
-    "manhattan_player": boxes_to_goals_and_player,
+    "manhattan_player": boxes_to_goals_and_player_unsolved,
+    "manhattan_player_all": boxes_to_goals_and_player_all,
+    "manhattan_player_unsolved": boxes_to_goals_and_player_unsolved,
     "hungarian": boxes_to_goals_hungarian,
-    "hungarian_player": boxes_to_goals_hungarian_and_player,
+    "hungarian_player": boxes_to_goals_hungarian_and_player_unsolved,
+    "hungarian_player_all": boxes_to_goals_hungarian_and_player_all,
+    "hungarian_player_unsolved": boxes_to_goals_hungarian_and_player_unsolved,
     "push_distance": boxes_to_goals_push_distance,
-    "push_distance_player": boxes_to_goals_push_distance_and_player,
+    "push_distance_player": boxes_to_goals_push_distance_and_player_unsolved,
+    "push_distance_player_all": boxes_to_goals_push_distance_and_player_all,
+    "push_distance_player_unsolved": boxes_to_goals_push_distance_and_player_unsolved,
 }
 
 class SearchAlgorithm(ABC):
+    def __init__(self, pruning_mode: str = "dead_squares"):
+        if pruning_mode not in PRUNING_MODES:
+            valid_modes = ", ".join(sorted(PRUNING_MODES))
+            raise ValueError(
+                f"Unknown pruning mode '{pruning_mode}'. Valid options: {valid_modes}"
+            )
+        self.pruning_mode = pruning_mode
+
     @abstractmethod
     def solve(self, initial_state: State, level: Level) -> Optional[Tuple[State, int, int]]:
         """
@@ -49,10 +66,10 @@ class BFS(SearchAlgorithm):
                 return current_state, expanded_nodes, len(frontier)
 
             expanded_nodes += 1
-            for succesor in current_state.get_successors(level):
-                if succesor not in visited:
-                    visited.add(succesor)
-                    frontier.append(succesor)
+            for successor in current_state.get_successors(level, self.pruning_mode):
+                if successor not in visited:
+                    visited.add(successor)
+                    frontier.append(successor)
 
         return None
 
@@ -73,16 +90,21 @@ class DFS(SearchAlgorithm):
                 return current_state, expanded_nodes, len(frontier)
 
             expanded_nodes += 1
-            for succesor in current_state.get_successors(level):
-                if succesor not in visited:
-                    visited.add(succesor)
-                    frontier.append(succesor)
+            for successor in current_state.get_successors(level, self.pruning_mode):
+                if successor not in visited:
+                    visited.add(successor)
+                    frontier.append(successor)
 
         return None
 
 
 class AStar(SearchAlgorithm):
-    def __init__(self, heuristic: Callable[[State, Level], float] = boxes_to_goals_hungarian):
+    def __init__(
+        self,
+        heuristic: Callable[[State, Level], float] = boxes_to_goals_hungarian,
+        pruning_mode: str = "dead_squares",
+    ):
+        super().__init__(pruning_mode)
         self.heuristic = heuristic
 
     def solve(self, initial_state: State, level: Level) -> Optional[Tuple[State, int, int]]:
@@ -114,7 +136,7 @@ class AStar(SearchAlgorithm):
                 return current_state, expanded_nodes, len(frontier)
 
             expanded_nodes += 1
-            for successor in current_state.get_successors(level):
+            for successor in current_state.get_successors(level, self.pruning_mode):
                 successor_cost = successor.cost
                 if successor_cost >= best_cost.get(successor, float("inf")):
                     continue
@@ -136,7 +158,12 @@ class AStar(SearchAlgorithm):
 
 
 class Greedy(SearchAlgorithm):
-    def __init__(self, heuristic: Callable[[State, Level], float] = boxes_to_goals_hungarian):
+    def __init__(
+        self,
+        heuristic: Callable[[State, Level], float] = boxes_to_goals_hungarian,
+        pruning_mode: str = "dead_squares",
+    ):
+        super().__init__(pruning_mode)
         self.heuristic = heuristic
 
     def solve(self, initial_state: State, level: Level) -> Optional[Tuple[State, int, int]]:
@@ -158,7 +185,7 @@ class Greedy(SearchAlgorithm):
                 return current_state, expanded_nodes, len(frontier)
 
             expanded_nodes += 1
-            for successor in current_state.get_successors(level):
+            for successor in current_state.get_successors(level, self.pruning_mode):
                 if successor not in visited:
                     visited.add(successor)
                     priority = self.heuristic(successor, level)
@@ -168,7 +195,12 @@ class Greedy(SearchAlgorithm):
 
 
 class IDDFS(SearchAlgorithm):
-    def __init__(self, max_depth: Optional[int] = None):
+    def __init__(
+        self,
+        max_depth: Optional[int] = None,
+        pruning_mode: str = "dead_squares",
+    ):
+        super().__init__(pruning_mode)
         if max_depth is not None and max_depth < 0:
             raise ValueError("max_depth must be non-negative or None")
         self.max_depth = max_depth
@@ -217,7 +249,7 @@ class IDDFS(SearchAlgorithm):
                 continue
 
             expanded_nodes += 1
-            for successor in current_state.get_successors(level):
+            for successor in current_state.get_successors(level, self.pruning_mode):
                 successor_depth = depth + 1
                 if successor_depth >= visited.get(successor, float("inf")):
                     continue

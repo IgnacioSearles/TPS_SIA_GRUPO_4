@@ -8,6 +8,7 @@ def main():
     level_path = sys.argv[1] if len(sys.argv) > 1 else "levels/level-1.txt"
     algorithm_name = sys.argv[2].lower() if len(sys.argv) > 2 else "bfs"
     heuristic_name = sys.argv[3].lower() if len(sys.argv) > 3 else "hungarian"
+    pruning_mode = sys.argv[4].lower() if len(sys.argv) > 4 else "dead_squares"
 
     if algorithm_name not in ALGORITHMS:
         valid_algorithms = ", ".join(sorted(ALGORITHMS))
@@ -22,6 +23,11 @@ def main():
             f"Unknown heuristic '{heuristic_name}'. Valid options: {valid_heuristics}"
         )
 
+    if pruning_mode not in {"dead_squares", "local"}:
+        raise ValueError(
+            f"Unknown pruning mode '{pruning_mode}'. Valid options: dead_squares, local"
+        )
+
     print(f"Loading level: {level_path}")
     initial_state, level = load_level(level_path)
     print(f"  Player: {initial_state.player_pos}")
@@ -31,10 +37,15 @@ def main():
     print(f"\nRunning {algorithm_name.upper()}...")
     algorithm_class = ALGORITHMS[algorithm_name]
     if algorithm_name in {"astar", "greedy"}:
-        algorithm = algorithm_class(heuristic=HEURISTICS[heuristic_name])
+        algorithm = algorithm_class(
+            heuristic=HEURISTICS[heuristic_name],
+            pruning_mode=pruning_mode,
+        )
         print(f"  Heuristic: {heuristic_name}")
     else:
-        algorithm = algorithm_class()
+        algorithm = algorithm_class(pruning_mode=pruning_mode)
+
+    print(f"  Pruning:   {pruning_mode}")
 
     result = run_search(algorithm, initial_state, level)
 

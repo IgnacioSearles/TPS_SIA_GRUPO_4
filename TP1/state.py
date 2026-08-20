@@ -4,6 +4,8 @@ from typing import List, FrozenSet, Tuple, Optional
 from enum import Enum
 from dataclasses import dataclass
 
+PRUNING_MODES = {"dead_squares", "local"}
+
 class Action(Enum):
     UP = ("U", 0, -1)
     DOWN = ("D", 0, 1)
@@ -82,9 +84,19 @@ class State:
             return False
         return self.player_pos == other.player_pos and self.boxes == other.boxes
 
-    def get_successors(self, level: Level) -> List['State']:
+    def get_successors(
+        self,
+        level: Level,
+        pruning_mode: str = "dead_squares",
+    ) -> List['State']:
         """Generates valid child states (handling movement and basic deadlocks)."""
-        succesors = []
+        if pruning_mode not in PRUNING_MODES:
+            valid_modes = ", ".join(sorted(PRUNING_MODES))
+            raise ValueError(
+                f"Unknown pruning mode '{pruning_mode}'. Valid options: {valid_modes}"
+            )
+
+        successors = []
         px, py = self.player_pos
 
         for action in Action:
@@ -105,22 +117,32 @@ class State:
 
                 # Deadlock detection
                 if new_box_pos not in level.goals:
-                    if new_box_pos in _dead_squares(level.walls, level.goals):
+                    if (
+                        pruning_mode == "dead_squares"
+                        and new_box_pos in _dead_squares(level.walls, level.goals)
+                    ):
                         continue
 
-                    blocked_vertical = (new_bx, new_by - 1) in level.walls or (new_bx, new_by + 1) in level.walls
-                    blocked_horizontal = (new_bx - 1, new_by) in level.walls or (new_bx + 1, new_by) in level.walls
+                    if pruning_mode == "local":
+                        blocked_vertical = (
+                            (new_bx, new_by - 1) in level.walls
+                            or (new_bx, new_by + 1) in level.walls
+                        )
+                        blocked_horizontal = (
+                            (new_bx - 1, new_by) in level.walls
+                            or (new_bx + 1, new_by) in level.walls
+                        )
 
-                    if blocked_vertical and blocked_horizontal:
-                        continue
+                        if blocked_vertical and blocked_horizontal:
+                            continue
 
 
                 new_boxes = frozenset((self.boxes - {new_player_pos}) | {new_box_pos})
 
             new_state = State(player_pos=new_player_pos, boxes=new_boxes, parent=self, action=action, cost=self.cost + 1)
-            succesors.append(new_state)
+            successors.append(new_state)
 
-        return succesors
+        return successors
 
 
     def is_goal(self, level: Level) -> bool:
