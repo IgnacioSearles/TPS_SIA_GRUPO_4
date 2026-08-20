@@ -1,12 +1,8 @@
 import sys
 from utils import load_level
-from algorithms import BFS, DFS
+from algorithms import ALGORITHMS
 from engine import run_search
 
-ALGORITHMS = {
-    "bfs": BFS,
-    "dfs": DFS,
-}
 
 def main():
     level_path = sys.argv[1] if len(sys.argv) > 1 else "levels/level-1.txt"

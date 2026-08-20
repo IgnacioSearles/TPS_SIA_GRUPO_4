@@ -1,1 +1,7 @@
 __pycache__/
+
+# Quarto generated files
+slides.html
+slides_files/
+*_files/
+.quarto/

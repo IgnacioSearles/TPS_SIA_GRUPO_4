@@ -67,3 +67,8 @@ class AStar(SearchAlgorithm):
 
     def solve(self, initial_state: State, level: Level) -> Optional[Tuple[State, int, int]]:
         pass
+
+ALGORITHMS = {
+    "bfs": BFS,
+    "dfs": DFS,
+}
