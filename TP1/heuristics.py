@@ -1,3 +1,7 @@
+from collections import deque
+from functools import lru_cache
+from typing import FrozenSet
+
 from state import State, Level
 
 def manhattan(a: tuple, b: tuple) -> int:
@@ -19,6 +23,87 @@ def boxes_to_goals_and_player(state: State, level: Level) -> int:
         return 0
     nearest_box = min(manhattan(state.player_pos, box) for box in state.boxes)
     return boxes_to_goals(state, level) + nearest_box
+
+
+# ── Wall-aware reverse push distances ────────────────────────────────────────
+
+@lru_cache(maxsize=None)
+def _reverse_push_distances(
+    walls: FrozenSet[tuple[int, int]],
+    goals: FrozenSet[tuple[int, int]],
+) -> dict[tuple[int, int], int]:
+    """Compute the minimum pushes from every cell to any goal.
+
+    The search runs backwards from the goals. A reverse transition is valid
+    when a box could have been pushed from the predecessor cell to the current
+    cell: both the predecessor and the player's support cell must be free.
+    Other boxes and the player's actual position are intentionally ignored, so
+    these distances remain a lower bound for A*.
+    """
+    known_cells = walls | goals
+    min_x = min(x for x, _ in known_cells)
+    max_x = max(x for x, _ in known_cells)
+    min_y = min(y for _, y in known_cells)
+    max_y = max(y for _, y in known_cells)
+
+    floor = {
+        (x, y)
+        for x in range(min_x, max_x + 1)
+        for y in range(min_y, max_y + 1)
+        if (x, y) not in walls
+    }
+
+    distances = {goal: 0 for goal in goals}
+    frontier = deque(goals)
+    directions = ((0, -1), (0, 1), (-1, 0), (1, 0))
+
+    while frontier:
+        current_x, current_y = frontier.popleft()
+        current_distance = distances[(current_x, current_y)]
+
+        for dx, dy in directions:
+            predecessor = (current_x - dx, current_y - dy)
+            support = (current_x - 2 * dx, current_y - 2 * dy)
+
+            if predecessor not in floor or support not in floor:
+                continue
+            if predecessor in distances:
+                continue
+
+            distances[predecessor] = current_distance + 1
+            frontier.append(predecessor)
+
+    return distances
+
+
+def boxes_to_goals_push_distance(state: State, level: Level) -> int | float:
+    """Minimum wall-aware box-to-goal assignment cost in pushes.
+
+    Unlike Manhattan distance, this heuristic respects walls and impossible
+    push directions. It ignores other boxes and the player's reachability, so
+    it is still a lower bound on the number of moves required by a solution.
+    """
+    if not state.boxes:
+        return 0
+
+    unreachable = 10**6
+    goals = list(level.goals)
+    boxes = list(state.boxes)
+    cost_matrix = []
+    for box in boxes:
+        row = []
+        for goal in goals:
+            goal_distances = _reverse_push_distances(
+                level.walls,
+                frozenset({goal}),
+            )
+            row.append(goal_distances.get(box, unreachable))
+        cost_matrix.append(row)
+
+    assignment_cost = _hungarian(cost_matrix)
+    if assignment_cost >= unreachable:
+        return float("inf")
+    return assignment_cost
 
 
 # ── Hungarian (optimal 1-to-1 assignment) ─────────────────────────────────────
