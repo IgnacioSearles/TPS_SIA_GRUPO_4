@@ -1,12 +1,10 @@
 from collections import deque
 from functools import lru_cache
-import logging
 from typing import List, FrozenSet, Tuple, Optional
 from enum import Enum
 from dataclasses import dataclass
 
 PRUNING_MODES = {"dead_squares", "local"}
-logger = logging.getLogger(__name__)
 
 class Action(Enum):
     UP = ("U", 0, -1)
@@ -66,12 +64,7 @@ def _dead_squares(
             reachable.add(predecessor)
             frontier.append(predecessor)
 
-    dead_squares = frozenset(floor - reachable - goals)
-    logger.info(
-        "Dead squares detected: %s",
-        sorted(dead_squares),
-    )
-    return dead_squares
+    return frozenset(floor - reachable - goals)
 
 
 class State:
