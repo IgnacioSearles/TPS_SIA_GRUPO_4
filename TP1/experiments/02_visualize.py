@@ -59,7 +59,7 @@ def draw_state(ax, state, level):
     px, py = state.player_pos
     ax.plot(px, py, marker='o', markersize=15, color='blue')
     
-    ax.set_title(f"Moves: {state.cost}")
+    ax.set_title(f"Costo (Movimientos): {state.cost}")
 
 def main():
     parser = argparse.ArgumentParser(description="Visualize Sokoban Levels and Solutions")
@@ -82,7 +82,7 @@ def main():
     if args.static:
         fig, ax = plt.subplots(figsize=(6, 6))
         draw_state(ax, initial_state, level)
-        ax.set_title("Initial State")
+        ax.set_title("Estado Inicial")
         out_path = os.path.join(args.outdir, f"{base_name}_static.svg")
         plt.savefig(out_path, format='svg', bbox_inches='tight')
         print(f"Saved static visualization to {out_path}")
