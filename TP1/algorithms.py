@@ -11,6 +11,7 @@ from heuristics import (
     boxes_to_goals_hungarian,
     boxes_to_goals_hungarian_and_player,
     boxes_to_goals_push_distance,
+    boxes_to_goals_push_distance_and_player,
 )
 
 HEURISTICS = {
@@ -19,6 +20,7 @@ HEURISTICS = {
     "hungarian": boxes_to_goals_hungarian,
     "hungarian_player": boxes_to_goals_hungarian_and_player,
     "push_distance": boxes_to_goals_push_distance,
+    "push_distance_player": boxes_to_goals_push_distance_and_player,
 }
 
 class SearchAlgorithm(ABC):

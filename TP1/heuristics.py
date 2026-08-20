@@ -102,6 +102,20 @@ def boxes_to_goals_push_distance(state: State, level: Level) -> int | float:
     )
 
 
+def boxes_to_goals_push_distance_and_player(state: State, level: Level) -> int | float:
+    """Wall-aware push assignment cost plus distance to the nearest box."""
+    if not state.boxes:
+        return 0
+
+    push_cost = _boxes_to_goals_push_distance_cached(
+        state.boxes,
+        level.walls,
+        level.goals,
+    )
+    nearest_box = min(manhattan(state.player_pos, box) for box in state.boxes)
+    return push_cost + nearest_box
+
+
 @lru_cache(maxsize=None)
 def _boxes_to_goals_push_distance_cached(
     boxes: FrozenSet[tuple[int, int]],
