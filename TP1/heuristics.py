@@ -13,13 +13,17 @@ def _nearest_box_distance(
     level: Level,
     include_solved: bool,
 ) -> int:
-    """Distance from the player to the nearest selected box."""
+    """Distance to a support cell for the nearest selected box.
+
+    Ignoring walls and other boxes, the support cell is one Manhattan step
+    before the box, so its distance from the player is Manhattan distance - 1.
+    """
     boxes = state.boxes if include_solved else state.boxes - level.goals
     if not boxes:
         return 0
 
     return min(
-        manhattan(state.player_pos, box)
+        max(0, manhattan(state.player_pos, box) - 1)
         for box in boxes
     )
 
@@ -47,12 +51,12 @@ def boxes_to_goals(state: State, level: Level) -> int:
     return _boxes_to_goals_cached(state.boxes, level.goals)
 
 def boxes_to_goals_and_player(state: State, level: Level) -> int:
-    """boxes_to_goals + player distance to nearest box."""
+    """boxes_to_goals + distance to a support cell for the nearest box."""
     return boxes_to_goals_and_player_unsolved(state, level)
 
 
 def boxes_to_goals_and_player_all(state: State, level: Level) -> int:
-    """Manhattan box cost plus distance to the nearest box, including solved boxes."""
+    """Manhattan box cost plus distance to a support cell for any box."""
     return (
         _boxes_to_goals_cached(state.boxes, level.goals)
         + _nearest_box_distance(state, level, include_solved=True)
@@ -60,7 +64,7 @@ def boxes_to_goals_and_player_all(state: State, level: Level) -> int:
 
 
 def boxes_to_goals_and_player_unsolved(state: State, level: Level) -> int:
-    """Manhattan box cost plus distance to the nearest unsolved box."""
+    """Manhattan box cost plus distance to an unsolved box's support cell."""
     return (
         _boxes_to_goals_cached(state.boxes, level.goals)
         + _nearest_unsolved_box_distance(state, level)
@@ -136,7 +140,7 @@ def boxes_to_goals_push_distance(state: State, level: Level) -> int | float:
 
 
 def boxes_to_goals_push_distance_and_player(state: State, level: Level) -> int | float:
-    """Wall-aware push assignment cost plus distance to the nearest box."""
+    """Wall-aware push assignment cost plus distance to a box's support cell."""
     return boxes_to_goals_push_distance_and_player_unsolved(state, level)
 
 
@@ -144,7 +148,7 @@ def boxes_to_goals_push_distance_and_player_all(
     state: State,
     level: Level,
 ) -> int | float:
-    """Wall-aware push cost plus distance to any box, including solved boxes."""
+    """Wall-aware push cost plus distance to a support cell for any box."""
     push_cost = _boxes_to_goals_push_distance_cached(
         state.boxes,
         level.walls,
@@ -157,7 +161,7 @@ def boxes_to_goals_push_distance_and_player_unsolved(
     state: State,
     level: Level,
 ) -> int | float:
-    """Wall-aware push cost plus distance to an unsolved box."""
+    """Wall-aware push cost plus distance to an unsolved box's support cell."""
     push_cost = _boxes_to_goals_push_distance_cached(
         state.boxes,
         level.walls,
@@ -187,7 +191,7 @@ def boxes_to_goals_push_distance_nearest_and_player(
     state: State,
     level: Level,
 ) -> int | float:
-    """Nearest wall-aware push cost plus distance to an unsolved box."""
+    """Nearest wall-aware push cost plus distance to an unsolved box's support cell."""
     return (
         _boxes_to_goals_push_distance_nearest_cached(
             state.boxes,
@@ -387,12 +391,12 @@ def _boxes_to_goals_hungarian_cached(
     return _hungarian(cost_matrix)
 
 def boxes_to_goals_hungarian_and_player(state: State, level: Level) -> int:
-    """Hungarian assignment cost + player distance to nearest box."""
+    """Hungarian assignment cost + distance to a support cell for the nearest box."""
     return boxes_to_goals_hungarian_and_player_unsolved(state, level)
 
 
 def boxes_to_goals_hungarian_and_player_all(state: State, level: Level) -> int:
-    """Hungarian cost plus distance to any box, including solved boxes."""
+    """Hungarian cost plus distance to a support cell for any box."""
     return (
         _boxes_to_goals_hungarian_cached(state.boxes, level.goals)
         + _nearest_box_distance(state, level, include_solved=True)
@@ -403,7 +407,7 @@ def boxes_to_goals_hungarian_and_player_unsolved(
     state: State,
     level: Level,
 ) -> int:
-    """Hungarian cost plus distance to the nearest unsolved box."""
+    """Hungarian cost plus distance to an unsolved box's support cell."""
     return (
         _boxes_to_goals_hungarian_cached(state.boxes, level.goals)
         + _nearest_unsolved_box_distance(state, level)
