@@ -5,3 +5,7 @@ slides.html
 slides_files/
 *_files/
 .quarto/
+
+# Notebook environment
+.venv/
+.ipynb_checkpoints/
