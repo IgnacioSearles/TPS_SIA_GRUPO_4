@@ -7,6 +7,7 @@ next run. Results are written incrementally to a CSV so partial progress
 survives a crash/interrupt.
 """
 import csv
+import argparse
 import os
 import sys
 import time
@@ -28,30 +29,31 @@ FIELDS = [
 
 
 def _build_grid():
-    levels = [f"level-{i}" for i in range(1, 8)]
+    levels = [f"level-{i}" for i in range(1, 5)] #levels 1-4
     configs = []
 
     # Main grid: dead_squares pruning throughout.
     for level in levels:
         configs.append(dict(level=level, algorithm="bfs", heuristic=None,
-                             pruning_mode="dead_squares", timeout=30))
+                             pruning_mode="dead_squares", timeout=300))
         configs.append(dict(level=level, algorithm="dfs", heuristic=None,
-                             pruning_mode="dead_squares", timeout=30))
+                             pruning_mode="dead_squares", timeout=300))
         configs.append(dict(level=level, algorithm="iddfs", heuristic=None,
-                             pruning_mode="dead_squares", timeout=30))
-        for heuristic in ("manhattan", "hungarian", "push_distance_nearest", "push_distance"):
+                             pruning_mode="dead_squares", timeout=300))
+        for heuristic in ("manhattan", "hungarian", "push_distance_nearest", "push_distance", "manhattan_player",
+                          "hungarian_player", "push_distance_player", "push_distance_nearest_player",
+                          "manhattan_player_all", "hungarian_player_all", "push_distance_player_all"):
             configs.append(dict(level=level, algorithm="astar", heuristic=heuristic,
-                                 pruning_mode="dead_squares", timeout=45))
+                                 pruning_mode="dead_squares", timeout=450))
             configs.append(dict(level=level, algorithm="greedy", heuristic=heuristic,
-                                 pruning_mode="dead_squares", timeout=45))
+                                 pruning_mode="dead_squares", timeout=450))
 
     # Pruning-mode comparison: same configs but with "local" pruning.
     for level in levels:
         configs.append(dict(level=level, algorithm="bfs", heuristic=None,
-                             pruning_mode="local", timeout=30))
+                             pruning_mode="local", timeout=300))
         configs.append(dict(level=level, algorithm="astar", heuristic="hungarian",
-                             pruning_mode="local", timeout=45))
-
+                             pruning_mode="local", timeout=450))
     return configs
 
 
@@ -126,33 +128,45 @@ def run_with_timeout(config):
 
 
 def main():
-    os.makedirs(os.path.dirname(RESULTS_PATH), exist_ok=True)
+    parser = argparse.ArgumentParser(
+        description="Run the Sokoban algorithm/heuristic benchmark."
+    )
+    parser.add_argument(
+        "--results-path",
+        default=RESULTS_PATH,
+        help=(
+            "CSV output path. Defaults to the repository's "
+            "results/benchmark_results.csv."
+        ),
+    )
+    args = parser.parse_args()
+
+    results_path = os.path.abspath(args.results_path)
+    results_dir = os.path.dirname(results_path)
+    if results_dir:
+        os.makedirs(results_dir, exist_ok=True)
     configs = _build_grid()
 
-    with open(RESULTS_PATH, "w", newline="") as f:
+    with open(results_path, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=FIELDS, extrasaction="ignore")
         writer.writeheader()
         f.flush()
 
-        max_workers = min(6, mp.cpu_count())
-        from concurrent.futures import ThreadPoolExecutor, as_completed
-
         completed = 0
         total = len(configs)
-        with ThreadPoolExecutor(max_workers=max_workers) as pool:
-            futures = {pool.submit(run_with_timeout, cfg): cfg for cfg in configs}
-            for future in as_completed(futures):
-                cfg = futures[future]
-                row = future.result()
-                writer.writerow(row)
-                f.flush()
-                completed += 1
-                label = f"{cfg['algorithm']}" + (f"+{cfg['heuristic']}" if cfg['heuristic'] else "")
-                status = "TIMEOUT" if row.get("timed_out") else ("OK" if row.get("success") else "FAIL")
-                print(f"[{completed}/{total}] {cfg['level']} {label} ({cfg['pruning_mode']}) -> {status} "
-                      f"wall={row['wall_time_sec']}s", flush=True)
+        for cfg in configs:
+            # Run configurations sequentially: the next one starts only after
+            # the previous subprocess has finished and its result was written.
+            row = run_with_timeout(cfg)
+            writer.writerow(row)
+            f.flush()
+            completed += 1
+            label = f"{cfg['algorithm']}" + (f"+{cfg['heuristic']}" if cfg['heuristic'] else "")
+            status = "TIMEOUT" if row.get("timed_out") else ("OK" if row.get("success") else "FAIL")
+            print(f"[{completed}/{total}] {cfg['level']} {label} ({cfg['pruning_mode']}) -> {status} "
+                  f"wall={row['wall_time_sec']}s", flush=True)
 
-    print(f"\nDone. Results written to {RESULTS_PATH}")
+    print(f"\nDone. Results written to {results_path}")
 
 
 if __name__ == "__main__":
