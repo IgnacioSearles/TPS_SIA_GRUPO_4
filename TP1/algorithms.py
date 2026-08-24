@@ -208,11 +208,15 @@ class IDDFS(SearchAlgorithm):
         self,
         max_depth: Optional[int] = None,
         pruning_mode: str = "dead_squares",
+        depth_step: int = 20,
     ):
         super().__init__(pruning_mode)
         if max_depth is not None and max_depth < 0:
             raise ValueError("max_depth must be non-negative or None")
+        if depth_step <= 0:
+            raise ValueError("depth_step must be strictly positive")
         self.max_depth = max_depth
+        self.depth_step = depth_step
 
     def solve(self, initial_state: State, level: Level) -> Optional[Tuple[SearchNode, int, int]]:
         depth_limit = 0
@@ -230,7 +234,7 @@ class IDDFS(SearchAlgorithm):
                 return final_state, expanded_nodes + iteration_expanded, frontier_nodes
 
             expanded_nodes += self._last_iteration_expanded
-            depth_limit += 1
+            depth_limit += self.depth_step
 
         return None
 
