@@ -585,7 +585,8 @@ def plot_pruning(df: pd.DataFrame, output_dir: Path) -> None:
         pivot.plot(kind="bar", ax=ax, width=0.82)
         ax.set_title(ylabel)
         ax.set_xlabel("")
-        ax.set_ylabel(ylabel)
+        ax.set_ylabel(f"{ylabel} (escala logarítmica)")
+        ax.set_yscale("log")
         ax.grid(axis="y", alpha=0.25)
         ax.legend(title="Algoritmo / poda", fontsize=8)
     fig.suptitle("Efecto del modo de poda")
@@ -621,22 +622,22 @@ def plot_player_family(df: pd.DataFrame, family: str, number: str, output_dir: P
     )
 
 
-def improvement_table(df: pd.DataFrame, metric: str) -> pd.DataFrame:
+def improvement_table(df: pd.DataFrame, metric: str, algorithm: str = "astar") -> pd.DataFrame:
     data = successful(df)
     bfs = data[data["algorithm"].eq("bfs")].groupby("level")[metric].median()
-    astar = data[data["algorithm"].eq("astar")]
-    astar = astar.groupby(["heuristic", "level"])[metric].median().unstack("level")
-    astar = astar.reindex(columns=LEVELS)
+    target = data[data["algorithm"].eq(algorithm)]
+    target = target.groupby(["heuristic", "level"])[metric].median().unstack("level")
+    target = target.reindex(columns=LEVELS)
     baseline = bfs.reindex(LEVELS)
-    return astar.rsub(baseline, axis="columns").div(baseline, axis="columns").mul(100)
+    return target.rsub(baseline, axis="columns").div(baseline, axis="columns").mul(100)
 
 
-def plot_improvement(df: pd.DataFrame, metric: str, title: str, filename: str, output_dir: Path) -> None:
-    table = improvement_table(df, metric)
-    heuristics = available_heuristics(df)
+def plot_improvement(df: pd.DataFrame, metric: str, title: str, filename: str, output_dir: Path, algorithm: str = "astar") -> None:
+    table = improvement_table(df, metric, algorithm)
+    heuristics = available_heuristics(df, algorithm=algorithm)
     table = table.reindex(index=heuristics, columns=LEVELS)
     if table.dropna(how="all").empty:
-        no_data_figure(title, "No hay pares BFS/A* terminados para calcular la mejora.", output_dir, filename)
+        no_data_figure(title, f"No hay pares BFS/{algorithm.upper()} terminados para calcular la mejora.", output_dir, filename)
         return
     fig, ax = plt.subplots(figsize=(11, max(4.5, 0.42 * len(heuristics) + 2)))
     values = table.to_numpy(dtype=float)
@@ -724,8 +725,9 @@ def main() -> None:
     plot_player_family(df, "manhattan", "08", output_dir)
     plot_player_family(df, "hungarian", "09", output_dir)
     plot_player_family(df, "push_distance", "10", output_dir)
-    plot_improvement(df, "time_sec", "Mejora porcentual de tiempo de A* respecto de BFS", "11_mejora_porcentual_tiempo_astar_vs_bfs", output_dir)
-    plot_improvement(df, "expanded_nodes", "Mejora porcentual de nodos de A* respecto de BFS", "12_mejora_porcentual_nodos_astar_vs_bfs", output_dir)
+    plot_improvement(df, "time_sec", "Mejora porcentual de tiempo de A* respecto de BFS", "11_mejora_porcentual_tiempo_astar_vs_bfs", output_dir, algorithm="astar")
+    plot_improvement(df, "expanded_nodes", "Mejora porcentual de nodos de A* respecto de BFS", "12_mejora_porcentual_nodos_astar_vs_bfs", output_dir, algorithm="astar")
+    plot_improvement(df, "expanded_nodes", "Mejora porcentual de nodos de Greedy respecto de BFS", "22_mejora_porcentual_nodos_greedy_vs_bfs", output_dir, algorithm="greedy")
     plot_greedy_cost_loss(df, output_dir)
 
     print(f"Generados 23 gráficos en: {output_dir.resolve()}")

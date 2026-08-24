@@ -34,7 +34,7 @@ def _nearest_unsolved_box_distance(state: State, level: Level) -> int:
 
 # ── Simple (non-exclusive) ────────────────────────────────────────────────────
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=1_000)
 def _boxes_to_goals_cached(
     boxes: FrozenSet[tuple[int, int]],
     goals: FrozenSet[tuple[int, int]],
@@ -73,7 +73,7 @@ def boxes_to_goals_and_player_unsolved(state: State, level: Level) -> int:
 
 # ── Wall-aware reverse push distances ────────────────────────────────────────
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=1_000)
 def _reverse_push_distances(
     walls: FrozenSet[tuple[int, int]],
     goals: FrozenSet[tuple[int, int]],
@@ -202,7 +202,7 @@ def boxes_to_goals_push_distance_nearest_and_player(
     )
 
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=1_000)
 def _boxes_to_goals_push_distance_cached(
     boxes: FrozenSet[tuple[int, int]],
     walls: FrozenSet[tuple[int, int]],
@@ -229,7 +229,7 @@ def _boxes_to_goals_push_distance_cached(
     return assignment_cost
 
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=1_000)
 def _boxes_to_goals_push_distance_nearest_cached(
     boxes: FrozenSet[tuple[int, int]],
     walls: FrozenSet[tuple[int, int]],
@@ -376,7 +376,7 @@ def boxes_to_goals_hungarian(state: State, level: Level) -> int:
     return _boxes_to_goals_hungarian_cached(state.boxes, level.goals)
 
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=1_000)
 def _boxes_to_goals_hungarian_cached(
     boxes: FrozenSet[tuple[int, int]],
     goals: FrozenSet[tuple[int, int]],
