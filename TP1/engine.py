@@ -11,6 +11,7 @@ class SearchResult:
     path: List[Action]
     cost: int
     expanded_nodes: int
+    # Maximum number of pending nodes held by the search frontier.
     frontier_nodes: int
     processing_time_sec: float
 

@@ -204,6 +204,7 @@ def grouped_bar(
     filename: str,
     log_scale: bool = False,
     label_func=None,
+    color_func=None,
 ) -> None:
     levels = [level for level in LEVELS if level in table.index]
     columns = list(table.columns)
@@ -217,9 +218,9 @@ def grouped_bar(
     for index, column in enumerate(columns):
         values = table.reindex(levels)[column].to_numpy(dtype=float)
         offset = (index - (len(columns) - 1) / 2) * width
-        color = plot_color(column)
+        color = color_func(column) if color_func else plot_color(column)
         label = label_func(column) if label_func else column
-        ax.bar(x + offset, values, width, label=label, color=color)
+        ax.bar(x + offset, values, width, label=label, color=color, edgecolor="white", linewidth=0.8)
     ax.set_xticks(x, [level.replace("level-", "Nivel ") for level in levels])
     ax.set_title(title)
     ax.set_ylabel(ylabel)
@@ -330,6 +331,8 @@ def plot_uninformed_frontier(df: pd.DataFrame, output_dir: Path) -> None:
             ax=ax,
             color=[ALGORITHM_COLORS["bfs"], ALGORITHM_COLORS["dfs"], ALGORITHM_COLORS["iddfs"]],
             width=0.7,
+            edgecolor="white",
+            linewidth=0.8,
         )
         ax.set_title(level.replace("level-", "Nivel "))
         ax.set_xlabel("")
@@ -360,7 +363,7 @@ def plot_informed_frontier_heatmap(df: pd.DataFrame, algorithm: str, output_dir:
 
     fig, ax = plt.subplots(figsize=(11, max(4.5, 0.5 * len(heuristics) + 2)))
     values = table.to_numpy(dtype=float)
-    image = ax.imshow(values, aspect="auto", cmap="YlGnBu")
+    image = ax.imshow(values, aspect="auto", cmap="RdYlGn_r")
     ax.set_xticks(range(len(LEVELS)), [level.replace("level-", "Nivel ") for level in LEVELS])
     ax.set_yticks(range(len(heuristics)), [heuristic_label(h) for h in heuristics])
     ax.set_title(title)
@@ -391,6 +394,13 @@ def plot_frontier_expanded_ratio(df: pd.DataFrame, output_dir: Path) -> None:
         output_dir,
         "20_relacion_frontera_expandidos",
         label_func=algorithm_label,
+        color_func=lambda algorithm: {
+            "bfs": "#1B7837",
+            "dfs": "#5AAE61",
+            "iddfs": "#A6DBA0",
+            "astar": "#D73027",
+            "greedy": "#A50026",
+        }.get(algorithm, "#BDBDBD"),
     )
 
 
@@ -516,6 +526,11 @@ def plot_cost_vs_nodes(df: pd.DataFrame, level: str, filename: str, output_dir: 
     fig, ax = plt.subplots(figsize=(10, 6))
     plotted = False
     annotation_offsets = [(6, 7), (6, -11), (-6, 7), (-6, -11), (10, 0), (-10, 0)]
+    point_rows = list(data.dropna(subset=["expanded_nodes", "cost"]).iterrows())
+    x_coords = np.log10(np.array([row["expanded_nodes"] for _, row in point_rows], dtype=float))
+    y_coords = np.array([row["cost"] for _, row in point_rows], dtype=float)
+    x_span = max(np.ptp(x_coords), 1.0)
+    y_span = max(np.ptp(y_coords), 1.0)
     for algorithm in ALGORITHM_ORDER:
         subset = data[data["algorithm"].eq(algorithm)]
         if subset.empty:
@@ -528,7 +543,17 @@ def plot_cost_vs_nodes(df: pd.DataFrame, level: str, filename: str, output_dir: 
             alpha=0.75,
             s=48,
         )
-        for point_index, (_, row) in enumerate(subset.iterrows()):
+        for point_index, (row_index, row) in enumerate(subset.iterrows()):
+            global_index = next(index for index, (candidate_index, _) in enumerate(point_rows) if candidate_index == row_index)
+            distances = np.sqrt(
+                ((x_coords - x_coords[global_index]) / x_span) ** 2
+                + ((y_coords - y_coords[global_index]) / y_span) ** 2
+            )
+            distances[global_index] = np.inf
+            # Dense clusters are intentionally left unlabeled; the color and
+            # legend still identify their algorithm.
+            if distances.min() < 0.075:
+                continue
             if algorithm in {"astar", "greedy"} and row["heuristic"]:
                 label = heuristic_label(row["heuristic"])
             else:
@@ -552,7 +577,7 @@ def plot_cost_vs_nodes(df: pd.DataFrame, level: str, filename: str, output_dir: 
     ax.set_ylabel("Costo de la solución (movimientos)")
     ax.set_title(
         f"Compromiso entre costo y esfuerzo de búsqueda — {level.replace('level-', 'Nivel ')}\n"
-        "Etiquetas: heurística utilizada"
+        "Etiquetas: sólo puntos aislados; los grupos densos quedan sin texto"
     )
     ax.grid(alpha=0.25)
     ax.legend()

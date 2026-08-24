@@ -50,7 +50,7 @@ class SearchAlgorithm(ABC):
     def solve(self, initial_state: State, level: Level) -> Optional[Tuple[SearchNode, int, int]]:
         """
         Executes the search.
-        Returns: (final_goal_node, expanded_nodes_count, frontier_nodes_count)
+        Returns: (final_goal_node, expanded_nodes_count, max_frontier_nodes_count)
         Returns None if no solution is found.
         """
         pass
@@ -63,18 +63,20 @@ class BFS(SearchAlgorithm):
         visited.add(initial_state)
 
         expanded_nodes = 0
+        max_frontier_nodes = len(frontier)
 
         while frontier:
             current_node = frontier.popleft()
 
             if current_node.state.is_goal(level):
-                return current_node, expanded_nodes, len(frontier)
+                return current_node, expanded_nodes, max_frontier_nodes
 
             expanded_nodes += 1
             for successor_state, action, step_cost in current_node.state.get_successors(level, self.pruning_mode):
                 if successor_state not in visited:
                     visited.add(successor_state)
                     frontier.append(current_node.expand_child(successor_state, action, step_cost))
+            max_frontier_nodes = max(max_frontier_nodes, len(frontier))
 
         return None
 
@@ -87,18 +89,20 @@ class DFS(SearchAlgorithm):
         visited.add(initial_state)
 
         expanded_nodes = 0
+        max_frontier_nodes = len(frontier)
 
         while frontier:
             current_node = frontier.pop()
 
             if current_node.state.is_goal(level):
-                return current_node, expanded_nodes, len(frontier)
+                return current_node, expanded_nodes, max_frontier_nodes
 
             expanded_nodes += 1
             for successor_state, action, step_cost in current_node.state.get_successors(level, self.pruning_mode):
                 if successor_state not in visited:
                     visited.add(successor_state)
                     frontier.append(current_node.expand_child(successor_state, action, step_cost))
+            max_frontier_nodes = max(max_frontier_nodes, len(frontier))
 
         return None
 
@@ -127,6 +131,7 @@ class AStar(SearchAlgorithm):
                 initial_node,
             ),
         )
+        max_frontier_nodes = len(frontier)
 
         best_cost = {initial_state: initial_node.cost}
         expanded_nodes = 0
@@ -139,7 +144,7 @@ class AStar(SearchAlgorithm):
                 continue
 
             if current_node.state.is_goal(level):
-                return current_node, expanded_nodes, len(frontier)
+                return current_node, expanded_nodes, max_frontier_nodes
 
             expanded_nodes += 1
             for successor_state, action, step_cost in current_node.state.get_successors(level, self.pruning_mode):
@@ -160,6 +165,7 @@ class AStar(SearchAlgorithm):
                         successor_node,
                     ),
                 )
+                max_frontier_nodes = max(max_frontier_nodes, len(frontier))
 
         return None
 
@@ -181,6 +187,7 @@ class Greedy(SearchAlgorithm):
             frontier,
             (self.heuristic(initial_state, level), next(tie_breaker), initial_node),
         )
+        max_frontier_nodes = len(frontier)
 
         visited = set()
         visited.add(initial_state)
@@ -190,7 +197,7 @@ class Greedy(SearchAlgorithm):
             _, _, current_node = heapq.heappop(frontier)
 
             if current_node.state.is_goal(level):
-                return current_node, expanded_nodes, len(frontier)
+                return current_node, expanded_nodes, max_frontier_nodes
 
             expanded_nodes += 1
             for successor_state, action, step_cost in current_node.state.get_successors(level, self.pruning_mode):
@@ -199,6 +206,7 @@ class Greedy(SearchAlgorithm):
                     successor_node = current_node.expand_child(successor_state, action, step_cost)
                     priority = self.heuristic(successor_state, level)
                     heapq.heappush(frontier, (priority, next(tie_breaker), successor_node))
+                    max_frontier_nodes = max(max_frontier_nodes, len(frontier))
 
         return None
 
@@ -221,6 +229,7 @@ class IDDFS(SearchAlgorithm):
     def solve(self, initial_state: State, level: Level) -> Optional[Tuple[SearchNode, int, int]]:
         depth_limit = 0
         expanded_nodes = 0
+        max_frontier_nodes = 0
         initial_node = SearchNode.root(initial_state)
 
         while self.max_depth is None or depth_limit <= self.max_depth:
@@ -231,9 +240,12 @@ class IDDFS(SearchAlgorithm):
             )
             if result is not None:
                 final_state, iteration_expanded, frontier_nodes = result
-                return final_state, expanded_nodes + iteration_expanded, frontier_nodes
+                return final_state, expanded_nodes + iteration_expanded, max(
+                    max_frontier_nodes, frontier_nodes
+                )
 
             expanded_nodes += self._last_iteration_expanded
+            max_frontier_nodes = max(max_frontier_nodes, self._last_iteration_frontier)
             depth_limit += self.depth_step
 
         return None
@@ -246,6 +258,7 @@ class IDDFS(SearchAlgorithm):
     ) -> Optional[Tuple[SearchNode, int, int]]:
         expanded_nodes = 0
         frontier = [(initial_node, 0)]
+        max_frontier_nodes = len(frontier)
         visited = {initial_node.state: 0}
 
         while frontier:
@@ -257,7 +270,8 @@ class IDDFS(SearchAlgorithm):
 
             if current_node.state.is_goal(level):
                 self._last_iteration_expanded = expanded_nodes
-                return current_node, expanded_nodes, len(frontier)
+                self._last_iteration_frontier = max_frontier_nodes
+                return current_node, expanded_nodes, max_frontier_nodes
 
             if depth == depth_limit:
                 continue
@@ -273,8 +287,10 @@ class IDDFS(SearchAlgorithm):
                     current_node.expand_child(successor_state, action, step_cost),
                     successor_depth,
                 ))
+                max_frontier_nodes = max(max_frontier_nodes, len(frontier))
 
         self._last_iteration_expanded = expanded_nodes
+        self._last_iteration_frontier = max_frontier_nodes
         return None
 
 ALGORITHMS = {
