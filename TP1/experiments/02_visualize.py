@@ -10,10 +10,14 @@ from utils import load_level
 from algorithms import ALGORITHMS, HEURISTICS
 from engine import run_search
 
-def get_path_states(initial_state, path, level, pruning_mode):
+MAX_GIF_FRAMES = 999
+
+def get_path_states(initial_state, path, level, pruning_mode, max_states=None):
     states = [initial_state]
     current = initial_state
     for action in path:
+        if max_states is not None and len(states) >= max_states:
+            break
         for successor_state, successor_action, _ in current.get_successors(level, pruning_mode):
             if successor_action == action:
                 states.append(successor_state)
@@ -138,12 +142,19 @@ def main():
             result.path,
             level,
             args.pruning_mode,
+            max_states=MAX_GIF_FRAMES,
         )
-        
+        if len(result.path) + 1 > len(states):
+            print(
+                f"Solution has {len(result.path) + 1} states; "
+                f"truncating GIF to the first {len(states)} frames."
+            )
+
         fig, ax = plt.subplots(figsize=(6, 6))
+        frame_costs = list(range(len(states)))
         
         def update(frame):
-            draw_state(ax, states[frame], level, cost=frame)
+            draw_state(ax, states[frame], level, cost=frame_costs[frame])
             return []
             
         anim = FuncAnimation(fig, update, frames=len(states), interval=200, blit=True)
