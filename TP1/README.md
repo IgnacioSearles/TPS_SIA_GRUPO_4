@@ -1,13 +1,18 @@
-# Sokoban Solver — Setup
+# Sokoban Solver
+
+This project implements an automated solver for the classic puzzle game **Sokoban**. It allows users to load custom levels and solve them using various search algorithms, including BFS, DFS, IDDFS, Greedy, and A*. The solver incorporates advanced optimization techniques such as dead-square pruning and several heuristic functions (like Manhattan distance and Hungarian algorithm-based metrics) to efficiently find solutions.
+
+**Team Members (Grupo 4):**
+- Ignacio Searles
+- Ivo Vilamowski
+- Agustin Galan
+- Nicolas Koron
+- Toribio Viton Sconza
 
 ## Requirements
 - Python 3.9+ installed and on your PATH.
-  - Windows: download from https://www.python.org/downloads/ and check
-    **"Add python.exe to PATH"** during install.
-  - macOS: `brew install python3` (or use the python.org installer).
-  - Linux: use your distro's package manager, e.g. `sudo apt install python3 python3-venv`.
 
-## Running it
+## Running the Solver
 
 **Windows:** double-click `run.bat` (or run it from a terminal).
 
@@ -17,26 +22,17 @@ chmod +x run.sh   # only needed once
 ./run.sh
 ```
 
-Either script will, the first time you run it:
-1. Create a local virtual environment in `.venv/` (isolated from any other
-   Python packages on your system — no conflicts, no admin rights needed).
-2. Install the pinned dependencies from `requirements.txt`.
-3. Launch `interactive_main.py`.
+These scripts simply launch `main.py`. By default, you'll see the help text explaining the available parameters.
 
-Every run after that reuses the same `.venv/`, so it starts in a couple of
-seconds and always installs the same dependency versions on every machine.
-
-## Optional flags
-You can still pass the script's own flags through the launcher, e.g.:
+## Optional Flags
+You can pass the script's own flags through the launcher, e.g.:
 ```bash
-./run.sh --levels-dir levels --outdir figures
+./run.sh --level levels/level-1.txt --algorithm bfs --animate
 ```
-```
-run.bat --levels-dir levels --outdir figures
+```bash
+run.bat --level levels/level-1.txt --algorithm bfs --animate
 ```
 
-## If something goes wrong
-- **"python is not recognized" (Windows):** Python isn't on PATH — reinstall
-  and check the "Add to PATH" box, or use the Microsoft Store Python.
+## Troubleshooting
+- **"python is not recognized" (Windows):** Python isn't on PATH — reinstall and check the "Add to PATH" box, or use the Microsoft Store Python.
 - **Permission denied running `run.sh`:** run `chmod +x run.sh` once.
-- Delete the `.venv/` folder any time to force a clean reinstall.
