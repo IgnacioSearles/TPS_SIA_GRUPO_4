@@ -11,6 +11,7 @@ def main():
     parser.add_argument("--algorithm", type=str, default="bfs", choices=list(ALGORITHMS.keys()), help="Search algorithm to use")
     parser.add_argument("--heuristic", type=str, default="hungarian", choices=list(HEURISTICS.keys()), help="Heuristic function (only for A* and Greedy)")
     parser.add_argument("--pruning", type=str, default="dead_squares", choices=["dead_squares", "local"], help="Pruning mode")
+    parser.add_argument("--animate", action="store_true", help="Animate the solution after solving")
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
@@ -22,6 +23,7 @@ def main():
     algorithm_name = args.algorithm.lower()
     heuristic_name = args.heuristic.lower()
     pruning_mode = args.pruning.lower()
+    animate = args.animate
 
     if any(arg.startswith("--heuristic") for arg in sys.argv) and algorithm_name not in {"astar", "greedy"}:
         parser.error("A heuristic can only be selected for 'astar' or 'greedy'")
@@ -56,6 +58,11 @@ def main():
     print(f"  Expanded nodes:   {result.expanded_nodes}")
     print(f"  Frontier nodes:   {result.frontier_nodes}")
     print(f"  Path: {' '.join(a.char for a in result.path)}")
+
+    if animate:
+        from utils import animate_solution
+        input("\nPress Enter to watch the animation...")
+        animate_solution(initial_state, level, result.path)
 
 if __name__ == "__main__":
     main()
