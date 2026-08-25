@@ -44,10 +44,10 @@ def plot_results(results, levels, algorithms, heuristics):
     combos = [(a, h) for a in algorithms for h in heuristics]
     width = 0.8 / len(combos)
     
-    fig, ax = plt.subplots(figsize=(12, 6))
+    fig, ax = plt.subplots(figsize=(14, 6))
     
-    greedy_colors = ['#9ecae1', '#4292c6', '#084594']
-    astar_colors = ['#fcbba1', '#ef3b2c', '#99000d']
+    greedy_colors = ['#c6dbef', '#9ecae1', '#6baed6', '#4292c6', '#2171b5', '#084594']
+    astar_colors = ['#fcbba1', '#fc9272', '#fb6a4a', '#ef3b2c', '#cb181d', '#99000d']
     
     color_map = {}
     for i, h in enumerate(heuristics):
@@ -72,8 +72,11 @@ def plot_results(results, levels, algorithms, heuristics):
         
         color = color_map.get((algo, h), None)
         
+        # Format the label to replace underscores with spaces
+        formatted_h = h.replace('_', ' ').capitalize()
+        
         # Use capsize for error bars so they look good
-        ax.bar(x + offset, means, width, yerr=stds, label=f"{algo.upper()} - {h.capitalize()}", color=color, edgecolor='black', capsize=5)
+        ax.bar(x + offset, means, width, yerr=stds, label=f"{algo.upper()} - {formatted_h}", color=color, edgecolor='black', capsize=5)
         
     ax.set_ylabel('Tiempo de Procesamiento (segundos) - Escala Logarítmica')
     ax.set_yscale('log')
@@ -104,8 +107,12 @@ def main():
     levels = ["level-1", "level-2", "level-3", "level-4"]
     algorithms = ["greedy", "astar"]
     
-    # Selecting representative heuristics
-    heuristics = ["manhattan", "hungarian", "push_distance"]
+    # Selecting representative heuristics including player variants
+    heuristics = [
+        "manhattan", "manhattan_player",
+        "hungarian", "hungarian_player",
+        "push_distance", "push_distance_player"
+    ]
     
     print(f"Starting experiment with {args.runs} runs per configuration...")
     results = run_experiment(levels, algorithms, heuristics, runs=args.runs)
