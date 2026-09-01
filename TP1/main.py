@@ -1,3 +1,4 @@
+import argparse
 import sys
 from utils import load_level
 from algorithms import ALGORITHMS, HEURISTICS
@@ -5,28 +6,27 @@ from engine import run_search
 
 
 def main():
-    level_path = sys.argv[1] if len(sys.argv) > 1 else "levels/level-1.txt"
-    algorithm_name = sys.argv[2].lower() if len(sys.argv) > 2 else "bfs"
-    heuristic_name = sys.argv[3].lower() if len(sys.argv) > 3 else "hungarian"
-    pruning_mode = sys.argv[4].lower() if len(sys.argv) > 4 else "dead_squares"
+    parser = argparse.ArgumentParser(description="Sokoban Solver")
+    parser.add_argument("--level", type=str, default="levels/level-1.txt", help="Path to the level file")
+    parser.add_argument("--algorithm", type=str, default="bfs", choices=list(ALGORITHMS.keys()), help="Search algorithm to use")
+    parser.add_argument("--heuristic", type=str, default="hungarian", choices=list(HEURISTICS.keys()), help="Heuristic function (only for A* and Greedy)")
+    parser.add_argument("--pruning", type=str, default="dead_squares", choices=["dead_squares", "local"], help="Pruning mode")
+    parser.add_argument("--animate", action="store_true", help="Animate the solution after solving")
 
-    if algorithm_name not in ALGORITHMS:
-        valid_algorithms = ", ".join(sorted(ALGORITHMS))
-        raise ValueError(f"Unknown algorithm '{algorithm_name}'. Valid options: {valid_algorithms}")
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
 
-    if len(sys.argv) > 3 and algorithm_name not in {"astar", "greedy"}:
-        raise ValueError("A heuristic can only be selected for 'astar' or 'greedy'")
+    args = parser.parse_args()
 
-    if algorithm_name in {"astar", "greedy"} and heuristic_name not in HEURISTICS:
-        valid_heuristics = ", ".join(sorted(HEURISTICS))
-        raise ValueError(
-            f"Unknown heuristic '{heuristic_name}'. Valid options: {valid_heuristics}"
-        )
+    level_path = args.level
+    algorithm_name = args.algorithm.lower()
+    heuristic_name = args.heuristic.lower()
+    pruning_mode = args.pruning.lower()
+    animate = args.animate
 
-    if pruning_mode not in {"dead_squares", "local"}:
-        raise ValueError(
-            f"Unknown pruning mode '{pruning_mode}'. Valid options: dead_squares, local"
-        )
+    if any(arg.startswith("--heuristic") for arg in sys.argv) and algorithm_name not in {"astar", "greedy"}:
+        parser.error("A heuristic can only be selected for 'astar' or 'greedy'")
 
     print(f"Loading level: {level_path}")
     initial_state, level = load_level(level_path)
@@ -58,6 +58,11 @@ def main():
     print(f"  Expanded nodes:   {result.expanded_nodes}")
     print(f"  Frontier nodes:   {result.frontier_nodes}")
     print(f"  Path: {' '.join(a.char for a in result.path)}")
+
+    if animate:
+        from utils import animate_solution
+        input("\nPress Enter to watch the animation...")
+        animate_solution(initial_state, level, result.path)
 
 if __name__ == "__main__":
     main()
