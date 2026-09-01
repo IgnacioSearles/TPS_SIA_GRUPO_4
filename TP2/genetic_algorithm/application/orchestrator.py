@@ -1,0 +1,170 @@
+"""Implementación genérica del ciclo de un algoritmo genético."""
+
+from __future__ import annotations
+
+from collections.abc import Collection
+from typing import Any
+
+from genetic_algorithm.application.contracts import (
+    CrossoverStrategy,
+    EvolutionConfiguration,
+    GeneticAlgorithm,
+    MutationStrategy,
+    ParentPairingStrategy,
+    PopulationInitializer,
+    SelectionStrategy,
+    SurvivalStrategy,
+    TerminationCondition,
+)
+from genetic_algorithm.domain.contracts import (
+    EvolutionContext,
+    EvolutionResult,
+    EvolutionState,
+    Fitness,
+    GeneticProblem,
+    ImageTarget,
+    Individual,
+    ScoredIndividual,
+)
+
+
+class DefaultScoredIndividual[IndividualT: Individual[Any], FitnessT: Fitness[Any]](
+    ScoredIndividual[IndividualT, FitnessT]
+):
+    """Contenedor mínimo para relacionar un candidato con su fitness."""
+
+    def __init__(self, individual: IndividualT, fitness: FitnessT) -> None:
+        self._individual = individual
+        self._fitness = fitness
+
+    @property
+    def individual(self) -> IndividualT:
+        return self._individual
+
+    @property
+    def fitness(self) -> FitnessT:
+        return self._fitness
+
+
+class DefaultEvolutionState[IndividualT: Individual[Any], FitnessT: Fitness[Any]](
+    EvolutionState[IndividualT, FitnessT]
+):
+    """Estado inmutable de una generación evaluada."""
+
+    def __init__(self, generation: int,
+                 population: Collection[ScoredIndividual[IndividualT, FitnessT]]) -> None:
+        self._generation = generation
+        self._population = tuple(population)
+
+    @property
+    def generation(self) -> int:
+        return self._generation
+
+    @property
+    def population(self) -> Collection[ScoredIndividual[IndividualT, FitnessT]]:
+        return self._population
+
+
+class DefaultEvolutionResult[IndividualT: Individual[Any], FitnessT: Fitness[Any]](
+    EvolutionResult[IndividualT, FitnessT]
+):
+    """Resultado mínimo que expone el último estado del ciclo."""
+
+    def __init__(self, final_state: EvolutionState[IndividualT, FitnessT]) -> None:
+        self._final_state = final_state
+
+    @property
+    def final_state(self) -> EvolutionState[IndividualT, FitnessT]:
+        return self._final_state
+
+
+class OrchestratedGeneticAlgorithm[
+    IndividualT: Individual[Any],
+    TargetT: ImageTarget[Any],
+    FitnessT: Fitness[Any],
+](GeneticAlgorithm[
+    GeneticProblem[IndividualT, TargetT, FitnessT],
+    IndividualT,
+    FitnessT,
+    EvolutionConfiguration,
+]):
+    """Coordina operadores inyectados sin implementar ninguna estrategia."""
+
+    def __init__(
+        self,
+        initializer: PopulationInitializer[IndividualT],
+        selection: SelectionStrategy[IndividualT, FitnessT],
+        pairing: ParentPairingStrategy[IndividualT, FitnessT],
+        crossover: CrossoverStrategy[IndividualT],
+        mutation: MutationStrategy[IndividualT],
+        survival: SurvivalStrategy[IndividualT, FitnessT],
+        termination: TerminationCondition[IndividualT, FitnessT],
+        context: EvolutionContext,
+    ) -> None:
+        self._initializer = initializer
+        self._selection = selection
+        self._pairing = pairing
+        self._crossover = crossover
+        self._mutation = mutation
+        self._survival = survival
+        self._termination = termination
+        self._context = context
+
+    def run(
+        self,
+        problem: GeneticProblem[IndividualT, TargetT, FitnessT],
+        configuration: EvolutionConfiguration,
+    ) -> EvolutionResult[IndividualT, FitnessT]:
+        """Ejecuta evaluación, reproducción y supervivencia hasta terminar."""
+        initial_population = self._initializer.create_initial_population(
+            configuration.population_size, self._context
+        )
+        state = self._create_state(problem, 0, initial_population)
+
+        while not self._termination.should_stop(state, self._context):
+            selected = self._selection.select(
+                state.population, configuration.selected_parent_count, self._context
+            )
+            offspring = []
+            for pair in self._pairing.pair(selected, self._context):
+                crossed_individuals = self._crossover.cross(
+                    pair.first_parent, pair.second_parent, self._context
+                )
+                offspring.extend(
+                    self._mutation.mutate(individual, self._context)
+                    for individual in crossed_individuals
+                )
+
+            evaluated_offspring = self._evaluate(problem, offspring)
+            next_population = self._survival.build_next_generation(
+                state.population,
+                evaluated_offspring,
+                configuration.population_size,
+                self._context,
+            )
+            state = DefaultEvolutionState(state.generation + 1, next_population)
+
+        return DefaultEvolutionResult(state)
+
+    def _create_state(
+        self,
+        problem: GeneticProblem[IndividualT, TargetT, FitnessT],
+        generation: int,
+        population: Collection[IndividualT],
+    ) -> EvolutionState[IndividualT, FitnessT]:
+        return DefaultEvolutionState(generation, self._evaluate(problem, population))
+
+    def _evaluate(
+        self,
+        problem: GeneticProblem[IndividualT, TargetT, FitnessT],
+        individuals: Collection[IndividualT],
+    ) -> Collection[ScoredIndividual[IndividualT, FitnessT]]:
+        return tuple(
+            DefaultScoredIndividual(
+                individual,
+                problem.fitness_evaluator.evaluate(
+                    individual, problem.target, self._context
+                ),
+            )
+            for individual in individuals
+        )

@@ -5,9 +5,12 @@ from .contracts import (CrossoverStrategy, CutPointSelector, EvolutionConfigurat
                         GenomeCodec, MutationStrategy, ParentPair,
                         ParentPairingStrategy, PopulationInitializer, SelectionStrategy,
                         SurvivalStrategy, TerminationCondition)
+from .orchestrator import (DefaultEvolutionResult, DefaultEvolutionState,
+                           DefaultScoredIndividual, OrchestratedGeneticAlgorithm)
 
-__all__ = ["CrossoverStrategy", "CutPointSelector", "EvolutionConfiguration",
+__all__ = ["CrossoverStrategy", "CutPointSelector", "DefaultEvolutionResult",
+           "DefaultEvolutionState", "DefaultScoredIndividual", "EvolutionConfiguration",
            "GeneMutator", "GenePositionSelector", "GeneticAlgorithm", "GenomeCodec",
-           "MutationStrategy", "ParentPair", "ParentPairingStrategy",
-           "PopulationInitializer", "SelectionStrategy", "SurvivalStrategy",
-           "TerminationCondition"]
+           "MutationStrategy", "OrchestratedGeneticAlgorithm", "ParentPair",
+           "ParentPairingStrategy", "PopulationInitializer", "SelectionStrategy",
+           "SurvivalStrategy", "TerminationCondition"]
