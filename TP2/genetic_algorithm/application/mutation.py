@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Collection
 from typing import Any
 
 from genetic_algorithm.application.contracts import (GeneMutator,
@@ -35,3 +36,20 @@ class MultiGeneMutation[IndividualT: Individual[Any], GeneT](MutationStrategy[In
         for position in positions:
             genes[position] = self._gene_mutator.mutate_gene(genes[position], context)
         return self._genome_codec.build_individual(genes)
+
+
+class RandomGenePositionSelector(GenePositionSelector):
+    """Elige posiciones aleatorias con base en una probabilidad de mutación por gen."""
+    
+    def __init__(self, mutation_probability: float) -> None:
+        if not 0.0 <= mutation_probability <= 1.0:
+            raise ValueError("mutation_probability must be between 0.0 and 1.0")
+        self._probability = mutation_probability
+        
+    def select_positions(self, genome_size: int, context: EvolutionContext) -> Collection[int]:
+        import random
+        positions = []
+        for i in range(genome_size):
+            if random.random() < self._probability:
+                positions.append(i)
+        return tuple(positions)

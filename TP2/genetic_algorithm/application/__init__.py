@@ -7,11 +7,13 @@ from .contracts import (CrossoverStrategy, CutPointSelector, EvolutionConfigurat
                         SurvivalStrategy, TerminationCondition)
 from .orchestrator import (DefaultEvolutionResult, DefaultEvolutionState,
                            DefaultScoredIndividual, OrchestratedGeneticAlgorithm)
-from .crossover import OnePointCrossover
-from .mutation import MultiGeneMutation
+from .crossover import OnePointCrossover, RandomCutPointSelector
+from .mutation import MultiGeneMutation, RandomGenePositionSelector
 from .selection import EliteSelection
 from .survival import AdditiveSurvival, ExclusiveSurvival
 from .termination import MaxGenerationsTermination, TargetFitnessTermination
+from .pairing import RandomPairingStrategy, SimpleParentPair
+
 
 __all__ = ["AdditiveSurvival", "ExclusiveSurvival", "CrossoverStrategy", "CutPointSelector",
            "DefaultEvolutionResult", "DefaultEvolutionState", "DefaultScoredIndividual",
@@ -20,4 +22,5 @@ __all__ = ["AdditiveSurvival", "ExclusiveSurvival", "CrossoverStrategy", "CutPoi
            "MultiGeneMutation", "MutationStrategy", "OnePointCrossover",
            "OrchestratedGeneticAlgorithm", "ParentPair", "ParentPairingStrategy",
            "PopulationInitializer", "SelectionStrategy", "SurvivalStrategy",
-           "TerminationCondition", "MaxGenerationsTermination", "TargetFitnessTermination"]
+           "TerminationCondition", "MaxGenerationsTermination", "TargetFitnessTermination",
+           "RandomPairingStrategy", "SimpleParentPair", "RandomCutPointSelector", "RandomGenePositionSelector"]

@@ -18,6 +18,9 @@ def _take_best[IndividualT: Individual[Any], FitnessT: Fitness[Any]](
     fitness_comparator: FitnessComparator[FitnessT],
 ) -> tuple[ScoredIndividual[IndividualT, FitnessT], ...]:
     """Helper interno para ordenar y truncar candidatos sin lógica de repetición."""
+    if amount > len(population):
+        raise ValueError("amount cannot exceed population size")
+
     def compare(
         left: ScoredIndividual[IndividualT, FitnessT],
         right: ScoredIndividual[IndividualT, FitnessT],

@@ -41,6 +41,21 @@ class OnePointCrossover[IndividualT: Individual[Any], GeneT](
         if not 0 < cut_point < len(genes_a):
             raise ValueError("cut point must be strictly inside the genome")
 
-        child_a = self._genome_codec.build_individual(genes_a[:cut_point] + genes_b[cut_point:])
-        child_b = self._genome_codec.build_individual(genes_b[:cut_point] + genes_a[cut_point:])
-        return child_a, child_b
+        child_a_genes = genes_a[:cut_point] + genes_b[cut_point:]
+        child_b_genes = genes_b[:cut_point] + genes_a[cut_point:]
+        return tuple(
+            self._genome_codec.build_individual(genes)
+            for genes in (child_a_genes, child_b_genes)
+        )
+
+
+class RandomCutPointSelector(CutPointSelector):
+    """Elige un punto de corte aleatorio (excluyendo extremos)."""
+    
+    def select_cut_point(self, genome_size: int, context: EvolutionContext) -> int:
+        import random
+        # Si el tamaño es muy pequeño, cortamos en el medio
+        if genome_size <= 2:
+            return genome_size // 2
+        # Elegir un punto entre 1 y genome_size - 1
+        return random.randint(1, genome_size - 1)

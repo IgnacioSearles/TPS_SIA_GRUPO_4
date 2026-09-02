@@ -57,7 +57,6 @@ class TriangleGene:
 
 
 class TriangleIndividual(Individual[TriangleGene]):
-
     def __init__(self, triangles: tuple[TriangleGene, ...]) -> None:
         self._triangles = triangles
 
