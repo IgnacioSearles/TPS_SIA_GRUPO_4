@@ -90,10 +90,15 @@ class MSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MSE
     ) -> MSEFitness:
         # Renderizamos el fenotipo (la imagen)
         rendered_image = render(individual, target.width, target.height)
-        rendered_array = np.array(rendered_image, dtype=np.int16)
+        
+        # Al restar int16, la diferencia está entre -255 y 255.
+        # Pero al elevar al cuadrado (hasta 65025), excede el límite de int16 (32767),
+        # causando un overflow (números negativos). 
+        # Convertimos a float32 o int32 antes de elevar al cuadrado.
+        target_arr = target.image.astype(np.float32)
+        rendered_arr = np.array(rendered_image, dtype=np.float32)
 
         # Calculamos MSE
-        # np.mean maneja automáticamente la suma total dividida por la cantidad de elementos
-        mse = np.mean(np.square(target.image - rendered_array))
+        mse = np.mean(np.square(target_arr - rendered_arr))
         
         return MSEFitness(float(mse))
