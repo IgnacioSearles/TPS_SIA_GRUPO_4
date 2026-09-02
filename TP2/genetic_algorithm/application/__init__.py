@@ -14,7 +14,7 @@ from .crossover import (AnnularCrossover, OnePointCrossover, RandomCutPointSelec
                         RandomRingCutPointSelector, RandomTwoCutPointSelector,
                         TwoPointCrossover, UniformCrossover)
 from .mutation import MultiGeneMutation, RandomGenePositionSelector
-from .selection import EliteSelection
+from .selection import EliteSelection, ProbabilisticTournamentSelection
 from .survival import AdditiveSurvival, ExclusiveSurvival
 from .termination import MaxGenerationsTermination, TargetFitnessTermination
 from .pairing import RandomPairingStrategy, SimpleParentPair
@@ -22,7 +22,7 @@ from .pairing import RandomPairingStrategy, SimpleParentPair
 
 __all__ = ["AdditiveSurvival", "AnnularCrossover", "ExclusiveSurvival", "CrossoverStrategy", "CutPointSelector",
            "CompositeEvolutionObserver", "DefaultEvolutionResult", "DefaultEvolutionState", "DefaultScoredIndividual",
-           "EliteSelection", "EvolutionConfiguration", "EvolutionObserver", "GeneMutator",
+           "EliteSelection", "ProbabilisticTournamentSelection", "EvolutionConfiguration", "EvolutionObserver", "GeneMutator",
            "GenePositionSelector", "GeneticAlgorithm", "GenomeCodec",
            "MultiGeneMutation", "MutationStrategy", "OnePointCrossover",
            "OrchestratedGeneticAlgorithm", "ParentPair", "ParentPairingStrategy",

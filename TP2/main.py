@@ -17,6 +17,7 @@ from genetic_algorithm.application import (
     MultiGeneMutation,
     OnePointCrossover,
     OrchestratedGeneticAlgorithm,
+    ProbabilisticTournamentSelection,
     RandomCutPointSelector,
     RandomPairingStrategy,
     RandomRingCutPointSelector,
@@ -224,6 +225,18 @@ def main() -> None:
     parser.add_argument("--pop-size", type=int, default=100, help="Tamaño de la población.")
     parser.add_argument("--parents", type=int, default=50, help="Cantidad de padres a seleccionar.")
     parser.add_argument(
+        "--selection", choices=["elite", "tournament"], default="elite",
+        help="Estrategia de selección de padres.",
+    )
+    parser.add_argument(
+        "--tournament-size", type=int, default=3,
+        help="Participantes por torneo probabilístico.",
+    )
+    parser.add_argument(
+        "--tournament-win-probability", type=float, default=0.85,
+        help="Probabilidad de que gane el mejor participante disponible del torneo.",
+    )
+    parser.add_argument(
         "--survival", choices=["additive", "exclusive"], default="additive",
         help="Estrategia de supervivencia para construir cada nueva generación.",
     )
@@ -415,7 +428,12 @@ def main() -> None:
 
     # Operadores
     initializer = RandomTriangleInitializer(args.triangles, target.width, target.height)
-    selection = EliteSelection(comparator)
+    if args.selection == "elite":
+        selection = EliteSelection(comparator)
+    else:
+        selection = ProbabilisticTournamentSelection(
+            comparator, args.tournament_size, args.tournament_win_probability
+        )
     pairing = RandomPairingStrategy()
     crossover = build_crossover(args.crossover, codec, args)
     

@@ -12,7 +12,7 @@ from genetic_algorithm.application import (AnnularCrossover, CrossoverStrategy, 
     ParentPairingStrategy, PopulationInitializer, SelectionStrategy, SurvivalStrategy,
     TerminationCondition, EliteSelection, ExclusiveSurvival, MultiGeneMutation,
     RandomPairingStrategy, RingCutPointSelector, TwoCutPointSelector, TwoPointCrossover,
-    UniformCrossover)
+    UniformCrossover, ProbabilisticTournamentSelection)
 from genetic_algorithm.domain import (AlgorithmConfiguration, EvolutionContext,
     EvolutionResult, EvolutionState, Fitness, FitnessComparator, FitnessEvaluator,
     GeneticProblem, ImageTarget, Individual, ScoredIndividual)
@@ -310,6 +310,16 @@ class StrategyImplementationTests(unittest.TestCase):
 
         self.assertEqual([candidate.fitness.value for candidate in elite], [3, 2])
         self.assertEqual([candidate.fitness.value for candidate in survivors], [3, 2])
+
+    def test_probabilistic_tournament_selects_best_when_probability_is_one(self) -> None:
+        population = tuple(
+            DefaultScoredIndividual(GeneIndividual((str(score),)), RankedFitness(score))
+            for score in (1, 3, 2)
+        )
+        selected = ProbabilisticTournamentSelection(
+            RankedComparator(), tournament_size=3, win_probability=1.0
+        ).select(population, 2, self.context)
+        self.assertEqual([candidate.fitness.value for candidate in selected], [3, 3])
 
     def test_exclusive_survival_uses_only_ranked_offspring(self) -> None:
         population = tuple(
