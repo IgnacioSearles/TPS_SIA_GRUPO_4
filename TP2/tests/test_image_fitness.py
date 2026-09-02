@@ -141,7 +141,8 @@ class TriangleMutationTests(unittest.TestCase):
     def test_adaptive_reheat_ignores_improvements_below_delta(self) -> None:
         base = ConstantMutationSchedule(MutationParameters(0.2, 1.0, 0.1))
         schedule = AdaptiveReheatMutationSchedule(
-            base, stagnation_generations=2, reheat_generations=3, improvement_delta=0.1
+            base, stagnation_generations=2, reheat_generations=3, improvement_delta=0.1,
+            probability_multiplier=2.0, strength_multiplier=2.0, replacement_multiplier=3.0,
         )
 
         schedule.observe_best(0, 1.0)
@@ -151,3 +152,14 @@ class TriangleMutationTests(unittest.TestCase):
         parameters = schedule.parameters_at(2)
         self.assertEqual(parameters.probability, 0.4)
         self.assertAlmostEqual(parameters.replacement_probability, 0.3)
+
+    def test_adaptive_reheat_accepts_percentage_threshold(self) -> None:
+        base = ConstantMutationSchedule(MutationParameters(0.2, 1.0, 0.1))
+        schedule = AdaptiveReheatMutationSchedule(
+            base, stagnation_generations=2, reheat_generations=1, improvement_percent=1.0,
+            probability_multiplier=2.0,
+        )
+        schedule.observe_best(0, 1.0)
+        schedule.observe_best(1, 0.995)  # mejora de 0.5%, ignorada
+        schedule.observe_best(2, 0.994)  # sigue estancado: recalienta
+        self.assertAlmostEqual(schedule.parameters_at(2).probability, 0.4)

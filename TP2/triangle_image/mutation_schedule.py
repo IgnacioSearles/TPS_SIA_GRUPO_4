@@ -86,26 +86,37 @@ class AdaptiveReheatMutationSchedule(TriangleMutationSchedule):
         base: TriangleMutationSchedule,
         stagnation_generations: int = 100,
         reheat_generations: int = 40,
-        probability_multiplier: float = 2.0,
-        strength_multiplier: float = 2.0,
-        replacement_multiplier: float = 3.0,
+        probability_multiplier: float = 2.5,
+        strength_multiplier: float = 2.5,
+        replacement_multiplier: float = 4.0,
         improvement_delta: float = 0.0,
+        improvement_percent: float = 0.0,
     ) -> None:
         if stagnation_generations <= 0 or reheat_generations <= 0:
             raise ValueError("stagnation and reheat durations must be positive")
         if improvement_delta < 0:
             raise ValueError("improvement_delta must be non-negative")
+        if improvement_percent < 0:
+            raise ValueError("improvement_percent must be non-negative")
         self._base = base
         self._stagnation_generations = stagnation_generations
         self._reheat_generations = reheat_generations
         self._improvement_delta = improvement_delta
+        self._improvement_percent = improvement_percent
         self._multipliers = probability_multiplier, strength_multiplier, replacement_multiplier
         self._best_fitness: float | None = None
         self._last_improvement_generation = 0
         self._reheat_until = -1
 
     def observe_best(self, generation: int, fitness: float) -> None:
-        if self._best_fitness is None or fitness < self._best_fitness - self._improvement_delta:
+        if self._best_fitness is None:
+            self._best_fitness = fitness
+            self._last_improvement_generation = generation
+            return
+        required_improvement = self._improvement_delta
+        if self._improvement_percent:
+            required_improvement = abs(self._best_fitness) * self._improvement_percent / 100.0
+        if fitness < self._best_fitness - required_improvement:
             self._best_fitness = fitness
             self._last_improvement_generation = generation
         elif generation >= self._reheat_until and generation - self._last_improvement_generation >= self._stagnation_generations:

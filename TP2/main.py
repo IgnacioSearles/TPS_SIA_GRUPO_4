@@ -149,7 +149,11 @@ def build_mutation_schedule(args: argparse.Namespace):
         exponential,
         args.mutation_stagnation_generations,
         args.mutation_reheat_generations,
-        improvement_delta=args.mutation_improvement_delta,
+        improvement_delta=args.mutation_improvement_delta or 0.0,
+        improvement_percent=(
+            0.0 if args.mutation_improvement_delta is not None
+            else args.mutation_improvement_percent
+        ),
     )
 
 
@@ -264,8 +268,12 @@ def main() -> None:
         help="Duración del pulso agresivo de adaptive-reheat.",
     )
     parser.add_argument(
-        "--mutation-improvement-delta", type=float, default=1e-5,
-        help="Mejora mínima del fitness para reiniciar el contador de estancamiento.",
+        "--mutation-improvement-percent", type=float, default=0.25,
+        help="Mejora porcentual mínima del fitness para reiniciar el contador de estancamiento.",
+    )
+    parser.add_argument(
+        "--mutation-improvement-delta", type=float, default=None,
+        help="Umbral absoluto legado; si se indica, reemplaza al porcentual.",
     )
     parser.add_argument("--seed", type=int, default=None, help="Semilla para reproducir la ejecución.")
     parser.add_argument(
