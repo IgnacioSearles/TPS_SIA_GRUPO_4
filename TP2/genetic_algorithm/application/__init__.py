@@ -11,6 +11,7 @@ from .crossover import OnePointCrossover
 from .mutation import MultiGeneMutation
 from .selection import EliteSelection
 from .survival import AdditiveSurvival, ExclusiveSurvival
+from .termination import MaxGenerationsTermination, TargetFitnessTermination
 
 __all__ = ["AdditiveSurvival", "ExclusiveSurvival", "CrossoverStrategy", "CutPointSelector",
            "DefaultEvolutionResult", "DefaultEvolutionState", "DefaultScoredIndividual",
@@ -19,4 +20,4 @@ __all__ = ["AdditiveSurvival", "ExclusiveSurvival", "CrossoverStrategy", "CutPoi
            "MultiGeneMutation", "MutationStrategy", "OnePointCrossover",
            "OrchestratedGeneticAlgorithm", "ParentPair", "ParentPairingStrategy",
            "PopulationInitializer", "SelectionStrategy", "SurvivalStrategy",
-           "TerminationCondition"]
+           "TerminationCondition", "MaxGenerationsTermination", "TargetFitnessTermination"]
