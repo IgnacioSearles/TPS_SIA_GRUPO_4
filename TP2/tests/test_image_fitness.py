@@ -25,6 +25,11 @@ from triangle_image import (
     TriangleReplacementMutator,
     TriangleShapeMutator,
 )
+from triangle_image.mutation_schedule import (
+    AdaptiveReheatMutationSchedule,
+    ConstantMutationSchedule,
+    MutationParameters,
+)
 from triangle_image.rendering import render
 
 
@@ -132,3 +137,17 @@ class TriangleMutationTests(unittest.TestCase):
 
         self.assertNotEqual(initial, self.gene)
         self.assertEqual(final, self.gene)
+
+    def test_adaptive_reheat_ignores_improvements_below_delta(self) -> None:
+        base = ConstantMutationSchedule(MutationParameters(0.2, 1.0, 0.1))
+        schedule = AdaptiveReheatMutationSchedule(
+            base, stagnation_generations=2, reheat_generations=3, improvement_delta=0.1
+        )
+
+        schedule.observe_best(0, 1.0)
+        schedule.observe_best(1, 0.95)  # mejora real, pero menor que delta
+        schedule.observe_best(2, 0.94)  # dispara el recalentamiento
+
+        parameters = schedule.parameters_at(2)
+        self.assertEqual(parameters.probability, 0.4)
+        self.assertAlmostEqual(parameters.replacement_probability, 0.3)
