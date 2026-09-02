@@ -4,3 +4,7 @@ previews/
 *.jpg
 *.jpeg
 *.png
+.idea/
+__pycache__/
+*.py[cod]
+*.Zone.Identifier
