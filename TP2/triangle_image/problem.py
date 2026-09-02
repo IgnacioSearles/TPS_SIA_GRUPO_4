@@ -25,10 +25,16 @@ class TriangleConfiguration(EvolutionConfiguration):
     def selected_parent_count(self) -> int:
         return self._parent_count
 
+    @property
+    def data(self) -> object:
+        return self
+
 
 class TriangleContext(EvolutionContext):
     """Contexto de evolución vacío (no se usa info extra)."""
-    pass
+    @property
+    def data(self) -> object:
+        return self
 
 
 class TriangleProblem(GeneticProblem[TriangleIndividual, TriangleImageTarget, MSEFitness]):
