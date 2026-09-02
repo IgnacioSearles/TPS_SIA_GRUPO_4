@@ -41,15 +41,28 @@ class MultiGeneMutation[IndividualT: Individual[Any], GeneT](MutationStrategy[In
 class RandomGenePositionSelector(GenePositionSelector):
     """Elige posiciones aleatorias con base en una probabilidad de mutación por gen."""
     
-    def __init__(self, mutation_probability: float) -> None:
+    def __init__(
+        self,
+        mutation_probability: float,
+        final_probability: float | None = None,
+        decay_generations: int = 0,
+    ) -> None:
         if not 0.0 <= mutation_probability <= 1.0:
             raise ValueError("mutation_probability must be between 0.0 and 1.0")
+        if final_probability is not None and not 0.0 <= final_probability <= 1.0:
+            raise ValueError("final_probability must be between 0.0 and 1.0")
+        if decay_generations < 0:
+            raise ValueError("decay_generations must be non-negative")
         self._probability = mutation_probability
+        self._final_probability = mutation_probability if final_probability is None else final_probability
+        self._decay_generations = decay_generations
         
     def select_positions(self, genome_size: int, context: EvolutionContext) -> Collection[int]:
-        import random
+        generation = getattr(context, "generation", 0)
+        progress = min(generation / self._decay_generations, 1.0) if self._decay_generations else 0.0
+        probability = self._probability + progress * (self._final_probability - self._probability)
         positions = []
         for i in range(genome_size):
-            if random.random() < self._probability:
+            if context.random_generator.random() < probability:
                 positions.append(i)
         return tuple(positions)

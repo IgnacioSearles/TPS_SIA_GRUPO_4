@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import random
 from collections.abc import Collection
 from typing import Any
 
@@ -38,7 +37,7 @@ class RandomPairingStrategy[IndividualT: Individual[Any], FitnessT: Fitness[Any]
         context: EvolutionContext,
     ) -> Collection[ParentPair[IndividualT]]:
         pool = list(selected)
-        random.shuffle(pool)
+        context.random_generator.shuffle(pool)
         
         pairs = []
         # Agrupamos de a dos

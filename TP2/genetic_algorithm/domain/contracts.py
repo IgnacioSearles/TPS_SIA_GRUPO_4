@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Collection
+from random import Random
 from typing import Any
 
 
@@ -32,7 +33,11 @@ class ImageTarget[ImageValueT](ABC):
 
 
 class EvolutionContext(ABC):
-    """Datos compartidos por operadores, sin formato predefinido."""
+    """Datos y fuente aleatoria compartidos por los operadores de una ejecución."""
+    @property
+    @abstractmethod
+    def random_generator(self) -> Random:
+        """Generador pseudoaleatorio aislado de esta ejecución."""
     @property
     @abstractmethod
     def data(self) -> object:
@@ -99,7 +104,7 @@ class AlgorithmConfiguration(ABC):
 
 
 class EvolutionState[IndividualT: Individual[Any], FitnessT: Fitness[Any]](ABC):
-    """Instantánea observable de una ejecución evolutiva."""
+    """Instantánea observable con población ordenada de mejor a peor fitness."""
     @property
     @abstractmethod
     def generation(self) -> int:
@@ -107,7 +112,7 @@ class EvolutionState[IndividualT: Individual[Any], FitnessT: Fitness[Any]](ABC):
     @property
     @abstractmethod
     def population(self) -> Collection[ScoredIndividual[IndividualT, FitnessT]]:
-        """Población evaluada actual."""
+        """Población evaluada actual, cuyo primer elemento es el mejor."""
 
 
 class EvolutionResult[IndividualT: Individual[Any], FitnessT: Fitness[Any]](ABC):

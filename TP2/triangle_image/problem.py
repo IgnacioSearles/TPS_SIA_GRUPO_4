@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+from random import Random
 from typing import Any
+
+from PIL import Image
 
 from genetic_algorithm.domain.contracts import EvolutionContext, GeneticProblem, FitnessEvaluator
 from genetic_algorithm.application.contracts import EvolutionConfiguration
 from triangle_image.fitness import TriangleImageTarget, MSEFitness, MSEComparator
 from triangle_image.gene import TriangleIndividual
+from triangle_image.rendering import render
 
 
 class TriangleConfiguration(EvolutionConfiguration):
@@ -31,7 +35,47 @@ class TriangleConfiguration(EvolutionConfiguration):
 
 
 class TriangleContext(EvolutionContext):
-    """Contexto de evolución vacío (no se usa info extra)."""
+    """Contexto de evolución con una fuente aleatoria reproducible opcional."""
+
+    def __init__(self, seed: int | None = None) -> None:
+        self._random_generator = Random(seed)
+        self._generation = 0
+        self._render_cache: dict[tuple[TriangleIndividual, int, int], Image.Image] = {}
+        self._render_scope_active = False
+
+    @property
+    def random_generator(self) -> Random:
+        return self._random_generator
+
+    @property
+    def generation(self) -> int:
+        """Generación actual, actualizada por el orquestador antes de reproducir."""
+        return self._generation
+
+    def set_generation(self, generation: int) -> None:
+        self._generation = generation
+
+    def begin_render_scope(self) -> None:
+        """Inicia un cache efímero para los componentes de un fitness compuesto."""
+        self._render_cache.clear()
+        self._render_scope_active = True
+
+    def render_individual(
+        self, individual: TriangleIndividual, width: int, height: int
+    ) -> Image.Image:
+        """Devuelve el fenotipo actual, reutilizándolo solo durante el scope activo."""
+        if not self._render_scope_active:
+            return render(individual, width, height)
+        key = (individual, width, height)
+        if key not in self._render_cache:
+            self._render_cache[key] = render(individual, width, height)
+        return self._render_cache[key]
+
+    def end_render_scope(self) -> None:
+        """Evicta todos los renders al terminar de evaluar un individuo."""
+        self._render_cache.clear()
+        self._render_scope_active = False
+
     @property
     def data(self) -> object:
         return self

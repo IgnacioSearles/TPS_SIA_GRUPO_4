@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 from collections.abc import Collection
+from functools import cmp_to_key
 from typing import Any
 
 from genetic_algorithm.application.contracts import (
     CrossoverStrategy,
     EvolutionConfiguration,
+    EvolutionObserver,
     GeneticAlgorithm,
     MutationStrategy,
     ParentPairingStrategy,
@@ -49,7 +51,7 @@ class DefaultScoredIndividual[IndividualT: Individual[Any], FitnessT: Fitness[An
 class DefaultEvolutionState[IndividualT: Individual[Any], FitnessT: Fitness[Any]](
     EvolutionState[IndividualT, FitnessT]
 ):
-    """Estado inmutable de una generación evaluada."""
+    """Estado inmutable de una generación evaluada y ordenada por fitness."""
 
     def __init__(self, generation: int,
                  population: Collection[ScoredIndividual[IndividualT, FitnessT]]) -> None:
@@ -78,6 +80,21 @@ class DefaultEvolutionResult[IndividualT: Individual[Any], FitnessT: Fitness[Any
         return self._final_state
 
 
+class CompositeEvolutionObserver[IndividualT: Individual[Any], FitnessT: Fitness[Any]](
+    EvolutionObserver[IndividualT, FitnessT]
+):
+    """Reenvía cada estado a varios observadores independientes."""
+
+    def __init__(self, observers: Collection[EvolutionObserver[IndividualT, FitnessT]]) -> None:
+        self._observers = tuple(observers)
+
+    def on_generation(
+        self, state: EvolutionState[IndividualT, FitnessT], context: EvolutionContext
+    ) -> None:
+        for observer in self._observers:
+            observer.on_generation(state, context)
+
+
 class OrchestratedGeneticAlgorithm[
     IndividualT: Individual[Any],
     TargetT: ImageTarget[Any],
@@ -100,6 +117,7 @@ class OrchestratedGeneticAlgorithm[
         survival: SurvivalStrategy[IndividualT, FitnessT],
         termination: TerminationCondition[IndividualT, FitnessT],
         context: EvolutionContext,
+        observer: EvolutionObserver[IndividualT, FitnessT] | None = None,
     ) -> None:
         self._initializer = initializer
         self._selection = selection
@@ -109,6 +127,7 @@ class OrchestratedGeneticAlgorithm[
         self._survival = survival
         self._termination = termination
         self._context = context
+        self._observer = observer
 
     def run(
         self,
@@ -120,6 +139,8 @@ class OrchestratedGeneticAlgorithm[
             configuration.population_size, self._context
         )
         state = self._create_state(problem, 0, initial_population)
+        self._set_context_generation(state.generation)
+        self._notify_observer(state)
 
         while not self._termination.should_stop(state, self._context):
             selected = self._selection.select(
@@ -142,9 +163,24 @@ class OrchestratedGeneticAlgorithm[
                 configuration.population_size,
                 self._context,
             )
-            state = DefaultEvolutionState(state.generation + 1, next_population)
+            state = DefaultEvolutionState(
+                state.generation + 1,
+                self._order_by_fitness(next_population, problem),
+            )
+            self._set_context_generation(state.generation)
+            self._notify_observer(state)
 
         return DefaultEvolutionResult(state)
+
+    def _notify_observer(self, state: EvolutionState[IndividualT, FitnessT]) -> None:
+        if self._observer is not None:
+            self._observer.on_generation(state, self._context)
+
+    def _set_context_generation(self, generation: int) -> None:
+        """Actualiza contextos que optan por adaptar operadores según la generación."""
+        set_generation = getattr(self._context, "set_generation", None)
+        if callable(set_generation):
+            set_generation(generation)
 
     def _create_state(
         self,
@@ -152,7 +188,30 @@ class OrchestratedGeneticAlgorithm[
         generation: int,
         population: Collection[IndividualT],
     ) -> EvolutionState[IndividualT, FitnessT]:
-        return DefaultEvolutionState(generation, self._evaluate(problem, population))
+        return DefaultEvolutionState(
+            generation,
+            self._order_by_fitness(self._evaluate(problem, population), problem),
+        )
+
+    def _order_by_fitness(
+        self,
+        population: Collection[ScoredIndividual[IndividualT, FitnessT]],
+        problem: GeneticProblem[IndividualT, TargetT, FitnessT],
+    ) -> tuple[ScoredIndividual[IndividualT, FitnessT], ...]:
+        """Normaliza el orden observable del estado sin imponerlo a las estrategias."""
+        comparator = problem.fitness_comparator
+
+        def compare(
+            left: ScoredIndividual[IndividualT, FitnessT],
+            right: ScoredIndividual[IndividualT, FitnessT],
+        ) -> int:
+            if comparator.is_better(left.fitness, right.fitness):
+                return -1
+            if comparator.is_better(right.fitness, left.fitness):
+                return 1
+            return 0
+
+        return tuple(sorted(population, key=cmp_to_key(compare)))
 
     def _evaluate(
         self,
