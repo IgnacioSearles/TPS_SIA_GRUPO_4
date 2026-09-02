@@ -250,7 +250,7 @@ class StrategyImplementationTests(unittest.TestCase):
         )
         comparator = RankedComparator()
         elite = EliteSelection(comparator).select(population, 2, self.context)
-        survivors = AdditiveSurvival(comparator).build_next_generation(
+        survivors = AdditiveSurvival(EliteSelection(comparator)).build_next_generation(
             population[:1], population[1:], 2, self.context
         )
 

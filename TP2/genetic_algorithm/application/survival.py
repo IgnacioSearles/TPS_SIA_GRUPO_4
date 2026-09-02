@@ -6,9 +6,7 @@ from collections.abc import Collection
 from typing import Any
 
 from genetic_algorithm.application.contracts import SelectionStrategy, SurvivalStrategy
-from genetic_algorithm.application.selection import EliteSelection
-from genetic_algorithm.domain.contracts import (EvolutionContext, Fitness,
-                                                 FitnessComparator, Individual,
+from genetic_algorithm.domain.contracts import (EvolutionContext, Fitness, Individual,
                                                  ScoredIndividual)
 
 
@@ -17,10 +15,8 @@ class AdditiveSurvival[IndividualT: Individual[Any], FitnessT: Fitness[Any]](
 ):
     """Combina padres y descendencia; sobreviven los mejores del conjunto."""
 
-    def __init__(self, fitness_comparator: FitnessComparator[FitnessT]) -> None:
-        self._elite_selection: SelectionStrategy[IndividualT, FitnessT] = EliteSelection(
-            fitness_comparator
-        )
+    def __init__(self, selection_strategy: SelectionStrategy[IndividualT, FitnessT]) -> None:
+        self._selection_strategy = selection_strategy
 
     def build_next_generation(
         self,
@@ -35,7 +31,7 @@ class AdditiveSurvival[IndividualT: Individual[Any], FitnessT: Fitness[Any]](
         candidates = tuple(current_population) + tuple(offspring)
         if population_size > len(candidates):
             raise ValueError("not enough candidates to fill the next generation")
-        return self._elite_selection.select(candidates, population_size, context)
+        return self._selection_strategy.select(candidates, population_size, context)
 
 
 class ExclusiveSurvival[IndividualT: Individual[Any], FitnessT: Fitness[Any]](
@@ -43,10 +39,8 @@ class ExclusiveSurvival[IndividualT: Individual[Any], FitnessT: Fitness[Any]](
 ):
     """Considera solo descendencia; si no alcanza, completa con los mejores padres."""
 
-    def __init__(self, fitness_comparator: FitnessComparator[FitnessT]) -> None:
-        self._elite_selection: SelectionStrategy[IndividualT, FitnessT] = EliteSelection(
-            fitness_comparator
-        )
+    def __init__(self, selection_strategy: SelectionStrategy[IndividualT, FitnessT]) -> None:
+        self._selection_strategy = selection_strategy
 
     def build_next_generation(
         self,
@@ -61,13 +55,13 @@ class ExclusiveSurvival[IndividualT: Individual[Any], FitnessT: Fitness[Any]](
             
         candidates = tuple(offspring)
         if len(candidates) >= population_size:
-            return self._elite_selection.select(candidates, population_size, context)
+            return self._selection_strategy.select(candidates, population_size, context)
             
         needed = population_size - len(candidates)
         if needed > len(current_population):
             raise ValueError("not enough candidates to fill the next generation")
             
-        best_parents = self._elite_selection.select(
+        best_parents = self._selection_strategy.select(
             current_population, needed, context
         )
         return candidates + tuple(best_parents)
