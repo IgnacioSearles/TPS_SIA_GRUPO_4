@@ -98,6 +98,10 @@ class AdaptiveReheatMutationSchedule(TriangleMutationSchedule):
             raise ValueError("improvement_delta must be non-negative")
         if improvement_percent < 0:
             raise ValueError("improvement_percent must be non-negative")
+        if any(multiplier <= 0 for multiplier in (
+            probability_multiplier, strength_multiplier, replacement_multiplier
+        )):
+            raise ValueError("reheat multipliers must be positive")
         self._base = base
         self._stagnation_generations = stagnation_generations
         self._reheat_generations = reheat_generations

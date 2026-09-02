@@ -149,6 +149,9 @@ def build_mutation_schedule(args: argparse.Namespace):
         exponential,
         args.mutation_stagnation_generations,
         args.mutation_reheat_generations,
+        probability_multiplier=args.mutation_reheat_probability_multiplier,
+        strength_multiplier=args.mutation_reheat_strength_multiplier,
+        replacement_multiplier=args.mutation_reheat_replacement_multiplier,
         improvement_delta=args.mutation_improvement_delta or 0.0,
         improvement_percent=(
             0.0 if args.mutation_improvement_delta is not None
@@ -260,7 +263,7 @@ def main() -> None:
         help="Duración lineal o constante de tiempo exponencial; no aplica a constant.",
     )
     parser.add_argument(
-        "--mutation-stagnation-generations", type=int, default=100,
+        "--mutation-stagnation-generations", type=int, default=75,
         help="Generaciones sin mejora antes de recalentar adaptive-reheat.",
     )
     parser.add_argument(
@@ -268,12 +271,24 @@ def main() -> None:
         help="Duración del pulso agresivo de adaptive-reheat.",
     )
     parser.add_argument(
-        "--mutation-improvement-percent", type=float, default=0.25,
+        "--mutation-improvement-percent", type=float, default=0.5,
         help="Mejora porcentual mínima del fitness para reiniciar el contador de estancamiento.",
     )
     parser.add_argument(
         "--mutation-improvement-delta", type=float, default=None,
         help="Umbral absoluto legado; si se indica, reemplaza al porcentual.",
+    )
+    parser.add_argument(
+        "--mutation-reheat-probability-multiplier", type=float, default=2.5,
+        help="Multiplicador de probabilidad de mutación durante adaptive-reheat.",
+    )
+    parser.add_argument(
+        "--mutation-reheat-strength-multiplier", type=float, default=2.5,
+        help="Multiplicador de fuerza durante adaptive-reheat.",
+    )
+    parser.add_argument(
+        "--mutation-reheat-replacement-multiplier", type=float, default=6.0,
+        help="Multiplicador de reemplazo total durante adaptive-reheat.",
     )
     parser.add_argument("--seed", type=int, default=None, help="Semilla para reproducir la ejecución.")
     parser.add_argument(
