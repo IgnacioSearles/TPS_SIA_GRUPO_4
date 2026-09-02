@@ -29,8 +29,8 @@ class EliteSelection[IndividualT: Individual[Any], FitnessT: Fitness[Any]](
         """Devuelve los ``amount`` mejores individuos de la población."""
         if amount < 0:
             raise ValueError("amount must be non-negative")
-        if amount > len(population):
-            raise ValueError("amount cannot exceed population size")
+        if not population and amount > 0:
+            raise ValueError("cannot select from an empty population")
 
         def compare(
             left: ScoredIndividual[IndividualT, FitnessT],
@@ -42,4 +42,5 @@ class EliteSelection[IndividualT: Individual[Any], FitnessT: Fitness[Any]](
                 return 1
             return 0
 
-        return tuple(sorted(population, key=cmp_to_key(compare))[:amount])
+        sorted_pop = sorted(population, key=cmp_to_key(compare))
+        return tuple(sorted_pop[i % len(sorted_pop)] for i in range(amount))
