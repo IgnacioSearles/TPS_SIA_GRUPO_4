@@ -6,7 +6,7 @@ from typing import Any
 
 from genetic_algorithm.domain.contracts import EvolutionContext, GeneticProblem, FitnessEvaluator
 from genetic_algorithm.application.contracts import EvolutionConfiguration
-from triangle_image.fitness import TriangleImageTarget, MSEFitness
+from triangle_image.fitness import TriangleImageTarget, MSEFitness, MSEComparator
 from triangle_image.gene import TriangleIndividual
 
 
@@ -38,9 +38,11 @@ class TriangleProblem(GeneticProblem[TriangleIndividual, TriangleImageTarget, MS
         self,
         target: TriangleImageTarget,
         fitness_evaluator: FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MSEFitness],
+        fitness_comparator: MSEComparator,
     ) -> None:
         self._target = target
         self._fitness_evaluator = fitness_evaluator
+        self._fitness_comparator = fitness_comparator
 
     @property
     def target(self) -> TriangleImageTarget:
@@ -49,3 +51,7 @@ class TriangleProblem(GeneticProblem[TriangleIndividual, TriangleImageTarget, MS
     @property
     def fitness_evaluator(self) -> FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MSEFitness]:
         return self._fitness_evaluator
+
+    @property
+    def fitness_comparator(self) -> MSEComparator:
+        return self._fitness_comparator

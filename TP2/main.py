@@ -47,11 +47,11 @@ def main() -> None:
     target = TriangleImageTarget(original)
 
     # Configuración de problema
-    problem = TriangleProblem(target, MSEEvaluator())
+    comparator = MSEComparator()
+    problem = TriangleProblem(target, MSEEvaluator(), comparator)
     config = TriangleConfiguration(args.pop_size, args.parents)
     context = TriangleContext()
     codec = TriangleCodec()
-    comparator = MSEComparator()
 
     # Operadores
     initializer = RandomTriangleInitializer(args.triangles, target.width, target.height)
