@@ -9,7 +9,7 @@ Point = tuple[float, float]
 
 
 @dataclass(frozen=True, slots=True)
-class Triangle:
+class TriangleGene:
     center_x: float
     center_y: float
     size: float
@@ -56,11 +56,11 @@ class Triangle:
         )
 
 
-class TriangleIndividual(Individual[Triangle]):
+class TriangleIndividual(Individual[TriangleGene]):
 
-    def __init__(self, triangles: tuple[Triangle, ...]) -> None:
+    def __init__(self, triangles: tuple[TriangleGene, ...]) -> None:
         self._triangles = triangles
 
     @property
-    def genome(self) -> tuple[Triangle, ...]:
+    def genome(self) -> tuple[TriangleGene, ...]:
         return self._triangles

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from PIL import Image, ImageDraw
 
-from triangle_image.genome import Triangle, TriangleIndividual
+from triangle_image.gene import TriangleGene, TriangleIndividual
 
 Color = tuple[int, int, int]
 
@@ -21,7 +21,7 @@ def render(
     return canvas.convert("RGB")
 
 
-def _draw_triangle(canvas: Image.Image, triangle: Triangle) -> Image.Image:
+def _draw_triangle(canvas: Image.Image, triangle: TriangleGene) -> Image.Image:
     overlay = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
     draw = ImageDraw.Draw(overlay)
     alpha = round(triangle.alpha * 255)

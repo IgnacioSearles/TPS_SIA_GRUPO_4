@@ -1,5 +1,5 @@
 """Implementación concreta del TP2: aproximación de imágenes con triángulos."""
 
-from .genome import Triangle, TriangleIndividual
+from .gene import TriangleGene, TriangleIndividual
 
-__all__ = ["Triangle", "TriangleIndividual"]
+__all__ = ["TriangleGene", "TriangleIndividual"]
