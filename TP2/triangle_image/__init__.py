@@ -2,5 +2,7 @@
 
 from .gene import TriangleGene, TriangleIndividual
 from .codec import TriangleCodec
+from .initializer import RandomTriangleInitializer
 
-__all__ = ["TriangleCodec", "TriangleGene", "TriangleIndividual"]
+__all__ = ["RandomTriangleInitializer", "TriangleCodec", "TriangleGene", "TriangleIndividual"]
+
