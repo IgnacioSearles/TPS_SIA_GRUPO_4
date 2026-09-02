@@ -64,6 +64,22 @@ class CutPointSelector(ABC):
         """Devuelve un punto de corte válido para el genoma."""
 
 
+class TwoCutPointSelector(ABC):
+    """Elige dos puntos internos para una cruza de dos puntos."""
+
+    @abstractmethod
+    def select_cut_points(self, genome_size: int, context: EvolutionContext) -> tuple[int, int]:
+        """Devuelve dos puntos distintos y ordenados."""
+
+
+class RingCutPointSelector(ABC):
+    """Elige inicio y fin para un segmento de un genoma circular."""
+
+    @abstractmethod
+    def select_ring_cut_points(self, genome_size: int, context: EvolutionContext) -> tuple[int, int]:
+        """Devuelve dos posiciones distintas en el anillo."""
+
+
 class GenePositionSelector(ABC):
     """Elige las posiciones a alterar durante una mutación MultiGen."""
     @abstractmethod
@@ -111,6 +127,16 @@ class TerminationCondition[IndividualT: Individual[Any], FitnessT: Fitness[Any]]
     def should_stop(self, state: EvolutionState[IndividualT, FitnessT],
                     context: EvolutionContext) -> bool:
         """Indica si no se debe generar otra población."""
+
+
+class EvolutionObserver[IndividualT: Individual[Any], FitnessT: Fitness[Any]](ABC):
+    """Recibe estados evaluados para informar o registrar una ejecución."""
+
+    @abstractmethod
+    def on_generation(
+        self, state: EvolutionState[IndividualT, FitnessT], context: EvolutionContext
+    ) -> None:
+        """Procesa el estado inicial o el estado resultante de una generación."""
 
 
 class EvolutionConfiguration(AlgorithmConfiguration, ABC):

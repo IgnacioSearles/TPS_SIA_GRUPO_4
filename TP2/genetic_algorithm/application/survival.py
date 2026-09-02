@@ -62,7 +62,7 @@ class AdditiveSurvival[IndividualT: Individual[Any], FitnessT: Fitness[Any]](
 class ExclusiveSurvival[IndividualT: Individual[Any], FitnessT: Fitness[Any]](
     SurvivalStrategy[IndividualT, FitnessT]
 ):
-    """Considera solo descendencia; si no alcanza, completa con los mejores padres."""
+    """Construye la generación exclusivamente con la mejor descendencia."""
 
     def __init__(self, fitness_comparator: FitnessComparator[FitnessT]) -> None:
         self._fitness_comparator = fitness_comparator
@@ -74,17 +74,11 @@ class ExclusiveSurvival[IndividualT: Individual[Any], FitnessT: Fitness[Any]](
         population_size: int,
         context: EvolutionContext,
     ) -> Collection[ScoredIndividual[IndividualT, FitnessT]]:
-        """Aplica supervivencia exclusiva priorizando a la descendencia."""
+        """Aplica supervivencia exclusiva sin conservar individuos progenitores."""
         if population_size < 0:
             raise ValueError("population_size must be non-negative")
             
         candidates = tuple(offspring)
-        if len(candidates) >= population_size:
-            return _take_best(candidates, population_size, self._fitness_comparator)
-            
-        needed = population_size - len(candidates)
-        if needed > len(current_population):
-            raise ValueError("not enough candidates to fill the next generation")
-            
-        best_parents = _take_best(current_population, needed, self._fitness_comparator)
-        return candidates + best_parents
+        if len(candidates) < population_size:
+            raise ValueError("exclusive survival requires at least population_size offspring")
+        return _take_best(candidates, population_size, self._fitness_comparator)
