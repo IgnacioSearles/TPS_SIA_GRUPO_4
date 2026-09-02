@@ -16,7 +16,22 @@ from triangle_image.rendering import render
 class TriangleImageTarget(ImageTarget[np.ndarray]):
     """Imagen objetivo almacenada como array de numpy para cálculos rápidos."""
 
-    def __init__(self, image: Image.Image) -> None:
+    def __init__(self, image: Image.Image, max_size: int | None = None) -> None:
+        self._orig_width, self._orig_height = image.size
+        self._scale_factor = 1.0
+
+        if max_size is not None and max(self._orig_width, self._orig_height) > max_size:
+            self._scale_factor = max_size / float(max(self._orig_width, self._orig_height))
+            new_width = int(self._orig_width * self._scale_factor)
+            new_height = int(self._orig_height * self._scale_factor)
+            
+            try:
+                resample_filter = Image.Resampling.LANCZOS
+            except AttributeError:
+                resample_filter = Image.LANCZOS
+                
+            image = image.resize((new_width, new_height), resample_filter)
+
         self._width, self._height = image.size
         # Usamos int16 para evitar overflow al restar píxeles
         self._image_array = np.array(image.convert("RGB"), dtype=np.int16)
@@ -32,6 +47,18 @@ class TriangleImageTarget(ImageTarget[np.ndarray]):
     @property
     def height(self) -> int:
         return self._height
+
+    @property
+    def orig_width(self) -> int:
+        return self._orig_width
+
+    @property
+    def orig_height(self) -> int:
+        return self._orig_height
+
+    @property
+    def scale_factor(self) -> float:
+        return self._scale_factor
 
 
 class MSEFitness(Fitness[float]):

@@ -55,6 +55,18 @@ class TriangleGene:
             self.center_y + self.size * math.sin(angle),
         )
 
+    def scale(self, factor: float) -> TriangleGene:
+        """Devuelve un nuevo genoma escalado espacialmente."""
+        if factor == 1.0:
+            return self
+        import dataclasses
+        return dataclasses.replace(
+            self,
+            center_x=self.center_x * factor,
+            center_y=self.center_y * factor,
+            size=self.size * factor
+        )
+
 
 class TriangleIndividual(Individual[TriangleGene]):
     def __init__(self, triangles: tuple[TriangleGene, ...]) -> None:
@@ -63,3 +75,9 @@ class TriangleIndividual(Individual[TriangleGene]):
     @property
     def genome(self) -> tuple[TriangleGene, ...]:
         return self._triangles
+
+    def scale(self, factor: float) -> TriangleIndividual:
+        """Devuelve un nuevo individuo con sus triángulos escalados."""
+        if factor == 1.0:
+            return self
+        return TriangleIndividual(tuple(t.scale(factor) for t in self._triangles))
