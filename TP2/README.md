@@ -1,8 +1,8 @@
-# TP2 — Motor de Algoritmos Genéticos
+# TP2 — Aproximación de imágenes con algoritmos genéticos
 
-Esta entrega contiene solamente la arquitectura extensible del ejercicio 2. No
-incluye estrategias concretas ni representa todavía triángulos, colores, imágenes
-o valores de fitness.
+El proyecto contiene un motor genérico de algoritmos genéticos y una
+implementación concreta que aproxima una imagen mediante triángulos
+semitransparentes.
 
 ## Capas
 
@@ -33,6 +33,26 @@ mutación concreta.
 `OrchestratedGeneticAlgorithm` ya ofrece ese ciclo genérico. Para usarlo se le
 inyectan las estrategias, un `EvolutionContext` y una configuración que implemente
 `EvolutionConfiguration` (`population_size` y `selected_parent_count`).
+
+## Fitness
+
+Además del MSE global, se pueden usar métricas regionales, SSIM, blur,
+multiescala, histograma y bordes Sobel (`edge`). También están disponibles
+`gradient` (magnitud y orientación de contornos), `chamfer` (distancia tolerante
+a pequeños desplazamientos entre bordes) y `saliency` (MSE que pondera más las
+zonas de alto contraste del objetivo). `--edge-sigma` controla el suavizado
+previo a Sobel.
+
+Se pueden combinar métricas con pesos relativos mediante `--fitness combo`; cada
+una se normaliza antes de ponderarse. Por ejemplo:
+
+```bash
+python main.py --image objetivo.png --fitness combo \\
+  --combo "mse:0.25,gradient:0.25,chamfer:0.25,saliency:0.25" --seed 42
+```
+
+Los pesos deben ser finitos y no negativos; el programa los renormaliza para que
+sumen 1. Con `--seed` se puede repetir exactamente la misma ejecución.
 
 ## Pruebas
 

@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import unittest
+from random import Random
 
-from genetic_algorithm.application import (CrossoverStrategy, GeneticAlgorithm,
+from genetic_algorithm.application import (AnnularCrossover, CrossoverStrategy, GeneticAlgorithm,
     AdditiveSurvival, CutPointSelector, DefaultScoredIndividual,
-    EvolutionConfiguration, GeneMutator, GenePositionSelector, GenomeCodec,
+    EvolutionConfiguration, EvolutionObserver, GeneMutator, GenePositionSelector, GenomeCodec,
     MutationStrategy, OnePointCrossover, OrchestratedGeneticAlgorithm, ParentPair,
     ParentPairingStrategy, PopulationInitializer, SelectionStrategy, SurvivalStrategy,
-    TerminationCondition, EliteSelection, MultiGeneMutation)
+    TerminationCondition, EliteSelection, ExclusiveSurvival, MultiGeneMutation,
+    RandomPairingStrategy, RingCutPointSelector, TwoCutPointSelector, TwoPointCrossover,
+    UniformCrossover)
 from genetic_algorithm.domain import (AlgorithmConfiguration, EvolutionContext,
     EvolutionResult, EvolutionState, Fitness, FitnessComparator, FitnessEvaluator,
     GeneticProblem, ImageTarget, Individual, ScoredIndividual)
@@ -28,7 +31,8 @@ class ContractAbstractnessTests(unittest.TestCase):
     def test_application_contracts_cannot_be_instantiated(self) -> None:
         for contract in (SelectionStrategy, ParentPair, ParentPairingStrategy,
                          PopulationInitializer, SurvivalStrategy, CrossoverStrategy,
-                         MutationStrategy, TerminationCondition, GeneticAlgorithm):
+                         MutationStrategy, TerminationCondition, GeneticAlgorithm,
+                         EvolutionObserver, TwoCutPointSelector, RingCutPointSelector):
             with self.subTest(contract=contract.__name__):
                 with self.assertRaises(TypeError):
                     contract()
@@ -53,6 +57,13 @@ class ConcreteTarget(ImageTarget[bytes]):
 
 
 class ConcreteContext(EvolutionContext):
+    def __init__(self, seed: int = 0) -> None:
+        self._random_generator = Random(seed)
+
+    @property
+    def random_generator(self) -> Random:
+        return self._random_generator
+
     @property
     def data(self) -> object:
         return {"generation": 0}
@@ -199,6 +210,16 @@ class FixedCutPoint(CutPointSelector):
         return 2
 
 
+class FixedTwoCutPoints(TwoCutPointSelector):
+    def select_cut_points(self, genome_size: int, context: EvolutionContext) -> tuple[int, int]:
+        return 1, 4
+
+
+class FixedRingCutPoints(RingCutPointSelector):
+    def select_ring_cut_points(self, genome_size: int, context: EvolutionContext) -> tuple[int, int]:
+        return 3, 1
+
+
 class FixedPositions(GenePositionSelector):
     def select_positions(self, genome_size: int, context: EvolutionContext) -> tuple[int, ...]:
         return (0, 2)
@@ -238,6 +259,39 @@ class StrategyImplementationTests(unittest.TestCase):
             ("a", "b", "3", "4"), ("1", "2", "c", "d"),
         ])
 
+    def test_two_point_crossover_swaps_only_the_inner_segment(self) -> None:
+        crossover = TwoPointCrossover(TupleGenomeCodec(), FixedTwoCutPoints())
+        children = crossover.cross(
+            GeneIndividual(("a", "b", "c", "d", "e")),
+            GeneIndividual(("1", "2", "3", "4", "5")),
+            self.context,
+        )
+        self.assertEqual([child.genes for child in children], [
+            ("a", "2", "3", "4", "e"), ("1", "b", "c", "d", "5"),
+        ])
+
+    def test_uniform_crossover_can_swap_every_gene(self) -> None:
+        crossover = UniformCrossover(TupleGenomeCodec(), swap_probability=1.0)
+        children = crossover.cross(
+            GeneIndividual(("a", "b", "c")),
+            GeneIndividual(("1", "2", "3")),
+            self.context,
+        )
+        self.assertEqual([child.genes for child in children], [
+            ("1", "2", "3"), ("a", "b", "c"),
+        ])
+
+    def test_annular_crossover_swaps_a_segment_that_wraps_the_genome_end(self) -> None:
+        crossover = AnnularCrossover(TupleGenomeCodec(), FixedRingCutPoints())
+        children = crossover.cross(
+            GeneIndividual(("a", "b", "c", "d", "e")),
+            GeneIndividual(("1", "2", "3", "4", "5")),
+            self.context,
+        )
+        self.assertEqual([child.genes for child in children], [
+            ("1", "b", "c", "4", "5"), ("a", "2", "3", "d", "e"),
+        ])
+
     def test_multi_gene_mutation_uses_injected_positions_and_gene_mutator(self) -> None:
         mutation = MultiGeneMutation(TupleGenomeCodec(), FixedPositions(), MarkGeneMutator())
         mutated = mutation.mutate(GeneIndividual(("a", "b", "c")), self.context)
@@ -256,3 +310,33 @@ class StrategyImplementationTests(unittest.TestCase):
 
         self.assertEqual([candidate.fitness.value for candidate in elite], [3, 2])
         self.assertEqual([candidate.fitness.value for candidate in survivors], [3, 2])
+
+    def test_exclusive_survival_uses_only_ranked_offspring(self) -> None:
+        population = tuple(
+            DefaultScoredIndividual(GeneIndividual((str(score),)), RankedFitness(score))
+            for score in (3, 2)
+        )
+        offspring = tuple(
+            DefaultScoredIndividual(GeneIndividual((str(score),)), RankedFitness(score))
+            for score in (1, 4, 2)
+        )
+
+        survivors = ExclusiveSurvival(RankedComparator()).build_next_generation(
+            population, offspring, 2, self.context
+        )
+
+        self.assertEqual([candidate.fitness.value for candidate in survivors], [4, 2])
+
+    def test_random_pairing_is_reproducible_with_the_context_seed(self) -> None:
+        population = tuple(
+            DefaultScoredIndividual(GeneIndividual((str(score),)), RankedFitness(score))
+            for score in range(6)
+        )
+        pairing = RandomPairingStrategy[GeneIndividual, RankedFitness]()
+
+        first = pairing.pair(population, ConcreteContext(seed=42))
+        second = pairing.pair(population, ConcreteContext(seed=42))
+
+        first_pairs = [(pair.first_parent.genes, pair.second_parent.genes) for pair in first]
+        second_pairs = [(pair.first_parent.genes, pair.second_parent.genes) for pair in second]
+        self.assertEqual(first_pairs, second_pairs)
