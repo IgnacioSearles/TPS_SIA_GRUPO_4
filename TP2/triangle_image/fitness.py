@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import math
 from typing import Any
 import numpy as np
 from PIL import Image
-from scipy.ndimage import gaussian_filter, uniform_filter
+from scipy.ndimage import distance_transform_edt, gaussian_filter, sobel, uniform_filter
 
 from genetic_algorithm.domain.contracts import (EvolutionContext, Fitness,
                                                  FitnessComparator, FitnessEvaluator,
@@ -80,6 +81,18 @@ class MSEComparator(FitnessComparator[MSEFitness]):
         return left.value < right.value
 
 
+def _render_individual(
+    individual: TriangleIndividual,
+    target: TriangleImageTarget,
+    context: EvolutionContext,
+) -> Image.Image:
+    """Renderiza usando el cache efímero del contexto, si está disponible."""
+    cached_renderer = getattr(context, "render_individual", None)
+    if callable(cached_renderer):
+        return cached_renderer(individual, target.width, target.height)
+    return render(individual, target.width, target.height)
+
+
 class MSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MSEFitness]):
     """Evalúa renderizando los triángulos y calculando el MSE con numpy."""
 
@@ -90,7 +103,7 @@ class MSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MSE
         context: EvolutionContext,
     ) -> MSEFitness:
         # Renderizamos el fenotipo (la imagen)
-        rendered_image = render(individual, target.width, target.height)
+        rendered_image = _render_individual(individual, target, context)
 
         # Al restar int16, la diferencia está entre -255 y 255.
         # Pero al elevar al cuadrado (hasta 65025), excede el límite de int16 (32767),
@@ -159,7 +172,7 @@ class RegionalMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTar
         self._prepare(target)
         assert self._weights is not None
 
-        rendered_image = render(individual, target.width, target.height)
+        rendered_image = _render_individual(individual, target, context)
         target_arr = target.image.astype(np.float32)
         rendered_arr = np.array(rendered_image, dtype=np.float32)
         diff_sq = np.square(target_arr - rendered_arr)
@@ -231,7 +244,7 @@ class SSIMEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MS
         target: TriangleImageTarget,
         context: EvolutionContext,
     ) -> MSEFitness:
-        rendered_image = render(individual, target.width, target.height)
+        rendered_image = _render_individual(individual, target, context)
         target_arr = target.image.astype(np.float64)
         rendered_arr = np.array(rendered_image, dtype=np.float64)
 
@@ -295,12 +308,222 @@ class BlurredMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarg
         self._prepare(target)
         assert self._blurred_target is not None
 
-        rendered_image = render(individual, target.width, target.height)
+        rendered_image = _render_individual(individual, target, context)
         rendered_arr = np.array(rendered_image, dtype=np.float32)
         blurred_rendered = self._blur(rendered_arr)
 
         mse = np.mean(np.square(self._blurred_target - blurred_rendered))
         return MSEFitness(float(mse))
+
+
+class EdgeMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MSEFitness]):
+    """MSE entre mapas de bordes Sobel en escala de grises.
+
+    Prioriza que los límites de las formas estén en la misma posición que en la
+    imagen objetivo. Opcionalmente suaviza antes de detectar bordes para reducir
+    el efecto de píxeles aislados y ruido de alta frecuencia.
+    """
+
+    def __init__(self, blur_sigma: float = 1.0) -> None:
+        if blur_sigma < 0:
+            raise ValueError("blur_sigma debe ser no negativo")
+        self._blur_sigma = blur_sigma
+        self._cached_target: TriangleImageTarget | None = None
+        self._target_edges: np.ndarray | None = None
+
+    def _edge_map(self, image_arr: np.ndarray) -> np.ndarray:
+        # Rec. 709: convierte RGB a luminancia sin mezclar las derivadas por canal.
+        grayscale = np.dot(image_arr[..., :3], (0.2126, 0.7152, 0.0722))
+        if self._blur_sigma > 0:
+            grayscale = gaussian_filter(grayscale, sigma=self._blur_sigma)
+
+        gradient_x = sobel(grayscale, axis=1, mode="reflect")
+        gradient_y = sobel(grayscale, axis=0, mode="reflect")
+        # Sobel tiene ganancia máxima de 4 por eje. Se normaliza y recorta para
+        # mantener el mapa de bordes en [0, 255], igual que una imagen monocanal.
+        return np.clip(np.hypot(gradient_x, gradient_y) / 4.0, 0.0, 255.0)
+
+    def _prepare(self, target: TriangleImageTarget) -> None:
+        if self._cached_target is target:
+            return
+        self._target_edges = self._edge_map(target.image.astype(np.float32))
+        self._cached_target = target
+
+    def evaluate(
+        self,
+        individual: TriangleIndividual,
+        target: TriangleImageTarget,
+        context: EvolutionContext,
+    ) -> MSEFitness:
+        self._prepare(target)
+        assert self._target_edges is not None
+
+        rendered_image = _render_individual(individual, target, context)
+        rendered_edges = self._edge_map(np.array(rendered_image, dtype=np.float32))
+        return MSEFitness(float(np.mean(np.square(self._target_edges - rendered_edges))))
+
+
+def _luminance(image_arr: np.ndarray) -> np.ndarray:
+    """Convierte RGB a luminancia Rec. 709."""
+    return np.dot(image_arr[..., :3], (0.2126, 0.7152, 0.0722))
+
+
+def _sobel_gradient(image_arr: np.ndarray, blur_sigma: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Devuelve derivadas Sobel y su magnitud, normalizada a un máximo de 255."""
+    grayscale = _luminance(image_arr)
+    if blur_sigma > 0:
+        grayscale = gaussian_filter(grayscale, sigma=blur_sigma)
+    gradient_x = sobel(grayscale, axis=1, mode="reflect")
+    gradient_y = sobel(grayscale, axis=0, mode="reflect")
+    magnitude = np.clip(np.hypot(gradient_x, gradient_y) / 4.0, 0.0, 255.0)
+    return gradient_x, gradient_y, magnitude
+
+
+class GradientOrientationEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MSEFitness]):
+    """Compara intensidad y orientación de gradientes Sobel.
+
+    El componente de orientación trata un borde claro-oscuro y uno oscuro-claro
+    como el mismo contorno: compara la dirección de la recta, no el signo del
+    gradiente. El resultado está normalizado en el rango aproximado [0, 1].
+    """
+
+    def __init__(self, blur_sigma: float = 1.0, orientation_weight: float = 0.5) -> None:
+        if blur_sigma < 0:
+            raise ValueError("blur_sigma debe ser no negativo")
+        if not 0.0 <= orientation_weight <= 1.0:
+            raise ValueError("orientation_weight debe estar entre 0.0 y 1.0")
+        self._blur_sigma = blur_sigma
+        self._orientation_weight = orientation_weight
+        self._cached_target: TriangleImageTarget | None = None
+        self._target_gradient: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None
+
+    def _prepare(self, target: TriangleImageTarget) -> None:
+        if self._cached_target is target:
+            return
+        self._target_gradient = _sobel_gradient(target.image.astype(np.float32), self._blur_sigma)
+        self._cached_target = target
+
+    def evaluate(
+        self,
+        individual: TriangleIndividual,
+        target: TriangleImageTarget,
+        context: EvolutionContext,
+    ) -> MSEFitness:
+        self._prepare(target)
+        assert self._target_gradient is not None
+        target_x, target_y, target_magnitude = self._target_gradient
+        rendered = np.array(_render_individual(individual, target, context), dtype=np.float32)
+        rendered_x, rendered_y, rendered_magnitude = _sobel_gradient(rendered, self._blur_sigma)
+
+        magnitude_error = float(np.mean(np.square(target_magnitude - rendered_magnitude))) / (255.0 ** 2)
+        denominator = np.hypot(target_x, target_y) * np.hypot(rendered_x, rendered_y)
+        cosine = np.divide(
+            target_x * rendered_x + target_y * rendered_y,
+            denominator,
+            out=np.zeros_like(denominator),
+            where=denominator > 1e-8,
+        )
+        # abs(cos) hace equivalente a theta y theta + pi: importa la orientación del borde.
+        orientation_error = 1.0 - np.abs(cosine)
+        edge_weight = np.maximum(target_magnitude, rendered_magnitude) / 255.0
+        orientation_score = float(np.sum(orientation_error * edge_weight) / max(np.sum(edge_weight), 1e-8))
+
+        score = ((1.0 - self._orientation_weight) * magnitude_error
+                 + self._orientation_weight * orientation_score)
+        return MSEFitness(score)
+
+
+class ChamferEdgeEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MSEFitness]):
+    """Distancia Chamfer simétrica entre mapas de bordes Sobel binarizados.
+
+    A diferencia del MSE de bordes, penaliza suavemente un contorno desplazado
+    pocos píxeles; por eso es más adecuado durante etapas tempranas de evolución.
+    El resultado se normaliza por la diagonal de la imagen y queda en [0, 1].
+    """
+
+    def __init__(self, blur_sigma: float = 1.0, threshold: float = 20.0) -> None:
+        if blur_sigma < 0:
+            raise ValueError("blur_sigma debe ser no negativo")
+        if not 0.0 <= threshold <= 255.0:
+            raise ValueError("threshold debe estar entre 0 y 255")
+        self._blur_sigma = blur_sigma
+        self._threshold = threshold
+        self._cached_target: TriangleImageTarget | None = None
+        self._target_edges: np.ndarray | None = None
+
+    def _edge_mask(self, image_arr: np.ndarray) -> np.ndarray:
+        _, _, magnitude = _sobel_gradient(image_arr, self._blur_sigma)
+        return magnitude >= self._threshold
+
+    def _prepare(self, target: TriangleImageTarget) -> None:
+        if self._cached_target is target:
+            return
+        self._target_edges = self._edge_mask(target.image.astype(np.float32))
+        self._cached_target = target
+
+    @staticmethod
+    def _directed_distance(source: np.ndarray, destination: np.ndarray, diagonal: float) -> float:
+        if not np.any(source):
+            return 0.0 if not np.any(destination) else 1.0
+        if not np.any(destination):
+            return 1.0
+        distances = distance_transform_edt(~destination)
+        return float(np.mean(distances[source]) / diagonal)
+
+    def evaluate(
+        self,
+        individual: TriangleIndividual,
+        target: TriangleImageTarget,
+        context: EvolutionContext,
+    ) -> MSEFitness:
+        self._prepare(target)
+        assert self._target_edges is not None
+        rendered = np.array(_render_individual(individual, target, context), dtype=np.float32)
+        rendered_edges = self._edge_mask(rendered)
+        diagonal = math.hypot(target.width, target.height)
+        score = (self._directed_distance(rendered_edges, self._target_edges, diagonal)
+                 + self._directed_distance(self._target_edges, rendered_edges, diagonal)) / 2.0
+        return MSEFitness(score)
+
+
+class SaliencyMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MSEFitness]):
+    """MSE que da mayor importancia a zonas visualmente salientes del objetivo.
+
+    La saliencia se estima con la magnitud de gradiente suavizada: bordes y zonas
+    de alto contraste pesan más, pero todo píxel mantiene un peso base de uno.
+    """
+
+    def __init__(self, saliency_weight: float = 3.0, blur_sigma: float = 2.0) -> None:
+        if saliency_weight < 0:
+            raise ValueError("saliency_weight debe ser no negativo")
+        if blur_sigma < 0:
+            raise ValueError("blur_sigma debe ser no negativo")
+        self._saliency_weight = saliency_weight
+        self._blur_sigma = blur_sigma
+        self._cached_target: TriangleImageTarget | None = None
+        self._weights: np.ndarray | None = None
+
+    def _prepare(self, target: TriangleImageTarget) -> None:
+        if self._cached_target is target:
+            return
+        _, _, magnitude = _sobel_gradient(target.image.astype(np.float32), 0.0)
+        saliency = gaussian_filter(magnitude, sigma=self._blur_sigma) if self._blur_sigma > 0 else magnitude
+        maximum = float(saliency.max())
+        normalized = saliency / maximum if maximum > 0 else np.zeros_like(saliency)
+        self._weights = 1.0 + self._saliency_weight * normalized
+        self._cached_target = target
+
+    def evaluate(
+        self,
+        individual: TriangleIndividual,
+        target: TriangleImageTarget,
+        context: EvolutionContext,
+    ) -> MSEFitness:
+        self._prepare(target)
+        assert self._weights is not None
+        rendered = np.array(_render_individual(individual, target, context), dtype=np.float32)
+        diff_squared = np.mean(np.square(target.image.astype(np.float32) - rendered), axis=2)
+        return MSEFitness(float(np.average(diff_squared, weights=self._weights)))
 
 
 class MultiScaleMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MSEFitness]):
@@ -359,7 +582,7 @@ class MultiScaleMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageT
         context: EvolutionContext,
     ) -> MSEFitness:
         self._prepare(target)
-        rendered_image = render(individual, target.width, target.height)
+        rendered_image = _render_individual(individual, target, context)
 
         weighted_sum = 0.0
         for scale, weight, target_level in zip(self._scales, self._weights, self._target_levels):
@@ -420,7 +643,7 @@ class ColorHistogramEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImage
         self._prepare(target)
         assert self._target_hist is not None
 
-        rendered_image = render(individual, target.width, target.height)
+        rendered_image = _render_individual(individual, target, context)
         rendered_arr = np.array(rendered_image, dtype=np.float64)
         rendered_hist = self._histogram(rendered_arr)
 
@@ -476,6 +699,10 @@ SCALES: dict[str, float] = {
     "multiscale": 255.0 ** 2,
     "ssim": 1.0,
     "histogram": 2.0 ** 0.5,
+    "edge": 255.0 ** 2,
+    "gradient": 1.0,
+    "chamfer": 1.0,
+    "saliency": 255.0 ** 2,
 }
 
 
@@ -494,6 +721,8 @@ class CompositeEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarge
     ) -> None:
         if not components:
             raise ValueError("components no puede estar vacío")
+        if any(not math.isfinite(weight) or weight < 0 for _, weight in components):
+            raise ValueError("cada peso debe ser un número finito no negativo")
         total_weight = sum(weight for _, weight in components)
         if total_weight <= 0:
             raise ValueError("la suma de los pesos debe ser positiva")
@@ -505,8 +734,16 @@ class CompositeEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarge
         target: TriangleImageTarget,
         context: EvolutionContext,
     ) -> MSEFitness:
-        total = sum(
-            weight * evaluator.evaluate(individual, target, context).value
-            for evaluator, weight in self._components
-        )
-        return MSEFitness(total)
+        begin_scope = getattr(context, "begin_render_scope", None)
+        end_scope = getattr(context, "end_render_scope", None)
+        if callable(begin_scope):
+            begin_scope()
+        try:
+            total = sum(
+                weight * evaluator.evaluate(individual, target, context).value
+                for evaluator, weight in self._components
+            )
+            return MSEFitness(total)
+        finally:
+            if callable(end_scope):
+                end_scope()
