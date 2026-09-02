@@ -36,3 +36,38 @@ class AdditiveSurvival[IndividualT: Individual[Any], FitnessT: Fitness[Any]](
         if population_size > len(candidates):
             raise ValueError("not enough candidates to fill the next generation")
         return self._elite_selection.select(candidates, population_size, context)
+
+
+class ExclusiveSurvival[IndividualT: Individual[Any], FitnessT: Fitness[Any]](
+    SurvivalStrategy[IndividualT, FitnessT]
+):
+    """Considera solo descendencia; si no alcanza, completa con los mejores padres."""
+
+    def __init__(self, fitness_comparator: FitnessComparator[FitnessT]) -> None:
+        self._elite_selection: SelectionStrategy[IndividualT, FitnessT] = EliteSelection(
+            fitness_comparator
+        )
+
+    def build_next_generation(
+        self,
+        current_population: Collection[ScoredIndividual[IndividualT, FitnessT]],
+        offspring: Collection[ScoredIndividual[IndividualT, FitnessT]],
+        population_size: int,
+        context: EvolutionContext,
+    ) -> Collection[ScoredIndividual[IndividualT, FitnessT]]:
+        """Aplica supervivencia exclusiva priorizando a la descendencia."""
+        if population_size < 0:
+            raise ValueError("population_size must be non-negative")
+            
+        candidates = tuple(offspring)
+        if len(candidates) >= population_size:
+            return self._elite_selection.select(candidates, population_size, context)
+            
+        needed = population_size - len(candidates)
+        if needed > len(current_population):
+            raise ValueError("not enough candidates to fill the next generation")
+            
+        best_parents = self._elite_selection.select(
+            current_population, needed, context
+        )
+        return candidates + tuple(best_parents)

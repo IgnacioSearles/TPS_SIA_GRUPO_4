@@ -10,9 +10,9 @@ from .orchestrator import (DefaultEvolutionResult, DefaultEvolutionState,
 from .crossover import OnePointCrossover
 from .mutation import MultiGeneMutation
 from .selection import EliteSelection
-from .survival import AdditiveSurvival
+from .survival import AdditiveSurvival, ExclusiveSurvival
 
-__all__ = ["AdditiveSurvival", "CrossoverStrategy", "CutPointSelector",
+__all__ = ["AdditiveSurvival", "ExclusiveSurvival", "CrossoverStrategy", "CutPointSelector",
            "DefaultEvolutionResult", "DefaultEvolutionState", "DefaultScoredIndividual",
            "EliteSelection", "EvolutionConfiguration", "GeneMutator",
            "GenePositionSelector", "GeneticAlgorithm", "GenomeCodec",
