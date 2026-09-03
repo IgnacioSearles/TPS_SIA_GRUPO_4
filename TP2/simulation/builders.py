@@ -7,17 +7,22 @@ from collections.abc import Callable, Mapping
 from genetic_algorithm.application import (
     AdditiveSurvival,
     AnnularCrossover,
+    BoltzmannSelection,
     CrossoverStrategy,
+    DeterministicTournamentSelection,
     EliteSelection,
     ExclusiveSurvival,
     OnePointCrossover,
     ProbabilisticTournamentSelection,
+    RankingSelection,
     RandomCutPointSelector,
     RandomRingCutPointSelector,
     RandomTwoCutPointSelector,
+    RouletteSelection,
     SelectionStrategy,
     SurvivalStrategy,
     TwoPointCrossover,
+    UniversalSelection,
     UniformCrossover,
 )
 from genetic_algorithm.domain import FitnessEvaluator
@@ -112,6 +117,16 @@ def build_selection(
     """Construye la estrategia de selección de padres."""
     if selection.strategy == "elite":
         return EliteSelection(comparator)
+    if selection.strategy == "roulette":
+        return RouletteSelection()
+    if selection.strategy == "universal":
+        return UniversalSelection()
+    if selection.strategy == "boltzmann":
+        return BoltzmannSelection(selection.boltzmann_temperature)
+    if selection.strategy == "ranking":
+        return RankingSelection(comparator)
+    if selection.strategy == "deterministic-tournament":
+        return DeterministicTournamentSelection(comparator, selection.tournament_size)
     return ProbabilisticTournamentSelection(
         comparator, selection.tournament_size, selection.win_probability
     )

@@ -16,7 +16,9 @@ from .crossover import (AnnularCrossover, OnePointCrossover, RandomCutPointSelec
 from .mutation import (AllGenePositionSelector, GenMutation, MultiGeneMutation,
                         MultiGenMutation, NonUniformMutation, RandomGenePositionSelector,
                         SingleGenePositionSelector, UniformMutation)
-from .selection import EliteSelection, ProbabilisticTournamentSelection
+from .selection import (BoltzmannSelection, DeterministicTournamentSelection,
+                        EliteSelection, ProbabilisticTournamentSelection,
+                        RankingSelection, RouletteSelection, UniversalSelection)
 from .survival import AdditiveSurvival, ExclusiveSurvival
 from .termination import MaxGenerationsTermination, StagnationTermination, TargetFitnessTermination
 from .pairing import RandomPairingStrategy, SimpleParentPair
@@ -24,7 +26,9 @@ from .pairing import RandomPairingStrategy, SimpleParentPair
 
 __all__ = ["AdditiveSurvival", "AnnularCrossover", "ExclusiveSurvival", "CrossoverStrategy", "CutPointSelector",
            "CompositeEvolutionObserver", "DefaultEvolutionResult", "DefaultEvolutionState", "DefaultScoredIndividual",
-           "EliteSelection", "ProbabilisticTournamentSelection", "EvolutionConfiguration", "EvolutionObserver", "GeneMutator",
+           "BoltzmannSelection", "DeterministicTournamentSelection",
+           "EliteSelection", "ProbabilisticTournamentSelection", "RankingSelection",
+           "RouletteSelection", "UniversalSelection", "EvolutionConfiguration", "EvolutionObserver", "GeneMutator",
            "GenePositionSelector", "GeneticAlgorithm", "GenomeCodec",
            "MultiGeneMutation", "MultiGenMutation", "GenMutation", "UniformMutation", "NonUniformMutation",
            "SingleGenePositionSelector", "AllGenePositionSelector", "MutationStrategy", "OnePointCrossover",

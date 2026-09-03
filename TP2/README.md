@@ -6,14 +6,24 @@ semitransparentes.
 
 ## Cómo correrlo
 
+Desde `TP2`, crear un entorno con Python compatible e instalar dependencias:
+
+```bash
+cd TP2
+python3.14 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
 Cada simulación se describe en un archivo JSON:
 
 ```bash
-python main.py configs/default_config.json
+python main.py configs/default_config.json --image objetivo.png
 ```
 
 La única clave obligatoria es `image`: todo lo demás tiene un valor por defecto y
 puede omitirse. `configs/minimal_config.json` es una corrida completa válida.
+También podés editar `image` directamente dentro del JSON.
 
 La línea de comandos solo expone lo que suele cambiar entre corridas del mismo
 experimento; el resto vive siempre en el archivo:
@@ -64,7 +74,10 @@ Y las secciones `population`, `selection`, `crossover`, `mutation`, `fitness` y
 
 - `population.survival`: `additive` o `exclusive` (esta última reemplaza toda la
   generación, así que necesita una cantidad par de padres al menos igual a `size`).
-- `selection.strategy`: `elite` o `tournament`.
+- `selection.strategy`: `elite`, `roulette`, `universal`, `boltzmann`,
+  `ranking`, `deterministic-tournament`, `probabilistic-tournament` o
+  `tournament` (alias de `probabilistic-tournament`).
+  `boltzmann` usa además `boltzmann_temperature`.
 - `crossover.strategy`: `one-point`, `two-point`, `uniform` (con
   `uniform_swap_probability`) o `annular`.
 - `mutation.schedule`: `constant`, `linear`, `exponential` o `adaptive-reheat`.
@@ -140,6 +153,13 @@ para sumar 1:
 }
 ```
 
+## Documentación
+
+- [`FITNESS.md`](FITNESS.md): explicación detallada de cada métrica de fitness,
+  qué mide, cómo se interpreta y cuándo conviene usarla.
+- [`ARQUITECTURA_IMPLEMENTACION.md`](ARQUITECTURA_IMPLEMENTACION.md): explicación
+  de las capas, flujo de ejecución, configuración y estado frente a la consigna.
+
 ## Capas
 
 - `genetic_algorithm.domain`: contratos para individuo, imagen objetivo,
@@ -154,8 +174,9 @@ para sumar 1:
   valida, `builders` traduce cada opción al operador concreto, `reporting`
   observa la corrida y `runner` la ejecuta de punta a punta.
 
-Los contratos usan `abc.ABC` y la sintaxis de parámetros de tipo de Python 3.12.
-Esto permite elegir cualquier representación de genoma, fitness o imagen.
+El proyecto declara Python `>=3.14` en `pyproject.toml`. Además, los contratos
+usan `abc.ABC` y sintaxis moderna de parámetros de tipo; no va a parsear con
+versiones viejas de Python.
 
 ## Cómo extenderlo
 

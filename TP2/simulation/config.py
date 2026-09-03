@@ -20,14 +20,20 @@ from simulation.section import ConfigSection, ConfigurationError
 METRIC_NAMES: tuple[str, ...] = tuple(sorted(SCALES))
 FITNESS_CHOICES: tuple[str, ...] = (*METRIC_NAMES, "combo")
 
-SelectionStrategyName = Literal["elite", "tournament"]
+SelectionStrategyName = Literal[
+    "elite", "roulette", "universal", "boltzmann", "ranking",
+    "deterministic-tournament", "probabilistic-tournament", "tournament",
+]
 SurvivalStrategyName = Literal["additive", "exclusive"]
 CrossoverStrategyName = Literal["one-point", "two-point", "uniform", "annular"]
 MutationScheduleName = Literal["constant", "linear", "exponential", "adaptive-reheat"]
 MutationStrategyName = Literal["gen", "multigen", "uniform", "non-uniform"]
 TerminationStrategyName = Literal["max-generations", "target-fitness", "stagnation"]
 
-SELECTION_CHOICES: tuple[str, ...] = ("elite", "tournament")
+SELECTION_CHOICES: tuple[str, ...] = (
+    "elite", "roulette", "universal", "boltzmann", "ranking",
+    "deterministic-tournament", "probabilistic-tournament", "tournament",
+)
 SURVIVAL_CHOICES: tuple[str, ...] = ("additive", "exclusive")
 CROSSOVER_CHOICES: tuple[str, ...] = ("one-point", "two-point", "uniform", "annular")
 MUTATION_SCHEDULE_CHOICES: tuple[str, ...] = (
@@ -89,11 +95,13 @@ class SelectionConfig:
     strategy: SelectionStrategyName = "elite"
     tournament_size: int = 3
     win_probability: float = 0.85
+    boltzmann_temperature: float = 1.0
 
     def __post_init__(self) -> None:
         if self.tournament_size < 2:
             raise ValueError("selection.tournament_size debe ser al menos 2.")
         _require_probability(self.win_probability, "selection.win_probability")
+        _require_positive(self.boltzmann_temperature, "selection.boltzmann_temperature")
 
     @classmethod
     def from_section(cls, section: ConfigSection) -> SelectionConfig:
@@ -102,6 +110,9 @@ class SelectionConfig:
             strategy=section.choice("strategy", defaults.strategy, SELECTION_CHOICES),
             tournament_size=section.integer("tournament_size", defaults.tournament_size),
             win_probability=section.number("win_probability", defaults.win_probability),
+            boltzmann_temperature=section.number(
+                "boltzmann_temperature", defaults.boltzmann_temperature
+            ),
         )
 
 

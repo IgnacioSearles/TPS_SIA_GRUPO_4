@@ -27,9 +27,14 @@ from triangle_image import (
 from genetic_algorithm.application import (
     AdditiveSurvival,
     AnnularCrossover,
+    BoltzmannSelection,
+    DeterministicTournamentSelection,
     EliteSelection,
     ExclusiveSurvival,
     ProbabilisticTournamentSelection,
+    RankingSelection,
+    RouletteSelection,
+    UniversalSelection,
     UniformCrossover,
 )
 
@@ -171,6 +176,11 @@ class SemanticValidationTests(unittest.TestCase):
         config = build_config(fitness={"metric": "combo", "combo": {"mse": 0.4, "edge": 0.6}})
         self.assertEqual(config.fitness.combo, {"mse": 0.4, "edge": 0.6})
 
+    def test_boltzmann_temperature_must_be_positive(self) -> None:
+        with self.assertRaises(ConfigurationError) as error:
+            build_config(selection={"strategy": "boltzmann", "boltzmann_temperature": 0})
+        self.assertIn("boltzmann_temperature", str(error.exception))
+
 
 class FileLoadingTests(unittest.TestCase):
     def setUp(self) -> None:
@@ -255,6 +265,36 @@ class BuilderTests(unittest.TestCase):
                 build_config(selection={"strategy": "tournament"}).selection, comparator
             ),
             ProbabilisticTournamentSelection,
+        )
+        self.assertIsInstance(
+            build_selection(
+                build_config(selection={"strategy": "probabilistic-tournament"}).selection,
+                comparator,
+            ),
+            ProbabilisticTournamentSelection,
+        )
+        self.assertIsInstance(
+            build_selection(
+                build_config(selection={"strategy": "deterministic-tournament"}).selection,
+                comparator,
+            ),
+            DeterministicTournamentSelection,
+        )
+        self.assertIsInstance(
+            build_selection(build_config(selection={"strategy": "roulette"}).selection, comparator),
+            RouletteSelection,
+        )
+        self.assertIsInstance(
+            build_selection(build_config(selection={"strategy": "universal"}).selection, comparator),
+            UniversalSelection,
+        )
+        self.assertIsInstance(
+            build_selection(build_config(selection={"strategy": "boltzmann"}).selection, comparator),
+            BoltzmannSelection,
+        )
+        self.assertIsInstance(
+            build_selection(build_config(selection={"strategy": "ranking"}).selection, comparator),
+            RankingSelection,
         )
         self.assertIsInstance(
             build_survival(build_config().population, comparator), AdditiveSurvival
