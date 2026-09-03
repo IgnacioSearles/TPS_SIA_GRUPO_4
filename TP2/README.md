@@ -94,6 +94,44 @@ python experiments.py experiments.json
 El spec contiene `config`, `output_directory` y una `matrix`; las claves pueden
 ser simples o rutas como `mutation.strategy`.
 
+### Experimento exhaustivo de mutación y fitness
+
+Está preparado en `experiments/mutation_fitness_exhaustive.json` y usa una sola
+configuración base (`configs/mutation_fitness_base.json`). Recorre las 16
+combinaciones de `mutation.strategy` × `mutation.schedule`, las 10 métricas de
+fitness (3 controles simples y 7 combinaciones, desde pares hasta una combinación
+de 5 métricas). Entre ellas se conserva obligatoriamente el combo
+`mse: 0.35 + blur: 0.20 + edge: 0.20 + saliency: 0.25`, con `blur.sigma=1.5`,
+`edge.sigma=1.0` y `saliency.weight=3.0`, `saliency.sigma=2.0`. Las tres imágenes
+disponibles son (`bandera_100.png`,
+`Firefox_logo,_2017.png`, `monalisa.jpg`), siempre con `max_size: 96` y selección
+`tournament`. En total son `3 × 4 × 4 × 10 = 480` corridas:
+
+```bash
+python experiments.py experiments/mutation_fitness_exhaustive.json
+```
+
+El resultado queda en `experiments/results/mutation_fitness_exhaustive/`, con un
+`results.csv` (incluye `elapsed_seconds` por corrida), `progress.json` y los artefactos de cada corrida. Las corridas se
+ejecutan secuencialmente. Después de cada corrida se actualizan `results.csv`,
+`progress.json` y el gráfico; si el proceso se interrumpe, al volver a ejecutar el
+comando se omiten las carpetas que ya tienen `run/summary.json` (`resume: true`).
+Los overrides anidados se fusionan
+con la base: cambiar `mutation.strategy` no elimina los parámetros del schedule.
+La semilla 20260903 queda fija para comparar configuraciones bajo el mismo azar;
+para reportar variabilidad conviene repetir las configuraciones ganadoras con 3–5
+semillas.
+
+La cantidad de generaciones depende de la imagen: Italia usa 2000, Firefox 2500
+y Mona Lisa 3000. Se representa junto a cada imagen en la matriz para no crear
+combinaciones extra.
+
+Se recomienda empezar con 80 triángulos: a 96 px ofrece suficiente capacidad sin
+inflar demasiado el costo. Para estudiar sensibilidad, agregar
+`"triangles": [40, 80, 120]` como entrada de `matrix` agrega un factor 3 y lleva
+el diseño a 1440 corridas; es preferible hacerlo después de identificar las
+mejores combinaciones.
+
 ### Semilla
 
 Sin `seed` la corrida es aleatoria, pero no irrepetible: el programa sortea una

@@ -1,0 +1,80 @@
+{
+  "image": "bandera_100.png",
+  "output": "unused.png",
+  "max_size": 96,
+  "triangles": 80,
+  "seed": 20260903,
+  "progress_every": 100,
+  "population": {
+    "size": 100,
+    "parents": 100,
+    "generations": 1500,
+    "survival": "additive"
+  },
+  "selection": {
+    "strategy": "tournament",
+    "tournament_size": 5,
+    "win_probability": 0.85
+  },
+  "crossover": {
+    "strategy": "two-point"
+  },
+  "mutation": {
+    "strategy": "multigen",
+    "schedule": "constant",
+    "probability": 0.25,
+    "strength": 0.12,
+    "replacement_probability": 0.08,
+    "decay_generations": 1000,
+    "final": {
+      "probability": 0.06,
+      "strength": 0.03,
+      "replacement_probability": 0.02
+    },
+    "reheat": {
+      "stagnation_generations": 75,
+      "duration_generations": 40,
+      "improvement_percent": 0.5,
+      "probability_multiplier": 2.5,
+      "strength_multiplier": 2.5,
+      "replacement_multiplier": 6.0
+    }
+  },
+  "fitness": {
+    "metric": "mse",
+    "regional": {
+      "grid_rows": 8,
+      "grid_cols": 8,
+      "detail_weight": 1.0
+    },
+    "ssim": {
+      "window_size": 7,
+      "mse_weight": 0.5
+    },
+    "blur": {
+      "sigma": 1.5
+    },
+    "multiscale": {
+      "scales": [1.0, 0.5, 0.25]
+    },
+    "histogram": {
+      "bins": 32,
+      "mse_weight": 0.5
+    },
+    "edge": {
+      "sigma": 1.0
+    },
+    "gradient": {
+      "sigma": 1.0,
+      "orientation_weight": 0.5
+    },
+    "chamfer": {
+      "sigma": 1.0,
+      "threshold": 20.0
+    },
+    "saliency": {
+      "weight": 3.0,
+      "sigma": 2.0
+    }
+  }
+}

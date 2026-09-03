@@ -1,0 +1,35 @@
+{
+  "config": "configs/mutation_fitness_base.json",
+  "output_directory": "experiments/results/mutation_fitness_exhaustive",
+  "matrix": {
+    "image": [
+      {"path": "imagenes/italia.png", "generations": 2000},
+      {"path": "imagenes/Firefox_logo,_2017.png", "generations": 2500},
+      {"path": "imagenes/monalisa.jpg", "generations": 3000}
+    ],
+    "mutation.strategy": [
+      "gen",
+      "multigen",
+      "uniform",
+      "non-uniform"
+    ],
+    "mutation.schedule": [
+      "constant",
+      "linear",
+      "exponential",
+      "adaptive-reheat"
+    ],
+    "fitness": [
+      {"metric": "mse"},
+      {"metric": "blur"},
+      {"metric": "ssim"},
+      {"metric": "combo", "combo": {"mse": 0.70, "regional": 0.30}},
+      {"metric": "combo", "combo": {"mse": 0.50, "blur": 0.25, "ssim": 0.25}},
+      {"metric": "combo", "combo": {"mse": 0.45, "ssim": 0.30, "gradient": 0.25}},
+      {"metric": "combo", "combo": {"multiscale": 0.35, "blur": 0.25, "saliency": 0.40}},
+      {"metric": "combo", "combo": {"mse": 0.40, "histogram": 0.30, "regional": 0.30}},
+      {"metric": "combo", "combo": {"ssim": 0.35, "gradient": 0.35, "blur": 0.30}},
+      {"metric": "combo", "combo": {"mse": 0.35, "blur": 0.20, "edge": 0.20, "saliency": 0.25}}
+    ]
+  }
+}
