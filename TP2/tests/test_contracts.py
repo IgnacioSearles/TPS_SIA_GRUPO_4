@@ -5,14 +5,16 @@ from __future__ import annotations
 import unittest
 from random import Random
 
-from genetic_algorithm.application import (AnnularCrossover, CrossoverStrategy, GeneticAlgorithm,
+from genetic_algorithm.application import (AnnularCrossover, BoltzmannSelection,
+    CrossoverStrategy, DeterministicTournamentSelection, GeneticAlgorithm,
     AdditiveSurvival, CutPointSelector, DefaultScoredIndividual,
     EvolutionConfiguration, EvolutionObserver, GeneMutator, GenePositionSelector, GenomeCodec,
     MutationStrategy, OnePointCrossover, OrchestratedGeneticAlgorithm, ParentPair,
     ParentPairingStrategy, PopulationInitializer, SelectionStrategy, SurvivalStrategy,
     TerminationCondition, EliteSelection, ExclusiveSurvival, MultiGeneMutation,
     RandomPairingStrategy, RingCutPointSelector, TwoCutPointSelector, TwoPointCrossover,
-    UniformCrossover, ProbabilisticTournamentSelection)
+    UniformCrossover, ProbabilisticTournamentSelection, RankingSelection,
+    RouletteSelection, UniversalSelection)
 from genetic_algorithm.domain import (AlgorithmConfiguration, EvolutionContext,
     EvolutionResult, EvolutionState, Fitness, FitnessComparator, FitnessEvaluator,
     GeneticProblem, ImageTarget, Individual, ScoredIndividual)
@@ -320,6 +322,50 @@ class StrategyImplementationTests(unittest.TestCase):
             RankedComparator(), tournament_size=3, win_probability=1.0
         ).select(population, 2, self.context)
         self.assertEqual([candidate.fitness.value for candidate in selected], [3, 3])
+
+    def test_deterministic_tournament_always_selects_best_participant(self) -> None:
+        population = tuple(
+            DefaultScoredIndividual(GeneIndividual((str(score),)), RankedFitness(score))
+            for score in (1, 3, 2)
+        )
+        selected = DeterministicTournamentSelection(
+            RankedComparator(), tournament_size=3
+        ).select(population, 2, self.context)
+        self.assertEqual([candidate.fitness.value for candidate in selected], [3, 3])
+
+    def test_roulette_selection_uses_numeric_fitness_weights(self) -> None:
+        population = tuple(
+            DefaultScoredIndividual(GeneIndividual((str(score),)), RankedFitness(score))
+            for score in (0, 0, 5)
+        )
+        selected = RouletteSelection().select(population, 4, self.context)
+        self.assertEqual([candidate.fitness.value for candidate in selected], [5, 5, 5, 5])
+
+    def test_universal_selection_uses_evenly_spaced_weighted_points(self) -> None:
+        population = tuple(
+            DefaultScoredIndividual(GeneIndividual((str(score),)), RankedFitness(score))
+            for score in (0, 0, 5)
+        )
+        selected = UniversalSelection().select(population, 4, self.context)
+        self.assertEqual([candidate.fitness.value for candidate in selected], [5, 5, 5, 5])
+
+    def test_boltzmann_selection_prefers_higher_fitness_at_low_temperature(self) -> None:
+        population = tuple(
+            DefaultScoredIndividual(GeneIndividual((str(score),)), RankedFitness(score))
+            for score in (0, 1000)
+        )
+        selected = BoltzmannSelection(temperature=0.01).select(population, 4, self.context)
+        self.assertEqual([candidate.fitness.value for candidate in selected], [1000, 1000, 1000, 1000])
+
+    def test_ranking_selection_uses_order_instead_of_absolute_fitness(self) -> None:
+        population = tuple(
+            DefaultScoredIndividual(GeneIndividual((str(score),)), RankedFitness(score))
+            for score in (1, 1000, 2)
+        )
+        selected = RankingSelection(RankedComparator()).select(
+            population, 6, ConcreteContext(seed=2)
+        )
+        self.assertIn(1000, [candidate.fitness.value for candidate in selected])
 
     def test_exclusive_survival_uses_only_ranked_offspring(self) -> None:
         population = tuple(
