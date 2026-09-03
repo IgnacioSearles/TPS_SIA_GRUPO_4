@@ -38,31 +38,84 @@ def run_experiment_matrix(
     root.mkdir(parents=True, exist_ok=True)
     rows: list[dict[str, Any]] = []
     summary_path = root / "results.csv"
-    for index, overrides in enumerate(expand_matrix(matrix)):
+    combinations = expand_matrix(matrix)
+    initial_completed = (
+        sum(
+            (root / f"run_{index:04d}" / "run" / "summary.json").exists()
+            for index in range(len(combinations))
+        )
+        if resume
+        else 0
+    )
+    _write_experiment_progress(root, initial_completed, len(combinations), None)
+    for index, overrides in enumerate(combinations):
         run_dir = root / f"run_{index:04d}"
         result_file = run_dir / "run" / "summary.json"
         if resume and result_file.exists():
             row = json.loads(result_file.read_text(encoding="utf-8"))
             row.update({"run": index, **overrides})
             rows.append(row)
+            _write_results(rows, summary_path, root / "fitness.png")
+            _write_experiment_progress(root, index + 1, len(combinations), index)
             continue
         output = run_dir / "best.png"
         top_level = {"output": str(output)}
-        for key, value in overrides.items():
+        materialized_overrides = _materialize_overrides(overrides)
+        for key, value in materialized_overrides.items():
             _set_dotted(top_level, key, value)
         config = load_simulation_config(config_path, top_level)
         outcome = run_simulation(config)
         row = {"run": index, **overrides, "seed": outcome.seed,
                "generations": outcome.generations, "best_fitness": outcome.best_fitness,
+               "elapsed_seconds": outcome.elapsed_seconds,
                "termination_reason": outcome.termination_reason}
         rows.append(row)
+        _write_results(rows, summary_path, root / "fitness.png")
+        _write_experiment_progress(root, index + 1, len(combinations), index)
+    return summary_path
+
+
+def _materialize_overrides(overrides: Mapping[str, Any]) -> dict[str, Any]:
+    """Resuelve parámetros que dependen de la imagen sin ampliar el producto cartesiano."""
+    materialized = dict(overrides)
+    image = materialized.get("image")
+    if isinstance(image, Mapping):
+        if "path" not in image or "generations" not in image:
+            raise ValueError("an image matrix entry must contain path and generations")
+        materialized["image"] = image["path"]
+        materialized["population.generations"] = image["generations"]
+    return materialized
+
+
+def _write_results(
+    rows: list[dict[str, Any]], summary_path: Path, plot_path: Path
+) -> None:
+    """Persiste resultados parciales para poder reanudar una matriz interrumpida."""
     fieldnames = sorted({key for row in rows for key in row})
-    with summary_path.open("w", newline="", encoding="utf-8") as stream:
+    temporary_path = summary_path.with_suffix(".csv.tmp")
+    with temporary_path.open("w", newline="", encoding="utf-8") as stream:
         writer = csv.DictWriter(stream, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
-    _write_fitness_plot(rows, root / "fitness.png")
-    return summary_path
+    temporary_path.replace(summary_path)
+    _write_fitness_plot(rows, plot_path)
+
+
+def _write_experiment_progress(
+    root: Path, completed: int, total: int, last_run: int | None
+) -> None:
+    """Escribe el estado observable del experimento después de cada corrida."""
+    progress_path = root / "progress.json"
+    temporary_path = progress_path.with_suffix(".json.tmp")
+    payload = {
+        "completed_runs": completed,
+        "total_runs": total,
+        "remaining_runs": total - completed,
+        "last_completed_run": last_run,
+        "status": "completed" if completed == total else "running",
+    }
+    temporary_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    temporary_path.replace(progress_path)
 
 
 def _write_fitness_plot(rows: list[dict[str, Any]], path: Path) -> None:

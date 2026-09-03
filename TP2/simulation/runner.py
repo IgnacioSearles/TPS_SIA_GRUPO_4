@@ -107,7 +107,8 @@ def run_simulation(config: SimulationConfig) -> SimulationOutcome:
     _save_best(best.individual, target, config.output)
     _save_best(best.individual, target, run_directory / "best.png")
     artifacts.finalize(best.individual, best.fitness.value, outcome.termination_reason,
-                       {"seed": outcome.seed, "generations": outcome.generations})
+                       {"seed": outcome.seed, "generations": outcome.generations,
+                        "elapsed_seconds": outcome.elapsed_seconds})
     return outcome
 
 

@@ -613,6 +613,25 @@ def load_simulation_config(
         raise ConfigurationError(f"{config_path} debe contener un objeto JSON en su raíz.")
 
     try:
-        return SimulationConfig.from_mapping({**raw, **(overrides or {})})
+        return SimulationConfig.from_mapping(_deep_merge(raw, overrides or {}))
     except ValueError as error:
         raise ConfigurationError(f"{config_path}: {error}") from error
+
+
+def _deep_merge(base: Mapping[str, Any], overrides: Mapping[str, Any]) -> dict[str, Any]:
+    """Fusiona overrides anidados sin borrar parámetros hermanos del archivo base.
+
+    Las secciones de configuración son objetos JSON; un override como
+    ``{"mutation": {"strategy": "gen"}}`` debe cambiar solo esa clave y
+    conservar los parámetros iniciales, `mutation.final`, etc. Un valor no-mapeable
+    reemplaza el valor completo, lo que mantiene el comportamiento esperado para
+    `image`, `seed`, `preview: null` y parámetros simples.
+    """
+    merged = dict(base)
+    for key, value in overrides.items():
+        current = merged.get(key)
+        if isinstance(current, Mapping) and isinstance(value, Mapping):
+            merged[key] = _deep_merge(current, value)
+        else:
+            merged[key] = value
+    return merged

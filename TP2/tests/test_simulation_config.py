@@ -215,6 +215,30 @@ class FileLoadingTests(unittest.TestCase):
         self.assertIsNotNone(load_simulation_config(path).preview)
         self.assertIsNone(load_simulation_config(path, {"preview": None}).preview)
 
+    def test_nested_overrides_keep_sibling_values(self) -> None:
+        path = self.write_config({
+            "image": "a.png",
+            "mutation": {
+                "strategy": "multigen",
+                "schedule": "linear",
+                "decay_generations": 250,
+                "probability": 0.3,
+                "strength": 0.2,
+                "replacement_probability": 0.1,
+            },
+            "fitness": {"metric": "edge", "edge": {"sigma": 0.8}},
+        })
+        config = load_simulation_config(path, {
+            "mutation": {"strategy": "gen"},
+            "fitness": {"metric": "mse"},
+        })
+        self.assertEqual(config.mutation.strategy, "gen")
+        self.assertEqual(config.mutation.schedule, "linear")
+        self.assertEqual(config.mutation.decay_generations, 250)
+        self.assertEqual(config.mutation.initial.strength, 0.2)
+        self.assertEqual(config.fitness.metric, "mse")
+        self.assertEqual(config.fitness.edge.sigma, 0.8)
+
     def test_bundled_configs_are_valid(self) -> None:
         for path in sorted(Path("configs").glob("*.json")):
             with self.subTest(config=path.name):
