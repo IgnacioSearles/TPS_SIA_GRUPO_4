@@ -100,6 +100,35 @@ def _render_individual(
     return render(individual, target.width, target.height)
 
 
+def _render_array(
+    individual: TriangleIndividual,
+    target: TriangleImageTarget,
+    context: EvolutionContext,
+    dtype: Any = np.float32,
+) -> np.ndarray:
+    """Obtiene el array renderizado, reutilizando el cache del contexto si existe."""
+    cached_renderer = getattr(context, "render_array", None)
+    if callable(cached_renderer):
+        return np.asarray(
+            cached_renderer(individual, target.width, target.height), dtype=dtype
+        )
+    return np.asarray(_render_individual(individual, target, context), dtype=dtype)
+
+
+def _global_mse(
+    individual: TriangleIndividual,
+    target: TriangleImageTarget,
+    context: EvolutionContext,
+) -> float:
+    """MSE RGB global, compartido por los evaluadores que lo necesitan."""
+    cached_mse = getattr(context, "global_mse", None)
+    if callable(cached_mse):
+        return float(cached_mse(individual, target.image, target.width, target.height))
+    target_arr = target.image.astype(np.float32)
+    rendered_arr = _render_array(individual, target, context, np.float32)
+    return float(np.mean(np.square(target_arr - rendered_arr)))
+
+
 class MSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MSEFitness]):
     """Evalúa renderizando los triángulos y calculando el MSE con numpy."""
 
@@ -122,12 +151,7 @@ class MSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MSE
         self._prepare(target)
         assert self._target_arr is not None
 
-        # Renderizamos el fenotipo (la imagen)
-        rendered_image = _render_individual(individual, target, context)
-        rendered_arr = np.array(rendered_image)
-
-        # Calculamos MSE
-        mse = np.mean(np.square(self._target_arr - rendered_arr))
+        mse = _global_mse(individual, target, context)
 
         return MSEFitness(_error_to_fitness(float(mse), 255.0 ** 2))
 
@@ -259,9 +283,8 @@ class SSIMEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MS
         target: TriangleImageTarget,
         context: EvolutionContext,
     ) -> MSEFitness:
-        rendered_image = _render_individual(individual, target, context)
-        target_arr = target.image.astype(np.float64)
-        rendered_arr = np.array(rendered_image, dtype=np.float64)
+        target_arr = target.image.astype(np.float32)
+        rendered_arr = _render_array(individual, target, context, np.float32)
 
         win_size = min(self._win_size, target.height, target.width)
         if win_size % 2 == 0:
@@ -278,7 +301,7 @@ class SSIMEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MS
         if self._mse_weight <= 0.0:
             return MSEFitness(_error_to_fitness(ssim_term, 2.0))
 
-        rmse_term = float(np.sqrt(np.mean(np.square(target_arr - rendered_arr)))) / 255.0
+        rmse_term = float(np.sqrt(_global_mse(individual, target, context))) / 255.0
         error = (1.0 - self._mse_weight) * ssim_term + self._mse_weight * rmse_term
         maximum_error = (1.0 - self._mse_weight) * 2.0 + self._mse_weight
 
@@ -324,8 +347,7 @@ class BlurredMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarg
         self._prepare(target)
         assert self._blurred_target is not None
 
-        rendered_image = _render_individual(individual, target, context)
-        rendered_arr = np.array(rendered_image, dtype=np.float32)
+        rendered_arr = _render_array(individual, target, context, np.float32)
         blurred_rendered = self._blur(rendered_arr)
 
         mse = np.mean(np.square(self._blurred_target - blurred_rendered))
@@ -374,8 +396,7 @@ class EdgeMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget,
         self._prepare(target)
         assert self._target_edges is not None
 
-        rendered_image = _render_individual(individual, target, context)
-        rendered_edges = self._edge_map(np.array(rendered_image, dtype=np.float32))
+        rendered_edges = self._edge_map(_render_array(individual, target, context, np.float32))
         error = float(np.mean(np.square(self._target_edges - rendered_edges)))
         return MSEFitness(_error_to_fitness(error, 255.0 ** 2))
 
@@ -429,7 +450,7 @@ class GradientOrientationEvaluator(FitnessEvaluator[TriangleIndividual, Triangle
         self._prepare(target)
         assert self._target_gradient is not None
         target_x, target_y, target_magnitude = self._target_gradient
-        rendered = np.array(_render_individual(individual, target, context), dtype=np.float32)
+        rendered = _render_array(individual, target, context, np.float32)
         rendered_x, rendered_y, rendered_magnitude = _sobel_gradient(rendered, self._blur_sigma)
 
         magnitude_error = float(np.mean(np.square(target_magnitude - rendered_magnitude))) / (255.0 ** 2)
@@ -495,7 +516,7 @@ class ChamferEdgeEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTar
     ) -> MSEFitness:
         self._prepare(target)
         assert self._target_edges is not None
-        rendered = np.array(_render_individual(individual, target, context), dtype=np.float32)
+        rendered = _render_array(individual, target, context, np.float32)
         rendered_edges = self._edge_mask(rendered)
         diagonal = math.hypot(target.width, target.height)
         score = (self._directed_distance(rendered_edges, self._target_edges, diagonal)
@@ -538,7 +559,7 @@ class SaliencyMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTar
     ) -> MSEFitness:
         self._prepare(target)
         assert self._weights is not None
-        rendered = np.array(_render_individual(individual, target, context), dtype=np.float32)
+        rendered = _render_array(individual, target, context, np.float32)
         diff_squared = np.mean(np.square(target.image.astype(np.float32) - rendered), axis=2)
         error = float(np.average(diff_squared, weights=self._weights))
         return MSEFitness(_error_to_fitness(error, 255.0 ** 2))
@@ -661,8 +682,7 @@ class ColorHistogramEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImage
         self._prepare(target)
         assert self._target_hist is not None
 
-        rendered_image = _render_individual(individual, target, context)
-        rendered_arr = np.array(rendered_image, dtype=np.float64)
+        rendered_arr = _render_array(individual, target, context, np.float64)
         rendered_hist = self._histogram(rendered_arr)
 
         # Distancia L2 entre distribuciones normalizadas, promediada por canal.
@@ -673,8 +693,7 @@ class ColorHistogramEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImage
         if self._mse_weight <= 0.0:
             return MSEFitness(_error_to_fitness(hist_term, 2.0 ** 0.5))
 
-        target_arr = target.image.astype(np.float64)
-        rmse_term = float(np.sqrt(np.mean(np.square(target_arr - rendered_arr)))) / 255.0
+        rmse_term = float(np.sqrt(_global_mse(individual, target, context))) / 255.0
         error = (1.0 - self._mse_weight) * hist_term + self._mse_weight * rmse_term
         maximum_error = (1.0 - self._mse_weight) * (2.0 ** 0.5) + self._mse_weight
 
