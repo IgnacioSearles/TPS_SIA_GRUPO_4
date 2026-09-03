@@ -38,6 +38,22 @@ class MultiGeneMutation[IndividualT: Individual[Any], GeneT](MutationStrategy[In
         return self._genome_codec.build_individual(genes)
 
 
+class GenMutation(MultiGeneMutation):
+    """Mutación de un solo gen; reutiliza toda la implementación MultiGen."""
+
+
+class MultiGenMutation(MultiGeneMutation):
+    """Nombre explícito para la variante MultiGen del enunciado."""
+
+
+class UniformMutation(MultiGeneMutation):
+    """Mutación uniforme parametrizada por un selector y un mutador de genes."""
+
+
+class NonUniformMutation(MultiGeneMutation):
+    """Mutación no uniforme parametrizada por un schedule."""
+
+
 class RandomGenePositionSelector(GenePositionSelector):
     """Elige posiciones aleatorias con base en una probabilidad de mutación por gen."""
     
@@ -66,3 +82,19 @@ class RandomGenePositionSelector(GenePositionSelector):
             if context.random_generator.random() < probability:
                 positions.append(i)
         return tuple(positions)
+
+
+class SingleGenePositionSelector(GenePositionSelector):
+    """Selecciona exactamente una posición al azar."""
+
+    def select_positions(self, genome_size: int, context: EvolutionContext) -> Collection[int]:
+        if genome_size <= 0:
+            return ()
+        return (context.random_generator.randrange(genome_size),)
+
+
+class AllGenePositionSelector(GenePositionSelector):
+    """Selecciona todos los genes del individuo."""
+
+    def select_positions(self, genome_size: int, context: EvolutionContext) -> Collection[int]:
+        return tuple(range(genome_size))

@@ -43,6 +43,13 @@ from triangle_image import (
     TriangleImageTarget,
     TriangleIndividual,
     TriangleMutationSchedule,
+    ScheduledTriangleGeneMutator,
+    ScheduledGenePositionSelector,
+    TriangleReplacementMutator,
+)
+from genetic_algorithm.application import (
+    GenMutation, MultiGenMutation, NonUniformMutation,
+    SingleGenePositionSelector, UniformMutation,
 )
 
 from simulation.config import (
@@ -51,6 +58,7 @@ from simulation.config import (
     MutationConfig,
     PopulationConfig,
     SelectionConfig,
+    TerminationConfig,
 )
 
 type TriangleEvaluator = FitnessEvaluator[
@@ -155,3 +163,30 @@ def build_mutation_schedule(mutation: MutationConfig) -> TriangleMutationSchedul
             0.0 if reheat.improvement_delta is not None else reheat.improvement_percent
         ),
     )
+
+
+def build_mutation(mutation: MutationConfig, width: int, height: int, codec: TriangleCodec,
+                   schedule: TriangleMutationSchedule | None = None):
+    """Construye una de las cuatro variantes, reutilizando el motor MultiGene."""
+    schedule = schedule or build_mutation_schedule(mutation)
+    mutator = ScheduledTriangleGeneMutator(width, height, schedule)
+    if mutation.strategy == "gen":
+        return GenMutation(codec, SingleGenePositionSelector(), mutator)
+    if mutation.strategy == "uniform":
+        return UniformMutation(codec, ScheduledGenePositionSelector(schedule),
+                               TriangleReplacementMutator(width, height))
+    if mutation.strategy == "non-uniform":
+        return NonUniformMutation(codec, ScheduledGenePositionSelector(schedule), mutator)
+    return MultiGenMutation(codec, ScheduledGenePositionSelector(schedule), mutator)
+
+
+def build_termination(termination: TerminationConfig, generations: int, comparator: MSEComparator):
+    """Construye el criterio configurado sin cambiar el ciclo del orquestador."""
+    from genetic_algorithm.application import (
+        MaxGenerationsTermination, StagnationTermination, TargetFitnessTermination,
+    )
+    if termination.strategy == "target-fitness":
+        return TargetFitnessTermination(MSEFitness(termination.target_fitness), comparator)
+    if termination.strategy == "stagnation":
+        return StagnationTermination(termination.stagnation_generations, termination.improvement)
+    return MaxGenerationsTermination(generations)

@@ -13,10 +13,12 @@ from .orchestrator import (CompositeEvolutionObserver, DefaultEvolutionResult,
 from .crossover import (AnnularCrossover, OnePointCrossover, RandomCutPointSelector,
                         RandomRingCutPointSelector, RandomTwoCutPointSelector,
                         TwoPointCrossover, UniformCrossover)
-from .mutation import MultiGeneMutation, RandomGenePositionSelector
+from .mutation import (AllGenePositionSelector, GenMutation, MultiGeneMutation,
+                        MultiGenMutation, NonUniformMutation, RandomGenePositionSelector,
+                        SingleGenePositionSelector, UniformMutation)
 from .selection import EliteSelection, ProbabilisticTournamentSelection
 from .survival import AdditiveSurvival, ExclusiveSurvival
-from .termination import MaxGenerationsTermination, TargetFitnessTermination
+from .termination import MaxGenerationsTermination, StagnationTermination, TargetFitnessTermination
 from .pairing import RandomPairingStrategy, SimpleParentPair
 
 
@@ -24,10 +26,11 @@ __all__ = ["AdditiveSurvival", "AnnularCrossover", "ExclusiveSurvival", "Crossov
            "CompositeEvolutionObserver", "DefaultEvolutionResult", "DefaultEvolutionState", "DefaultScoredIndividual",
            "EliteSelection", "ProbabilisticTournamentSelection", "EvolutionConfiguration", "EvolutionObserver", "GeneMutator",
            "GenePositionSelector", "GeneticAlgorithm", "GenomeCodec",
-           "MultiGeneMutation", "MutationStrategy", "OnePointCrossover",
+           "MultiGeneMutation", "MultiGenMutation", "GenMutation", "UniformMutation", "NonUniformMutation",
+           "SingleGenePositionSelector", "AllGenePositionSelector", "MutationStrategy", "OnePointCrossover",
            "OrchestratedGeneticAlgorithm", "ParentPair", "ParentPairingStrategy",
            "PopulationInitializer", "SelectionStrategy", "SurvivalStrategy",
-           "TerminationCondition", "MaxGenerationsTermination", "TargetFitnessTermination",
+           "TerminationCondition", "MaxGenerationsTermination", "TargetFitnessTermination", "StagnationTermination",
            "RandomPairingStrategy", "RandomCutPointSelector", "RandomGenePositionSelector",
            "RandomRingCutPointSelector", "RandomTwoCutPointSelector", "RingCutPointSelector",
            "SimpleParentPair", "TwoCutPointSelector", "TwoPointCrossover", "UniformCrossover"]

@@ -24,6 +24,8 @@ SelectionStrategyName = Literal["elite", "tournament"]
 SurvivalStrategyName = Literal["additive", "exclusive"]
 CrossoverStrategyName = Literal["one-point", "two-point", "uniform", "annular"]
 MutationScheduleName = Literal["constant", "linear", "exponential", "adaptive-reheat"]
+MutationStrategyName = Literal["gen", "multigen", "uniform", "non-uniform"]
+TerminationStrategyName = Literal["max-generations", "target-fitness", "stagnation"]
 
 SELECTION_CHOICES: tuple[str, ...] = ("elite", "tournament")
 SURVIVAL_CHOICES: tuple[str, ...] = ("additive", "exclusive")
@@ -31,6 +33,8 @@ CROSSOVER_CHOICES: tuple[str, ...] = ("one-point", "two-point", "uniform", "annu
 MUTATION_SCHEDULE_CHOICES: tuple[str, ...] = (
     "constant", "linear", "exponential", "adaptive-reheat",
 )
+MUTATION_STRATEGY_CHOICES: tuple[str, ...] = ("gen", "multigen", "uniform", "non-uniform")
+TERMINATION_CHOICES: tuple[str, ...] = ("max-generations", "target-fitness", "stagnation")
 
 
 def _require_positive(value: float, name: str) -> None:
@@ -175,6 +179,7 @@ class ReheatConfig:
 class MutationConfig:
     """Política de mutación: valores iniciales, finales y forma del decaimiento."""
 
+    strategy: MutationStrategyName = "multigen"
     schedule: MutationScheduleName = "constant"
     initial: MutationParameters = MutationParameters(0.1, 0.1, 0.02)
     final: MutationParameters | None = None
@@ -208,6 +213,7 @@ class MutationConfig:
         initial = cls._read_parameters(section, defaults.initial)
         final_section = section.optional_section("final")
         return cls(
+            strategy=section.choice("strategy", defaults.strategy, MUTATION_STRATEGY_CHOICES),
             schedule=section.choice("schedule", defaults.schedule, MUTATION_SCHEDULE_CHOICES),
             initial=initial,
             final=None if final_section is None else cls._read_parameters(final_section, initial),
@@ -227,6 +233,30 @@ class MutationConfig:
             ),
         )
 
+
+@dataclass(frozen=True, slots=True)
+class TerminationConfig:
+    """Criterio de fin de corrida; max-generations conserva el default previo."""
+
+    strategy: TerminationStrategyName = "max-generations"
+    target_fitness: float = 1.0
+    stagnation_generations: int = 100
+    improvement: float = 0.0
+
+    def __post_init__(self) -> None:
+        _require_probability(self.target_fitness, "termination.target_fitness")
+        _require_positive(self.stagnation_generations, "termination.stagnation_generations")
+        _require_non_negative(self.improvement, "termination.improvement")
+
+    @classmethod
+    def from_section(cls, section: ConfigSection) -> TerminationConfig:
+        defaults = cls()
+        return cls(
+            strategy=section.choice("strategy", defaults.strategy, TERMINATION_CHOICES),
+            target_fitness=section.number("target_fitness", defaults.target_fitness),
+            stagnation_generations=section.integer("stagnation_generations", defaults.stagnation_generations),
+            improvement=section.number("improvement", defaults.improvement),
+        )
 
 @dataclass(frozen=True, slots=True)
 class RegionalFitnessConfig:
@@ -500,6 +530,7 @@ class SimulationConfig:
     selection: SelectionConfig = field(default_factory=SelectionConfig)
     crossover: CrossoverConfig = field(default_factory=CrossoverConfig)
     mutation: MutationConfig = field(default_factory=MutationConfig)
+    termination: TerminationConfig = field(default_factory=TerminationConfig)
     fitness: FitnessConfig = field(default_factory=FitnessConfig)
     preview: PreviewConfig | None = None
 
@@ -546,6 +577,7 @@ class SimulationConfig:
             selection=SelectionConfig.from_section(section.section("selection")),
             crossover=CrossoverConfig.from_section(section.section("crossover")),
             mutation=MutationConfig.from_section(section.section("mutation")),
+            termination=TerminationConfig.from_section(section.section("termination")),
             fitness=FitnessConfig.from_section(section.section("fitness")),
             preview=(
                 None if preview_section is None else PreviewConfig.from_section(preview_section)
