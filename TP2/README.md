@@ -4,6 +4,117 @@ El proyecto contiene un motor genérico de algoritmos genéticos y una
 implementación concreta que aproxima una imagen mediante triángulos
 semitransparentes.
 
+## Cómo correrlo
+
+Cada simulación se describe en un archivo JSON:
+
+```bash
+python main.py configs/default_config.json
+```
+
+La única clave obligatoria es `image`: todo lo demás tiene un valor por defecto y
+puede omitirse. `configs/minimal_config.json` es una corrida completa válida.
+
+La línea de comandos solo expone lo que suele cambiar entre corridas del mismo
+experimento; el resto vive siempre en el archivo:
+
+```bash
+python main.py configs/default_config.json --image otra.png --output otra_out.png
+python main.py configs/default_config.json --seed 7      # fija la semilla
+python main.py configs/default_config.json --no-preview  # desactiva los previews
+```
+
+Los errores de configuración se detectan antes de empezar a evolucionar e indican
+dónde está el problema: tipos incorrectos, valores fuera de rango, combinaciones
+imposibles y —sobre todo— claves desconocidas, para que un typo no se convierta en
+un parámetro silenciosamente ignorado.
+
+## Configuración
+
+Todos los parámetros son opcionales salvo `image`; una clave ausente y una en
+`null` significan lo mismo: usar el valor por defecto.
+
+| Clave            | Default        | Descripción                                            |
+| ---------------- | -------------- | ------------------------------------------------------ |
+| `image`          | *(obligatoria)* | Imagen objetivo.                                       |
+| `output`         | `output.png`   | Dónde guardar el mejor individuo.                       |
+| `max_size`       | `128`          | Resolución máxima de trabajo para acelerar el cálculo.  |
+| `triangles`      | `50`           | Triángulos por individuo.                               |
+| `seed`           | *(sorteada)*   | Semilla; si se omite se sortea una y se informa.         |
+| `progress_every` | `10`           | Informa progreso cada N generaciones; `0` lo desactiva. |
+
+Y las secciones `population`, `selection`, `crossover`, `mutation`, `fitness` y
+`preview`, cada una con sus propios defaults:
+
+```json
+{
+  "image": "target.png",
+  "population": { "size": 100, "parents": 60, "generations": 2000, "survival": "additive" },
+  "selection": { "strategy": "tournament", "tournament_size": 5, "win_probability": 0.85 },
+  "crossover": { "strategy": "two-point" },
+  "mutation": {
+    "schedule": "exponential",
+    "probability": 0.3, "strength": 0.12, "replacement_probability": 0.08,
+    "decay_generations": 1000,
+    "final": { "probability": 0.05, "strength": 0.025, "replacement_probability": 0.02 }
+  },
+  "fitness": { "metric": "mse" }
+}
+```
+
+- `population.survival`: `additive` o `exclusive` (esta última reemplaza toda la
+  generación, así que necesita una cantidad par de padres al menos igual a `size`).
+- `selection.strategy`: `elite` o `tournament`.
+- `crossover.strategy`: `one-point`, `two-point`, `uniform` (con
+  `uniform_swap_probability`) o `annular`.
+- `mutation.schedule`: `constant`, `linear`, `exponential` o `adaptive-reheat`.
+  Las tres últimas requieren `decay_generations`; la sección `final` es opcional y
+  los parámetros que no declara no cambian durante el decaimiento.
+  `adaptive-reheat` acepta además una sección `reheat` (`stagnation_generations`,
+  `duration_generations`, `improvement_percent`, `probability_multiplier`,
+  `strength_multiplier`, `replacement_multiplier`).
+
+### Semilla
+
+Sin `seed` la corrida es aleatoria, pero no irrepetible: el programa sortea una
+semilla y la imprime al arrancar, así cualquier resultado interesante se puede
+reproducir agregándola al archivo (o pasándola con `--seed`).
+
+### Previews
+
+Los previews son opcionales y se activan declarando la sección; sin ella no se
+escribe ninguna imagen intermedia.
+
+```json
+"preview": { "directory": "previews/firefox", "every": 100, "full_resolution": false }
+```
+
+`directory` es obligatorio dentro de la sección, `every` guarda una imagen cada N
+generaciones y `full_resolution` las escribe en la resolución original en vez de
+la de trabajo. `--no-preview` los desactiva sin tocar el archivo.
+
+## Fitness
+
+Además del MSE global (`mse`), hay métricas regionales (`regional`), `ssim`,
+`blur`, `multiscale`, `histogram`, bordes Sobel (`edge`), `gradient` (magnitud y
+orientación de contornos), `chamfer` (tolerante a pequeños desplazamientos entre
+bordes) y `saliency` (pondera más las zonas de alto contraste del objetivo). Cada
+una tiene su propia subsección de parámetros dentro de `fitness`.
+
+Con `metric: "combo"` se optimiza una suma ponderada de varias métricas; cada una
+se normaliza a un rango comparable antes de ponderarse, y los pesos se
+renormalizan para sumar 1:
+
+```json
+"fitness": {
+  "metric": "combo",
+  "combo": { "mse": 0.20, "regional": 0.20, "edge": 0.25, "saliency": 0.35 },
+  "regional": { "grid_rows": 3, "grid_cols": 1, "detail_weight": 2.0 },
+  "edge": { "sigma": 0.8 },
+  "saliency": { "weight": 2.0, "sigma": 3.0 }
+}
+```
+
 ## Capas
 
 - `genetic_algorithm.domain`: contratos para individuo, imagen objetivo,
@@ -12,47 +123,26 @@ semitransparentes.
   selección, emparejamiento, supervivencia, cruza, mutación, terminación y motor
   evolutivo. También incluye `OrchestratedGeneticAlgorithm`, que coordina estos
   contratos sin decidir cómo funciona ninguna estrategia.
+- `triangle_image`: la implementación concreta (genes, codec, render, métricas de
+  fitness, mutadores y políticas de mutación).
+- `simulation`: capa de composición. `config` define el esquema declarativo y lo
+  valida, `builders` traduce cada opción al operador concreto, `reporting`
+  observa la corrida y `runner` la ejecuta de punta a punta.
 
-Todos usan `abc.ABC` y la sintaxis de parámetros de tipo de Python 3.12. Esto
-permite elegir posteriormente cualquier representación de genoma, fitness o imagen.
+Los contratos usan `abc.ABC` y la sintaxis de parámetros de tipo de Python 3.12.
+Esto permite elegir cualquier representación de genoma, fitness o imagen.
 
 ## Cómo extenderlo
 
 1. Implementar `Individual`, `Fitness` e `ImageTarget` con el formato elegido.
 2. Implementar `FitnessEvaluator` y `FitnessComparator`.
 3. Crear las estrategias concretas necesarias como subclases de los contratos.
-4. Implementar un `GeneticAlgorithm` que las componga.
+4. Registrarlas en `simulation.builders` y agregar sus parámetros al esquema de
+   `simulation.config`, de modo que queden disponibles desde los archivos JSON.
 
-Se incluyen cuatro implementaciones iniciales: `EliteSelection`,
-`AdditiveSurvival`, `OnePointCrossover` y `MultiGeneMutation`. Las dos últimas
-reciben por inyección un `GenomeCodec`; MultiGen además recibe quién elige las
-posiciones (`GenePositionSelector`) y cómo mutar cada gen (`GeneMutator`). Por lo
-tanto, no dependen de una representación específica del individuo ni de una
-mutación concreta.
-
-`OrchestratedGeneticAlgorithm` ya ofrece ese ciclo genérico. Para usarlo se le
+`OrchestratedGeneticAlgorithm` ya ofrece el ciclo genérico. Para usarlo se le
 inyectan las estrategias, un `EvolutionContext` y una configuración que implemente
 `EvolutionConfiguration` (`population_size` y `selected_parent_count`).
-
-## Fitness
-
-Además del MSE global, se pueden usar métricas regionales, SSIM, blur,
-multiescala, histograma y bordes Sobel (`edge`). También están disponibles
-`gradient` (magnitud y orientación de contornos), `chamfer` (distancia tolerante
-a pequeños desplazamientos entre bordes) y `saliency` (MSE que pondera más las
-zonas de alto contraste del objetivo). `--edge-sigma` controla el suavizado
-previo a Sobel.
-
-Se pueden combinar métricas con pesos relativos mediante `--fitness combo`; cada
-una se normaliza antes de ponderarse. Por ejemplo:
-
-```bash
-python main.py --image objetivo.png --fitness combo \\
-  --combo "mse:0.25,gradient:0.25,chamfer:0.25,saliency:0.25" --seed 42
-```
-
-Los pesos deben ser finitos y no negativos; el programa los renormaliza para que
-sumen 1. Con `--seed` se puede repetir exactamente la misma ejecución.
 
 ## Pruebas
 

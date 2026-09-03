@@ -1,0 +1,59 @@
+{
+  "image": "C:/Users/nacho/OneDrive/Pictures/mona-chica.jpg",
+  "output": "output.png",
+  "max_size": 128,
+  "triangles": 100,
+  "seed": 42,
+  "progress_every": 10,
+  "population": {
+    "size": 100,
+    "parents": 60,
+    "generations": 2000,
+    "survival": "additive"
+  },
+  "selection": {
+    "strategy": "tournament",
+    "tournament_size": 5,
+    "win_probability": 0.85
+  },
+  "crossover": {
+    "strategy": "two-point"
+  },
+  "mutation": {
+    "schedule": "exponential",
+    "probability": 0.3,
+    "strength": 0.12,
+    "replacement_probability": 0.08,
+    "decay_generations": 1000,
+    "final": {
+      "probability": 0.05,
+      "strength": 0.025,
+      "replacement_probability": 0.02
+    }
+  },
+  "fitness": {
+    "metric": "combo",
+    "combo": {
+      "mse": 0.20,
+      "regional": 0.20,
+      "edge": 0.25,
+      "saliency": 0.35
+    },
+    "regional": {
+      "grid_rows": 3,
+      "grid_cols": 1,
+      "detail_weight": 2.0
+    },
+    "edge": {
+      "sigma": 0.8
+    },
+    "saliency": {
+      "weight": 2.0,
+      "sigma": 3.0
+    }
+  },
+  "preview": {
+    "directory": "previews/default",
+    "every": 100
+  }
+}
