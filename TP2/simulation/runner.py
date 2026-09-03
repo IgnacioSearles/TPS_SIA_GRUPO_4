@@ -10,7 +10,6 @@ from PIL import Image
 
 from genetic_algorithm.application import (
     CompositeEvolutionObserver,
-    MaxGenerationsTermination,
     MultiGeneMutation,
     OrchestratedGeneticAlgorithm,
     RandomPairingStrategy,
@@ -34,11 +33,13 @@ from simulation.builders import (
     build_crossover,
     build_fitness_evaluator,
     build_mutation_schedule,
+    build_mutation,
+    build_termination,
     build_selection,
     build_survival,
 )
 from simulation.config import SimulationConfig
-from simulation.reporting import PreviewWriter, ProgressReporter
+from simulation.reporting import PreviewWriter, ProgressReporter, RunArtifactWriter
 
 _SEED_UPPER_BOUND = 2 ** 32
 
@@ -52,6 +53,8 @@ class SimulationOutcome:
     best_fitness: float
     elapsed_seconds: float
     output_path: Path
+    run_directory: Path = Path("run")
+    termination_reason: str = "max-generations"
 
 
 def run_simulation(config: SimulationConfig) -> SimulationOutcome:
@@ -64,6 +67,8 @@ def run_simulation(config: SimulationConfig) -> SimulationOutcome:
     mutation_schedule = build_mutation_schedule(config.mutation)
     progress = ProgressReporter(config.progress_every)
     codec = TriangleCodec()
+    run_directory = config.output.parent / "run"
+    artifacts = RunArtifactWriter(run_directory, config)
 
     engine = OrchestratedGeneticAlgorithm(
         initializer=RandomTriangleInitializer(
@@ -72,16 +77,12 @@ def run_simulation(config: SimulationConfig) -> SimulationOutcome:
         selection=build_selection(config.selection, comparator),
         pairing=RandomPairingStrategy(),
         crossover=build_crossover(config.crossover, codec),
-        mutation=MultiGeneMutation(
-            codec,
-            ScheduledGenePositionSelector(mutation_schedule),
-            ScheduledTriangleGeneMutator(target.width, target.height, mutation_schedule),
-        ),
+        mutation=build_mutation(config.mutation, target.width, target.height, codec, mutation_schedule),
         survival=build_survival(config.population, comparator),
-        termination=MaxGenerationsTermination(config.population.generations),
+        termination=build_termination(config.termination, config.population.generations, comparator),
         context=TriangleContext(seed),
         observer=CompositeEvolutionObserver(
-            (progress, MutationScheduleObserver(mutation_schedule), *_preview_observers(config, target))
+            (progress, artifacts, MutationScheduleObserver(mutation_schedule), *_preview_observers(config, target))
         ),
     )
 
@@ -95,6 +96,8 @@ def run_simulation(config: SimulationConfig) -> SimulationOutcome:
         best_fitness=best.fitness.value,
         elapsed_seconds=progress.elapsed_seconds,
         output_path=config.output,
+        run_directory=run_directory,
+        termination_reason=_termination_reason(config, result.final_state.generation),
     )
     print(
         f"Evolución terminada. Generación: {outcome.generations}, "
@@ -102,7 +105,18 @@ def run_simulation(config: SimulationConfig) -> SimulationOutcome:
         f"tiempo total: {outcome.elapsed_seconds:.1f}s"
     )
     _save_best(best.individual, target, config.output)
+    _save_best(best.individual, target, run_directory / "best.png")
+    artifacts.finalize(best.individual, best.fitness.value, outcome.termination_reason,
+                       {"seed": outcome.seed, "generations": outcome.generations})
     return outcome
+
+
+def _termination_reason(config: SimulationConfig, generation: int) -> str:
+    if config.termination.strategy == "max-generations":
+        return "max-generations"
+    if config.termination.strategy == "target-fitness":
+        return "target-fitness"
+    return "stagnation"
 
 
 def _resolve_seed(seed: int | None) -> int:
