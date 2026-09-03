@@ -73,6 +73,26 @@ Y las secciones `population`, `selection`, `crossover`, `mutation`, `fitness` y
   `adaptive-reheat` acepta además una sección `reheat` (`stagnation_generations`,
   `duration_generations`, `improvement_percent`, `probability_multiplier`,
   `strength_multiplier`, `replacement_multiplier`).
+- `mutation.strategy`: `gen` muta un gen, `multigen` varios genes con probabilidad,
+  `uniform` reemplaza genes por triángulos aleatorios y `non-uniform` aplica
+  perturbaciones cuya magnitud sigue el schedule.
+- `termination`: permite elegir `max-generations` (default), `target-fitness` o
+  `stagnation`; sus parámetros son `target_fitness`, `stagnation_generations` e
+  `improvement`.
+
+Cada corrida escribe `run/config.json`, `run/best.png`, `run/triangles.json`,
+`run/history.csv` y `run/summary.json`, junto con la imagen indicada por `output`.
+
+## Experimentos
+
+`experiments.py` ejecuta una matriz declarada en JSON y genera un CSV y un gráfico:
+
+```bash
+python experiments.py experiments.json
+```
+
+El spec contiene `config`, `output_directory` y una `matrix`; las claves pueden
+ser simples o rutas como `mutation.strategy`.
 
 ### Semilla
 

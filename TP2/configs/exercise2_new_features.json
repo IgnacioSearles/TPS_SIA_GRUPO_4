@@ -1,0 +1,73 @@
+{
+  "image": "monalisa.jpg",
+  "output": "runs/exercise2_new_features.png",
+  "max_size": 96,
+  "triangles": 80,
+  "seed": 20260903,
+  "progress_every": 25,
+  "population": {
+    "size": 100,
+    "parents": 100,
+    "generations": 1500,
+    "survival": "additive"
+  },
+  "selection": {
+    "strategy": "tournament",
+    "tournament_size": 5,
+    "win_probability": 0.85
+  },
+  "crossover": {
+    "strategy": "uniform",
+    "uniform_swap_probability": 0.5
+  },
+  "mutation": {
+    "strategy": "non-uniform",
+    "schedule": "adaptive-reheat",
+    "probability": 0.25,
+    "strength": 0.18,
+    "replacement_probability": 0.08,
+    "decay_generations": 1000,
+    "final": {
+      "probability": 0.06,
+      "strength": 0.03,
+      "replacement_probability": 0.02
+    },
+    "reheat": {
+      "stagnation_generations": 75,
+      "duration_generations": 40,
+      "improvement_percent": 0.5,
+      "probability_multiplier": 2.5,
+      "strength_multiplier": 2.5,
+      "replacement_multiplier": 6.0
+    }
+  },
+  "termination": {
+    "strategy": "stagnation",
+    "stagnation_generations": 150,
+    "improvement": 0.0001
+  },
+  "fitness": {
+    "metric": "combo",
+    "combo": {
+      "mse": 0.35,
+      "blur": 0.2,
+      "edge": 0.2,
+      "saliency": 0.25
+    },
+    "blur": {
+      "sigma": 1.5
+    },
+    "edge": {
+      "sigma": 1.0
+    },
+    "saliency": {
+      "weight": 3.0,
+      "sigma": 2.0
+    }
+  },
+  "preview": {
+    "directory": "runs/exercise2_new_features/previews",
+    "every": 100,
+    "full_resolution": false
+  }
+}
