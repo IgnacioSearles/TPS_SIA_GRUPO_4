@@ -1,0 +1,41 @@
+{
+  "image": "monalisa.jpg",
+  "output": "monalisa_sme.png",
+  "triangles": 1000,
+  "max_size": 128,
+  "seed": 42,
+  "progress_every": 10,
+  "population": {
+    "size": 100,
+    "parents": 60,
+    "generations": 4000,
+    "survival": "additive"
+  },
+  "selection": {
+    "strategy": "tournament",
+    "tournament_size": 5,
+    "win_probability": 0.85
+  },
+  "crossover": {
+    "strategy": "one-point"
+  },
+  "mutation": {
+    "schedule": "exponential",
+    "probability": 0.40,
+    "strength": 0.12,
+    "replacement_probability": 0.08,
+    "decay_generations": 1000,
+    "final": {
+      "probability": 0.05,
+      "strength": 0.025,
+      "replacement_probability": 0.02
+    }
+  },
+  "fitness": {
+    "metric": "mse"
+  },
+  "preview": {
+    "directory": "monalisa_sme",
+    "every": 100
+  }
+}
