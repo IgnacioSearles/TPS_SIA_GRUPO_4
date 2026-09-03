@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from genetic_algorithm.domain.contracts import Individual
 
@@ -20,6 +20,7 @@ class TriangleGene:
     g: int
     b: int
     alpha: float
+    vertices: tuple[Point, Point, Point] = field(init=False, repr=False, compare=False)
 
     def __post_init__(self) -> None:
         if self.size <= 0:
@@ -33,20 +34,22 @@ class TriangleGene:
         if not 0.0 <= self.alpha <= 1.0:
             raise ValueError("alpha must be between 0.0 and 1.0")
 
+        theta_1 = 0.0
+        theta_2 = theta_1 + 2 * (180.0 - self.angle_a - self.angle_b)
+        theta_3 = theta_2 + 2 * self.angle_a
+        object.__setattr__(
+            self,
+            "vertices",
+            (
+                self._vertex_at(theta_1),
+                self._vertex_at(theta_2),
+                self._vertex_at(theta_3),
+            )
+        )
+
     @property
     def angle_c(self) -> float:
         return 180.0 - self.angle_a - self.angle_b
-
-    @property
-    def vertices(self) -> tuple[Point, Point, Point]:
-        theta_1 = 0.0
-        theta_2 = theta_1 + 2 * self.angle_c
-        theta_3 = theta_2 + 2 * self.angle_a
-        return (
-            self._vertex_at(theta_1),
-            self._vertex_at(theta_2),
-            self._vertex_at(theta_3),
-        )
 
     def _vertex_at(self, theta_degrees: float) -> Point:
         angle = math.radians(theta_degrees + self.rotation)

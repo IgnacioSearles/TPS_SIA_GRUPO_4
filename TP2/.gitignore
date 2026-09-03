@@ -8,3 +8,4 @@ previews/
 __pycache__/
 *.py[cod]
 *.Zone.Identifier
+run/

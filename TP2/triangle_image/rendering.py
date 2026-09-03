@@ -15,15 +15,9 @@ def render(
     height: int,
     background: Color = (255, 255, 255),
 ) -> Image.Image:
-    canvas = Image.new("RGBA", (width, height), background + (255,))
+    canvas = Image.new("RGB", (width, height), background)
+    draw = ImageDraw.Draw(canvas, "RGBA")
     for triangle in individual.genome:
-        canvas = _draw_triangle(canvas, triangle)
-    return canvas.convert("RGB")
-
-
-def _draw_triangle(canvas: Image.Image, triangle: TriangleGene) -> Image.Image:
-    overlay = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
-    draw = ImageDraw.Draw(overlay)
-    alpha = round(triangle.alpha * 255)
-    draw.polygon(triangle.vertices, fill=(triangle.r, triangle.g, triangle.b, alpha))
-    return Image.alpha_composite(canvas, overlay)
+        alpha = round(triangle.alpha * 255)
+        draw.polygon(triangle.vertices, fill=(triangle.r, triangle.g, triangle.b, alpha))
+    return canvas

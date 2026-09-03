@@ -2,8 +2,8 @@
   "image": "C:/Users/nacho/OneDrive/Pictures/mona-chica.jpg",
   "output": "output.png",
   "max_size": 128,
-  "triangles": 100,
   "seed": 42,
+  "triangles": 100,
   "progress_every": 10,
   "population": {
     "size": 100,

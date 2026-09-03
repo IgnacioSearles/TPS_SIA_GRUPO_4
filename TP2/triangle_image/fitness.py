@@ -103,24 +103,31 @@ def _render_individual(
 class MSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MSEFitness]):
     """Evalúa renderizando los triángulos y calculando el MSE con numpy."""
 
+    def __init__(self) -> None:
+        self._cached_target: TriangleImageTarget | None = None
+        self._target_arr: np.ndarray | None = None
+
+    def _prepare(self, target: TriangleImageTarget) -> None:
+        if self._cached_target is target:
+            return
+        self._target_arr = target.image.astype(np.float32)
+        self._cached_target = target
+
     def evaluate(
         self,
         individual: TriangleIndividual,
         target: TriangleImageTarget,
         context: EvolutionContext,
     ) -> MSEFitness:
+        self._prepare(target)
+        assert self._target_arr is not None
+
         # Renderizamos el fenotipo (la imagen)
         rendered_image = _render_individual(individual, target, context)
-
-        # Al restar int16, la diferencia está entre -255 y 255.
-        # Pero al elevar al cuadrado (hasta 65025), excede el límite de int16 (32767),
-        # causando un overflow (números negativos).
-        # Convertimos a float32 o int32 antes de elevar al cuadrado.
-        target_arr = target.image.astype(np.float32)
-        rendered_arr = np.array(rendered_image, dtype=np.float32)
+        rendered_arr = np.array(rendered_image)
 
         # Calculamos MSE
-        mse = np.mean(np.square(target_arr - rendered_arr))
+        mse = np.mean(np.square(self._target_arr - rendered_arr))
 
         return MSEFitness(_error_to_fitness(float(mse), 255.0 ** 2))
 
@@ -142,6 +149,7 @@ class RegionalMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTar
 
         # Cacheados por objetivo (el objetivo no cambia durante la corrida).
         self._cached_target: TriangleImageTarget | None = None
+        self._target_arr: np.ndarray | None = None
         self._row_bounds: list[tuple[int, int]] = []
         self._col_bounds: list[tuple[int, int]] = []
         self._weights: np.ndarray | None = None  # (grid_rows, grid_cols), suma 1.0
@@ -155,11 +163,11 @@ class RegionalMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTar
         self._row_bounds = list(zip(row_edges[:-1], row_edges[1:]))
         self._col_bounds = list(zip(col_edges[:-1], col_edges[1:]))
 
-        target_arr = target.image.astype(np.float32)
+        self._target_arr = target.image.astype(np.float32)
         detail = np.zeros((self._grid_rows, self._grid_cols), dtype=np.float32)
         for i, (r0, r1) in enumerate(self._row_bounds):
             for j, (c0, c1) in enumerate(self._col_bounds):
-                cell = target_arr[r0:r1, c0:c1]
+                cell = self._target_arr[r0:r1, c0:c1]
                 detail[i, j] = float(np.std(cell)) if cell.size else 0.0
 
         # Peso base 1 + contribución proporcional al detalle normalizado (0..1).
@@ -178,11 +186,11 @@ class RegionalMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTar
     ) -> MSEFitness:
         self._prepare(target)
         assert self._weights is not None
+        assert self._target_arr is not None
 
         rendered_image = _render_individual(individual, target, context)
-        target_arr = target.image.astype(np.float32)
-        rendered_arr = np.array(rendered_image, dtype=np.float32)
-        diff_sq = np.square(target_arr - rendered_arr)
+        rendered_arr = np.array(rendered_image)
+        diff_sq = np.square(self._target_arr - rendered_arr)
 
         weighted_sum = 0.0
         for i, (r0, r1) in enumerate(self._row_bounds):
