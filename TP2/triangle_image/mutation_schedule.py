@@ -120,7 +120,7 @@ class AdaptiveReheatMutationSchedule(TriangleMutationSchedule):
         required_improvement = self._improvement_delta
         if self._improvement_percent:
             required_improvement = abs(self._best_fitness) * self._improvement_percent / 100.0
-        if fitness < self._best_fitness - required_improvement:
+        if fitness > self._best_fitness + required_improvement:
             self._best_fitness = fitness
             self._last_improvement_generation = generation
         elif generation >= self._reheat_until and generation - self._last_improvement_generation >= self._stagnation_generations:

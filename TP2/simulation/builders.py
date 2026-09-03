@@ -36,9 +36,7 @@ from triangle_image import (
     MSEEvaluator,
     MSEFitness,
     MultiScaleMSEEvaluator,
-    NormalizedEvaluator,
     RegionalMSEEvaluator,
-    SCALES,
     SSIMEvaluator,
     SaliencyMSEEvaluator,
     TriangleCodec,
@@ -91,14 +89,10 @@ def build_fitness_evaluator(fitness: FitnessConfig) -> TriangleEvaluator:
 
 
 def _build_combo_evaluator(fitness: FitnessConfig) -> CompositeEvaluator:
-    """Combina métricas normalizadas al rango ~[0, 1] antes de ponderarlas.
-
-    Sin normalizar, métricas con escalas distintas (MSE llega a 255², SSIM a 1)
-    no serían comparables y el peso declarado no reflejaría su influencia real.
-    """
+    """Combina métricas ya normalizadas al rango [0, 1]."""
     combo = fitness.combo or {}
     components = [
-        (NormalizedEvaluator(_METRIC_FACTORIES[name](fitness), SCALES[name]), weight)
+        (_METRIC_FACTORIES[name](fitness), weight)
         for name, weight in combo.items()
     ]
     return CompositeEvaluator(components)

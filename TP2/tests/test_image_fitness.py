@@ -8,13 +8,20 @@ from unittest.mock import patch
 from PIL import Image, ImageDraw
 
 from triangle_image import (
+    BlurredMSEEvaluator,
     ChamferEdgeEvaluator,
+    ColorHistogramEvaluator,
     CompositeEvaluator,
     GradientOrientationEvaluator,
+    MSEComparator,
     MSEEvaluator,
+    MSEFitness,
+    MultiScaleMSEEvaluator,
     MixedTriangleGeneMutator,
     NormalizedEvaluator,
+    RegionalMSEEvaluator,
     SaliencyMSEEvaluator,
+    SSIMEvaluator,
     TriangleContext,
     TriangleColorMutator,
     TriangleGene,
@@ -38,7 +45,7 @@ class StructuralFitnessTests(unittest.TestCase):
         self.context = TriangleContext(seed=0)
         self.white_individual = TriangleIndividual(())
 
-    def test_structural_fitnesses_are_zero_for_an_identical_uniform_image(self) -> None:
+    def test_structural_fitnesses_are_one_for_an_identical_uniform_image(self) -> None:
         target = TriangleImageTarget(Image.new("RGB", (24, 24), "white"))
 
         for evaluator in (
@@ -49,10 +56,10 @@ class StructuralFitnessTests(unittest.TestCase):
             with self.subTest(evaluator=type(evaluator).__name__):
                 self.assertAlmostEqual(
                     evaluator.evaluate(self.white_individual, target, self.context).value,
-                    0.0,
+                    1.0,
                 )
 
-    def test_structural_fitnesses_penalize_a_missing_target_contour(self) -> None:
+    def test_structural_fitnesses_are_below_one_when_target_contour_is_missing(self) -> None:
         target_image = Image.new("RGB", (24, 24), "white")
         ImageDraw.Draw(target_image).rectangle((0, 0, 11, 23), fill="black")
         target = TriangleImageTarget(target_image)
@@ -63,10 +70,30 @@ class StructuralFitnessTests(unittest.TestCase):
             SaliencyMSEEvaluator(blur_sigma=0.0),
         ):
             with self.subTest(evaluator=type(evaluator).__name__):
-                self.assertGreater(
+                self.assertLess(
                     evaluator.evaluate(self.white_individual, target, self.context).value,
-                    0.0,
+                    1.0,
                 )
+
+    def test_mse_comparator_prefers_higher_fitness(self) -> None:
+        comparator = MSEComparator()
+        self.assertTrue(comparator.is_better(MSEFitness(0.8), MSEFitness(0.6)))
+
+    def test_all_image_fitnesses_are_normalized_and_identical_render_is_optimal(self) -> None:
+        target = TriangleImageTarget(Image.new("RGB", (24, 24), "white"))
+        evaluators = (
+            MSEEvaluator(), RegionalMSEEvaluator(), SSIMEvaluator(),
+            BlurredMSEEvaluator(), MultiScaleMSEEvaluator(),
+            ColorHistogramEvaluator(), GradientOrientationEvaluator(blur_sigma=0.0),
+            ChamferEdgeEvaluator(blur_sigma=0.0), SaliencyMSEEvaluator(blur_sigma=0.0),
+        )
+
+        for evaluator in evaluators:
+            with self.subTest(evaluator=type(evaluator).__name__):
+                value = evaluator.evaluate(self.white_individual, target, self.context).value
+                self.assertGreaterEqual(value, 0.0)
+                self.assertLessEqual(value, 1.0)
+                self.assertAlmostEqual(value, 1.0)
 
     def test_composite_renders_once_and_evicts_the_image_after_evaluation(self) -> None:
         target = TriangleImageTarget(Image.new("RGB", (24, 24), "white"))
@@ -145,9 +172,9 @@ class TriangleMutationTests(unittest.TestCase):
             probability_multiplier=2.0, strength_multiplier=2.0, replacement_multiplier=3.0,
         )
 
-        schedule.observe_best(0, 1.0)
-        schedule.observe_best(1, 0.95)  # mejora real, pero menor que delta
-        schedule.observe_best(2, 0.94)  # dispara el recalentamiento
+        schedule.observe_best(0, 0.5)
+        schedule.observe_best(1, 0.55)  # mejora real, pero menor que delta
+        schedule.observe_best(2, 0.54)  # sigue estancado: recalienta
 
         parameters = schedule.parameters_at(2)
         self.assertEqual(parameters.probability, 0.4)
@@ -159,7 +186,7 @@ class TriangleMutationTests(unittest.TestCase):
             base, stagnation_generations=2, reheat_generations=1, improvement_percent=1.0,
             probability_multiplier=2.0,
         )
-        schedule.observe_best(0, 1.0)
-        schedule.observe_best(1, 0.995)  # mejora de 0.5%, ignorada
-        schedule.observe_best(2, 0.994)  # sigue estancado: recalienta
+        schedule.observe_best(0, 0.5)
+        schedule.observe_best(1, 0.505)  # mejora de 1%, no supera el umbral estricto
+        schedule.observe_best(2, 0.504)  # sigue estancado: recalienta
         self.assertAlmostEqual(schedule.parameters_at(2).probability, 0.4)

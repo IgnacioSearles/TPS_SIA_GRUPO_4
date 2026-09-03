@@ -404,8 +404,8 @@ class SaliencyFitnessConfig:
 class FitnessConfig:
     """Métrica a optimizar y los parámetros de cada evaluador disponible.
 
-    Con `metric: "combo"` se optimiza una suma ponderada de varias métricas
-    normalizadas, declaradas en `combo` como pares nombre/peso.
+    Con `metric: "combo"` se optimiza una suma ponderada de fitness normalizadas,
+    declaradas en `combo` como pares nombre/peso.
     """
 
     metric: str = "mse"

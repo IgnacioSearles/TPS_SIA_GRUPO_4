@@ -64,7 +64,7 @@ class TriangleImageTarget(ImageTarget[np.ndarray]):
 
 
 class MSEFitness(Fitness[float]):
-    """Error cuadrático medio contra la imagen objetivo."""
+    """Fitness normalizada en [0, 1], donde un valor mayor es mejor."""
 
     def __init__(self, error: float) -> None:
         self._error = error
@@ -75,10 +75,17 @@ class MSEFitness(Fitness[float]):
 
 
 class MSEComparator(FitnessComparator[MSEFitness]):
-    """Compara por menor MSE (problema de minimización)."""
+    """Compara fitness ascendentes: un valor mayor representa una mejor solución."""
 
     def is_better(self, left: MSEFitness, right: MSEFitness) -> bool:
-        return left.value < right.value
+        return left.value > right.value
+
+
+def _error_to_fitness(error: float, maximum_error: float) -> float:
+    """Convierte un error acotado en una similitud normalizada ascendente."""
+    if maximum_error <= 0:
+        raise ValueError("maximum_error debe ser positivo")
+    return float(np.clip(1.0 - error / maximum_error, 0.0, 1.0))
 
 
 def _render_individual(
@@ -115,7 +122,7 @@ class MSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MSE
         # Calculamos MSE
         mse = np.mean(np.square(target_arr - rendered_arr))
 
-        return MSEFitness(float(mse))
+        return MSEFitness(_error_to_fitness(float(mse), 255.0 ** 2))
 
 
 class RegionalMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MSEFitness]):
@@ -186,7 +193,7 @@ class RegionalMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTar
                 region_mse = float(np.mean(cell))
                 weighted_sum += float(self._weights[i, j]) * region_mse
 
-        return MSEFitness(weighted_sum)
+        return MSEFitness(_error_to_fitness(weighted_sum, 255.0 ** 2))
 
 
 def _channel_ssim(img1: np.ndarray, img2: np.ndarray, win_size: int) -> np.ndarray:
@@ -218,8 +225,8 @@ class SSIMEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MS
     penaliza más los cambios estructurales).
 
     Se calcula el SSIM por canal (R, G, B) y se promedia. Como SSIM ∈ [-1, 1] con
-    1 = coincidencia perfecta, el término de error es `1 - SSIM medio` (0 = coincidencia
-    perfecta), manteniendo la semántica de minimización del resto del pipeline.
+    1 = coincidencia perfecta, el término de error se convierte a una similitud
+    normalizada ascendente.
 
     SSIM puro tiene un punto débil conocido para este problema: en regiones lisas
     (como las franjas de una bandera) el término de contraste/estructura se satura
@@ -261,12 +268,13 @@ class SSIMEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MS
         ssim_term = 1.0 - mean_ssim
 
         if self._mse_weight <= 0.0:
-            return MSEFitness(ssim_term)
+            return MSEFitness(_error_to_fitness(ssim_term, 2.0))
 
         rmse_term = float(np.sqrt(np.mean(np.square(target_arr - rendered_arr)))) / 255.0
-        fitness = (1.0 - self._mse_weight) * ssim_term + self._mse_weight * rmse_term
+        error = (1.0 - self._mse_weight) * ssim_term + self._mse_weight * rmse_term
+        maximum_error = (1.0 - self._mse_weight) * 2.0 + self._mse_weight
 
-        return MSEFitness(fitness)
+        return MSEFitness(_error_to_fitness(error, maximum_error))
 
 
 class BlurredMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MSEFitness]):
@@ -313,7 +321,7 @@ class BlurredMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarg
         blurred_rendered = self._blur(rendered_arr)
 
         mse = np.mean(np.square(self._blurred_target - blurred_rendered))
-        return MSEFitness(float(mse))
+        return MSEFitness(_error_to_fitness(float(mse), 255.0 ** 2))
 
 
 class EdgeMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MSEFitness]):
@@ -360,7 +368,8 @@ class EdgeMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget,
 
         rendered_image = _render_individual(individual, target, context)
         rendered_edges = self._edge_map(np.array(rendered_image, dtype=np.float32))
-        return MSEFitness(float(np.mean(np.square(self._target_edges - rendered_edges))))
+        error = float(np.mean(np.square(self._target_edges - rendered_edges)))
+        return MSEFitness(_error_to_fitness(error, 255.0 ** 2))
 
 
 def _luminance(image_arr: np.ndarray) -> np.ndarray:
@@ -430,7 +439,7 @@ class GradientOrientationEvaluator(FitnessEvaluator[TriangleIndividual, Triangle
 
         score = ((1.0 - self._orientation_weight) * magnitude_error
                  + self._orientation_weight * orientation_score)
-        return MSEFitness(score)
+        return MSEFitness(_error_to_fitness(score, 1.0))
 
 
 class ChamferEdgeEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MSEFitness]):
@@ -483,7 +492,7 @@ class ChamferEdgeEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTar
         diagonal = math.hypot(target.width, target.height)
         score = (self._directed_distance(rendered_edges, self._target_edges, diagonal)
                  + self._directed_distance(self._target_edges, rendered_edges, diagonal)) / 2.0
-        return MSEFitness(score)
+        return MSEFitness(_error_to_fitness(score, 1.0))
 
 
 class SaliencyMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MSEFitness]):
@@ -523,7 +532,8 @@ class SaliencyMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTar
         assert self._weights is not None
         rendered = np.array(_render_individual(individual, target, context), dtype=np.float32)
         diff_squared = np.mean(np.square(target.image.astype(np.float32) - rendered), axis=2)
-        return MSEFitness(float(np.average(diff_squared, weights=self._weights)))
+        error = float(np.average(diff_squared, weights=self._weights))
+        return MSEFitness(_error_to_fitness(error, 255.0 ** 2))
 
 
 class MultiScaleMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MSEFitness]):
@@ -590,7 +600,7 @@ class MultiScaleMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageT
             mse = float(np.mean(np.square(target_level - rendered_level)))
             weighted_sum += weight * mse
 
-        return MSEFitness(weighted_sum)
+        return MSEFitness(_error_to_fitness(weighted_sum, 255.0 ** 2))
 
 
 class ColorHistogramEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MSEFitness]):
@@ -653,24 +663,21 @@ class ColorHistogramEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImage
         hist_term = float(np.mean(per_channel))
 
         if self._mse_weight <= 0.0:
-            return MSEFitness(hist_term)
+            return MSEFitness(_error_to_fitness(hist_term, 2.0 ** 0.5))
 
         target_arr = target.image.astype(np.float64)
         rmse_term = float(np.sqrt(np.mean(np.square(target_arr - rendered_arr)))) / 255.0
-        fitness = (1.0 - self._mse_weight) * hist_term + self._mse_weight * rmse_term
+        error = (1.0 - self._mse_weight) * hist_term + self._mse_weight * rmse_term
+        maximum_error = (1.0 - self._mse_weight) * (2.0 ** 0.5) + self._mse_weight
 
-        return MSEFitness(fitness)
+        return MSEFitness(_error_to_fitness(error, maximum_error))
 
 
 class NormalizedEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MSEFitness]):
-    """Envuelve otro evaluador y reescala su fitness a un rango ~[0, 1].
+    """Adaptador legado para evaluadores que ya devuelven fitness normalizada.
 
-    Cada evaluador de este módulo devuelve su error en unidades distintas (MSE en
-    píxeles al cuadrado hasta 65025, SSIM/histograma ya entre 0 y ~1.4, etc.). Para
-    poder combinarlos en un fitness compuesto con pesos que signifiquen lo mismo
-    entre sí, primero hay que llevarlos a una escala comparable dividiendo por el
-    error máximo teórico de cada uno (`scale`). Ver `SCALES` para los valores usados
-    por cada evaluador de este módulo.
+    `scale` se conserva por compatibilidad, pero las métricas actuales ya
+    normalizan internamente y no deben dividirse nuevamente.
     """
 
     def __init__(self, evaluator: FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MSEFitness], scale: float) -> None:
@@ -686,12 +693,12 @@ class NormalizedEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarg
         context: EvolutionContext,
     ) -> MSEFitness:
         raw = self._evaluator.evaluate(individual, target, context)
-        return MSEFitness(raw.value / self._scale)
+        return MSEFitness(float(np.clip(raw.value, 0.0, 1.0)))
 
 
-# Error máximo teórico de cada evaluador de este módulo, para usar con `NormalizedEvaluator`.
-# Los basados en MSE de píxeles están acotados por 255**2 (diferencia máxima por canal al
-# cuadrado); SSIM y el histograma ya devuelven un término acotado (~1 y sqrt(2) respectivamente).
+# Límites teóricos conservados para identificar métricas en la configuración y para
+# compatibilidad con consumidores externos. La normalización se hace dentro de cada
+# evaluador; no se aplican automáticamente al construir un combo.
 SCALES: dict[str, float] = {
     "mse": 255.0 ** 2,
     "regional": 255.0 ** 2,
@@ -707,13 +714,7 @@ SCALES: dict[str, float] = {
 
 
 class CompositeEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MSEFitness]):
-    """Combina varios evaluadores (ya normalizados a rangos comparables) en un solo fitness.
-
-    Evalúa cada componente y devuelve la suma ponderada de sus valores (los pesos se
-    renormalizan para sumar 1). Permite mezclar criterios distintos, por ejemplo
-    `0.4 * MSE + 0.3 * SSIM + 0.3 * histograma de color`, en vez de optimizar un
-    solo objetivo a la vez.
-    """
+    """Combina fitness normalizadas mediante una suma ponderada ascendente."""
 
     def __init__(
         self,

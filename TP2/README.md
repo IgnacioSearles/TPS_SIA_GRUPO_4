@@ -101,9 +101,14 @@ orientación de contornos), `chamfer` (tolerante a pequeños desplazamientos ent
 bordes) y `saliency` (pondera más las zonas de alto contraste del objetivo). Cada
 una tiene su propia subsección de parámetros dentro de `fitness`.
 
-Con `metric: "combo"` se optimiza una suma ponderada de varias métricas; cada una
-se normaliza a un rango comparable antes de ponderarse, y los pesos se
-renormalizan para sumar 1:
+Todas las métricas devuelven una fitness normalizada en el rango `[0, 1]`: `1`
+es una coincidencia perfecta y los valores más altos siempre representan mejores
+soluciones. La normalización usa el máximo teórico fijo de cada métrica, por lo
+que el valor es comparable entre generaciones y corridas.
+
+Con `metric: "combo"` se optimiza una suma ponderada de varias fitness; cada una
+ya está normalizada en `[0, 1]` antes de ponderarse, y los pesos se renormalizan
+para sumar 1:
 
 ```json
 "fitness": {
