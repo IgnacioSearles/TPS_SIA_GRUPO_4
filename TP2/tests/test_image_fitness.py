@@ -79,6 +79,56 @@ class StructuralFitnessTests(unittest.TestCase):
         comparator = MSEComparator()
         self.assertTrue(comparator.is_better(MSEFitness(0.8), MSEFitness(0.6)))
 
+    def test_mse_matches_known_rgb_error(self) -> None:
+        target_image = Image.new("RGB", (1, 1), (0, 255, 255))
+        target = TriangleImageTarget(target_image)
+
+        value = MSEEvaluator().evaluate(self.white_individual, target, self.context).value
+
+        self.assertAlmostEqual(value, 2.0 / 3.0)
+
+    def test_transparent_target_pixels_are_composited_on_white(self) -> None:
+        target_image = Image.new("RGBA", (2, 1), (0, 0, 0, 0))
+        target_image.putpixel((1, 0), (0, 0, 0, 255))
+
+        target = TriangleImageTarget(target_image)
+
+        self.assertEqual(tuple(target.image[0, 0]), (255, 255, 255))
+        self.assertEqual(tuple(target.image[0, 1]), (0, 0, 0))
+        self.assertIsNotNone(target.mse_weights)
+        assert target.mse_weights is not None
+        self.assertAlmostEqual(float(target.mse_weights[0, 0]), 0.5)
+        self.assertAlmostEqual(float(target.mse_weights[0, 1]), 1.0)
+        self.assertAlmostEqual(
+            MSEEvaluator().evaluate(self.white_individual, target, self.context).value,
+            1.0 / 3.0,
+        )
+        for evaluator in (
+            BlurredMSEEvaluator(sigma=0.0),
+            MultiScaleMSEEvaluator(scales=(1.0,)),
+            SaliencyMSEEvaluator(saliency_weight=0.0, blur_sigma=0.0),
+        ):
+            with self.subTest(evaluator=type(evaluator).__name__):
+                self.assertAlmostEqual(
+                    evaluator.evaluate(self.white_individual, target, self.context).value,
+                    1.0 / 3.0,
+                )
+
+    def test_hidden_rgb_of_transparent_pixels_does_not_affect_resized_target(self) -> None:
+        black_hidden = Image.new("RGBA", (4, 1), (0, 0, 0, 0))
+        red_hidden = Image.new("RGBA", (4, 1), (255, 0, 0, 0))
+        black_hidden.putpixel((3, 0), (20, 40, 200, 255))
+        red_hidden.putpixel((3, 0), (20, 40, 200, 255))
+
+        black_target = TriangleImageTarget(black_hidden, max_size=2)
+        red_target = TriangleImageTarget(red_hidden, max_size=2)
+
+        self.assertEqual(black_target.image.tolist(), red_target.image.tolist())
+        self.assertEqual(
+            black_target.mse_weights.tolist(),
+            red_target.mse_weights.tolist(),
+        )
+
     def test_all_image_fitnesses_are_normalized_and_identical_render_is_optimal(self) -> None:
         target = TriangleImageTarget(Image.new("RGB", (24, 24), "white"))
         evaluators = (

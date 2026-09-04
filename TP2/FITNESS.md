@@ -59,7 +59,13 @@ El resto de los hiperparámetros vive en el JSON.
 Antes de entrar en cada métrica, conviene entender qué compara el programa.
 
 1. El usuario declara una imagen objetivo con `image`.
-2. `TriangleImageTarget` carga esa imagen con PIL y la convierte a RGB.
+2. `TriangleImageTarget` carga esa imagen con PIL y la lleva al RGB que usa el
+   renderizador. Si el archivo tiene transparencia, primero compone los píxeles
+   sobre fondo blanco; no descarta el canal alpha como un `convert("RGB")`
+   directo, porque eso haría que píxeles transparentes con RGB oculto negro
+   contaminen el fitness. Esta composición se hace antes de achicar por
+   `max_size`, así el resize tampoco mezcla colores ocultos de zonas
+   transparentes.
 3. Si la imagen es más grande que `max_size`, se reduce para acelerar la
    evaluación.
 4. Cada individuo (`TriangleIndividual`) tiene una lista ordenada de genes.
@@ -157,6 +163,18 @@ Configuración:
 ### Qué mide
 
 MSE significa Mean Squared Error, o error cuadrático medio.
+
+En imágenes con transparencia, el MSE usa además pesos derivados del alpha:
+
+- píxeles opacos pesan `1.0`;
+- píxeles totalmente transparentes pesan `0.5`;
+- píxeles semitransparentes quedan en el medio.
+
+Esto evita dos problemas comunes en PNGs de logos: que el RGB oculto de zonas
+transparentes se interprete como color real, y que el fondo domine por completo
+la comparación. El fondo sigue importando, porque pintar triángulos fuera del
+objeto también debería penalizarse, pero el contenido visible recibe más presión
+evolutiva.
 
 Compara cada píxel de la imagen objetivo contra el píxel de la misma posición en
 la imagen renderizada. Para cada canal RGB calcula la diferencia, la eleva al

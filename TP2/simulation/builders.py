@@ -122,7 +122,10 @@ def build_selection(
     if selection.strategy == "universal":
         return UniversalSelection()
     if selection.strategy == "boltzmann":
-        return BoltzmannSelection(selection.boltzmann_temperature)
+        return BoltzmannSelection(
+            selection.boltzmann_temperature,
+            standardize=selection.boltzmann_standardize,
+        )
     if selection.strategy == "ranking":
         return RankingSelection(comparator)
     if selection.strategy == "deterministic-tournament":

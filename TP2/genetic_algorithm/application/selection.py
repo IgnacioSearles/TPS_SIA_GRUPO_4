@@ -174,10 +174,25 @@ class BoltzmannSelection[IndividualT: Individual[Any], FitnessT: Fitness[Any]](
 ):
     """Selección probabilística con pesos exponenciales controlados por temperatura."""
 
-    def __init__(self, temperature: float = 1.0) -> None:
+    def __init__(
+        self,
+        temperature: float = 1.0,
+        standardize: bool = False,
+    ) -> None:
         if temperature <= 0.0 or not math.isfinite(temperature):
             raise ValueError("temperature must be positive and finite")
         self._temperature = temperature
+        self._standardize = standardize
+
+    def _scores(self, values: tuple[float, ...]) -> tuple[float, ...]:
+        if not self._standardize:
+            return values
+        mean = sum(values) / len(values)
+        variance = sum((value - mean) ** 2 for value in values) / len(values)
+        std_dev = math.sqrt(variance)
+        if std_dev <= 1e-12:
+            return tuple(0.0 for _ in values)
+        return tuple((value - mean) / std_dev for value in values)
 
     def select(
         self,
@@ -191,8 +206,9 @@ class BoltzmannSelection[IndividualT: Individual[Any], FitnessT: Fitness[Any]](
             raise ValueError("boltzmann selection requires finite fitness values")
         if not values:
             return ()
-        maximum = max(values)
-        weights = tuple(math.exp((value - maximum) / self._temperature) for value in values)
+        scores = self._scores(values)
+        maximum = max(scores)
+        weights = tuple(math.exp((score - maximum) / self._temperature) for score in scores)
         return _select_weighted_with_replacement(candidates, weights, amount, context)
 
 

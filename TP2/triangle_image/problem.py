@@ -43,7 +43,7 @@ class TriangleContext(EvolutionContext):
         self._generation = 0
         self._render_cache: dict[tuple[TriangleIndividual, int, int], Image.Image] = {}
         self._array_cache: dict[tuple[TriangleIndividual, int, int], np.ndarray] = {}
-        self._mse_cache: dict[tuple[TriangleIndividual, int, int], float] = {}
+        self._mse_cache: dict[tuple[TriangleIndividual, int, int, int, int], float] = {}
         self._render_scope_active = False
 
     @property
@@ -90,14 +90,23 @@ class TriangleContext(EvolutionContext):
         return self._array_cache[key]
 
     def global_mse(
-        self, individual: TriangleIndividual, target: np.ndarray, width: int, height: int
+        self,
+        individual: TriangleIndividual,
+        target: np.ndarray,
+        width: int,
+        height: int,
+        weights: np.ndarray | None = None,
     ) -> float:
         """Calcula una sola vez el MSE RGB global durante un fitness compuesto."""
-        key = (individual, width, height)
+        key = (individual, width, height, id(target), id(weights))
         if self._render_scope_active and key in self._mse_cache:
             return self._mse_cache[key]
         rendered = self.render_array(individual, width, height).astype(np.float32)
-        mse = float(np.mean(np.square(target.astype(np.float32) - rendered)))
+        diff_sq = np.square(target.astype(np.float32) - rendered)
+        if weights is None:
+            mse = float(np.mean(diff_sq))
+        else:
+            mse = float(np.average(np.mean(diff_sq, axis=2), weights=weights))
         if self._render_scope_active:
             self._mse_cache[key] = mse
         return mse

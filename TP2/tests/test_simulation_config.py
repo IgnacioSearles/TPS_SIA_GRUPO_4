@@ -209,6 +209,12 @@ class SemanticValidationTests(unittest.TestCase):
             build_config(selection={"strategy": "boltzmann", "boltzmann_temperature": 0})
         self.assertIn("boltzmann_temperature", str(error.exception))
 
+    def test_boltzmann_standardize_is_read(self) -> None:
+        config = build_config(
+            selection={"strategy": "boltzmann", "boltzmann_standardize": True}
+        )
+        self.assertTrue(config.selection.boltzmann_standardize)
+
 
 class FileLoadingTests(unittest.TestCase):
     def setUp(self) -> None:

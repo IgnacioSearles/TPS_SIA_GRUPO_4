@@ -14,6 +14,44 @@ from genetic_algorithm.domain.contracts import (EvolutionContext, Fitness,
 from triangle_image.gene import TriangleIndividual
 from triangle_image.rendering import render
 
+_TARGET_BACKGROUND = (255, 255, 255)
+_TRANSPARENT_BACKGROUND_MSE_WEIGHT = 0.5
+
+
+def _resample_filter() -> int:
+    try:
+        return Image.Resampling.LANCZOS
+    except AttributeError:
+        return Image.LANCZOS
+
+
+def _flatten_on_background(image: Image.Image) -> tuple[Image.Image, Image.Image]:
+    """Compone transparencias sobre el mismo fondo que usa el renderizador."""
+    rgba = image.convert("RGBA")
+    background = Image.new("RGBA", rgba.size, (*_TARGET_BACKGROUND, 255))
+    background.alpha_composite(rgba)
+    return background.convert("RGB"), rgba.getchannel("A")
+
+
+def _mse_weights_from_alpha(alpha: np.ndarray) -> np.ndarray | None:
+    """Da más peso al contenido visible que al fondo transparente del objetivo."""
+    if np.all(alpha >= 1.0):
+        return None
+    return _TRANSPARENT_BACKGROUND_MSE_WEIGHT + (
+        1.0 - _TRANSPARENT_BACKGROUND_MSE_WEIGHT
+    ) * alpha
+
+
+def _mean_squared_rgb_error(
+    target_arr: np.ndarray,
+    rendered_arr: np.ndarray,
+    weights: np.ndarray | None = None,
+) -> float:
+    diff_sq = np.square(target_arr - rendered_arr)
+    if weights is None:
+        return float(np.mean(diff_sq))
+    return float(np.average(np.mean(diff_sq, axis=2), weights=weights))
+
 
 class TriangleImageTarget(ImageTarget[np.ndarray]):
     """Imagen objetivo almacenada como array de numpy para cálculos rápidos."""
@@ -21,26 +59,30 @@ class TriangleImageTarget(ImageTarget[np.ndarray]):
     def __init__(self, image: Image.Image, max_size: int | None = None) -> None:
         self._orig_width, self._orig_height = image.size
         self._scale_factor = 1.0
+        flattened, alpha = _flatten_on_background(image)
 
         if max_size is not None and max(self._orig_width, self._orig_height) > max_size:
             self._scale_factor = max_size / float(max(self._orig_width, self._orig_height))
-            new_width = int(self._orig_width * self._scale_factor)
-            new_height = int(self._orig_height * self._scale_factor)
-            
-            try:
-                resample_filter = Image.Resampling.LANCZOS
-            except AttributeError:
-                resample_filter = Image.LANCZOS
-                
-            image = image.resize((new_width, new_height), resample_filter)
+            new_width = max(1, round(self._orig_width * self._scale_factor))
+            new_height = max(1, round(self._orig_height * self._scale_factor))
+            size = (new_width, new_height)
+            resample_filter = _resample_filter()
+            flattened = flattened.resize(size, resample_filter)
+            alpha = alpha.resize(size, resample_filter)
 
-        self._width, self._height = image.size
+        self._width, self._height = flattened.size
         # Usamos int16 para evitar overflow al restar píxeles
-        self._image_array = np.array(image.convert("RGB"), dtype=np.int16)
+        self._image_array = np.array(flattened, dtype=np.int16)
+        alpha_array = np.asarray(alpha, dtype=np.float32) / 255.0
+        self._mse_weights = _mse_weights_from_alpha(alpha_array)
 
     @property
     def image(self) -> np.ndarray:
         return self._image_array
+
+    @property
+    def mse_weights(self) -> np.ndarray | None:
+        return self._mse_weights
 
     @property
     def width(self) -> int:
@@ -123,10 +165,18 @@ def _global_mse(
     """MSE RGB global, compartido por los evaluadores que lo necesitan."""
     cached_mse = getattr(context, "global_mse", None)
     if callable(cached_mse):
-        return float(cached_mse(individual, target.image, target.width, target.height))
+        return float(
+            cached_mse(
+                individual,
+                target.image,
+                target.width,
+                target.height,
+                target.mse_weights,
+            )
+        )
     target_arr = target.image.astype(np.float32)
     rendered_arr = _render_array(individual, target, context, np.float32)
-    return float(np.mean(np.square(target_arr - rendered_arr)))
+    return _mean_squared_rgb_error(target_arr, rendered_arr, target.mse_weights)
 
 
 class MSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarget, MSEFitness]):
@@ -215,6 +265,7 @@ class RegionalMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTar
         rendered_image = _render_individual(individual, target, context)
         rendered_arr = np.array(rendered_image)
         diff_sq = np.square(self._target_arr - rendered_arr)
+        alpha_weights = target.mse_weights
 
         weighted_sum = 0.0
         for i, (r0, r1) in enumerate(self._row_bounds):
@@ -222,7 +273,15 @@ class RegionalMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTar
                 cell = diff_sq[r0:r1, c0:c1]
                 if cell.size == 0:
                     continue
-                region_mse = float(np.mean(cell))
+                if alpha_weights is None:
+                    region_mse = float(np.mean(cell))
+                else:
+                    region_mse = float(
+                        np.average(
+                            np.mean(cell, axis=2),
+                            weights=alpha_weights[r0:r1, c0:c1],
+                        )
+                    )
                 weighted_sum += float(self._weights[i, j]) * region_mse
 
         return MSEFitness(_error_to_fitness(weighted_sum, 255.0 ** 2))
@@ -350,7 +409,9 @@ class BlurredMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTarg
         rendered_arr = _render_array(individual, target, context, np.float32)
         blurred_rendered = self._blur(rendered_arr)
 
-        mse = np.mean(np.square(self._blurred_target - blurred_rendered))
+        mse = _mean_squared_rgb_error(
+            self._blurred_target, blurred_rendered, target.mse_weights
+        )
         return MSEFitness(_error_to_fitness(float(mse), 255.0 ** 2))
 
 
@@ -549,6 +610,8 @@ class SaliencyMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageTar
         maximum = float(saliency.max())
         normalized = saliency / maximum if maximum > 0 else np.zeros_like(saliency)
         self._weights = 1.0 + self._saliency_weight * normalized
+        if target.mse_weights is not None:
+            self._weights = self._weights * target.mse_weights
         self._cached_target = target
 
     def evaluate(
@@ -594,6 +657,7 @@ class MultiScaleMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageT
 
         self._cached_target: TriangleImageTarget | None = None
         self._target_levels: list[np.ndarray] = []
+        self._weight_levels: list[np.ndarray | None] = []
 
     @staticmethod
     def _resize(image: Image.Image, scale: float) -> np.ndarray:
@@ -601,17 +665,27 @@ class MultiScaleMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageT
             return np.array(image, dtype=np.float32)
         width = max(1, round(image.width * scale))
         height = max(1, round(image.height * scale))
-        try:
-            resample_filter = Image.Resampling.LANCZOS
-        except AttributeError:
-            resample_filter = Image.LANCZOS
+        resample_filter = _resample_filter()
         return np.array(image.resize((width, height), resample_filter), dtype=np.float32)
+
+    @staticmethod
+    def _resize_weights(weights: np.ndarray | None, scale: float) -> np.ndarray | None:
+        if weights is None or scale >= 1.0:
+            return weights
+        width = max(1, round(weights.shape[1] * scale))
+        height = max(1, round(weights.shape[0] * scale))
+        image = Image.fromarray(weights.astype(np.float32), mode="F")
+        resized = np.array(image.resize((width, height), _resample_filter()), dtype=np.float32)
+        return np.clip(resized, _TRANSPARENT_BACKGROUND_MSE_WEIGHT, 1.0)
 
     def _prepare(self, target: TriangleImageTarget) -> None:
         if self._cached_target is target:
             return
         target_image = Image.fromarray(target.image.astype(np.uint8), mode="RGB")
         self._target_levels = [self._resize(target_image, scale) for scale in self._scales]
+        self._weight_levels = [
+            self._resize_weights(target.mse_weights, scale) for scale in self._scales
+        ]
         self._cached_target = target
 
     def evaluate(
@@ -624,9 +698,11 @@ class MultiScaleMSEEvaluator(FitnessEvaluator[TriangleIndividual, TriangleImageT
         rendered_image = _render_individual(individual, target, context)
 
         weighted_sum = 0.0
-        for scale, weight, target_level in zip(self._scales, self._weights, self._target_levels):
+        for scale, weight, target_level, weight_level in zip(
+            self._scales, self._weights, self._target_levels, self._weight_levels
+        ):
             rendered_level = self._resize(rendered_image, scale)
-            mse = float(np.mean(np.square(target_level - rendered_level)))
+            mse = _mean_squared_rgb_error(target_level, rendered_level, weight_level)
             weighted_sum += weight * mse
 
         return MSEFitness(_error_to_fitness(weighted_sum, 255.0 ** 2))

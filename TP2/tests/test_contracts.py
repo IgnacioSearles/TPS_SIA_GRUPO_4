@@ -357,6 +357,26 @@ class StrategyImplementationTests(unittest.TestCase):
         selected = BoltzmannSelection(temperature=0.01).select(population, 4, self.context)
         self.assertEqual([candidate.fitness.value for candidate in selected], [1000, 1000, 1000, 1000])
 
+    def test_standardized_boltzmann_handles_close_normalized_fitness_values(self) -> None:
+        population = tuple(
+            DefaultScoredIndividual(GeneIndividual((str(score),)), RankedFitness(score))
+            for score in (0.90, 0.91, 0.92, 0.93, 0.94, 0.95)
+        )
+        selected = BoltzmannSelection(temperature=0.3, standardize=True).select(
+            population, 12, ConcreteContext(seed=0)
+        )
+        self.assertEqual([candidate.fitness.value for candidate in selected], [0.95] * 12)
+
+    def test_standardized_boltzmann_handles_equal_fitness_values(self) -> None:
+        population = tuple(
+            DefaultScoredIndividual(GeneIndividual((str(score),)), RankedFitness(score))
+            for score in (0.90, 0.90, 0.90)
+        )
+        selected = BoltzmannSelection(temperature=0.3, standardize=True).select(
+            population, 3, ConcreteContext(seed=0)
+        )
+        self.assertEqual(len(selected), 3)
+
     def test_ranking_selection_uses_order_instead_of_absolute_fitness(self) -> None:
         population = tuple(
             DefaultScoredIndividual(GeneIndividual((str(score),)), RankedFitness(score))

@@ -96,6 +96,7 @@ class SelectionConfig:
     tournament_size: int = 3
     win_probability: float = 0.85
     boltzmann_temperature: float = 1.0
+    boltzmann_standardize: bool = False
 
     def __post_init__(self) -> None:
         if self.tournament_size < 2:
@@ -112,6 +113,9 @@ class SelectionConfig:
             win_probability=section.number("win_probability", defaults.win_probability),
             boltzmann_temperature=section.number(
                 "boltzmann_temperature", defaults.boltzmann_temperature
+            ),
+            boltzmann_standardize=section.boolean(
+                "boltzmann_standardize", defaults.boltzmann_standardize
             ),
         )
 

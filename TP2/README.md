@@ -79,7 +79,9 @@ Y las secciones `population`, `selection`, `crossover`, `mutation`, `fitness`,
 - `selection.strategy`: `elite`, `roulette`, `universal`, `boltzmann`,
   `ranking`, `deterministic-tournament`, `probabilistic-tournament` o
   `tournament` (alias de `probabilistic-tournament`).
-  `boltzmann` usa además `boltzmann_temperature`.
+  `boltzmann` usa además `boltzmann_temperature`; opcionalmente acepta
+  `boltzmann_standardize` para estandarizar los fitness de cada generación antes
+  de calcular las probabilidades.
 - `crossover.strategy`: `one-point`, `two-point`, `uniform` (con
   `uniform_swap_probability`) o `annular`.
 - `mutation.schedule`: `constant`, `linear`, `exponential` o `adaptive-reheat`.
