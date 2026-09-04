@@ -52,6 +52,7 @@ class SimulationOutcome:
     generations: int
     best_fitness: float
     elapsed_seconds: float
+    cpu_seconds: float
     output_path: Path
     run_directory: Path = Path("run")
     termination_reason: str = "max-generations"
@@ -95,6 +96,7 @@ def run_simulation(config: SimulationConfig) -> SimulationOutcome:
         generations=result.final_state.generation,
         best_fitness=best.fitness.value,
         elapsed_seconds=progress.elapsed_seconds,
+        cpu_seconds=progress.cpu_seconds,
         output_path=config.output,
         run_directory=run_directory,
         termination_reason=_termination_reason(config, result.final_state.generation),
@@ -102,13 +104,14 @@ def run_simulation(config: SimulationConfig) -> SimulationOutcome:
     print(
         f"Evolución terminada. Generación: {outcome.generations}, "
         f"mejor fitness ({config.fitness.metric}): {outcome.best_fitness:.4f}, "
-        f"tiempo total: {outcome.elapsed_seconds:.1f}s"
+        f"tiempo pared: {outcome.elapsed_seconds:.1f}s, CPU: {outcome.cpu_seconds:.1f}s"
     )
     _save_best(best.individual, target, config.output)
     _save_best(best.individual, target, run_directory / "best.png")
     artifacts.finalize(best.individual, best.fitness.value, outcome.termination_reason,
                        {"seed": outcome.seed, "generations": outcome.generations,
-                        "elapsed_seconds": outcome.elapsed_seconds})
+                        "elapsed_seconds": outcome.elapsed_seconds,
+                        "cpu_seconds": outcome.cpu_seconds})
     return outcome
 
 

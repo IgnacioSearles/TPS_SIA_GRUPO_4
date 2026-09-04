@@ -5,7 +5,7 @@ from __future__ import annotations
 import csv
 import json
 from dataclasses import asdict, is_dataclass
-from time import perf_counter
+from time import perf_counter, process_time
 from pathlib import Path
 
 from genetic_algorithm.application import EvolutionObserver
@@ -58,10 +58,16 @@ class ProgressReporter(EvolutionObserver[TriangleIndividual, MSEFitness]):
         self._report_every = report_every
         self._started_at = perf_counter()
         self._last_report_at = self._started_at
+        self._started_cpu_at = process_time()
 
     @property
     def elapsed_seconds(self) -> float:
         return perf_counter() - self._started_at
+
+    @property
+    def cpu_seconds(self) -> float:
+        """Tiempo de CPU consumido por esta corrida."""
+        return process_time() - self._started_cpu_at
 
     def on_generation(
         self,

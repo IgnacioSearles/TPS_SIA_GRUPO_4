@@ -124,8 +124,19 @@ disponibles son (`bandera_100.png`,
 python experiments.py experiments/mutation_fitness_exhaustive.json
 ```
 
+Para ejecutar varias corridas independientes en paralelo, por ejemplo dos:
+
+```bash
+python experiments.py experiments/mutation_fitness_exhaustive.json --workers 2
+```
+
+El coordinador es el único proceso que escribe `results.csv`, `progress.json` y
+el gráfico; cada worker escribe exclusivamente su carpeta `run_XXXX`. El valor
+por defecto (`--workers 1`) conserva la ejecución secuencial. Conviene empezar
+con 2 workers y aumentar solo si CPU y memoria lo permiten.
+
 El resultado queda en `experiments/results/mutation_fitness_exhaustive/`, con un
-`results.csv` (incluye `elapsed_seconds` por corrida), `progress.json` y los artefactos de cada corrida. Las corridas se
+`results.csv` (incluye `elapsed_seconds` y `cpu_seconds` por corrida), `progress.json` y los artefactos de cada corrida. Las corridas se
 ejecutan secuencialmente. Después de cada corrida se actualizan `results.csv`,
 `progress.json` y el gráfico; si el proceso se interrumpe, al volver a ejecutar el
 comando se omiten las carpetas que ya tienen `run/summary.json` (`resume: true`).
@@ -134,6 +145,10 @@ con la base: cambiar `mutation.strategy` no elimina los parámetros del schedule
 La semilla 20260903 queda fija para comparar configuraciones bajo el mismo azar;
 para reportar variabilidad conviene repetir las configuraciones ganadoras con 3–5
 semillas.
+
+Para comparar costos computacionales entre workers concurrentes, usar
+`cpu_seconds`: `elapsed_seconds` es el tiempo de pared y puede incluir esperas
+por competencia entre procesos.
 
 La cantidad de generaciones depende de la imagen: Italia usa 2000, Firefox 2500
 y Mona Lisa 3000. Se representa junto a cada imagen en la matriz para no crear

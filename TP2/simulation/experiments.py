@@ -5,6 +5,7 @@ from __future__ import annotations
 import csv
 import itertools
 import json
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -32,22 +33,17 @@ def run_experiment_matrix(
     output_directory: str | Path,
     *,
     resume: bool = True,
+    workers: int = 1,
 ) -> Path:
-    """Ejecuta combinaciones, guarda cada corrida y agrega un CSV reproducible."""
+    """Ejecuta combinaciones con concurrencia opcional y progreso reanudable."""
+    if workers < 1:
+        raise ValueError("workers must be at least 1")
     root = Path(output_directory)
     root.mkdir(parents=True, exist_ok=True)
     rows: list[dict[str, Any]] = []
     summary_path = root / "results.csv"
     combinations = expand_matrix(matrix)
-    initial_completed = (
-        sum(
-            (root / f"run_{index:04d}" / "run" / "summary.json").exists()
-            for index in range(len(combinations))
-        )
-        if resume
-        else 0
-    )
-    _write_experiment_progress(root, initial_completed, len(combinations), None)
+    pending: list[tuple[int, dict[str, Any]]] = []
     for index, overrides in enumerate(combinations):
         run_dir = root / f"run_{index:04d}"
         result_file = run_dir / "run" / "summary.json"
@@ -55,24 +51,56 @@ def run_experiment_matrix(
             row = json.loads(result_file.read_text(encoding="utf-8"))
             row.update({"run": index, **overrides})
             rows.append(row)
+        else:
+            pending.append((index, overrides))
+
+    _write_results(rows, summary_path, root / "fitness.png")
+    _write_experiment_progress(root, len(rows), len(combinations), None)
+
+    if workers == 1:
+        completed = len(rows)
+        for index, overrides in pending:
+            rows.append(_run_one_experiment(config_path, root, index, overrides))
+            completed += 1
             _write_results(rows, summary_path, root / "fitness.png")
-            _write_experiment_progress(root, index + 1, len(combinations), index)
-            continue
-        output = run_dir / "best.png"
-        top_level = {"output": str(output)}
-        materialized_overrides = _materialize_overrides(overrides)
-        for key, value in materialized_overrides.items():
-            _set_dotted(top_level, key, value)
-        config = load_simulation_config(config_path, top_level)
-        outcome = run_simulation(config)
-        row = {"run": index, **overrides, "seed": outcome.seed,
-               "generations": outcome.generations, "best_fitness": outcome.best_fitness,
-               "elapsed_seconds": outcome.elapsed_seconds,
-               "termination_reason": outcome.termination_reason}
-        rows.append(row)
-        _write_results(rows, summary_path, root / "fitness.png")
-        _write_experiment_progress(root, index + 1, len(combinations), index)
+            _write_experiment_progress(root, completed, len(combinations), index)
+        return summary_path
+
+    with ProcessPoolExecutor(max_workers=workers) as executor:
+        futures = {
+            executor.submit(_run_one_experiment, config_path, root, index, overrides): index
+            for index, overrides in pending
+        }
+        completed = len(rows)
+        for future in as_completed(futures):
+            index = futures[future]
+            rows.append(future.result())
+            completed += 1
+            _write_results(rows, summary_path, root / "fitness.png")
+            _write_experiment_progress(root, completed, len(combinations), index)
     return summary_path
+
+
+def _run_one_experiment(
+    config_path: str | Path,
+    root: Path,
+    index: int,
+    overrides: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Ejecuta una corrida aislada; solo el proceso coordinador persiste la matriz."""
+    run_dir = root / f"run_{index:04d}"
+    top_level = {"output": str(run_dir / "best.png")}
+    for key, value in _materialize_overrides(overrides).items():
+        _set_dotted(top_level, key, value)
+    config = load_simulation_config(config_path, top_level)
+    outcome = run_simulation(config)
+    return {
+        "run": index, **overrides, "seed": outcome.seed,
+        "generations": outcome.generations, "best_fitness": outcome.best_fitness,
+        "elapsed_seconds": outcome.elapsed_seconds,
+        "cpu_seconds": outcome.cpu_seconds,
+        "termination_reason": outcome.termination_reason,
+    }
 
 
 def _materialize_overrides(overrides: Mapping[str, Any]) -> dict[str, Any]:
@@ -91,6 +119,7 @@ def _write_results(
     rows: list[dict[str, Any]], summary_path: Path, plot_path: Path
 ) -> None:
     """Persiste resultados parciales para poder reanudar una matriz interrumpida."""
+    rows = sorted(rows, key=lambda row: row.get("run", 0))
     fieldnames = sorted({key for row in rows for key in row})
     temporary_path = summary_path.with_suffix(".csv.tmp")
     with temporary_path.open("w", newline="", encoding="utf-8") as stream:
