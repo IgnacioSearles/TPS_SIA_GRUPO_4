@@ -39,7 +39,12 @@ from simulation.builders import (
     build_survival,
 )
 from simulation.config import SimulationConfig
-from simulation.reporting import PreviewWriter, ProgressReporter, RunArtifactWriter
+from simulation.reporting import (
+    GifWriter,
+    PreviewWriter,
+    ProgressReporter,
+    RunArtifactWriter,
+)
 
 _SEED_UPPER_BOUND = 2 ** 32
 
@@ -70,6 +75,7 @@ def run_simulation(config: SimulationConfig) -> SimulationOutcome:
     codec = TriangleCodec()
     run_directory = config.output.parent / "run"
     artifacts = RunArtifactWriter(run_directory, config)
+    gif = _gif_writer(config, target)
 
     engine = OrchestratedGeneticAlgorithm(
         initializer=RandomTriangleInitializer(
@@ -83,7 +89,13 @@ def run_simulation(config: SimulationConfig) -> SimulationOutcome:
         termination=build_termination(config.termination, config.population.generations, comparator),
         context=TriangleContext(seed),
         observer=CompositeEvolutionObserver(
-            (progress, artifacts, MutationScheduleObserver(mutation_schedule), *_preview_observers(config, target))
+            (
+                progress,
+                artifacts,
+                MutationScheduleObserver(mutation_schedule),
+                *_preview_observers(config, target),
+                *(() if gif is None else (gif,)),
+            )
         ),
     )
 
@@ -106,6 +118,8 @@ def run_simulation(config: SimulationConfig) -> SimulationOutcome:
         f"mejor fitness ({config.fitness.metric}): {outcome.best_fitness:.4f}, "
         f"tiempo pared: {outcome.elapsed_seconds:.1f}s, CPU: {outcome.cpu_seconds:.1f}s"
     )
+    if gif is not None:
+        gif.finalize(best.individual)
     _save_best(best.individual, target, config.output)
     _save_best(best.individual, target, run_directory / "best.png")
     artifacts.finalize(best.individual, best.fitness.value, outcome.termination_reason,
@@ -148,6 +162,14 @@ def _preview_observers(
         return ()
     print(f"Guardando previews en: {config.preview.directory}")
     return (PreviewWriter(target, config.preview),)
+
+
+def _gif_writer(config: SimulationConfig, target: TriangleImageTarget) -> GifWriter | None:
+    """El GIF es opcional: sin sección `gif` no se acumula ningún cuadro en memoria."""
+    if config.gif is None:
+        return None
+    print(f"Acumulando cuadros para el GIF: {config.gif.path}")
+    return GifWriter(target, config.gif)
 
 
 def _save_best(

@@ -32,6 +32,8 @@ experimento; el resto vive siempre en el archivo:
 python main.py configs/default_config.json --image otra.png --output otra_out.png
 python main.py configs/default_config.json --seed 7      # fija la semilla
 python main.py configs/default_config.json --no-preview  # desactiva los previews
+python main.py configs/default_config.json --gif evolucion.gif  # arma el GIF de la corrida
+python main.py configs/default_config.json --no-gif      # desactiva el GIF
 ```
 
 Los errores de configuración se detectan antes de empezar a evolucionar e indican
@@ -53,8 +55,8 @@ Todos los parámetros son opcionales salvo `image`; una clave ausente y una en
 | `seed`           | *(sorteada)*   | Semilla; si se omite se sortea una y se informa.         |
 | `progress_every` | `10`           | Informa progreso cada N generaciones; `0` lo desactiva. |
 
-Y las secciones `population`, `selection`, `crossover`, `mutation`, `fitness` y
-`preview`, cada una con sus propios defaults:
+Y las secciones `population`, `selection`, `crossover`, `mutation`, `fitness`,
+`preview` y `gif`, cada una con sus propios defaults:
 
 ```json
 {
@@ -178,6 +180,30 @@ escribe ninguna imagen intermedia.
 `directory` es obligatorio dentro de la sección, `every` guarda una imagen cada N
 generaciones y `full_resolution` las escribe en la resolución original en vez de
 la de trabajo. `--no-preview` los desactiva sin tocar el archivo.
+
+### GIF de la evolución
+
+También opcional y también por presencia de su sección. A diferencia de los
+previews produce un único archivo animado y, por defecto, en la resolución
+original de la imagen objetivo.
+
+```json
+"gif": { "path": "resultados/evolucion.gif", "every": 25 }
+```
+
+| Clave                     | Default | Descripción                                                |
+| ------------------------- | ------- | ---------------------------------------------------------- |
+| `path`                    | *(obligatoria)* | Archivo GIF a escribir; se crean los directorios faltantes. |
+| `every`                   | `25`    | Toma un cuadro cada N generaciones.                        |
+| `frame_duration_ms`       | `80`    | Duración de cada cuadro.                                   |
+| `final_frame_duration_ms` | `1500`  | Duración del último cuadro, para que el resultado se vea.  |
+| `loop`                    | `true`  | Repetición infinita; con `false` se reproduce una vez.     |
+| `full_resolution`         | `true`  | Usa la resolución original; con `false`, la de trabajo.    |
+
+Los cuadros se acumulan en memoria hasta el final de la corrida, así que `every`
+es también el control del costo: a resolución completa conviene un valor que deje
+del orden de un centenar de cuadros. `--gif RUTA` arma la animación aunque el
+archivo no la declare y `--no-gif` la desactiva aunque la declare.
 
 ## Fitness
 

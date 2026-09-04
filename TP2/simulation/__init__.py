@@ -3,6 +3,7 @@
 from .config import (
     CrossoverConfig,
     FitnessConfig,
+    GifConfig,
     MutationConfig,
     PopulationConfig,
     PreviewConfig,
@@ -12,13 +13,14 @@ from .config import (
     TerminationConfig,
     load_simulation_config,
 )
-from .reporting import PreviewWriter, ProgressReporter, RunArtifactWriter
+from .reporting import GifWriter, PreviewWriter, ProgressReporter, RunArtifactWriter
 from .runner import SimulationOutcome, run_simulation
 from .experiments import expand_matrix, load_experiment_spec, run_experiment_matrix
 from .section import ConfigSection, ConfigurationError
 
 __all__ = [
-    "ConfigSection", "ConfigurationError", "CrossoverConfig", "FitnessConfig",
+    "ConfigSection", "ConfigurationError", "CrossoverConfig", "FitnessConfig", "GifConfig",
+    "GifWriter",
     "MutationConfig", "PopulationConfig", "PreviewConfig", "PreviewWriter",
     "ProgressReporter", "RunArtifactWriter", "ReheatConfig", "SelectionConfig", "SimulationConfig",
     "SimulationOutcome", "TerminationConfig", "expand_matrix", "load_experiment_spec",

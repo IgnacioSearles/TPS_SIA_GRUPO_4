@@ -1,4 +1,4 @@
-"""Observadores que informan el avance de una corrida y guardan previews."""
+"""Observadores que informan el avance de una corrida y guardan sus imágenes."""
 
 from __future__ import annotations
 
@@ -13,8 +13,21 @@ from genetic_algorithm.domain import EvolutionContext, EvolutionState
 from triangle_image import MSEFitness, TriangleImageTarget, TriangleIndividual
 from triangle_image.rendering import render
 
-from simulation.config import PreviewConfig
+from PIL import Image
+
+from simulation.config import GifConfig, PreviewConfig
 from triangle_image.gene import TriangleGene
+
+
+def render_individual(
+    individual: TriangleIndividual, target: TriangleImageTarget, full_resolution: bool
+) -> Image.Image:
+    """Dibuja al individuo en la resolución de trabajo o en la original del objetivo."""
+    if not full_resolution or target.scale_factor == 1.0:
+        return render(individual, target.width, target.height)
+    return render(
+        individual.scale(1.0 / target.scale_factor), target.orig_width, target.orig_height
+    )
 
 
 class PreviewWriter(EvolutionObserver[TriangleIndividual, MSEFitness]):
@@ -35,20 +48,57 @@ class PreviewWriter(EvolutionObserver[TriangleIndividual, MSEFitness]):
         best = next(iter(state.population), None)
         if best is None:
             return
-        image = render(*self._scaled_for_output(best.individual))
+        image = render_individual(best.individual, self._target, self._config.full_resolution)
         image.save(self._config.directory / f"generation_{state.generation:05d}.png")
 
-    def _scaled_for_output(
-        self, individual: TriangleIndividual
-    ) -> tuple[TriangleIndividual, int, int]:
-        """Devuelve el individuo y el lienzo en la resolución pedida para el preview."""
-        if not self._config.full_resolution or self._target.scale_factor == 1.0:
-            return individual, self._target.width, self._target.height
-        return (
-            individual.scale(1.0 / self._target.scale_factor),
-            self._target.orig_width,
-            self._target.orig_height,
+
+class GifWriter(EvolutionObserver[TriangleIndividual, MSEFitness]):
+    """Acumula cuadros del mejor individuo y arma un GIF animado al terminar.
+
+    Los cuadros se guardan ya cuantizados a paleta: el GIF los necesita así y de
+    paso la corrida retiene un tercio de la memoria que ocuparían en RGB.
+    """
+
+    def __init__(self, target: TriangleImageTarget, config: GifConfig) -> None:
+        self._target = target
+        self._config = config
+        self._frames: list[Image.Image] = []
+        config.path.parent.mkdir(parents=True, exist_ok=True)
+
+    def on_generation(
+        self,
+        state: EvolutionState[TriangleIndividual, MSEFitness],
+        context: EvolutionContext,
+    ) -> None:
+        if state.generation % self._config.every != 0:
+            return
+        best = next(iter(state.population), None)
+        if best is None:
+            return
+        self._frames.append(self._frame(best.individual))
+
+    def finalize(self, individual: TriangleIndividual) -> None:
+        """Cierra la animación con el mejor individuo de la corrida y escribe el archivo."""
+        frames = [*self._frames, self._frame(individual)]
+        first, *rest = frames
+        durations = [self._config.frame_duration_ms] * len(self._frames)
+        durations.append(self._config.final_frame_duration_ms)
+        options: dict[str, object] = {}
+        if self._config.loop:
+            options["loop"] = 0  # 0 significa repetición infinita en el formato GIF.
+        first.save(
+            self._config.path,
+            save_all=True,
+            append_images=rest,
+            duration=durations,
+            disposal=1,
+            **options,
         )
+        print(f"GIF guardado en: {self._config.path} ({len(frames)} cuadro(s))")
+
+    def _frame(self, individual: TriangleIndividual) -> Image.Image:
+        image = render_individual(individual, self._target, self._config.full_resolution)
+        return image.convert("P", palette=Image.Palette.ADAPTIVE, colors=256)
 
 
 class ProgressReporter(EvolutionObserver[TriangleIndividual, MSEFitness]):

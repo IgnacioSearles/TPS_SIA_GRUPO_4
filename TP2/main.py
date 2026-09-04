@@ -28,6 +28,14 @@ def _parse_arguments() -> argparse.Namespace:
         "--no-preview", action="store_true",
         help="Desactiva los previews aunque el config los declare.",
     )
+    parser.add_argument(
+        "--gif", metavar="RUTA",
+        help="Escribe un GIF de la evolución en esa ruta, aunque el config no lo declare.",
+    )
+    parser.add_argument(
+        "--no-gif", action="store_true",
+        help="Desactiva el GIF aunque el config lo declare.",
+    )
     return parser.parse_args()
 
 
@@ -42,6 +50,10 @@ def _overrides_from(arguments: argparse.Namespace) -> dict[str, Any]:
         overrides["seed"] = arguments.seed
     if arguments.no_preview:
         overrides["preview"] = None
+    if arguments.gif is not None:
+        overrides["gif"] = {"path": arguments.gif}
+    if arguments.no_gif:
+        overrides["gif"] = None
     return overrides
 
 

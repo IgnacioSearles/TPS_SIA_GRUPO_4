@@ -1,14 +1,13 @@
 {
-  "image": "C:/Users/nacho/OneDrive/Pictures/mona-chica.jpg",
+  "image": "C:/Users/nacho/OneDrive/Pictures/mona-square-small.jpg",
   "output": "output.png",
-  "max_size": 128,
-  "seed": 42,
-  "triangles": 100,
-  "progress_every": 10,
+  "max_size": 96,
+  "triangles": 150,
+  "progress_every": 50,
   "population": {
-    "size": 100,
-    "parents": 60,
-    "generations": 2000,
+    "size": 50,
+    "parents": 40,
+    "generations": 4000,
     "survival": "additive"
   },
   "selection": {
@@ -20,40 +19,48 @@
     "strategy": "two-point"
   },
   "mutation": {
-    "schedule": "exponential",
-    "probability": 0.3,
-    "strength": 0.12,
-    "replacement_probability": 0.08,
-    "decay_generations": 1000,
+    "strategy": "multigen",
+    "schedule": "adaptive-reheat",
+    "probability": 0.025,
+    "strength": 0.10,
+    "replacement_probability": 0.10,
+    "decay_generations": 900,
     "final": {
-      "probability": 0.05,
-      "strength": 0.025,
+      "probability": 0.008,
+      "strength": 0.02,
       "replacement_probability": 0.02
+    },
+    "reheat": {
+      "stagnation_generations": 150,
+      "duration_generations": 60,
+      "improvement_delta": 0.00002,
+      "probability_multiplier": 3.0,
+      "strength_multiplier": 2.0,
+      "replacement_multiplier": 4.0
     }
   },
   "fitness": {
     "metric": "combo",
     "combo": {
-      "mse": 0.20,
-      "regional": 0.20,
-      "edge": 0.25,
-      "saliency": 0.35
+      "mse": 0.35,
+      "blur": 0.20,
+      "edge": 0.20,
+      "saliency": 0.25
     },
-    "regional": {
-      "grid_rows": 3,
-      "grid_cols": 1,
-      "detail_weight": 2.0
+    "blur": {
+      "sigma": 1.5
     },
     "edge": {
-      "sigma": 0.8
+      "sigma": 1.0
     },
     "saliency": {
-      "weight": 2.0,
-      "sigma": 3.0
+      "weight": 3.0,
+      "sigma": 2.0
     }
   },
+  "gif": { "path": "run/evolucion.gif", "every": 150 },
   "preview": {
     "directory": "previews/default",
-    "every": 100
+    "every": 200
   }
 }

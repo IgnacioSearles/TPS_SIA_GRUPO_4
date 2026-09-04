@@ -528,6 +528,45 @@ class PreviewConfig:
 
 
 @dataclass(frozen=True, slots=True)
+class GifConfig:
+    """Animación del mejor individuo a lo largo de las generaciones.
+
+    Es opcional: sin la sección `gif` no se acumula ningún cuadro. A diferencia de
+    `preview`, produce un único archivo animado y por defecto usa la resolución
+    original de la imagen objetivo.
+    """
+
+    path: Path
+    every: int = 25
+    frame_duration_ms: int = 80
+    final_frame_duration_ms: int = 1500
+    loop: bool = True
+    full_resolution: bool = True
+
+    def __post_init__(self) -> None:
+        _require_positive(self.every, "gif.every")
+        _require_positive(self.frame_duration_ms, "gif.frame_duration_ms")
+        _require_positive(self.final_frame_duration_ms, "gif.final_frame_duration_ms")
+
+    @classmethod
+    def from_section(cls, section: ConfigSection) -> GifConfig:
+        defaults = _GIF_DEFAULTS
+        return cls(
+            path=Path(section.required_text("path")),
+            every=section.integer("every", defaults.every),
+            frame_duration_ms=section.integer("frame_duration_ms", defaults.frame_duration_ms),
+            final_frame_duration_ms=section.integer(
+                "final_frame_duration_ms", defaults.final_frame_duration_ms
+            ),
+            loop=section.boolean("loop", defaults.loop),
+            full_resolution=section.boolean("full_resolution", defaults.full_resolution),
+        )
+
+
+_GIF_DEFAULTS = GifConfig(path=Path("evolution.gif"))
+
+
+@dataclass(frozen=True, slots=True)
 class SimulationConfig:
     """Configuración completa de una corrida, con defaults para todo salvo la imagen."""
 
@@ -544,6 +583,7 @@ class SimulationConfig:
     termination: TerminationConfig = field(default_factory=TerminationConfig)
     fitness: FitnessConfig = field(default_factory=FitnessConfig)
     preview: PreviewConfig | None = None
+    gif: GifConfig | None = None
 
     def __post_init__(self) -> None:
         _require_positive(self.max_size, "max_size")
@@ -577,6 +617,7 @@ class SimulationConfig:
     def _parse(cls, section: ConfigSection) -> SimulationConfig:
         defaults = _TOP_LEVEL_DEFAULTS
         preview_section = section.optional_section("preview")
+        gif_section = section.optional_section("gif")
         config = cls(
             image=Path(section.required_text("image")),
             output=Path(section.text("output", str(defaults.output))),
@@ -593,6 +634,7 @@ class SimulationConfig:
             preview=(
                 None if preview_section is None else PreviewConfig.from_section(preview_section)
             ),
+            gif=(None if gif_section is None else GifConfig.from_section(gif_section)),
         )
         section.ensure_no_unknown_keys()
         return config

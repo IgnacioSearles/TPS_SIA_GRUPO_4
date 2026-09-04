@@ -82,6 +82,34 @@ class OptionalKeysTests(unittest.TestCase):
             build_config(preview={"every": 10})
         self.assertIn("preview.directory", str(error.exception))
 
+    def test_gif_is_disabled_unless_declared(self) -> None:
+        self.assertIsNone(build_config().gif)
+        self.assertIsNone(build_config(gif=None).gif)
+
+    def test_gif_section_enables_the_animation_at_full_resolution(self) -> None:
+        config = build_config(gif={"path": "salidas/evolucion.gif", "every": 50})
+        self.assertIsNotNone(config.gif)
+        self.assertEqual(config.gif.path, Path("salidas/evolucion.gif"))
+        self.assertEqual(config.gif.every, 50)
+        self.assertTrue(config.gif.full_resolution)
+        self.assertEqual(config.gif.frame_duration_ms, 80)
+        self.assertTrue(config.gif.loop)
+
+    def test_gif_path_is_required_when_the_animation_is_declared(self) -> None:
+        with self.assertRaises(ConfigurationError) as error:
+            build_config(gif={"every": 10})
+        self.assertIn("gif.path", str(error.exception))
+
+    def test_gif_rejects_non_positive_durations(self) -> None:
+        with self.assertRaises(ConfigurationError) as error:
+            build_config(gif={"path": "a.gif", "frame_duration_ms": 0})
+        self.assertIn("gif.frame_duration_ms", str(error.exception))
+
+    def test_gif_rejects_unknown_keys(self) -> None:
+        with self.assertRaises(ConfigurationError) as error:
+            build_config(gif={"path": "a.gif", "durationn": 10})
+        self.assertIn("durationn", str(error.exception))
+
     def test_partial_sections_keep_their_defaults(self) -> None:
         config = build_config(population={"parents": 40})
         self.assertEqual(config.population.parents, 40)
@@ -224,6 +252,13 @@ class FileLoadingTests(unittest.TestCase):
         path = self.write_config({"image": "a.png", "preview": {"directory": "previews"}})
         self.assertIsNotNone(load_simulation_config(path).preview)
         self.assertIsNone(load_simulation_config(path, {"preview": None}).preview)
+
+    def test_override_can_enable_and_disable_the_gif(self) -> None:
+        path = self.write_config({"image": "a.png", "gif": {"every": 5}})
+        config = load_simulation_config(path, {"gif": {"path": "evolucion.gif"}})
+        self.assertEqual(config.gif.path, Path("evolucion.gif"))
+        self.assertEqual(config.gif.every, 5)
+        self.assertIsNone(load_simulation_config(path, {"gif": None}).gif)
 
     def test_nested_overrides_keep_sibling_values(self) -> None:
         path = self.write_config({
