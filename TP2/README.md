@@ -91,8 +91,14 @@ Y las secciones `population`, `selection`, `crossover`, `mutation`, `fitness`,
   `duration_generations`, `improvement_percent`, `probability_multiplier`,
   `strength_multiplier`, `replacement_multiplier`).
 - `mutation.strategy`: `gen` muta un gen, `multigen` varios genes con probabilidad,
-  `uniform` reemplaza genes por triángulos aleatorios y `non-uniform` aplica
-  perturbaciones cuya magnitud sigue el schedule.
+  `uniform` reemplaza genes por triángulos aleatorios, `non-uniform` aplica
+  perturbaciones cuya magnitud sigue el schedule y `spatial-guided` permite una
+  cantidad variable de triángulos. En `spatial-guided`, el mapa de error sólo
+  pondera dónde mutar o dónde agregar un triángulo; sus colores, formas, tamaños,
+  rotaciones y alpha siguen siendo aleatorios o mutaciones normales. La cantidad
+  de triángulos queda acotada entre la mitad y el doble de `triangles`, con una
+  probabilidad estructural del 15% por mutación y una guía espacial del 70% para
+  mutaciones no estructurales.
 - `termination`: permite elegir `max-generations` (default), `target-fitness` o
   `stagnation`; sus parámetros son `target_fitness`, `stagnation_generations` e
   `improvement`.

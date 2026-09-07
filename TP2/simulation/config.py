@@ -27,7 +27,7 @@ SelectionStrategyName = Literal[
 SurvivalStrategyName = Literal["additive", "exclusive"]
 CrossoverStrategyName = Literal["one-point", "two-point", "uniform", "annular"]
 MutationScheduleName = Literal["constant", "linear", "exponential", "adaptive-reheat"]
-MutationStrategyName = Literal["gen", "multigen", "uniform", "non-uniform"]
+MutationStrategyName = Literal["gen", "multigen", "uniform", "non-uniform", "spatial-guided"]
 TerminationStrategyName = Literal["max-generations", "target-fitness", "stagnation"]
 
 SELECTION_CHOICES: tuple[str, ...] = (
@@ -39,7 +39,9 @@ CROSSOVER_CHOICES: tuple[str, ...] = ("one-point", "two-point", "uniform", "annu
 MUTATION_SCHEDULE_CHOICES: tuple[str, ...] = (
     "constant", "linear", "exponential", "adaptive-reheat",
 )
-MUTATION_STRATEGY_CHOICES: tuple[str, ...] = ("gen", "multigen", "uniform", "non-uniform")
+MUTATION_STRATEGY_CHOICES: tuple[str, ...] = (
+    "gen", "multigen", "uniform", "non-uniform", "spatial-guided"
+)
 TERMINATION_CHOICES: tuple[str, ...] = ("max-generations", "target-fitness", "stagnation")
 
 

@@ -20,6 +20,7 @@ from triangle_image import (
     RandomTriangleInitializer,
     ScheduledGenePositionSelector,
     ScheduledTriangleGeneMutator,
+    SpatialErrorGuidanceObserver,
     TriangleCodec,
     TriangleConfiguration,
     TriangleContext,
@@ -77,22 +78,28 @@ def run_simulation(config: SimulationConfig) -> SimulationOutcome:
     artifacts = RunArtifactWriter(run_directory, config)
     gif = _gif_writer(config, target)
 
+    context = TriangleContext(seed)
+    spatial_guidance = (
+        (SpatialErrorGuidanceObserver(target),)
+        if config.mutation.strategy == "spatial-guided" else ()
+    )
     engine = OrchestratedGeneticAlgorithm(
         initializer=RandomTriangleInitializer(
             config.triangles, target.width, target.height
         ),
         selection=build_selection(config.selection, comparator),
         pairing=RandomPairingStrategy(),
-        crossover=build_crossover(config.crossover, codec),
-        mutation=build_mutation(config.mutation, target.width, target.height, codec, mutation_schedule),
+        crossover=build_crossover(config.crossover, codec, config.mutation.strategy == "spatial-guided"),
+        mutation=build_mutation(config.mutation, target.width, target.height, codec, mutation_schedule, config.triangles),
         survival=build_survival(config.population, comparator),
         termination=build_termination(config.termination, config.population.generations, comparator),
-        context=TriangleContext(seed),
+        context=context,
         observer=CompositeEvolutionObserver(
             (
                 progress,
                 artifacts,
                 MutationScheduleObserver(mutation_schedule),
+                *spatial_guidance,
                 *_preview_observers(config, target),
                 *(() if gif is None else (gif,)),
             )
@@ -125,7 +132,8 @@ def run_simulation(config: SimulationConfig) -> SimulationOutcome:
     artifacts.finalize(best.individual, best.fitness.value, outcome.termination_reason,
                        {"seed": outcome.seed, "generations": outcome.generations,
                         "elapsed_seconds": outcome.elapsed_seconds,
-                        "cpu_seconds": outcome.cpu_seconds})
+                        "cpu_seconds": outcome.cpu_seconds,
+                        "triangle_count": len(best.individual.genome)})
     return outcome
 
 

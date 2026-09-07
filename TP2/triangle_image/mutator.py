@@ -5,9 +5,9 @@ from __future__ import annotations
 from dataclasses import replace
 from random import Random
 
-from genetic_algorithm.application.contracts import GeneMutator
+from genetic_algorithm.application.contracts import GeneMutator, MutationStrategy
 from genetic_algorithm.domain.contracts import EvolutionContext
-from triangle_image.gene import TriangleGene
+from triangle_image.gene import TriangleGene, TriangleIndividual
 from triangle_image.mutation_schedule import TriangleMutationSchedule
 
 
@@ -37,6 +37,19 @@ def _random_triangle(width: int, height: int, random_generator: Random) -> Trian
         b=random_generator.randint(0, 255),
         alpha=random_generator.uniform(0.0, 1.0),
     )
+
+
+def random_triangle(
+    width: int,
+    height: int,
+    random_generator: Random,
+    center: tuple[float, float] | None = None,
+) -> TriangleGene:
+    """Crea un triángulo aleatorio, fijando sólo el centro si se indica."""
+    triangle = _random_triangle(width, height, random_generator)
+    if center is None:
+        return triangle
+    return replace(triangle, center_x=center[0], center_y=center[1])
 
 
 class TriangleColorMutator(GeneMutator[TriangleGene]):
@@ -217,3 +230,66 @@ class ScheduledTriangleGeneMutator(GeneMutator[TriangleGene]):
             parameters.strength,
             parameters.replacement_probability,
         ).mutate_gene(gene, context)
+
+
+class SpatiallyGuidedMutation(MutationStrategy[TriangleIndividual]):
+    """Mutación variable guiada espacialmente, sin guiar parámetros del triángulo."""
+
+    def __init__(
+        self,
+        width: int,
+        height: int,
+        gene_mutator: GeneMutator[TriangleGene],
+        min_triangles: int,
+        max_triangles: int,
+        guidance_probability: float = 0.7,
+        structural_probability: float = 0.15,
+    ) -> None:
+        if min_triangles < 1 or max_triangles < min_triangles:
+            raise ValueError("invalid spatial-guided triangle bounds")
+        if not 0.0 <= guidance_probability <= 1.0:
+            raise ValueError("guidance_probability must be between 0 and 1")
+        if not 0.0 <= structural_probability <= 1.0:
+            raise ValueError("structural_probability must be between 0 and 1")
+        self._width = width
+        self._height = height
+        self._gene_mutator = gene_mutator
+        self._min_triangles = min_triangles
+        self._max_triangles = max_triangles
+        self._guidance_probability = guidance_probability
+        self._structural_probability = structural_probability
+
+    def mutate(self, individual: TriangleIndividual, context: EvolutionContext) -> TriangleIndividual:
+        genes = list(individual.genome)
+        rng = context.random_generator
+        if rng.random() < self._structural_probability:
+            if len(genes) <= self._min_triangles:
+                return self._add_triangle(genes, context)
+            if len(genes) >= self._max_triangles:
+                return self._delete_triangle(genes, rng)
+            if rng.random() < 0.5:
+                return self._add_triangle(genes, context)
+            return self._delete_triangle(genes, rng)
+
+        if not genes:
+            return self._add_triangle(genes, context)
+        if rng.random() < self._guidance_probability:
+            selector = getattr(context, "guided_gene_index", None)
+            index = selector(individual) if callable(selector) else rng.randrange(len(genes))
+            if index is None or not 0 <= index < len(genes):
+                index = rng.randrange(len(genes))
+        else:
+            index = rng.randrange(len(genes))
+        genes[index] = self._gene_mutator.mutate_gene(genes[index], context)
+        return TriangleIndividual(tuple(genes))
+
+    def _add_triangle(self, genes: list[TriangleGene], context: EvolutionContext) -> TriangleIndividual:
+        selector = getattr(context, "sample_error_point", None)
+        center = selector() if callable(selector) else None
+        genes.append(random_triangle(self._width, self._height, context.random_generator, center))
+        return TriangleIndividual(tuple(genes))
+
+    @staticmethod
+    def _delete_triangle(genes: list[TriangleGene], rng: Random) -> TriangleIndividual:
+        del genes[rng.randrange(len(genes))]
+        return TriangleIndividual(tuple(genes))

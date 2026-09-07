@@ -12,7 +12,7 @@ from .orchestrator import (CompositeEvolutionObserver, DefaultEvolutionResult,
                            OrchestratedGeneticAlgorithm)
 from .crossover import (AnnularCrossover, OnePointCrossover, RandomCutPointSelector,
                         RandomRingCutPointSelector, RandomTwoCutPointSelector,
-                        TwoPointCrossover, UniformCrossover)
+                        TwoPointCrossover, UniformCrossover, VariableLengthCrossover)
 from .mutation import (AllGenePositionSelector, GenMutation, MultiGeneMutation,
                         MultiGenMutation, NonUniformMutation, RandomGenePositionSelector,
                         SingleGenePositionSelector, UniformMutation)
@@ -37,4 +37,5 @@ __all__ = ["AdditiveSurvival", "AnnularCrossover", "ExclusiveSurvival", "Crossov
            "TerminationCondition", "MaxGenerationsTermination", "TargetFitnessTermination", "StagnationTermination",
            "RandomPairingStrategy", "RandomCutPointSelector", "RandomGenePositionSelector",
            "RandomRingCutPointSelector", "RandomTwoCutPointSelector", "RingCutPointSelector",
-           "SimpleParentPair", "TwoCutPointSelector", "TwoPointCrossover", "UniformCrossover"]
+           "SimpleParentPair", "TwoCutPointSelector", "TwoPointCrossover", "UniformCrossover",
+           "VariableLengthCrossover"]

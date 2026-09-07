@@ -8,8 +8,10 @@ from typing import Any
 import numpy as np
 from PIL import Image
 
-from genetic_algorithm.domain.contracts import EvolutionContext, GeneticProblem, FitnessEvaluator
-from genetic_algorithm.application.contracts import EvolutionConfiguration
+from genetic_algorithm.domain.contracts import (
+    EvolutionContext, EvolutionState, GeneticProblem, FitnessEvaluator,
+)
+from genetic_algorithm.application.contracts import EvolutionConfiguration, EvolutionObserver
 from triangle_image.fitness import TriangleImageTarget, MSEFitness, MSEComparator
 from triangle_image.gene import TriangleIndividual
 from triangle_image.rendering import render
@@ -45,6 +47,7 @@ class TriangleContext(EvolutionContext):
         self._array_cache: dict[tuple[TriangleIndividual, int, int], np.ndarray] = {}
         self._mse_cache: dict[tuple[TriangleIndividual, int, int, int, int], float] = {}
         self._render_scope_active = False
+        self._error_map: np.ndarray | None = None
 
     @property
     def random_generator(self) -> Random:
@@ -57,6 +60,35 @@ class TriangleContext(EvolutionContext):
 
     def set_generation(self, generation: int) -> None:
         self._generation = generation
+
+    def update_error_map(self, individual: TriangleIndividual, target: TriangleImageTarget) -> None:
+        """Actualiza atención espacial; no deriva color, forma ni tamaño del target."""
+        rendered = self.render_array(individual, target.width, target.height).astype(np.float32)
+        difference = np.abs(target.image.astype(np.float32) - rendered)
+        self._error_map = np.mean(difference, axis=2)
+
+    def sample_error_point(self) -> tuple[float, float] | None:
+        """Muestrea un píxel proporcionalmente al error acumulado."""
+        if self._error_map is None or not np.any(self._error_map > 0):
+            return None
+        weights = self._error_map.astype(np.float64).ravel() + 1e-6
+        weights /= weights.sum()
+        index = int(np.searchsorted(np.cumsum(weights), self._random_generator.random()))
+        index = min(index, weights.size - 1)
+        y, x = divmod(index, self._error_map.shape[1])
+        return float(x), float(y)
+
+    def guided_gene_index(self, individual: TriangleIndividual) -> int | None:
+        """Elige el centroide más cercano a un punto de error, sin tocar sus parámetros."""
+        point = self.sample_error_point()
+        if point is None or not individual.genome:
+            return None
+        px, py = point
+        return min(
+            range(len(individual.genome)),
+            key=lambda index: (individual.genome[index].center_x - px) ** 2
+            + (individual.genome[index].center_y - py) ** 2,
+        )
 
     def begin_render_scope(self) -> None:
         """Inicia un cache efímero para los componentes de un fitness compuesto."""
@@ -147,3 +179,18 @@ class TriangleProblem(GeneticProblem[TriangleIndividual, TriangleImageTarget, MS
     @property
     def fitness_comparator(self) -> MSEComparator:
         return self._fitness_comparator
+
+
+class SpatialErrorGuidanceObserver(EvolutionObserver[TriangleIndividual, MSEFitness]):
+    """Pone el mapa de error del mejor individuo a disposición de la mutación."""
+
+    def __init__(self, target: TriangleImageTarget) -> None:
+        self._target = target
+
+    def on_generation(
+        self, state: EvolutionState[TriangleIndividual, MSEFitness], context: EvolutionContext
+    ) -> None:
+        best = next(iter(state.population), None)
+        updater = getattr(context, "update_error_map", None)
+        if best is not None and callable(updater):
+            updater(best.individual, self._target)

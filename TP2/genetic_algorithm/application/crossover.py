@@ -123,6 +123,31 @@ class AnnularCrossover[IndividualT: Individual[Any], GeneT](CrossoverStrategy[In
         return _build_children(self._genome_codec, child_a, child_b)
 
 
+class VariableLengthCrossover[IndividualT: Individual[Any], GeneT](CrossoverStrategy[IndividualT]):
+    """Cruza individuos con distinta cantidad de genes sin consultar el target."""
+
+    def __init__(self, genome_codec: GenomeCodec[IndividualT, GeneT]) -> None:
+        self._genome_codec = genome_codec
+
+    def cross(self, parent_a: IndividualT, parent_b: IndividualT, context: EvolutionContext) -> Collection[IndividualT]:
+        genes_a = tuple(self._genome_codec.extract_genes(parent_a))
+        genes_b = tuple(self._genome_codec.extract_genes(parent_b))
+        if not genes_a or not genes_b:
+            raise ValueError("variable-length crossover requires non-empty genomes")
+        rng = context.random_generator
+        children = []
+        for preferred, fallback in ((genes_a, genes_b), (genes_b, genes_a)):
+            length = rng.choice((len(genes_a), len(genes_b)))
+            genes = tuple(
+                (preferred[index] if index < len(preferred) else fallback[index % len(fallback)])
+                if rng.random() < 0.5
+                else (fallback[index] if index < len(fallback) else preferred[index % len(preferred)])
+                for index in range(length)
+            )
+            children.append(self._genome_codec.build_individual(genes))
+        return tuple(children)
+
+
 class RandomCutPointSelector(CutPointSelector):
     """Elige un punto de corte aleatorio, excluyendo extremos."""
 

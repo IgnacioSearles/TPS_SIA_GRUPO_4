@@ -1,0 +1,51 @@
+{
+  "image": "imagenes/Mona_lisa.jpg",
+  "output": "runs/spatial_guided_mona_lisa_mse.png",
+  "max_size": 96,
+  "triangles": 160,
+  "seed": 20260903,
+  "progress_every": 100,
+  "population": {
+    "size": 100,
+    "parents": 100,
+    "generations": 6000,
+    "survival": "additive"
+  },
+  "selection": {
+    "strategy": "tournament",
+    "tournament_size": 5,
+    "win_probability": 0.85
+  },
+  "crossover": {
+    "strategy": "two-point"
+  },
+  "mutation": {
+    "strategy": "spatial-guided",
+    "schedule": "adaptive-reheat",
+    "probability": 0.25,
+    "strength": 0.12,
+    "replacement_probability": 0.08,
+    "decay_generations": 1000,
+    "final": {
+      "probability": 0.06,
+      "strength": 0.03,
+      "replacement_probability": 0.02
+    },
+    "reheat": {
+      "stagnation_generations": 75,
+      "duration_generations": 40,
+      "improvement_percent": 0.5,
+      "probability_multiplier": 2.5,
+      "strength_multiplier": 2.5,
+      "replacement_multiplier": 6.0
+    }
+  },
+  "fitness": {
+    "metric": "mse"
+  },
+  "preview": {
+    "directory": "runs/spatial_guided_mona_lisa_mse_previews",
+    "every": 100,
+    "full_resolution": false
+  }
+}

@@ -9,6 +9,7 @@ from genetic_algorithm.application import (
 from simulation import SimulationConfig, expand_matrix, load_experiment_spec, load_simulation_config
 from simulation.builders import build_mutation
 from triangle_image import MSEComparator, TriangleCodec
+from triangle_image import SpatiallyGuidedMutation
 
 
 class Exercise2IntegrationTests(unittest.TestCase):
@@ -23,6 +24,17 @@ class Exercise2IntegrationTests(unittest.TestCase):
             with self.subTest(strategy=name):
                 config = SimulationConfig.from_mapping({"image": "target.png", "mutation": {"strategy": name}})
                 self.assertIsInstance(build_mutation(config.mutation, 20, 20, TriangleCodec()), operator_type)
+
+    def test_spatial_guided_mutation_is_configurable(self) -> None:
+        config = SimulationConfig.from_mapping({
+            "image": "target.png",
+            "triangles": 20,
+            "mutation": {"strategy": "spatial-guided"},
+        })
+        mutation = build_mutation(
+            config.mutation, 20, 20, TriangleCodec(), initial_triangles=config.triangles
+        )
+        self.assertIsInstance(mutation, SpatiallyGuidedMutation)
 
     def test_stagnation_termination_stops_after_configured_generations(self) -> None:
         self.assertEqual(StagnationTermination(2)._generations, 2)

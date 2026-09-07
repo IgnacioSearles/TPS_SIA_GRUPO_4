@@ -9,14 +9,14 @@ from .fitness import (BlurredMSEEvaluator, ChamferEdgeEvaluator, ColorHistogramE
                        NormalizedEvaluator, RegionalMSEEvaluator, SCALES, SSIMEvaluator,
                        SaliencyMSEEvaluator,
                        TriangleImageTarget)
-from .mutator import (MixedTriangleGeneMutator, ScheduledTriangleGeneMutator, TriangleColorMutator, TriangleGeneMutator,
+from .mutator import (MixedTriangleGeneMutator, ScheduledTriangleGeneMutator, SpatiallyGuidedMutation, TriangleColorMutator, TriangleGeneMutator,
                       TriangleOrientationMutator, TrianglePositionMutator,
-                      TriangleReplacementMutator, TriangleShapeMutator)
+                      TriangleReplacementMutator, TriangleShapeMutator, random_triangle)
 from .mutation_schedule import (AdaptiveReheatMutationSchedule, ConstantMutationSchedule,
                                 ExponentialMutationSchedule, LinearMutationSchedule,
                                 MutationParameters, MutationScheduleObserver,
                                 ScheduledGenePositionSelector, TriangleMutationSchedule)
-from .problem import TriangleConfiguration, TriangleContext, TriangleProblem
+from .problem import SpatialErrorGuidanceObserver, TriangleConfiguration, TriangleContext, TriangleProblem
 
 __all__ = [
     "BlurredMSEEvaluator", "ChamferEdgeEvaluator", "ColorHistogramEvaluator", "CompositeEvaluator",
@@ -30,5 +30,6 @@ __all__ = [
     "TriangleColorMutator", "TriangleGeneMutator",
     "TriangleImageTarget", "TriangleIndividual", "TriangleOrientationMutator",
     "TrianglePositionMutator", "TriangleProblem", "TriangleReplacementMutator",
-    "TriangleShapeMutator", "TriangleMutationSchedule"
+    "TriangleShapeMutator", "TriangleMutationSchedule", "SpatiallyGuidedMutation",
+    "SpatialErrorGuidanceObserver", "random_triangle"
 ]

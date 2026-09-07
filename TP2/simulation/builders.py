@@ -23,7 +23,7 @@ from genetic_algorithm.application import (
     SurvivalStrategy,
     TwoPointCrossover,
     UniversalSelection,
-    UniformCrossover,
+    UniformCrossover, VariableLengthCrossover,
 )
 from genetic_algorithm.domain import FitnessEvaluator
 from triangle_image import (
@@ -48,6 +48,7 @@ from triangle_image import (
     TriangleImageTarget,
     TriangleIndividual,
     TriangleMutationSchedule,
+    SpatiallyGuidedMutation,
     ScheduledTriangleGeneMutator,
     ScheduledGenePositionSelector,
     TriangleReplacementMutator,
@@ -144,8 +145,12 @@ def build_survival(
     return ExclusiveSurvival(comparator)
 
 
-def build_crossover(crossover: CrossoverConfig, codec: TriangleCodec) -> CrossoverStrategy:
+def build_crossover(
+    crossover: CrossoverConfig, codec: TriangleCodec, variable_length: bool = False
+) -> CrossoverStrategy:
     """Construye la estrategia de cruza para genomas de triángulos."""
+    if variable_length:
+        return VariableLengthCrossover(codec)
     if crossover.strategy == "one-point":
         return OnePointCrossover(codec, RandomCutPointSelector())
     if crossover.strategy == "two-point":
@@ -184,10 +189,18 @@ def build_mutation_schedule(mutation: MutationConfig) -> TriangleMutationSchedul
 
 
 def build_mutation(mutation: MutationConfig, width: int, height: int, codec: TriangleCodec,
-                   schedule: TriangleMutationSchedule | None = None):
-    """Construye una de las cuatro variantes, reutilizando el motor MultiGene."""
+                   schedule: TriangleMutationSchedule | None = None,
+                   initial_triangles: int | None = None):
+    """Construye una variante de mutación, incluida la guía espacial."""
     schedule = schedule or build_mutation_schedule(mutation)
     mutator = ScheduledTriangleGeneMutator(width, height, schedule)
+    if mutation.strategy == "spatial-guided":
+        initial = initial_triangles or 50
+        return SpatiallyGuidedMutation(
+            width, height, mutator,
+            min_triangles=max(1, initial // 2),
+            max_triangles=max(initial, initial * 2),
+        )
     if mutation.strategy == "gen":
         return GenMutation(codec, SingleGenePositionSelector(), mutator)
     if mutation.strategy == "uniform":
