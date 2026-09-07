@@ -29,6 +29,10 @@ CrossoverStrategyName = Literal["one-point", "two-point", "uniform", "annular"]
 MutationScheduleName = Literal["constant", "linear", "exponential", "adaptive-reheat"]
 MutationStrategyName = Literal["gen", "multigen", "uniform", "non-uniform", "spatial-guided"]
 TerminationStrategyName = Literal["max-generations", "target-fitness", "stagnation"]
+OptimizationStrategyName = Literal[
+    "none", "islands", "fitness-adaptive-mutation",
+    "progressive-resolution", "local-search",
+]
 
 SELECTION_CHOICES: tuple[str, ...] = (
     "elite", "roulette", "universal", "boltzmann", "ranking",
@@ -43,6 +47,10 @@ MUTATION_STRATEGY_CHOICES: tuple[str, ...] = (
     "gen", "multigen", "uniform", "non-uniform", "spatial-guided"
 )
 TERMINATION_CHOICES: tuple[str, ...] = ("max-generations", "target-fitness", "stagnation")
+OPTIMIZATION_CHOICES: tuple[str, ...] = (
+    "none", "islands", "fitness-adaptive-mutation",
+    "progressive-resolution", "local-search",
+)
 
 
 def _require_positive(value: float, name: str) -> None:
@@ -573,6 +581,174 @@ _GIF_DEFAULTS = GifConfig(path=Path("evolution.gif"))
 
 
 @dataclass(frozen=True, slots=True)
+class IslandsOptimizationConfig:
+    """Parametros del modelo de islas."""
+
+    count: int = 4
+    migration_every: int = 100
+    migration_count: int = 2
+    parallel: bool = False
+    workers: int | None = None
+
+    def __post_init__(self) -> None:
+        _require_positive(self.count, "optimization.islands.count")
+        _require_positive(self.migration_every, "optimization.islands.migration_every")
+        _require_positive(self.migration_count, "optimization.islands.migration_count")
+        if self.workers is not None:
+            _require_positive(self.workers, "optimization.islands.workers")
+
+    @classmethod
+    def from_section(cls, section: ConfigSection) -> IslandsOptimizationConfig:
+        defaults = cls()
+        return cls(
+            count=section.integer("count", defaults.count),
+            migration_every=section.integer("migration_every", defaults.migration_every),
+            migration_count=section.integer("migration_count", defaults.migration_count),
+            parallel=section.boolean("parallel", defaults.parallel),
+            workers=section.optional_integer("workers"),
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class FitnessAdaptiveMutationOptimizationConfig:
+    """Escala la mutacion de cada hijo segun su fitness previo."""
+
+    min_multiplier: float = 0.4
+    max_multiplier: float = 2.0
+
+    def __post_init__(self) -> None:
+        _require_positive(
+            self.min_multiplier, "optimization.fitness_adaptive_mutation.min_multiplier"
+        )
+        _require_positive(
+            self.max_multiplier, "optimization.fitness_adaptive_mutation.max_multiplier"
+        )
+        if self.min_multiplier > self.max_multiplier:
+            raise ValueError(
+                "optimization.fitness_adaptive_mutation.min_multiplier debe ser menor "
+                "o igual a optimization.fitness_adaptive_mutation.max_multiplier."
+            )
+
+    @classmethod
+    def from_section(
+        cls, section: ConfigSection
+    ) -> FitnessAdaptiveMutationOptimizationConfig:
+        defaults = cls()
+        return cls(
+            min_multiplier=section.number("min_multiplier", defaults.min_multiplier),
+            max_multiplier=section.number("max_multiplier", defaults.max_multiplier),
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class ProgressiveResolutionStageConfig:
+    """Una etapa de la optimizacion por resolucion progresiva."""
+
+    max_size: int
+    generations: int
+
+    def __post_init__(self) -> None:
+        _require_positive(self.max_size, "optimization.progressive_resolution.stages.max_size")
+        _require_positive(
+            self.generations, "optimization.progressive_resolution.stages.generations"
+        )
+
+    @classmethod
+    def from_section(cls, section: ConfigSection) -> ProgressiveResolutionStageConfig:
+        return cls(
+            max_size=section.integer("max_size", 0),
+            generations=section.integer("generations", 0),
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class ProgressiveResolutionOptimizationConfig:
+    """Corre varias etapas aumentando la resolucion de trabajo."""
+
+    stages: tuple[ProgressiveResolutionStageConfig, ...] = ()
+
+    def __post_init__(self) -> None:
+        if not self.stages:
+            raise ValueError(
+                "optimization.progressive_resolution.stages debe tener al menos una etapa."
+            )
+
+    @classmethod
+    def from_section(cls, section: ConfigSection) -> ProgressiveResolutionOptimizationConfig:
+        stages = tuple(
+            ProgressiveResolutionStageConfig.from_section(stage)
+            for stage in section.section_list("stages")
+        )
+        return cls(stages=stages)
+
+
+@dataclass(frozen=True, slots=True)
+class LocalSearchOptimizationConfig:
+    """Refinamiento local por triangulo despues de mutar un hijo."""
+
+    attempts: int = 4
+    every: int = 1
+    strength_multiplier: float = 0.35
+
+    def __post_init__(self) -> None:
+        _require_positive(self.attempts, "optimization.local_search.attempts")
+        _require_positive(self.every, "optimization.local_search.every")
+        _require_positive(
+            self.strength_multiplier, "optimization.local_search.strength_multiplier"
+        )
+
+    @classmethod
+    def from_section(cls, section: ConfigSection) -> LocalSearchOptimizationConfig:
+        defaults = cls()
+        return cls(
+            attempts=section.integer("attempts", defaults.attempts),
+            every=section.integer("every", defaults.every),
+            strength_multiplier=section.number(
+                "strength_multiplier", defaults.strength_multiplier
+            ),
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class OptimizationConfig:
+    """Optimizacion opcional aplicada sobre la corrida base."""
+
+    strategy: OptimizationStrategyName = "none"
+    islands: IslandsOptimizationConfig = field(default_factory=IslandsOptimizationConfig)
+    fitness_adaptive_mutation: FitnessAdaptiveMutationOptimizationConfig = field(
+        default_factory=FitnessAdaptiveMutationOptimizationConfig
+    )
+    progressive_resolution: ProgressiveResolutionOptimizationConfig | None = None
+    local_search: LocalSearchOptimizationConfig = field(default_factory=LocalSearchOptimizationConfig)
+
+    def __post_init__(self) -> None:
+        if self.strategy == "progressive-resolution" and self.progressive_resolution is None:
+            raise ValueError(
+                "optimization.strategy 'progressive-resolution' requiere "
+                "optimization.progressive_resolution.stages."
+            )
+
+    @classmethod
+    def from_section(cls, section: ConfigSection) -> OptimizationConfig:
+        defaults = cls()
+        progressive_section = section.optional_section("progressive_resolution")
+        return cls(
+            strategy=section.choice("strategy", defaults.strategy, OPTIMIZATION_CHOICES),
+            islands=IslandsOptimizationConfig.from_section(section.section("islands")),
+            fitness_adaptive_mutation=FitnessAdaptiveMutationOptimizationConfig.from_section(
+                section.section("fitness_adaptive_mutation")
+            ),
+            progressive_resolution=(
+                None if progressive_section is None
+                else ProgressiveResolutionOptimizationConfig.from_section(progressive_section)
+            ),
+            local_search=LocalSearchOptimizationConfig.from_section(
+                section.section("local_search")
+            ),
+        )
+
+
+@dataclass(frozen=True, slots=True)
 class SimulationConfig:
     """Configuración completa de una corrida, con defaults para todo salvo la imagen."""
 
@@ -590,6 +766,7 @@ class SimulationConfig:
     fitness: FitnessConfig = field(default_factory=FitnessConfig)
     preview: PreviewConfig | None = None
     gif: GifConfig | None = None
+    optimization: OptimizationConfig = field(default_factory=OptimizationConfig)
 
     def __post_init__(self) -> None:
         _require_positive(self.max_size, "max_size")
@@ -604,6 +781,16 @@ class SimulationConfig:
                 f"cantidad par de padres de al menos {self.population.size} "
                 f"(population.parents es {self.population.parents})."
             )
+        if self.optimization.strategy == "islands":
+            if self.optimization.islands.migration_count >= self.population.size:
+                raise ValueError(
+                    "optimization.islands.migration_count debe ser menor que "
+                    "population.size."
+                )
+            if self.optimization.islands.count < 2:
+                raise ValueError(
+                    "optimization.islands.count debe ser al menos 2 para usar islas."
+                )
 
     @classmethod
     def from_mapping(cls, data: Mapping[str, Any]) -> SimulationConfig:
@@ -641,6 +828,7 @@ class SimulationConfig:
                 None if preview_section is None else PreviewConfig.from_section(preview_section)
             ),
             gif=(None if gif_section is None else GifConfig.from_section(gif_section)),
+            optimization=OptimizationConfig.from_section(section.section("optimization")),
         )
         section.ensure_no_unknown_keys()
         return config

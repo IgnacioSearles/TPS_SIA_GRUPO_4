@@ -116,6 +116,9 @@ class OptionalKeysTests(unittest.TestCase):
         self.assertEqual(config.population.size, 100)
         self.assertEqual(config.population.generations, 1000)
 
+    def test_optimizations_are_disabled_by_default(self) -> None:
+        self.assertEqual(build_config().optimization.strategy, "none")
+
 
 class UnknownKeyTests(unittest.TestCase):
     def test_unknown_top_level_key_is_rejected(self) -> None:
@@ -157,6 +160,11 @@ class TypeAndRangeTests(unittest.TestCase):
         with self.assertRaises(ConfigurationError) as error:
             build_config(crossover={"strategy": "three-point"})
         self.assertIn("one-point", str(error.exception))
+
+    def test_invalid_optimization_choice_lists_the_valid_ones(self) -> None:
+        with self.assertRaises(ConfigurationError) as error:
+            build_config(optimization={"strategy": "tabu"})
+        self.assertIn("fitness-adaptive-mutation", str(error.exception))
 
 
 class SemanticValidationTests(unittest.TestCase):
@@ -214,6 +222,83 @@ class SemanticValidationTests(unittest.TestCase):
             selection={"strategy": "boltzmann", "boltzmann_standardize": True}
         )
         self.assertTrue(config.selection.boltzmann_standardize)
+
+    def test_fitness_adaptive_mutation_optimization_is_read(self) -> None:
+        config = build_config(
+            optimization={
+                "strategy": "fitness-adaptive-mutation",
+                "fitness_adaptive_mutation": {
+                    "min_multiplier": 0.2,
+                    "max_multiplier": 3.0,
+                },
+            }
+        )
+        self.assertEqual(config.optimization.strategy, "fitness-adaptive-mutation")
+        self.assertEqual(config.optimization.fitness_adaptive_mutation.min_multiplier, 0.2)
+        self.assertEqual(config.optimization.fitness_adaptive_mutation.max_multiplier, 3.0)
+
+    def test_progressive_resolution_requires_stages(self) -> None:
+        with self.assertRaises(ConfigurationError) as error:
+            build_config(optimization={"strategy": "progressive-resolution"})
+        self.assertIn("progressive_resolution", str(error.exception))
+
+    def test_progressive_resolution_stages_are_read(self) -> None:
+        config = build_config(
+            optimization={
+                "strategy": "progressive-resolution",
+                "progressive_resolution": {
+                    "stages": [
+                        {"max_size": 32, "generations": 10},
+                        {"max_size": 64, "generations": 20},
+                    ]
+                },
+            }
+        )
+        stages = config.optimization.progressive_resolution.stages
+        self.assertEqual((stages[0].max_size, stages[0].generations), (32, 10))
+        self.assertEqual((stages[1].max_size, stages[1].generations), (64, 20))
+
+    def test_islands_optimization_requires_multiple_islands(self) -> None:
+        with self.assertRaises(ConfigurationError) as error:
+            build_config(optimization={"strategy": "islands", "islands": {"count": 1}})
+        self.assertIn("count", str(error.exception))
+
+    def test_islands_migration_count_must_fit_the_population(self) -> None:
+        with self.assertRaises(ConfigurationError) as error:
+            build_config(
+                population={"size": 4},
+                optimization={"strategy": "islands", "islands": {"migration_count": 4}},
+            )
+        self.assertIn("migration_count", str(error.exception))
+
+    def test_islands_parallel_settings_are_read(self) -> None:
+        config = build_config(
+            optimization={
+                "strategy": "islands",
+                "islands": {
+                    "parallel": True,
+                    "workers": 2,
+                },
+            }
+        )
+        self.assertTrue(config.optimization.islands.parallel)
+        self.assertEqual(config.optimization.islands.workers, 2)
+
+    def test_local_search_optimization_is_read(self) -> None:
+        config = build_config(
+            optimization={
+                "strategy": "local-search",
+                "local_search": {
+                    "attempts": 2,
+                    "every": 5,
+                    "strength_multiplier": 0.25,
+                },
+            }
+        )
+        self.assertEqual(config.optimization.strategy, "local-search")
+        self.assertEqual(config.optimization.local_search.attempts, 2)
+        self.assertEqual(config.optimization.local_search.every, 5)
+        self.assertEqual(config.optimization.local_search.strength_multiplier, 0.25)
 
 
 class FileLoadingTests(unittest.TestCase):

@@ -108,6 +108,19 @@ class ConfigSection:
             numbers.append(float(item))
         return tuple(numbers)
 
+    def section_list(self, key: str) -> tuple[ConfigSection, ...]:
+        value = self._value(key)
+        if value is None:
+            return ()
+        if isinstance(value, str) or not isinstance(value, Sequence):
+            raise self._type_error(key, "una lista de objetos JSON", value)
+        sections = []
+        for index, item in enumerate(value):
+            if not isinstance(item, Mapping):
+                raise self._type_error(f"{key}[{index}]", "un objeto JSON", item)
+            sections.append(self._child(f"{key}[{index}]", item))
+        return tuple(sections)
+
     def number_mapping(self, key: str) -> dict[str, float] | None:
         """Lee un objeto `{"nombre": número}`, típico de pesos por componente."""
         value = self._value(key)
