@@ -102,9 +102,83 @@ Y las secciones `population`, `selection`, `crossover`, `mutation`, `fitness`,
 - `termination`: permite elegir `max-generations` (default), `target-fitness` o
   `stagnation`; sus parámetros son `target_fitness`, `stagnation_generations` e
   `improvement`.
+- `optimization.strategy`: `none` (default), `islands`,
+  `fitness-adaptive-mutation`, `progressive-resolution` o `local-search`.
+  Activa una optimización extra sobre la corrida base.
 
 Cada corrida escribe `run/config.json`, `run/best.png`, `run/triangles.json`,
 `run/history.csv` y `run/summary.json`, junto con la imagen indicada por `output`.
+
+### Optimizaciones
+
+La sección `optimization` es opcional. Si se omite, la corrida usa el algoritmo
+base. Por ahora se activa una sola optimización por corrida para poder comparar
+resultados de forma limpia.
+
+Mutación adaptativa por fitness: evalúa cada hijo antes de mutarlo; los hijos con
+fitness bajo reciben un multiplicador más alto de `probability`, `strength` y
+`replacement_probability`, mientras que los buenos mutan menos.
+
+```json
+"optimization": {
+  "strategy": "fitness-adaptive-mutation",
+  "fitness_adaptive_mutation": {
+    "min_multiplier": 0.4,
+    "max_multiplier": 2.0
+  }
+}
+```
+
+Resolución progresiva: corre varias etapas con distintos `max_size`. El mejor
+individuo de una etapa se escala y entra como semilla de la etapa siguiente.
+
+```json
+"optimization": {
+  "strategy": "progressive-resolution",
+  "progressive_resolution": {
+    "stages": [
+      { "max_size": 64, "generations": 1000 },
+      { "max_size": 128, "generations": 1500 },
+      { "max_size": 300, "generations": 3000 }
+    ]
+  }
+}
+```
+
+Búsqueda local: después de la mutación base, prueba pequeñas perturbaciones sobre
+un triángulo y conserva únicamente las que mejoran el fitness.
+
+```json
+"optimization": {
+  "strategy": "local-search",
+  "local_search": {
+    "attempts": 4,
+    "every": 1,
+    "strength_multiplier": 0.35
+  }
+}
+```
+
+Modelo de islas: crea varias poblaciones independientes con la misma
+configuración. Cada cierto número de generaciones migran los mejores individuos
+de cada isla hacia la siguiente isla en anillo, reemplazando los peores del
+destino. Al final se guarda el mejor individuo global. Por defecto se ejecuta en
+serie; con `parallel: true`, cada isla evoluciona en un proceso separado y el
+proceso principal sincroniza la migración y los artefactos. `workers` permite
+limitar cuántos procesos se usan; si se omite, usa un worker por isla.
+
+```json
+"optimization": {
+  "strategy": "islands",
+  "islands": {
+    "count": 4,
+    "migration_every": 100,
+    "migration_count": 2,
+    "parallel": true,
+    "workers": 4
+  }
+}
+```
 
 ## Experimentos
 
