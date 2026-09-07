@@ -1,0 +1,17 @@
+{
+  "config": "configs/mutation_fitness_base.json",
+  "output_directory": "experiments/results/06_boxplots_03_selection",
+  "matrix": {
+    "image": [
+      {"path": "imagenes/Firefox_logo,_2017.png", "generations": 2500},
+      {"path": "imagenes/monalisa.jpg", "generations": 3000}
+    ],
+    "selection.strategy": ["tournament", "deterministic-tournament", "ranking", "roulette", "boltzmann"],
+    "mutation.strategy": ["gen"],
+    "mutation.schedule": ["adaptive-reheat"],
+    "fitness": [
+      {"metric": "combo", "combo": {"mse": 0.35, "blur": 0.20, "edge": 0.20, "saliency": 0.25}}
+    ],
+    "seed": [20260906, 20260907, 20260908, 20260909, 20260910, 20260911, 20260912]
+  }
+}
