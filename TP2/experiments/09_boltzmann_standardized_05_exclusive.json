@@ -1,0 +1,20 @@
+{
+  "config": "configs/mutation_fitness_base.json",
+  "output_directory": "experiments/results/09_boltzmann_standardized_05_exclusive",
+  "matrix": {
+    "image": [
+      {"path": "imagenes/Firefox_logo,_2017.png", "generations": 2500},
+      {"path": "imagenes/monalisa.jpg", "generations": 3000}
+    ],
+    "population.survival": ["exclusive"],
+    "selection.strategy": ["boltzmann"],
+    "selection.boltzmann_standardize": [true],
+    "selection.boltzmann_temperature": [1.0],
+    "crossover.strategy": ["one-point", "two-point", "uniform", "annular"],
+    "mutation.strategy": ["gen"],
+    "mutation.schedule": ["adaptive-reheat"],
+    "fitness": [{"metric": "mse"}],
+    "triangles": [80],
+    "seed": [20260903, 20260904, 20260905, 20260906, 20260907]
+  }
+}
