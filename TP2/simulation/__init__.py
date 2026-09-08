@@ -19,6 +19,8 @@ from .config import (
     TerminationConfig,
     load_simulation_config,
 )
+from .analysis import GroupSummary, read_results, summarize_by
+from .plotting import plot_group_comparison
 from .reporting import GifWriter, PreviewWriter, ProgressReporter, RunArtifactWriter
 from .runner import SimulationOutcome, run_simulation
 from .experiments import expand_matrix, load_experiment_spec, run_experiment_matrix
@@ -32,6 +34,7 @@ __all__ = [
     "PreviewWriter", "ProgressReporter", "ProgressiveResolutionOptimizationConfig",
     "ProgressiveResolutionStageConfig", "RunArtifactWriter", "ReheatConfig",
     "SelectionConfig", "SimulationConfig", "SimulationOutcome", "TerminationConfig",
-    "expand_matrix", "load_experiment_spec",
-    "load_simulation_config", "run_experiment_matrix", "run_simulation",
+    "GroupSummary", "expand_matrix", "load_experiment_spec",
+    "load_simulation_config", "plot_group_comparison", "read_results", "run_experiment_matrix", "run_simulation",
+    "summarize_by",
 ]

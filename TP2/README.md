@@ -244,6 +244,66 @@ inflar demasiado el costo. Para estudiar sensibilidad, agregar
 el diseño a 1440 corridas; es preferible hacerlo después de identificar las
 mejores combinaciones.
 
+### Costo temporal de las funciones de fitness
+
+`experiments/07_fitness_timing.json` mide cuánto cuesta en tiempo cada métrica de
+fitness, manteniendo todo lo demás fijo. Usa `configs/fitness_timing_base.json`,
+que está armado para que el tiempo sea comparable entre métricas:
+
+- `termination.strategy: max-generations`, así toda corrida hace exactamente las
+  mismas 300 generaciones y nadie termina antes por converger mejor.
+- `mutation.schedule: constant`, para que la carga de mutación no dependa del
+  fitness alcanzado (un schedule adaptativo mutaría más o menos según la métrica).
+- Sin `preview` ni `gif`: la escritura de imágenes agregaría E/S al cronómetro.
+
+La matriz recorre las 11 métricas (las 10 simples más `combo`) por 5 semillas, o
+sea 55 corridas:
+
+```bash
+python experiments.py experiments/07_fitness_timing.json
+```
+
+**Correrlo con `--workers 1`** (el default). Varios workers compitiendo por CPU
+inflan `elapsed_seconds` de forma desigual y arruinan justamente lo que se mide.
+Conviene además no usar la máquina para otra cosa mientras corre.
+
+### Gráficos con barras de error
+
+`plot_experiment.py` toma el `results.csv` de cualquier matriz, agrupa por una
+columna y grafica la media de otra con su intervalo de confianza del 95 %:
+
+```bash
+python plot_experiment.py experiments/results/07_fitness_timing/results.csv \
+  --group fitness.metric --value elapsed_seconds \
+  --title "Costo temporal por función de fitness" \
+  --axis-label "segundos por corrida de 300 generaciones (media, IC 95 %, n=5)"
+```
+
+| Parámetro | Default | Qué hace |
+| --- | --- | --- |
+| `results` | — | Ruta al `results.csv` de la matriz (obligatorio). |
+| `--group` | `fitness.metric` | Columna que define los grupos del eje. |
+| `--value` | `elapsed_seconds` | Columna numérica que se promedia. |
+| `--output` | junto al CSV | PNG de salida. |
+| `--title` | derivado | Título del gráfico. |
+| `--axis-label` | derivado | Etiqueta del eje de magnitud. |
+
+El intervalo usa la t de Student, no la normal: con 5 corridas el factor es 2.78
+y no 1.96, así que asumir normalidad angostaría las barras alrededor de un 30 %.
+Además de la media, el gráfico dibuja cada corrida individual como un punto, para
+que la dispersión real quede a la vista y no escondida detrás de un solo bigote.
+
+Sirve para cualquier otra matriz cambiando las columnas, por ejemplo para comparar
+la calidad alcanzada en vez del tiempo:
+
+```bash
+python plot_experiment.py experiments/results/07_fitness_timing/results.csv \
+  --value best_fitness
+```
+
+Ojo con esa comparación: `best_fitness` de métricas distintas está en escalas
+distintas y no es directamente comparable entre grupos; el tiempo sí lo es.
+
 ### Semilla
 
 Sin `seed` la corrida es aleatoria, pero no irrepetible: el programa sortea una
@@ -333,7 +393,10 @@ para sumar 1:
   fitness, mutadores y políticas de mutación).
 - `simulation`: capa de composición. `config` define el esquema declarativo y lo
   valida, `builders` traduce cada opción al operador concreto, `reporting`
-  observa la corrida y `runner` la ejecuta de punta a punta.
+  observa la corrida (progreso, previews, GIF y artefactos) y `runner` la ejecuta
+  de punta a punta. `experiments` recorre matrices de corridas, `analysis` resume
+  sus resultados en estadísticas y `plotting` los dibuja; el resumen es puro y se
+  testea sin matplotlib.
 
 El proyecto declara Python `>=3.14` en `pyproject.toml`. Además, los contratos
 usan `abc.ABC` y sintaxis moderna de parámetros de tipo; no va a parsear con

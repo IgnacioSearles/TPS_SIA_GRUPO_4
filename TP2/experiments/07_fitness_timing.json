@@ -1,0 +1,11 @@
+{
+  "config": "configs/fitness_timing_base.json",
+  "output_directory": "experiments/results/07_fitness_timing",
+  "matrix": {
+    "fitness.metric": [
+      "mse", "regional", "blur", "multiscale", "ssim",
+      "histogram", "edge", "gradient", "chamfer", "saliency", "combo"
+    ],
+    "seed": [20260901, 20260902, 20260903, 20260904, 20260905]
+  }
+}
