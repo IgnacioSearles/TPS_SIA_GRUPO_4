@@ -376,8 +376,6 @@ para sumar 1:
 
 ## Documentación
 
-- [`FITNESS.md`](FITNESS.md): explicación detallada de cada métrica de fitness,
-  qué mide, cómo se interpreta y cuándo conviene usarla.
 - [`ARQUITECTURA_IMPLEMENTACION.md`](ARQUITECTURA_IMPLEMENTACION.md): explicación
   de las capas, flujo de ejecución, configuración y estado frente a la consigna.
 

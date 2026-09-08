@@ -9,3 +9,7 @@ __pycache__/
 *.py[cod]
 *.Zone.Identifier
 run/
+
+# Documentacion interna, no se publica en el repo
+FITNESS.md
+OPTIMIZACIONES.md
