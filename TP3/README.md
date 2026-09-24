@@ -10,6 +10,7 @@ Desde este directorio, con las dependencias de `requirements.txt` instaladas:
 python -m experiments.analyze_fraud
 python -m experiments.fraud_probability experiments/configs/fraud_probability.json
 python -m experiments.analyze_epoch_sweep
+python -m experiments.study_hyperparameters experiments/configs/fraud_hyperparameters.json
 pytest -q
 ```
 
@@ -20,11 +21,14 @@ El primer comando escribe el análisis exploratorio en `reports/fraud_eda/`, con
 - `learning_curves.png`, `learning_*.csv` y `learning_*_weights.npz`: historial y pesos de cada comparación lineal/sigmoide.
 - `cross_validation.csv`, `cross_validation_epoch_metrics.csv` y `cross_validation_error.png`: resultados por fold y evolución por época de train/validación.
 - `epoch_sweep.csv`, `epoch_sweep.md` y `epoch_sweep.png`: comparación de varios cortes de épocas para underfitting y overfitting.
+- `hyperparameter_studies/report.md`: efecto del learning rate y de la inicialización guiada, con curvas e historiales por fold en `reports/fraud_probability/hyperparameter_studies/`.
 - `fold_XX_history.csv`, `fold_XX_weights.npz` y `fold_XX_metadata.json`: historial completo, pesos y escalador de cada ejecución de K-Fold.
 - `out_of_fold_predictions.csv`: predicción fuera de muestra para cada transacción.
 - `model_weights.npz` y `model_metadata.json`: pesos, orden de variables y estandarización para inferencia.
 
 Se puede modificar el JSON para elegir cantidad de folds, épocas, tamaño de lote, tasa de aprendizaje y `training.epsilon`. El epsilon compara contra la pérdida MSE/2 medida con el modelo actualizado al final de cada época; `epochs` es el máximo. En cada fold, la media y el desvío se calculan solo con sus muestras de entrenamiento.
+
+El estudio de learning rate compara varios valores con la misma inicialización aleatoria, particiones y orden de mini-batches. El estudio de inicialización guiada ajusta una regresión sobre el logit de las probabilidades objetivo usando solo el train de cada fold y usa esos coeficientes para empezar cerca de una solución; se compara con el inicio aleatorio usando el mismo learning rate. El informe incluye el efecto observado, tablas por fold, curvas y configuración exacta.
 
 ## Usar el modelo guardado
 
