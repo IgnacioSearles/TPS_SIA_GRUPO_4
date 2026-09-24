@@ -1,0 +1,17 @@
+{
+  "name": "validation_and_step",
+  "seed": 42,
+  "model": {
+    "layers": [2, 1],
+    "activation": "step",
+    "initializer": {"name": "uniform", "low": -0.5, "high": 0.5}
+  },
+  "loss": "mse",
+  "optimizer": {"name": "sgd", "lr": 0.1},
+  "training": {"epochs": 20, "batch_size": 1},
+  "callbacks": [
+    {"name": "progress", "every": 1},
+    {"name": "loss_threshold", "threshold": 0.0}
+  ],
+  "notes": "Step perceptron on AND with inputs and outputs in {-1, 1}. batch_size 1 + MSE + SGD is Rosenblatt's rule. loss_threshold 0 stops once every sample is classified correctly."
+}
