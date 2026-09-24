@@ -1,4 +1,7 @@
 datasets/
 results/
-__pycache__/
+reports/
+outputs/
 .pytest_cache/
+__pycache__/
+*.py[cod]
