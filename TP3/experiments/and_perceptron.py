@@ -20,6 +20,7 @@ EXPERIMENT_DEFAULTS: Config = {
     "model": {"layers": [2, 1], "activation": "step"},
     "optimizer": {"lr": 0.1},
     "training": {"epochs": 20, "batch_size": 1},
+    "evaluation": {"classification": True},
     "callbacks": [
         {"name": "progress", "every": 1},
         {"name": "loss_threshold", "threshold": 0.0},
@@ -27,7 +28,7 @@ EXPERIMENT_DEFAULTS: Config = {
 }
 
 
-def print_report(net: Sequential) -> None:
+def print_report(net: Sequential, metrics: dict | None = None) -> None:
     dense = net.layers[0]
     w1, w2 = dense.W.value[:, 0]
     bias = dense.b.value[0]
@@ -41,12 +42,16 @@ def print_report(net: Sequential) -> None:
 
     accuracy = float(np.mean(predictions == AND_TARGETS))
     print(f"\nAccuracy: {accuracy:.0%}")
+    if metrics is not None:
+        print("Confusion matrix (rows=true, columns=predicted):")
+        print(np.array(metrics["confusion_matrix"]))
+        print(f"Macro F1: {metrics['macro_avg']['f1']:.3f}")
 
 
 def main() -> None:
     config = config_from_cli(EXPERIMENT_DEFAULTS)
     result = run_training(config, AND_INPUTS, AND_TARGETS)
-    print_report(result.net)
+    print_report(result.net, result.metrics)
 
 
 if __name__ == "__main__":

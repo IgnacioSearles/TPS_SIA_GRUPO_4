@@ -9,6 +9,11 @@
   "loss": "mse",
   "optimizer": {"name": "sgd", "lr": 0.1},
   "training": {"epochs": 20, "batch_size": 1},
+  "evaluation": {"classification": true},
+  "output": {
+    "weights_path": "outputs/and_step_weights.npz",
+    "results_path": "outputs/and_step_results.json"
+  },
   "callbacks": [
     {"name": "progress", "every": 1},
     {"name": "loss_threshold", "threshold": 0.0}

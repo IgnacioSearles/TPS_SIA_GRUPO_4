@@ -41,7 +41,7 @@ def test_mse_gradient():
 
 
 # Step is excluded: its straight-through backward is intentionally not its true derivative.
-@pytest.mark.parametrize("activation_name", ["identity"])
+@pytest.mark.parametrize("activation_name", ["identity", "sigmoid", "tanh", "relu"])
 def test_activation_gradient(activation_name):
     rng = np.random.default_rng(0)
     z = rng.normal(size=(4, 3))
@@ -60,6 +60,20 @@ def test_network_parameter_gradients():
     net = build_model({"layers": [3, 4, 2], "activation": "identity"}, rng)
     loss = build("loss", "mse")
     X, Y = rng.normal(size=(5, 3)), rng.normal(size=(5, 2))
+
+    loss.forward(net.forward(X), Y)
+    net.backward(loss.backward())
+
+    for param in net.params():
+        numerical = numerical_gradient(lambda: loss.forward(net.forward(X), Y), param.value)
+        assert relative_error(param.grad, numerical) < TOLERANCE, param.name
+
+
+def test_multilayer_network_parameter_gradients_with_tanh():
+    rng = np.random.default_rng(4)
+    net = build_model({"layers": [2, 3, 2, 1], "activation": "tanh"}, rng)
+    loss = build("loss", "mse")
+    X, Y = rng.normal(size=(4, 2)), rng.normal(size=(4, 1))
 
     loss.forward(net.forward(X), Y)
     net.backward(loss.backward())

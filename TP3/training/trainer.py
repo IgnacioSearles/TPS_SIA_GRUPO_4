@@ -74,7 +74,10 @@ def train(
     history: list[EpochLogs] = []
     for epoch in range(1, epochs + 1):
         start = time.perf_counter()
-        epoch_loss = train_epoch(net, loss, optimizer, X, Y, batch_size, rng)
+        train_epoch(net, loss, optimizer, X, Y, batch_size, rng)
+        # Measure the current model on all training samples after the updates.
+        # This is the loss used by stopping callbacks and learning curves.
+        epoch_loss = loss.forward(net.forward(X), Y)
         logs: EpochLogs = {"epoch": epoch, "loss": epoch_loss, "epoch_time": time.perf_counter() - start}
         history.append(logs)
 

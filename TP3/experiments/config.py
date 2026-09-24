@@ -16,7 +16,9 @@ BASE_DEFAULTS: Config = {
     "model": {"activation": "identity", "initializer": "uniform"},
     "loss": "mse",
     "optimizer": {"name": "sgd", "lr": 0.01},
-    "training": {"epochs": 100, "batch_size": 1},
+    "training": {"epochs": 100, "batch_size": 1, "epsilon": None},
+    "evaluation": {"classification": False},
+    "output": {},
     "callbacks": [{"name": "progress", "every": 10}],
 }
 
