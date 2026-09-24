@@ -1,0 +1,37 @@
+{
+  "fold": 5,
+  "feature_columns": [
+    "amount_usd",
+    "quantity_purchased",
+    "session_duration_seconds",
+    "days_since_last_purchase",
+    "account_age_days",
+    "items_viewed_before_purchase"
+  ],
+  "target": "big_model_fraud_probability",
+  "model": {
+    "layers": [
+      6,
+      1
+    ],
+    "activation": "sigmoid"
+  },
+  "scaler": {
+    "mean": [
+      108.47255000000001,
+      5.773333333333333,
+      281.6859,
+      13.643351666666666,
+      1664.1406666666667,
+      8.5855
+    ],
+    "scale": [
+      157.36306682159415,
+      4.0709076247059315,
+      135.2680414012243,
+      14.93025800568532,
+      1116.3270063977172,
+      5.385445486060863
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "seed": 42,
+  "model": {
+    "activation": "sigmoid",
+    "initializer": "uniform",
+    "layers": [
+      6,
+      1
+    ]
+  },
+  "loss": "mse",
+  "optimizer": {
+    "name": "sgd",
+    "lr": 0.05
+  },
+  "training": {
+    "epochs": 1000,
+    "batch_size": 128,
+    "epsilon": 0.001
+  },
+  "evaluation": {
+    "classification": false
+  },
+  "output": {
+    "directory": "reports/fraud_probability"
+  },
+  "callbacks": [],
+  "dataset": "datasets/fraud_dataset.csv",
+  "cross_validation": {
+    "folds": 5
+  }
+}
