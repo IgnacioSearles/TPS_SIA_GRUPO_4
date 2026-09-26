@@ -1,4 +1,6 @@
-datasets/
+datasets/*
+!datasets/__init__.py
+!datasets/digit_dataset_loader.py
 results/
 reports/
 outputs/
