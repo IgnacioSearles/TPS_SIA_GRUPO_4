@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from experiments.digits_data import load_digits
+from datasets.digit_dataset_loader import load_digit_arrays as load_digits
 
 
 def image_features(X: np.ndarray) -> pd.DataFrame:
