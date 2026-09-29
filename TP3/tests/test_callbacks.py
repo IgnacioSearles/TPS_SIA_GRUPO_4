@@ -1,8 +1,10 @@
+import json
+
 import numpy as np
 import pytest
 
 from experiments.config import load_config
-from experiments.runner import run_training
+from experiments.runner import run_training, save_results
 from nn import build, build_model
 from training import Callback, EpochLogs, LossThreshold, ProgressPrinter, train
 
@@ -80,3 +82,12 @@ def test_invalid_epsilon_is_rejected():
         })
         with pytest.raises(ValueError, match="training.epsilon"):
             run_training(config, X, X)
+
+
+def test_save_results_writes_history_and_metrics(tmp_path):
+    path = save_results([{"epoch": 1, "loss": 0.2, "epoch_time": 0.01}], {"accuracy": 1.0}, tmp_path / "results.json")
+
+    assert json.loads(path.read_text()) == {
+        "history": [{"epoch": 1, "loss": 0.2, "epoch_time": 0.01}],
+        "metrics": {"accuracy": 1.0},
+    }

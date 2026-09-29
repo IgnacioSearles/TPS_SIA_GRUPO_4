@@ -1,4 +1,4 @@
-"""EDA for the learning split only: python -m experiments.analyze_digits."""
+"""EDA for the learning split only: python -m experiments.digits.eda."""
 
 import argparse
 import json

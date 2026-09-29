@@ -5,7 +5,7 @@ the same initialization and minibatch order, each row is equivalent to stopping
 that run at the corresponding epoch.
 
 Usage:
-    python -m experiments.analyze_epoch_sweep
+    python -m experiments.fraud.epoch_sweep
 """
 
 import argparse

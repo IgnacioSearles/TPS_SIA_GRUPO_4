@@ -2,10 +2,10 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from experiments.fraud_data import (
+from data.preprocessing import StandardScaler
+from experiments.fraud.data import (
     FEATURE_COLUMNS,
     REQUIRED_COLUMNS,
-    StandardScaler,
     TEACHER_TARGET,
     load_fraud_dataset,
     prepare_fold,

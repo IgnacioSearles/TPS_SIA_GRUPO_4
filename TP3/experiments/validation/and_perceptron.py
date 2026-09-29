@@ -1,7 +1,7 @@
 """Validation: a step perceptron learns the logical AND.
 
 Usage:
-    python -m experiments.and_perceptron [path/to/config.json]
+    python -m experiments.validation.and_perceptron [path/to/config.json]
 
 Every config key is optional; see experiments/config.py for how defaults are layered.
 """

@@ -31,6 +31,10 @@
     }
   ],
   "dataset": "datasets/fraud_dataset.csv",
+  "split": {
+    "test_ratio": 0.2,
+    "strata_bins": 10
+  },
   "cross_validation": {
     "folds": 5
   },

@@ -26,7 +26,12 @@
   },
   "callbacks": [],
   "dataset": "datasets/fraud_dataset.csv",
+  "split": {
+    "test_ratio": 0.2,
+    "strata_bins": 10
+  },
   "cross_validation": {
     "folds": 5
-  }
+  },
+  "notes": "split.test_ratio of the rows (stratified by target-probability deciles) are held out as a test set. K-Fold, tuning and threshold selection only use the development rows."
 }

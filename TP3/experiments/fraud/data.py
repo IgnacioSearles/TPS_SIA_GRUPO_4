@@ -6,6 +6,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from data.preprocessing import StandardScaler
+from data.splits import Fold, quantile_strata, stratified_holdout, stratified_kfold
 
 FEATURE_COLUMNS = [
     "amount_usd",
@@ -17,39 +19,19 @@ FEATURE_COLUMNS = [
 ]
 EXCLUDED_COLUMNS = ["timestamp", "device_screen_resolution", "time_since_last_login_s"]
 TEACHER_TARGET = "big_model_fraud_probability"
+# Binary label shipped with the dataset. Not a training target (we distill BigModel's
+# probability), but useful in the EDA to see how that probability separates the classes.
+FRAUD_LABEL = "flagged_fraud"
 REQUIRED_COLUMNS = FEATURE_COLUMNS + EXCLUDED_COLUMNS + [TEACHER_TARGET]
-
-
-@dataclass
-class StandardScaler:
-    """Column-wise standardization fitted exclusively on training data."""
-
-    mean_: np.ndarray | None = None
-    scale_: np.ndarray | None = None
-
-    def fit(self, X: np.ndarray) -> "StandardScaler":
-        if X.ndim != 2 or len(X) == 0:
-            raise ValueError(f"Expected a non-empty 2-D feature matrix, got shape {X.shape}")
-        self.mean_ = X.mean(axis=0)
-        self.scale_ = X.std(axis=0)
-        self.scale_[self.scale_ == 0] = 1.0
-        return self
-
-    def transform(self, X: np.ndarray) -> np.ndarray:
-        if self.mean_ is None or self.scale_ is None:
-            raise RuntimeError("StandardScaler.transform called before fit")
-        return (X - self.mean_) / self.scale_
-
-    def fit_transform(self, X: np.ndarray) -> np.ndarray:
-        return self.fit(X).transform(X)
+DEFAULT_STRATA_BINS = 10
 
 
 @dataclass(frozen=True)
-class Fold:
-    """Indices for one training/validation partition in cross-validation."""
+class DevelopmentSplit:
+    """Original row indices of the development set (training, CV, tuning) and the held-out test set."""
 
-    train: np.ndarray
-    validation: np.ndarray
+    development_rows: np.ndarray
+    test_rows: np.ndarray
 
 
 @dataclass
@@ -81,6 +63,18 @@ def load_fraud_dataset(path: str | Path) -> pd.DataFrame:
     return data[REQUIRED_COLUMNS].copy()
 
 
+def load_labeled_fraud_dataset(path: str | Path) -> pd.DataFrame:
+    """Like `load_fraud_dataset`, but also keeps the binary `flagged_fraud` label (for the EDA only)."""
+    labels = pd.read_csv(path, usecols=lambda column: column == FRAUD_LABEL)
+    if FRAUD_LABEL not in labels.columns:
+        raise ValueError(f"Dataset is missing the '{FRAUD_LABEL}' column")
+    if not labels[FRAUD_LABEL].isin([0, 1]).all():
+        raise ValueError(f"{FRAUD_LABEL} must only contain 0 and 1")
+    data = load_fraud_dataset(path)
+    data[FRAUD_LABEL] = labels[FRAUD_LABEL].astype(int).to_numpy()
+    return data
+
+
 def split_features_and_targets(data: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
     """Return features and BigModel probabilities without target leakage.
 
@@ -92,28 +86,39 @@ def split_features_and_targets(data: pd.DataFrame) -> tuple[np.ndarray, np.ndarr
     return X, teacher_probability
 
 
+def target_strata(data: pd.DataFrame, n_bins: int = DEFAULT_STRATA_BINS) -> np.ndarray:
+    """Stratum per row from quantile bins of BigModel's probability.
+
+    Stratifying on the continuous target keeps its distribution (including the
+    high-probability fraud tail) equal across splits without using the label.
+    """
+    return quantile_strata(data[TEACHER_TARGET].to_numpy(), n_bins)
+
+
+def split_development_and_test(
+    data: pd.DataFrame,
+    *,
+    test_ratio: float = 0.2,
+    seed: int = 42,
+    strata_bins: int = DEFAULT_STRATA_BINS,
+) -> DevelopmentSplit:
+    """Hold out a stratified test set that no training or tuning decision may use."""
+    development_rows, test_rows = stratified_holdout(target_strata(data, strata_bins), test_ratio, seed)
+    return DevelopmentSplit(development_rows=development_rows, test_rows=test_rows)
+
+
 def kfold(
     data: pd.DataFrame,
     *,
     n_splits: int = 5,
     seed: int = 42,
+    strata_bins: int = DEFAULT_STRATA_BINS,
 ) -> list[Fold]:
-    """Return reproducible shuffled K-Fold partitions for probability regression.
+    """Reproducible K-Fold partitions stratified on the target probability.
 
-    Every row is used once for validation and ``n_splits - 1`` times for
-    training.
+    Every row is used once for validation and ``n_splits - 1`` times for training.
     """
-    if n_splits < 2:
-        raise ValueError(f"n_splits must be >= 2, got {n_splits}")
-    if n_splits > len(data):
-        raise ValueError("n_splits cannot exceed the number of samples")
-    shuffled = np.random.default_rng(seed).permutation(len(data))
-    all_indices = np.arange(len(data))
-    folds = []
-    for validation in np.array_split(shuffled, n_splits):
-        train = np.setdiff1d(all_indices, validation, assume_unique=True)
-        folds.append(Fold(train=train, validation=validation))
-    return folds
+    return stratified_kfold(target_strata(data, strata_bins), n_splits, seed)
 
 
 def prepare_fold(data: pd.DataFrame, fold: Fold) -> PreparedFold:
@@ -128,17 +133,3 @@ def prepare_fold(data: pd.DataFrame, fold: Fold) -> PreparedFold:
         teacher_validation=teacher_validation,
         scaler=scaler,
     )
-
-
-def dataset_profile(data: pd.DataFrame) -> dict[str, object]:
-    """Produce JSON/Markdown-friendly descriptive statistics for the EDA report."""
-    summary = data.describe(percentiles=[0.01, 0.25, 0.5, 0.75, 0.99]).T
-    return {
-        "rows": int(len(data)),
-        "columns": int(len(data.columns)),
-        "duplicates": int(data.duplicated().sum()),
-        "missing_values": {name: int(value) for name, value in data.isna().sum().items()},
-        "unique_values": {name: int(value) for name, value in data.nunique().items()},
-        "summary": summary,
-        "correlation_with_teacher": data.corr(numeric_only=True)[TEACHER_TARGET].sort_values(),
-    }

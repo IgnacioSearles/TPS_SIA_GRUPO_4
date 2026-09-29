@@ -1,16 +1,19 @@
 """Builds every component from a config and trains a model on the given data."""
 
+import json
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
 
 import numpy as np
 
 import nn  # noqa: F401  (registers activations, losses, optimizers, initializers)
 import training  # noqa: F401  (registers callbacks)
 from experiments.config import Config
-from experiments.evaluation import classification_metrics, probability_metrics, save_results, save_weights
-from nn.network import Sequential, build_model
+from nn.network import Sequential, build_model, save_weights
 from nn.registry import build
 from training.callbacks import EpochLogs, LossThreshold
+from training.metrics import classification_metrics, probability_metrics
 from training.trainer import train
 
 
@@ -19,6 +22,15 @@ class TrainingResult:
     net: Sequential
     history: list[EpochLogs]
     metrics: dict | None = None
+
+
+def save_results(history: list[EpochLogs], metrics: dict[str, Any] | None, path: str | Path) -> Path:
+    """Persist training history and optional evaluation metrics as JSON."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as file:
+        json.dump({"history": history, "metrics": metrics}, file, indent=2)
+    return path
 
 
 def run_training(config: Config, X: np.ndarray, Y: np.ndarray) -> TrainingResult:
