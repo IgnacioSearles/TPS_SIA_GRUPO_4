@@ -1,0 +1,32 @@
+{
+  "seed": 42,
+  "data": {
+    "path": "datasets/digits.csv",
+    "test_path": "datasets/digits_test.csv"
+  },
+  "model": {
+    "layers": [
+      784,
+      64,
+      32,
+      10
+    ],
+    "activation": "tanh",
+    "output_activation": "sigmoid",
+    "initializer": "xavier"
+  },
+  "loss": "mse",
+  "optimizer": {
+    "name": "momentum",
+    "lr": 0.1,
+    "momentum": 0.9
+  },
+  "training": {
+    "epochs": 76,
+    "batch_size": 128,
+    "shuffle_seed": 42
+  },
+  "output": {
+    "directory": "results/digits_final"
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "seed": 42,
+  "data": {
+    "path": "datasets/digits.csv",
+    "validation_ratio": 0.2,
+    "split_seed": 42
+  },
+  "model": {
+    "layers": [
+      784,
+      64,
+      32,
+      10
+    ],
+    "activation": "tanh",
+    "output_activation": "sigmoid",
+    "initializer": "xavier"
+  },
+  "loss": "mse",
+  "optimizer": {
+    "name": "sgd",
+    "lr": 0.1
+  },
+  "training": {
+    "epochs": 500,
+    "batch_size": 128,
+    "shuffle_seed": 42
+  },
+  "study": {
+    "seeds": [
+      42,
+      7,
+      21,
+      84,
+      123
+    ],
+    "reuse_directory": "results/digits_optimizers",
+    "optimizers": [
+      {
+        "name": "sgd",
+        "lr": 0.1
+      },
+      {
+        "name": "momentum",
+        "lr": 0.1,
+        "momentum": 0.5
+      },
+      {
+        "name": "momentum",
+        "lr": 0.1,
+        "momentum": 0.9
+      }
+    ]
+  },
+  "output": {
+    "directory": "results/digits_seeds"
+  }
+}

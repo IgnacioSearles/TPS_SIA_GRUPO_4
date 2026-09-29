@@ -1,0 +1,53 @@
+{
+  "selection": "highest validation accuracy, tie: lowest validation loss",
+  "winner": {
+    "learning_rate": 0.1,
+    "seed": 42,
+    "best_epoch": 50,
+    "train_accuracy": 0.9357429718875502,
+    "validation_accuracy": 0.9284853354760948,
+    "validation_loss": 0.06513048325731095,
+    "validation_macro_f1": 0.8876976699073885,
+    "validation_recall_5": 0.37037037037037035,
+    "run_directory": "run_02"
+  },
+  "runs": [
+    {
+      "learning_rate": 0.001,
+      "seed": 42,
+      "best_epoch": 50,
+      "train_accuracy": 0.5616465863453816,
+      "validation_accuracy": 0.5652872639614303,
+      "validation_loss": 0.3891899639545622,
+      "validation_macro_f1": 0.48060487956053927,
+      "validation_recall_5": 0.0,
+      "run_directory": "run_00"
+    },
+    {
+      "learning_rate": 0.01,
+      "seed": 42,
+      "best_epoch": 50,
+      "train_accuracy": 0.8772088353413655,
+      "validation_accuracy": 0.8742466854158296,
+      "validation_loss": 0.15957940396089676,
+      "validation_macro_f1": 0.784469414356379,
+      "validation_recall_5": 0.0,
+      "run_directory": "run_01"
+    },
+    {
+      "learning_rate": 0.1,
+      "seed": 42,
+      "best_epoch": 50,
+      "train_accuracy": 0.9357429718875502,
+      "validation_accuracy": 0.9284853354760948,
+      "validation_loss": 0.06513048325731095,
+      "validation_macro_f1": 0.8876976699073885,
+      "validation_recall_5": 0.37037037037037035,
+      "run_directory": "run_02"
+    }
+  ],
+  "same_split_and_initial_metrics_verified": true,
+  "dataset_sha256": "11271dbc12a3a8db967f6c2708e55ae1918d69186e81d91c53c24e305fc5d3f4",
+  "external_test_evaluated": false,
+  "scope": "Single training seed and fixed 50-epoch budget by default; not a global optimum"
+}

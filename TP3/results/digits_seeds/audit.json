@@ -1,0 +1,53 @@
+{
+  "paired_differences_vs_sgd": [
+    {
+      "candidate": "momentum_lr0.1_m0.5",
+      "difference_pp_by_seed": {
+        "7": 0.2008838891120912,
+        "21": 0.12053033346726139,
+        "42": -0.04017677782240936,
+        "84": 0.16070711128967075,
+        "123": 0.12053033346726139
+      },
+      "mean_difference_pp": 0.11249497790277507,
+      "sample_std_difference_pp": 0.09161714946557498,
+      "wins": 4,
+      "ties": 0,
+      "losses": 1
+    },
+    {
+      "candidate": "momentum_lr0.1_m0.9",
+      "difference_pp_by_seed": {
+        "7": 0.08035355564482982,
+        "21": 0.16070711128968185,
+        "42": -0.12053033346725028,
+        "84": 0.0,
+        "123": 0.0
+      },
+      "mean_difference_pp": 0.024106066693452277,
+      "sample_std_difference_pp": 0.10476821864528105,
+      "wins": 2,
+      "ties": 2,
+      "losses": 1
+    }
+  ],
+  "convergence": [
+    {
+      "candidate": "sgd_lr0.1_m0",
+      "first_epoch_95_median": 117.0,
+      "seeds_reaching_95": 5
+    },
+    {
+      "candidate": "momentum_lr0.1_m0.5",
+      "first_epoch_95_median": 60.0,
+      "seeds_reaching_95": 5
+    },
+    {
+      "candidate": "momentum_lr0.1_m0.9",
+      "first_epoch_95_median": 16.0,
+      "seeds_reaching_95": 5
+    }
+  ],
+  "runs_verified": 15,
+  "reused_runs": 3
+}

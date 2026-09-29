@@ -1,0 +1,14 @@
+{
+  "seed": 42,
+  "data": {"path": "datasets/digits.csv", "validation_ratio": 0.2, "split_seed": 42},
+  "model": {
+    "layers": [784, 32, 10],
+    "activation": "tanh",
+    "output_activation": "sigmoid",
+    "initializer": "xavier"
+  },
+  "loss": "mse",
+  "optimizer": {"name": "sgd", "lr": 0.1},
+  "training": {"epochs": 50, "batch_size": 128},
+  "output": {"directory": "results/digits_baseline"}
+}
