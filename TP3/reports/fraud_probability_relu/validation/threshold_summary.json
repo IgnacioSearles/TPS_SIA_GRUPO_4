@@ -1,0 +1,83 @@
+{
+  "recommended_threshold": 0.687,
+  "selection": {
+    "criterion": "max F1 on validation (out-of-fold)",
+    "beta": 1.0
+  },
+  "validation": {
+    "samples": 6000,
+    "fraud_rate": 0.1165,
+    "mae": 0.12685174852851247,
+    "rmse": 0.15934674119331266,
+    "roc_auc": 0.9903659497938009,
+    "average_precision": 0.9544550145568559,
+    "at_threshold": {
+      "recommended": {
+        "threshold": 0.687,
+        "tp": 600.0,
+        "fp": 60.0,
+        "tn": 5241.0,
+        "fn": 99.0,
+        "precision": 0.9090909090909091,
+        "recall": 0.8583690987124464,
+        "false_positive_rate": 0.011318619128466326,
+        "accuracy": 0.9735,
+        "flagged_rate": 0.11,
+        "f1": 0.8830022075055187,
+        "f_beta": 0.8830022075055187
+      },
+      "bigmodel_cutoff": {
+        "threshold": 0.85,
+        "tp": 465.0,
+        "fp": 0.0,
+        "tn": 5301.0,
+        "fn": 234.0,
+        "precision": 1.0,
+        "recall": 0.6652360515021459,
+        "false_positive_rate": 0.0,
+        "accuracy": 0.961,
+        "flagged_rate": 0.0775,
+        "f1": 0.7989690721649485,
+        "f_beta": 0.7989690721649485
+      }
+    }
+  },
+  "test": {
+    "samples": 1500,
+    "fraud_rate": 0.11333333333333333,
+    "mae": 0.13026897062915194,
+    "rmse": 0.16938804578301925,
+    "roc_auc": 0.9827686864219372,
+    "average_precision": 0.9345713103855096,
+    "at_threshold": {
+      "recommended": {
+        "threshold": 0.687,
+        "tp": 143.0,
+        "fp": 11.0,
+        "tn": 1319.0,
+        "fn": 27.0,
+        "precision": 0.9285714285714286,
+        "recall": 0.8411764705882353,
+        "false_positive_rate": 0.008270676691729323,
+        "accuracy": 0.9746666666666667,
+        "flagged_rate": 0.10266666666666667,
+        "f1": 0.8827160493827161,
+        "f_beta": 0.8827160493827161
+      },
+      "bigmodel_cutoff": {
+        "threshold": 0.85,
+        "tp": 120.0,
+        "fp": 1.0,
+        "tn": 1329.0,
+        "fn": 50.0,
+        "precision": 0.9917355371900827,
+        "recall": 0.7058823529411765,
+        "false_positive_rate": 0.0007518796992481203,
+        "accuracy": 0.966,
+        "flagged_rate": 0.08066666666666666,
+        "f1": 0.8247422680412372,
+        "f_beta": 0.8247422680412372
+      }
+    }
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "results_directory": "reports/fraud_probability_relu",
+  "output_directory": "reports/fraud_probability_relu/validation",
+  "notes": "Validation analysis and threshold for the ReLU perceptron (see relu.json)."
+}

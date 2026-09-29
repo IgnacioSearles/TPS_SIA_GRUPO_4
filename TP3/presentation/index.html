@@ -319,6 +319,75 @@
   </aside>
 </section>
 
+<!-- ============================ 1.4 · Opcionales ============================ -->
+
+<section class="section-slide">
+  <p class="number">1.4</p>
+  <h1>Opcionales</h1>
+</section>
+
+<section>
+  <h2>Con una sola neurona, ReLU se comporta como el perceptrón lineal</h2>
+  <img class="figure short" src="../reports/fraud_activation_comparison/target_vs_pre_activation.png" alt="Probabilidad de BigModel contra la preactivación de cada modelo, con la curva de salida">
+  <p class="caption">
+    ReLU en test: RMSE 0,169 (sigmoide 0,105) y 74 de 1500 predicciones fuera de [0, 1].
+    En un MLP varias ReLU sí arman cortes: \(\mathrm{ReLU}(z) - \mathrm{ReLU}(z - 1)\) acota a [0, 1].
+  </p>
+  <aside class="notes">
+    Mismo pipeline, solo cambia la activación de salida. La probabilidad de BigModel contra z ya tiene forma de S: el sigmoide la sigue.
+    La ReLU tiene un único quiebre en 0; con bias +0,42 casi todo cae en la parte lineal, así que se comporta como el lineal (RMSE 0,161 vs 0,162) y pasa de 1 en los fraudes obvios.
+    El problema no es ReLU sino tener una sola neurona: en un MLP, dos ReLU ya recortan a [0, 1] y más unidades pueden ubicar los saltos de las features.
+    Como detector da un F1 parecido (0,883 vs 0,875): con una neurona y activación monótona, el orden de las transacciones no cambia; cambian los valores.
+  </aside>
+</section>
+
+<section class="centered-slide">
+  <h2>Tres reglas simples cubren el 78 % de los fraudes</h2>
+  <div class="body">
+  <div class="split halves">
+    <table>
+      <thead><tr><th>feature derivada</th><th>transacciones</th><th>fraude</th></tr></thead>
+      <tbody>
+        <tr><td>cantidad &gt; 9</td><td>524</td><td>100 %</td></tr>
+        <tr><td>artículos vistos &gt; 14</td><td>490</td><td>100 %</td></tr>
+        <tr><td>cuenta de ≤ 30 días</td><td>119</td><td>97,5 %</td></tr>
+        <tr><td>monto = 100 USD</td><td>156</td><td>98,7 %</td></tr>
+        <tr><td>login en la misma sesión</td><td>527</td><td>3,0 %</td></tr>
+      </tbody>
+    </table>
+    <div>
+      <p>Como entradas binarias le dan al perceptrón los saltos que no puede aprender.</p>
+      <p class="muted small">Descartamos <code>timestamp</code> y sus derivadas (hora, día y mes son planos), la resolución de pantalla (un código, no una magnitud) y <code>flagged_fraud</code> (fuga del objetivo).</p>
+    </div>
+  </div>
+  </div>
+  <aside class="notes">
+    Opcional teórico, pero verificado con los datos. La tasa base de fraude es 11,6 %.
+    Las tres primeras reglas juntas tienen 99,6 % de precisión y cubren el 78,5 % de los fraudes.
+    time_since_last_login_s no correlaciona crudo, pero "logueado dentro de la sesión" baja el fraude a 3 %.
+    Riesgo: reglas tan limpias pueden ser un artefacto del dataset; hay que confirmarlas en validación.
+  </aside>
+</section>
+
+<section class="centered-slide">
+  <h2>Calibrar: que un 0,7 signifique 70 % de fraude</h2>
+  <div class="body">
+  <p>\[ \text{marcar si } \hat{p} &gt; \frac{C_{FP}}{C_{FP} + C_{FN}} \quad \text{solo vale si } \hat{p} \text{ está calibrada} \]</p>
+  <ul>
+    <li>TinyModel tiene un sesgo sistemático: +0,05 en \(p\) bajas, −0,08 entre 0,6 y 0,8.</li>
+    <li>Los umbrales no se transfieren: BigModel 0,85 · sigmoide 0,888 · ReLU 0,687.</li>
+    <li>Regresión isotónica sobre las predicciones out-of-fold: corrige los valores sin cambiar el AUC.</li>
+  </ul>
+  <p class="muted small">Solo podemos calibrar contra BigModel. Para fraude real hacen falta etiquetas de resultado (contracargos).</p>
+  </div>
+  <aside class="notes">
+    Calibrado significa que entre las transacciones con p̂ = 0,7, el 70 % es fraude. Se mide con diagrama de confiabilidad, ECE y Brier.
+    Si perder un fraude cuesta 10 veces más que una falsa alarma, el umbral óptimo es 1/11, pero solo si p̂ es una probabilidad real.
+    Nuestro umbral de 0,888 se eligió empíricamente justamente porque no confiamos en la escala.
+    Entrenamos con MSE, que es un Brier score y en teoría favorece la calibración: el sesgo viene de la capacidad de una sola neurona, no de la pérdida.
+  </aside>
+</section>
+
 <section class="centered-slide">
   <h2>Conclusiones</h2>
   <div class="body">
@@ -327,6 +396,7 @@
     <li>Ambos saturan: un solo perceptrón no captura los saltos de las features.</li>
     <li>Generaliza sin sobreajuste: RMSE 0,105 en validación y en test.</li>
     <li>Umbral recomendado 0,888, elegido en validación y confirmado en test.</li>
+    <li>ReLU no aporta con una neurona; features derivadas y calibración son el próximo paso.</li>
   </ul>
   </div>
   <aside class="notes">

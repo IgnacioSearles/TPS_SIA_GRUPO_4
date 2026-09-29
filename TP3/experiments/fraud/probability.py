@@ -36,7 +36,9 @@ from training.trainer import train
 EXPERIMENT_DEFAULTS: Config = {
     "dataset": "datasets/fraud_dataset.csv",
     "seed": 42,
+    # model.activation is the perceptron studied for generalization.
     "model": {"layers": [len(FEATURE_COLUMNS), 1], "activation": "sigmoid"},
+    "learning_comparison": {"activations": ["identity", "sigmoid"]},
     "optimizer": {"name": "sgd", "lr": 0.05},
     "training": {"epochs": 1000, "batch_size": 128, "epsilon": 0.001},
     # test_ratio of the rows are held out and only used to evaluate the final model.
@@ -142,11 +144,21 @@ def _summary_table(rows: list[dict[str, Any]], columns: list[tuple[str, str]]) -
     return [header, separator, *body]
 
 
+def _model_config(activation: str) -> Config:
+    """A simple perceptron: every input feature feeds one output unit with `activation`."""
+    return {"layers": [len(FEATURE_COLUMNS), 1], "activation": activation}
+
+
+def _outside_unit_interval(predicted: np.ndarray) -> int:
+    """How many predictions are not valid probabilities."""
+    return int(((predicted < 0) | (predicted > 1)).sum())
+
+
 def _write_report(summary: dict[str, Any], path: Path) -> None:
     comparison = summary["learning_comparison"]
+    selected = summary["selected_activation"]
     rows = []
-    for activation in ("identity", "sigmoid"):
-        entry = comparison[activation]
+    for activation, entry in comparison.items():
         rows.append({
             "model": activation,
             "epochs": entry["epochs"],
@@ -159,7 +171,7 @@ def _write_report(summary: dict[str, Any], path: Path) -> None:
     split = summary["split"]
     final = summary["final_model"]
     linear = comparison["identity"]
-    nonlinear = comparison["sigmoid"]
+    nonlinear = comparison[selected]
     rmse_reduction = 100 * (1 - nonlinear["rmse"] / linear["rmse"])
     lines = [
         "# Ejercicio 1: estimación de probabilidad de fraude",
@@ -168,7 +180,7 @@ def _write_report(summary: dict[str, Any], path: Path) -> None:
         "",
         "## Comparación de aprendizaje",
         "",
-        "Ambos perceptrones simples se entrenaron con las mismas muestras, escala, semilla e hiperparámetros. Estos errores son de entrenamiento y describen capacidad de ajuste; no estiman generalización.",
+        "Todos los perceptrones simples se entrenaron con las mismas muestras, escala, semilla e hiperparámetros. Estos errores son de entrenamiento y describen capacidad de ajuste; no estiman generalización.",
         "",
         *_summary_table(rows, [
             ("model", "Activación"), ("epochs", "Épocas"), ("mae", "MAE"),
@@ -176,9 +188,9 @@ def _write_report(summary: dict[str, Any], path: Path) -> None:
             ("improvement", "Mejora de pérdida en últimas 20 épocas"),
         ]),
         "",
-        f"El sigmoide reduce el RMSE de entrenamiento un {rmse_reduction:.1f}% respecto del lineal. El mayor error residual del lineal, incluso entrenado con todos los datos, indica underfitting relativo frente al sigmoide.",
-        "Las mejoras de pérdida en las últimas 20 épocas son pequeñas: ambas curvas muestran una meseta aproximada con estos hiperparámetros. Esto no demuestra un mínimo global.",
-        "Se selecciona el sigmoide para generalización: además del menor error, su salida siempre queda en [0,1].",
+        f"`{selected}` cambia el RMSE de entrenamiento un {-rmse_reduction:+.1f}% respecto del lineal (`identity`).",
+        "Mejoras de pérdida pequeñas en las últimas 20 épocas indican una meseta con estos hiperparámetros; no demuestran un mínimo global.",
+        f"Activación usada para el estudio de generalización: `{selected}`.",
         "",
         "## Partición de los datos",
         "",
@@ -196,22 +208,22 @@ def _write_report(summary: dict[str, Any], path: Path) -> None:
         "",
         "## Modelo final",
         "",
-        f"Se reentrenó una sigmoide con las {split['development_samples']} filas de desarrollo. Tiene {final['parameters']} parámetros entrenables. Sus pesos están en `model_weights.npz` y el orden de variables y los parámetros de estandarización en `model_metadata.json`.",
+        f"Se reentrenó el perceptrón `{selected}` con las {split['development_samples']} filas de desarrollo. Tiene {final['parameters']} parámetros entrenables. Sus pesos están en `model_weights.npz` y el orden de variables y los parámetros de estandarización en `model_metadata.json`.",
         f"Terminó después de {final['epochs']} épocas ({final['stop_reason']}).",
-        f"Test (nunca usado antes): MAE {final['test_metrics']['mae']:.6f}, RMSE {final['test_metrics']['rmse']:.6f}; baseline constante RMSE {final['test_baseline_rmse']:.6f}.",
-        "Para una transacción nueva, aplicar ese mismo escalador y luego la red. El resultado es una probabilidad en [0,1].",
+        f"Test (nunca usado antes): MAE {final['test_metrics']['mae']:.6f}, RMSE {final['test_metrics']['rmse']:.6f}; baseline constante RMSE {final['test_baseline_rmse']:.6f}. Predicciones fuera de [0,1]: {final['test_outside_0_1']} de {split['test_samples']}.",
+        "Para una transacción nueva, aplicar ese mismo escalador y luego la red.",
         "El análisis de validación y la recomendación de umbral se generan con `python -m experiments.fraud.validation_analysis`.",
     ]
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def _compare_learning(config: Config, data: pd.DataFrame, output: Path) -> dict[str, dict[str, float | int]]:
-    """Linear vs. sigmoid perceptron trained on every sample (learning capacity, not generalization)."""
+    """Every configured activation trained on every sample (learning capacity, not generalization)."""
     X, target = split_features_and_targets(data)
     X_full = StandardScaler().fit_transform(X)
     histories: dict[str, list[dict[str, float]]] = {}
     comparison: dict[str, dict[str, float | int]] = {}
-    for activation in ("identity", "sigmoid"):
+    for activation in config["learning_comparison"]["activations"]:
         result = run_training(_training_config(config, activation), X_full, target)
         predicted = result.net.forward(X_full)
         histories[activation] = result.history
@@ -221,7 +233,7 @@ def _compare_learning(config: Config, data: pd.DataFrame, output: Path) -> dict[
             "initial_loss": result.history[0]["loss"],
             "final_loss": result.history[-1]["loss"],
             "last_20_loss_improvement": _last_improvement(result.history),
-            "outside_0_1": int(((predicted < 0) | (predicted > 1)).sum()),
+            "outside_0_1": _outside_unit_interval(predicted),
         }
         pd.DataFrame(result.history).to_csv(output / f"learning_{activation}.csv", index=False)
         save_weights(result.net, output / f"learning_{activation}_weights.npz")
@@ -239,9 +251,15 @@ def _write_split(split: DevelopmentSplit, output: Path) -> None:
 
 
 def run_experiment(config: Config) -> dict[str, Any]:
-    """Compare learning on all rows, cross-validate on the development set and test the final model."""
-    if config["model"]["activation"] != "sigmoid":
-        raise ValueError("The final probability model must use sigmoid activation")
+    """Compare learning on all rows, cross-validate on the development set and test the final model.
+
+    `model.activation` is the perceptron used for generalization; it must also appear in
+    `learning_comparison.activations`, next to the linear reference (`identity`).
+    """
+    selected = config["model"]["activation"]
+    compared = config["learning_comparison"]["activations"]
+    if "identity" not in compared or selected not in compared:
+        raise ValueError(f"learning_comparison.activations must include 'identity' and '{selected}', got {compared}")
     if config["loss"] != "mse":
         raise ValueError("This exercise uses MSE loss")
     data = load_fraud_dataset(config["dataset"])
@@ -268,7 +286,7 @@ def run_experiment(config: Config) -> dict[str, Any]:
 
     summary = {
         "samples": len(data),
-        "selected_activation": "sigmoid",
+        "selected_activation": selected,
         "learning_comparison": comparison,
         "split": {
             "test_ratio": config["split"]["test_ratio"],
@@ -311,7 +329,7 @@ def _cross_validate(
     fold_epoch_rows: list[dict[str, float | int]] = []
     for fold_number, fold in enumerate(folds, start=1):
         prepared = prepare_fold(development, fold)
-        fold_config = _training_config(config, "sigmoid")
+        fold_config = _training_config(config, config["model"]["activation"])
         rng = np.random.default_rng(fold_config["seed"])
         net = build_model(fold_config["model"], rng)
         loss = build("loss", "mse")
@@ -344,7 +362,7 @@ def _cross_validate(
             "fold": fold_number,
             "feature_columns": FEATURE_COLUMNS,
             "target": TEACHER_TARGET,
-            "model": {"layers": [len(FEATURE_COLUMNS), 1], "activation": "sigmoid"},
+            "model": _model_config(config["model"]["activation"]),
             "scaler": {"mean": prepared.scaler.mean_.tolist(), "scale": prepared.scaler.scale_.tolist()},
         })
         fold_rows.append({
@@ -398,13 +416,14 @@ def _fit_final_model(
     X_development, target_development = split_features_and_targets(development)
     X_test, target_test = split_features_and_targets(test)
     scaler = StandardScaler().fit(X_development)
-    final = run_training(_training_config(config, "sigmoid"), scaler.transform(X_development), target_development)
+    activation = config["model"]["activation"]
+    final = run_training(_training_config(config, activation), scaler.transform(X_development), target_development)
     save_weights(final.net, output / "model_weights.npz")
     pd.DataFrame(final.history).to_csv(output / "final_history.csv", index=False)
     metadata = {
         "feature_columns": FEATURE_COLUMNS,
         "target": TEACHER_TARGET,
-        "model": {"layers": [len(FEATURE_COLUMNS), 1], "activation": "sigmoid"},
+        "model": _model_config(activation),
         "scaler": {"mean": scaler.mean_.tolist(), "scale": scaler.scale_.tolist()},
         "parameters": sum(parameter.value.size for parameter in final.net.params()),
     }
@@ -427,6 +446,7 @@ def _fit_final_model(
             target_development, final.net.forward(scaler.transform(X_development))
         ),
         "test_metrics": probability_metrics(target_test, test_predictions),
+        "test_outside_0_1": _outside_unit_interval(test_predictions),
         "test_baseline_rmse": probability_metrics(target_test, baseline)["rmse"],
     }
 

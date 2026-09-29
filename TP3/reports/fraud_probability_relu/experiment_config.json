@@ -1,7 +1,7 @@
 {
   "seed": 42,
   "model": {
-    "activation": "sigmoid",
+    "activation": "relu",
     "initializer": "uniform",
     "layers": [
       6,
@@ -22,14 +22,15 @@
     "classification": false
   },
   "output": {
-    "directory": "reports/fraud_probability"
+    "directory": "reports/fraud_probability_relu"
   },
   "callbacks": [],
   "dataset": "datasets/fraud_dataset.csv",
   "learning_comparison": {
     "activations": [
       "identity",
-      "sigmoid"
+      "sigmoid",
+      "relu"
     ]
   },
   "split": {
@@ -39,5 +40,5 @@
   "cross_validation": {
     "folds": 5
   },
-  "notes": "split.test_ratio of the rows (stratified by target-probability deciles) are held out as a test set. K-Fold, tuning and threshold selection only use the development rows."
+  "notes": "Optional of Exercise 1: same pipeline as probability.json (same seed, split, folds and hyperparameters) with a ReLU perceptron, so results are directly comparable."
 }
