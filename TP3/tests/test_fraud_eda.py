@@ -15,6 +15,7 @@ EXPECTED_FIGURES = {
     "correlation_matrices.png",
     "target_correlations.png",
     "feature_vs_target.png",
+    "model_features_vs_target.png",
     "feature_distributions_by_class.png",
     "feature_scales.png",
 }

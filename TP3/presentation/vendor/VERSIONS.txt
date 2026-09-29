@@ -1,0 +1,2 @@
+reveal.js 5.2.1 and KaTeX 0.16.22, copied unmodified from their npm packages (MIT licensed, see LICENSE files).
+Vendored so the deck works offline. To update: npm pack <package>@<version> and copy the same files.

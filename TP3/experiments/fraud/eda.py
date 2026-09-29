@@ -134,10 +134,10 @@ def plot_target_correlations(data: pd.DataFrame, path: Path) -> None:
     save_figure(figure, path)
 
 
-def plot_feature_vs_target(data: pd.DataFrame, path: Path) -> None:
-    """Scatter of every feature against the target, plus the mean target per feature quantile."""
-    figure, axes = feature_grid(len(ALL_FEATURES))
-    for axis, column in zip(axes, ALL_FEATURES):
+def plot_feature_vs_target(data: pd.DataFrame, path: Path, columns: list[str] = ALL_FEATURES) -> None:
+    """Scatter of each feature in `columns` against the target, plus the mean target per feature quantile."""
+    figure, axes = feature_grid(len(columns))
+    for axis, column in zip(axes, columns):
         axis.scatter(data[column], data[TEACHER_TARGET], s=3, alpha=0.08, color="C0",
                      linewidths=0, rasterized=True, label="transacción")
         quantile = pd.qcut(data[column], q=TREND_QUANTILES, duplicates="drop")
@@ -201,6 +201,7 @@ def write_eda(data: pd.DataFrame, output: Path) -> None:
     plot_correlation_matrices(data, output / "correlation_matrices.png")
     plot_target_correlations(data, output / "target_correlations.png")
     plot_feature_vs_target(data, output / "feature_vs_target.png")
+    plot_feature_vs_target(data, output / "model_features_vs_target.png", columns=FEATURE_COLUMNS)
     plot_feature_distributions_by_class(data, output / "feature_distributions_by_class.png")
     plot_feature_scales(data, output / "feature_scales.png")
 

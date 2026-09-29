@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>TP3 · Perceptrón simple y multicapa · Grupo 4</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="vendor/reveal/reset.css">
+  <link rel="stylesheet" href="vendor/reveal/reveal.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ============================ Portada ============================ -->
+
+<section class="title-slide">
+  <h1>Perceptrón simple y multicapa</h1>
+  <p class="subtitle">TP3 · Sistemas de Inteligencia Artificial · 2026</p>
+  <p class="authors">
+    <strong>Grupo 4</strong><br>
+    Ignacio Searles · Ivo Vilamowski · Agustín Galán ·
+    Nicolás Koron · Toribio Viton Sconza
+  </p>
+</section>
+
+<!-- ======================================================================
+     Ejercicio 1
+     ====================================================================== -->
+
+<section class="exercise-slide">
+  <p class="number">Ejercicio 1</p>
+  <h1>Destilación de un detector de fraude<br>con un perceptrón simple</h1>
+  <aside class="notes">
+    Ejercicio 1: reemplazar un modelo caro de detección de fraude por un perceptrón simple.
+  </aside>
+</section>
+
+<!-- ============================ 1 · Problema ============================ -->
+
+<section class="centered-slide">
+  <h2>BigModel funciona, pero es caro: queremos un TinyModel que lo imite</h2>
+  <div class="body">
+  <div class="pipeline">
+    <div class="box">transacción<br><span class="muted small">6 features</span></div>
+    <div class="arrow">→</div>
+    <div class="box">BigModel<br><span class="muted small">costoso en inferencia</span></div>
+    <div class="arrow">→</div>
+    <div class="box">\(p\)</div>
+
+    <div class="box">transacción<br><span class="muted small">6 features</span></div>
+    <div class="arrow">→</div>
+    <div class="box accent">TinyModel<br><span class="small">perceptrón simple, 7 parámetros</span></div>
+    <div class="arrow">→</div>
+    <div class="box accent">\(\hat{p}\)</div>
+  </div>
+  <p>\[ \hat{p} = \sigma(\mathbf{w}^\top \mathbf{x} + b) \qquad
+        \mathcal{L} = \tfrac{1}{2}\,(\hat{p} - p)^2 \]</p>
+  <p class="muted small">El objetivo no es una etiqueta: es la probabilidad que da BigModel (knowledge distillation).</p>
+  </div>
+  <aside class="notes">
+    CompanyX usa BigModel para estimar la probabilidad de fraude, pero es caro.
+    TinyModel recibe las mismas features y aprende a reproducir esa probabilidad con MSE.
+    Son 6 pesos más un bias: 7 números.
+  </aside>
+</section>
+
+<!-- ============================ 1.1 · EDA ============================ -->
+
+<section class="section-slide">
+  <p class="number">1.1</p>
+  <h1>Análisis exploratorio</h1>
+</section>
+
+<section>
+  <h2>7 500 transacciones limpias; la etiqueta es la decisión de BigModel</h2>
+  <div class="split wide-text">
+    <img src="../reports/fraud_eda/target_distribution.png" alt="Distribución de la probabilidad de BigModel por etiqueta">
+    <div>
+      <p>0 faltantes, 0 duplicados</p>
+      <p>11,6 % marcadas como fraude</p>
+      <p><code>flagged_fraud</code> = 1 exactamente cuando \(p &gt; 0{,}85\)</p>
+      <p class="muted small">La etiqueta no es verdad independiente: es BigModel con umbral 0,85.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    El dataset no tiene faltantes ni duplicados. La probabilidad de BigModel cubre todo [0, 1].
+    Hallazgo clave: flagged_fraud es exactamente p mayor a 0,85 en todas las filas.
+    Por eso sirve para evaluar decisiones, pero nunca como input.
+  </aside>
+</section>
+
+<section>
+  <h2>Seis features se relacionan con la probabilidad; tres no aportan nada</h2>
+  <img class="figure short" src="../reports/fraud_eda/target_correlations.png" alt="Correlación de cada feature con la probabilidad objetivo">
+  <p class="caption">Descartamos <code>timestamp</code>, <code>device_screen_resolution</code> y <code>time_since_last_login_s</code>: |r| &lt; 0,03 con ambos métodos.</p>
+  <aside class="notes">
+    Pearson mide relación lineal y Spearman relación monótona.
+    Las seis features elegidas tienen correlaciones de 0,33 a 0,58 en valor absoluto; las tres descartadas son ruido.
+  </aside>
+</section>
+
+<section>
+  <h2>La relación no es lineal: hay saltos que una recta no captura</h2>
+  <img class="figure" src="../reports/fraud_eda/model_features_vs_target.png" alt="Cada feature del modelo contra la probabilidad de BigModel">
+  <aside class="notes">
+    La línea naranja es la media de p por cuantil de cada feature.
+    Con más de 9 unidades compradas o más de 14 artículos vistos, p es casi 1: son saltos.
+    Cuentas nuevas y sesiones cortas también suben el riesgo. Esto anticipa que un modelo lineal va a quedarse corto.
+  </aside>
+</section>
+
+<section>
+  <h2>Escalas muy distintas y colas largas: estandarizamos</h2>
+  <div class="split">
+    <img src="../reports/fraud_eda/feature_scales.png" alt="Box plots estandarizados de cada feature">
+    <div>
+      <p>\[ x' = \frac{x - \mu}{\sigma} \]</p>
+      <p>\(\mu\) y \(\sigma\) se calculan <strong>solo con las filas de entrenamiento</strong> de cada partición.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    Los montos van de 1 a 2000 dólares y la antigüedad hasta 3600 días. Sin escalar, el descenso por gradiente queda dominado por una feature.
+    El escalador se ajusta en cada fold solo con entrenamiento, para no filtrar información de validación.
+  </aside>
+</section>
+
+<!-- ============================ 1.2 · Entrenamiento ============================ -->
+
+<section class="section-slide">
+  <p class="number">1.2</p>
+  <h1>Entrenamiento</h1>
+</section>
+
+<section>
+  <h2>El lineal se estanca; el sigmoide llega a un 35 % menos de error</h2>
+  <div class="split wide-text">
+    <img src="../reports/fraud_probability/learning_curves.png" alt="Curvas de aprendizaje lineal vs sigmoide">
+    <div>
+      <table>
+        <thead><tr><th></th><th>lineal</th><th>sigmoide</th></tr></thead>
+        <tbody>
+          <tr><td>RMSE</td><td>0,162</td><td>0,105</td></tr>
+          <tr><td>MAE</td><td>0,130</td><td>0,076</td></tr>
+          <tr><td>fuera de [0, 1]</td><td>428</td><td>0</td></tr>
+        </tbody>
+      </table>
+      <p class="small muted">Todas las muestras, 1000 épocas, mismos hiperparámetros.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    a) Underfitting: el lineal no puede representar los saltos y además devuelve 428 "probabilidades" fuera de [0, 1].
+    b) Saturación: ambos llegan a una meseta antes de la época 200; el sigmoide también tiene un techo, el de un solo perceptrón.
+    c) Elegimos el sigmoide para el estudio de generalización.
+  </aside>
+</section>
+
+<section>
+  <h2>Con learning rate ≥ 0,05 todas las corridas llegan al mismo error</h2>
+  <div class="split">
+    <img src="../reports/fraud_probability/hyperparameter_studies/learning_rate_curves.png" alt="RMSE de validación por época para cada learning rate">
+    <div>
+      <p>SGD, lr = 0,05</p>
+      <p>batch de 128</p>
+      <p>1000 épocas</p>
+      <p class="small muted">Barrido con K-Fold sobre desarrollo: el test no participa.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    Con lr bajo (0,001) a las 300 épocas sigue en RMSE 0,21. Desde 0,05 todas convergen a 0,1047.
+    Elegimos 0,05: converge en menos de 200 épocas sin inestabilidad.
+  </aside>
+</section>
+
+<!-- ============================ 1.3 · Validación ============================ -->
+
+<section class="section-slide">
+  <p class="number">1.3</p>
+  <h1>Validación y modelo final</h1>
+</section>
+
+<section class="centered-slide">
+  <h2>Un 20 % de test que nunca se toca; K-Fold sobre el resto</h2>
+  <div class="body">
+  <div class="split-diagram">
+    <div class="row">
+      <div class="label">datos</div>
+      <div class="cell" style="flex: 80">desarrollo · 6 000</div>
+      <div class="cell test" style="flex: 20">test · 1 500</div>
+    </div>
+    <div class="row"><div class="label">fold 1</div><div class="cell validation" style="flex: 16">val</div><div class="cell" style="flex: 16"></div><div class="cell" style="flex: 16"></div><div class="cell" style="flex: 16"></div><div class="cell" style="flex: 16"></div><div class="cell empty" style="flex: 20"></div></div>
+    <div class="row"><div class="label">fold 2</div><div class="cell" style="flex: 16"></div><div class="cell validation" style="flex: 16">val</div><div class="cell" style="flex: 16"></div><div class="cell" style="flex: 16"></div><div class="cell" style="flex: 16"></div><div class="cell empty" style="flex: 20"></div></div>
+    <div class="row"><div class="label">…</div><div class="cell empty" style="flex: 100"></div></div>
+    <div class="row"><div class="label">fold 5</div><div class="cell" style="flex: 16"></div><div class="cell" style="flex: 16"></div><div class="cell" style="flex: 16"></div><div class="cell" style="flex: 16"></div><div class="cell validation" style="flex: 16">val</div><div class="cell empty" style="flex: 20"></div></div>
+  </div>
+  <ul>
+    <li>Particiones estratificadas por deciles de \(p\): misma distribución de \(p\) en cada una (fraude entre 11 % y 12 %).</li>
+    <li>Hiperparámetros y umbral se eligen solo con desarrollo. El test se evalúa una vez, al final.</li>
+  </ul>
+  </div>
+  <aside class="notes">
+    Pregunta b: estrategia de manejo de datos. Separamos 1500 filas de test que no se usan para ninguna decisión.
+    Con las 6000 restantes hacemos K-Fold de 5: cada fila se valida una vez con un modelo que no la vio.
+    El mejor conjunto de entrenamiento es uno representativo: estratificando, cada fold tiene la misma distribución de p. La varianza entre folds es mínima, así que ninguna partición es "afortunada".
+  </aside>
+</section>
+
+<section>
+  <h2>Sin sobreajuste: train, validación y test dan el mismo error</h2>
+  <div class="split wide-text">
+    <img src="../reports/fraud_probability/validation/fold_errors.png" alt="RMSE de train y validación por fold, y RMSE de test">
+    <div>
+      <table>
+        <thead><tr><th></th><th>RMSE</th></tr></thead>
+        <tbody>
+          <tr><td>train (media)</td><td>0,1045</td></tr>
+          <tr><td>validación</td><td>0,1047 ± 0,0012</td></tr>
+          <tr><td>test</td><td>0,1052</td></tr>
+          <tr><td>baseline constante</td><td>0,303</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <aside class="notes">
+    Diferencias en la cuarta cifra decimal. Con 7 parámetros no hay capacidad para memorizar.
+    El modelo reduce el error un 65 % respecto de predecir siempre la media.
+  </aside>
+</section>
+
+<section>
+  <h2>TinyModel sigue a BigModel, con un sesgo sistemático en la zona media</h2>
+  <img class="figure" src="../reports/fraud_probability/validation/predicted_vs_target.png" alt="Probabilidad de TinyModel contra la de BigModel">
+  <aside class="notes">
+    Cada punto es una transacción no vista. La línea naranja es la media de TinyModel por rango de p.
+    Sobreestima las probabilidades bajas (unos +0,05) y subestima entre 0,6 y 0,8 (hasta −0,08).
+    Es el límite de un solo perceptrón: una sigmoide de una combinación lineal no puede seguir los saltos.
+  </aside>
+</section>
+
+<section class="centered-slide">
+  <h2>Métricas: error de probabilidad para imitar, ranking y F1 para decidir</h2>
+  <div class="body">
+  <table class="text-table">
+    <thead><tr><th>métrica</th><th>qué responde</th></tr></thead>
+    <tbody>
+      <tr><td>MAE, RMSE</td><td>¿qué tan cerca está \(\hat{p}\) de \(p\)? Es el objetivo de la destilación.</td></tr>
+      <tr><td>ROC AUC, AP</td><td>¿ordena los fraudes por encima de las legítimas? AP es sensible al desbalance (11,6 %).</td></tr>
+      <tr><td>precisión, recall, F1</td><td>con un umbral fijo: ¿cuántas alarmas son fraude y cuántos fraudes se detectan?</td></tr>
+    </tbody>
+  </table>
+  <p class="small muted">Accuracy no sirve: marcar todo como legítimo da 88 %.</p>
+  </div>
+  <aside class="notes">
+    Pregunta a de generalización. La tarea es imitar una probabilidad, así que la métrica principal es de regresión.
+    Pero el cliente va a tomar decisiones con un umbral, así que también medimos la calidad de la decisión.
+  </aside>
+</section>
+
+<section>
+  <h2>Como detector, TinyModel ordena casi perfecto: AUC 0,992 en test</h2>
+  <img class="figure" src="../reports/fraud_probability/validation/roc_pr_curves.png" alt="Curvas ROC y precisión-recall">
+  <aside class="notes">
+    Validación y test se superponen. AP de 0,95 contra 0,12 de un clasificador al azar.
+    Los marcadores son el punto de operación del umbral elegido.
+  </aside>
+</section>
+
+<section>
+  <h2>El umbral que maximiza F1 en validación es 0,888</h2>
+  <img class="figure" src="../reports/fraud_probability/validation/threshold_metrics.png" alt="Precisión, recall y F1 según el umbral">
+  <aside class="notes">
+    Barrimos umbrales de 0 a 1 sobre las predicciones out-of-fold.
+    F1 es máximo en 0,888, un poco por encima del 0,85 de BigModel.
+    Subir de 0,85 a 0,888 en validación elimina 66 falsas alarmas a cambio de perder 18 fraudes detectados.
+  </aside>
+</section>
+
+<section>
+  <h2>En test, el umbral elegido se sostiene y supera al corte de BigModel</h2>
+  <div class="split">
+    <img src="../reports/fraud_probability/validation/confusion_matrices.png" alt="Matrices de confusión en validación y test">
+    <div>
+      <table>
+        <thead><tr><th>test</th><th>0,888</th><th>0,85</th></tr></thead>
+        <tbody>
+          <tr><td>precisión</td><td>0,886</td><td>0,832</td></tr>
+          <tr><td>recall</td><td>0,865</td><td>0,900</td></tr>
+          <tr><td>F1</td><td>0,875</td><td>0,864</td></tr>
+          <tr><td>marcadas</td><td>11,1 %</td><td>12,3 %</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <aside class="notes">
+    En test, con 0,888: 147 fraudes detectados, 23 perdidos y 19 falsas alarmas sobre 1500.
+    Usar directamente 0,85 detecta 6 fraudes más pero genera 12 falsas alarmas más.
+  </aside>
+</section>
+
+<section class="centered-slide">
+  <h2>Recomendación para CompanyX</h2>
+  <div class="body">
+  <div class="split halves">
+    <div>
+      <p class="muted">Marcar como fraude si TinyModel da</p>
+      <p class="big-number">≥ 0,888</p>
+      <p>precisión 0,89 · recall 0,86 en test</p>
+    </div>
+    <ul>
+      <li>7 parámetros en lugar de BigModel.</li>
+      <li>Si perder un fraude cuesta más que una falsa alarma, bajar el umbral (maximizar F2).</li>
+      <li>El techo lo pone el modelo: sigue el sesgo en la zona media.</li>
+    </ul>
+  </div>
+  </div>
+  <aside class="notes">
+    Pregunta c: el mejor modelo es el perceptrón sigmoide entrenado con todo desarrollo, con umbral 0,888.
+    El umbral es una decisión de negocio: si el costo de un fraude no detectado es mayor, conviene priorizar recall.
+  </aside>
+</section>
+
+<section class="centered-slide">
+  <h2>Conclusiones</h2>
+  <div class="body">
+  <ul>
+    <li>El lineal hace underfitting; el sigmoide reduce el error un 35 % y siempre da una probabilidad válida.</li>
+    <li>Ambos saturan: un solo perceptrón no captura los saltos de las features.</li>
+    <li>Generaliza sin sobreajuste: RMSE 0,105 en validación y en test.</li>
+    <li>Umbral recomendado 0,888, elegido en validación y confirmado en test.</li>
+  </ul>
+  </div>
+  <aside class="notes">
+    Cerramos con las respuestas a las preguntas del enunciado.
+  </aside>
+</section>
+
+<!-- ============================ 1 · Apéndice ============================ -->
+
+<section class="section-slide">
+  <p class="number">1 · Apéndice</p>
+  <h1>Material de respaldo</h1>
+</section>
+
+<section>
+  <h2>Correlaciones entre todas las columnas</h2>
+  <img class="figure" src="../reports/fraud_eda/correlation_matrices.png" alt="Matrices de correlación de Pearson y Spearman">
+</section>
+
+<section>
+  <h2>Distribución de cada feature por clase</h2>
+  <img class="figure" src="../reports/fraud_eda/feature_distributions_by_class.png" alt="Histogramas de cada feature por clase">
+</section>
+
+<section>
+  <h2>Dónde se equivoca TinyModel</h2>
+  <img class="figure" src="../reports/fraud_probability/validation/error_by_target.png" alt="Distribución del error y error medio por rango de probabilidad">
+</section>
+
+<section>
+  <h2>Probabilidad de TinyModel por clase</h2>
+  <img class="figure" src="../reports/fraud_probability/validation/score_distribution_by_class.png" alt="Histograma de la probabilidad de TinyModel por clase">
+</section>
+
+<section>
+  <h2>Inicialización guiada: converge antes, pero termina igual</h2>
+  <img class="figure" src="../reports/fraud_probability/hyperparameter_studies/initialization_curves.png" alt="RMSE de validación por época según inicialización">
+  <p class="caption">RMSE inicial 0,120 (guiada) vs 0,370 (aleatoria); ambas terminan en 0,1047.</p>
+</section>
+
+</div>
+</div>
+
+<script src="vendor/reveal/reveal.js"></script>
+<script src="vendor/reveal/plugin/math.js"></script>
+<script src="vendor/reveal/plugin/notes.js"></script>
+<script>
+  Reveal.initialize({
+    width: 1280,
+    height: 720,
+    margin: 0.05,
+    center: false,
+    hash: true,
+    controls: false,
+    progress: false,
+    slideNumber: "c/t",
+    transition: "none",
+    backgroundTransition: "none",
+    katex: { local: "vendor/katex" },
+    plugins: [RevealMath.KaTeX, RevealNotes],
+  });
+</script>
+</body>
+</html>

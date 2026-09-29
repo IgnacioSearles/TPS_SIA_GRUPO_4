@@ -1,0 +1,336 @@
+/* Minimal theme on top of reveal.css: white, near-black text, one muted accent.
+   The accent is matplotlib's default blue (C0) so slides and figures match. */
+
+:root {
+  --text: #1a1a1a;
+  --text-muted: #666;
+  --rule: #c8c8c8;
+  --accent: #1f77b4;
+  --accent-light: #d6e6f3;
+  --test: #555;
+}
+
+.reveal-viewport {
+  background: #fff;
+}
+
+.reveal {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 28px;
+  color: var(--text);
+}
+
+.reveal .slides {
+  text-align: left;
+}
+
+.reveal .slides section {
+  height: 100%;
+  box-sizing: border-box;
+  padding-top: 8px;
+}
+
+/* ---- Text ---- */
+
+.reveal h1,
+.reveal h2 {
+  margin: 0 0 28px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text);
+}
+
+.reveal h1 {
+  font-size: 50px;
+}
+
+.reveal h2 {
+  font-size: 36px;
+}
+
+.reveal p {
+  margin: 0 0 16px;
+  line-height: 1.4;
+}
+
+.reveal .muted {
+  color: var(--text-muted);
+}
+
+.reveal .small {
+  font-size: 22px;
+}
+
+.reveal strong {
+  font-weight: 600;
+}
+
+.reveal ul {
+  margin: 0 0 0 1em;
+  padding: 0;
+}
+
+.reveal li {
+  margin-bottom: 14px;
+  line-height: 1.35;
+}
+
+.reveal code {
+  font-family: Consolas, Menlo, monospace;
+  font-size: 0.9em;
+}
+
+/* ---- Layouts ---- */
+
+/* A single figure that fills the slide below the title. */
+.reveal .figure {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 530px;
+}
+
+.reveal .figure.short {
+  max-height: 470px;
+}
+
+/* Figure on the left, a few lines of text on the right. */
+.reveal .split {
+  display: grid;
+  grid-template-columns: 1fr 330px;
+  gap: 40px;
+  align-items: center;
+}
+
+.reveal .split.wide-text {
+  grid-template-columns: 1fr 420px;
+}
+
+.reveal .split.halves {
+  grid-template-columns: 1fr 1fr;
+}
+
+.reveal .split img {
+  max-width: 100%;
+  max-height: 540px;
+}
+
+.reveal .caption {
+  margin-top: 12px;
+  font-size: 22px;
+  color: var(--text-muted);
+}
+
+/* ---- Title slide ---- */
+
+.reveal .slides section.title-slide {
+  padding-top: 170px;
+}
+
+.reveal .title-slide h1 {
+  font-size: 76px;
+}
+
+.reveal .title-slide .subtitle {
+  font-size: 28px;
+  color: var(--text-muted);
+  margin-bottom: 56px;
+}
+
+.reveal .title-slide .authors {
+  font-size: 24px;
+  line-height: 1.6;
+}
+
+/* ---- Dividers: exercise (level 1) and section inside an exercise (level 2) ---- */
+
+.reveal .slides section.exercise-slide {
+  padding-top: 200px;
+}
+
+.reveal .exercise-slide .number {
+  font-size: 44px;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.reveal .exercise-slide h1 {
+  font-size: 68px;
+}
+
+.reveal .slides section.section-slide {
+  padding-top: 220px;
+}
+
+.reveal .section-slide .number {
+  font-size: 96px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.reveal .section-slide h1 {
+  font-size: 72px;
+}
+
+/* ---- Tables: booktabs style (horizontal rules only) ---- */
+
+.reveal table {
+  border-collapse: collapse;
+  font-size: 24px;
+  margin: 8px 0;
+}
+
+.reveal th,
+.reveal td {
+  padding: 8px 18px;
+  text-align: right;
+  border: none;
+  white-space: nowrap;
+}
+
+.reveal th:first-child,
+.reveal td:first-child {
+  text-align: left;
+  padding-left: 0;
+}
+
+.reveal thead th {
+  font-weight: 600;
+  border-bottom: 1px solid var(--text);
+}
+
+.reveal table {
+  border-top: 2px solid var(--text);
+  border-bottom: 2px solid var(--text);
+}
+
+.reveal table.text-table th,
+.reveal table.text-table td {
+  text-align: left;
+  vertical-align: top;
+  white-space: normal;
+}
+
+.reveal table.text-table td:first-child {
+  white-space: nowrap;
+}
+
+/* ---- Diagrams built from plain boxes ---- */
+
+.reveal .pipeline {
+  display: grid;
+  grid-template-columns: 260px 70px 380px 70px 170px;
+  align-items: stretch;
+  row-gap: 36px;
+  margin: 24px 0 36px;
+  font-size: 26px;
+}
+
+.reveal .box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border: 1.5px solid var(--text);
+  padding: 14px 16px;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.reveal .arrow {
+  align-self: center;
+}
+
+/* reveal.js sets `display: block` inline on every <section>, so sections can't be flex containers.
+   Slides without a big figure keep a one-line title on top and center .body in the space below it
+   (sections are absolutely positioned, so .body is placed relative to the slide). */
+.reveal .centered-slide .body {
+  position: absolute;
+  top: 90px;
+  bottom: 40px;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.reveal .box.accent {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.reveal .arrow {
+  text-align: center;
+  font-size: 30px;
+  color: var(--text-muted);
+}
+
+.reveal .split-diagram {
+  margin: 12px 0 28px;
+  font-size: 20px;
+}
+
+.reveal .split-diagram .row {
+  display: flex;
+  height: 44px;
+  margin-bottom: 6px;
+}
+
+.reveal .split-diagram .cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #fff;
+  background: #eee;
+  color: var(--text);
+}
+
+.reveal .split-diagram .cell.validation {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.reveal .split-diagram .cell.test {
+  background: var(--test);
+  color: #fff;
+}
+
+.reveal .split-diagram .cell.empty {
+  background: none;
+}
+
+.reveal .split-diagram .label {
+  width: 110px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+}
+
+/* ---- Big number for the recommendation slide ---- */
+
+.reveal .big-number {
+  font-size: 110px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+/* ---- Slide number ---- */
+
+.reveal .slide-number {
+  background: none;
+  color: var(--text-muted);
+  font-size: 16px;
+  right: 24px;
+  bottom: 16px;
+}
+
+.reveal .slide-number a {
+  color: inherit;
+  text-decoration: none;
+}
