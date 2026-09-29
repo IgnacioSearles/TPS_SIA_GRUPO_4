@@ -1,7 +1,7 @@
 """K-Fold studies for learning rate and guided weight initialization.
 
 Run from TP3 with:
-    python -m experiments.study_hyperparameters
+    python -m experiments.fraud.hyperparameters
 """
 
 import argparse
@@ -13,13 +13,13 @@ import numpy as np
 import pandas as pd
 
 from experiments.config import Config, load_config
-from experiments.evaluation import probability_metrics
-from experiments.fraud_data import (
+from training.metrics import probability_metrics
+from experiments.fraud.data import (
     FEATURE_COLUMNS,
     kfold,
     load_fraud_dataset,
     prepare_fold,
-    split_features_and_targets,
+    split_development_and_test,
 )
 from nn.network import build_model
 from nn.registry import build
@@ -34,6 +34,8 @@ STUDY_DEFAULTS: Config = {
     "loss": "mse",
     "optimizer": {"name": "sgd", "lr": 0.05},
     "training": {"epochs": 300, "batch_size": 128, "epsilon": None},
+    # Must match the probability experiment so tuning never sees its test rows.
+    "split": {"test_ratio": 0.2, "strata_bins": 10},
     "cross_validation": {"folds": 5},
     "studies": {
         "learning_rates": [0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.2],
@@ -215,8 +217,19 @@ def run_studies(config: Config) -> dict[str, pd.DataFrame]:
     if config["loss"] != "mse":
         raise ValueError("These studies use MSE loss")
     data = load_fraud_dataset(config["dataset"])
-    X, target = split_features_and_targets(data)
-    folds = kfold(data, n_splits=config["cross_validation"]["folds"], seed=config["seed"])
+    split = split_development_and_test(
+        data,
+        test_ratio=config["split"]["test_ratio"],
+        seed=config["seed"],
+        strata_bins=config["split"]["strata_bins"],
+    )
+    development = data.iloc[split.development_rows].reset_index(drop=True)
+    folds = kfold(
+        development,
+        n_splits=config["cross_validation"]["folds"],
+        seed=config["seed"],
+        strata_bins=config["split"]["strata_bins"],
+    )
     studies = config["studies"]
     output = Path(config["output"]["directory"])
     output.mkdir(parents=True, exist_ok=True)
@@ -228,7 +241,7 @@ def run_studies(config: Config) -> dict[str, pd.DataFrame]:
         if rate <= 0:
             raise ValueError(f"Learning rates must be positive, got {rate}")
         for fold_id, fold in enumerate(folds, start=1):
-            prepared = prepare_fold(data, fold)
+            prepared = prepare_fold(development, fold)
             history, metrics = _fit_one(
                 prepared.X_train, prepared.teacher_train,
                 prepared.X_validation, prepared.teacher_validation,
@@ -257,7 +270,7 @@ def run_studies(config: Config) -> dict[str, pd.DataFrame]:
     init_rows: list[dict[str, float | int | str]] = []
     init_history_rows: list[dict[str, float | int | str]] = []
     for fold_id, fold in enumerate(folds, start=1):
-        prepared = prepare_fold(data, fold)
+        prepared = prepare_fold(development, fold)
         for initialization in ("random", "guided"):
             history, metrics = _fit_one(
                 prepared.X_train, prepared.teacher_train,
@@ -291,7 +304,7 @@ def run_studies(config: Config) -> dict[str, pd.DataFrame]:
     lines = [
         "# Estudios de hiperparámetros: learning rate e inicialización",
         "",
-        f"Se usó K-Fold de {len(folds)} particiones, sigmoide de salida, MSE/2 y {config['training']['epochs']} épocas por corrida. En cada fold, el escalador y la inicialización guiada se ajustan usando exclusivamente las filas de entrenamiento.",
+        f"Se usó K-Fold estratificado de {len(folds)} particiones sobre las {len(development)} filas de desarrollo (el test apartado no se usa), sigmoide de salida, MSE/2 y {config['training']['epochs']} épocas por corrida. En cada fold, el escalador y la inicialización guiada se ajustan usando exclusivamente las filas de entrenamiento.",
         "",
         "## Learning rate",
         "",
@@ -334,7 +347,7 @@ def run_studies(config: Config) -> dict[str, pd.DataFrame]:
         "",
         "La curva `initialization_curves.png` muestra que la guiada arranca mucho más cerca (RMSE inicial 0.122 frente a 0.371) y conserva ventaja durante las primeras épocas; para la época 300 ambas llegan prácticamente al mismo error. En esta configuración, la inicialización guiada acelera la convergencia, pero no aporta una mejora final relevante.",
         "",
-        "Estos barridos son exploratorios sobre los mismos folds y sirven para seleccionar hiperparámetros; sus mínimos no son una estimación final independiente. Para informar una evaluación final no sesgada, habría que fijar los hiperparámetros y repetir evaluación con datos no usados en esta selección.",
+        "Estos barridos son exploratorios sobre los mismos folds y sirven para seleccionar hiperparámetros; sus mínimos no son una estimación final independiente. La evaluación no sesgada es la del conjunto de test apartado, que ninguno de estos barridos usa.",
     ])
     (output / "report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     return {"learning_rate": lr_aggregate, "initialization": init_summary}

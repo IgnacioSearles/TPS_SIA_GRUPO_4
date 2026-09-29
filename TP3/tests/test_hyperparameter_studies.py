@@ -3,8 +3,8 @@ import pandas as pd
 import pytest
 
 from experiments.config import load_config
-from experiments.fraud_data import REQUIRED_COLUMNS, TEACHER_TARGET
-from experiments.study_hyperparameters import STUDY_DEFAULTS, guided_logit_weights, run_studies
+from experiments.fraud.data import REQUIRED_COLUMNS, TEACHER_TARGET
+from experiments.fraud.hyperparameters import STUDY_DEFAULTS, guided_logit_weights, run_studies
 
 
 def test_guided_logit_weights_recovers_linear_logit_solution():

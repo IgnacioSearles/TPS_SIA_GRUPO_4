@@ -1,5 +1,6 @@
-"""Sequential container and config-driven model construction."""
+"""Sequential container, config-driven model construction and weight persistence."""
 
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -71,3 +72,24 @@ def build_model(model_cfg: dict[str, Any], rng: np.random.Generator) -> Sequenti
         layers.append(Dense(n_in, n_out, init, name=f"dense_{index}"))
         layers.append(build("activation", activation))
     return Sequential(layers)
+
+
+def save_weights(net: Sequential, path: str | Path) -> Path:
+    """Persist all trainable parameters as a portable NumPy .npz archive keyed by parameter name."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    np.savez(path, **{param.name: param.value for param in net.params()})
+    return path
+
+
+def load_weights(net: Sequential, path: str | Path) -> Sequential:
+    """Restore parameters saved by `save_weights` into a net with the same architecture."""
+    with np.load(Path(path), allow_pickle=False) as saved:
+        for param in net.params():
+            if param.name not in saved.files:
+                raise ValueError(f"Saved weights have no parameter '{param.name}'")
+            value = saved[param.name]
+            if value.shape != param.value.shape:
+                raise ValueError(f"Wrong shape for {param.name}: saved {value.shape}, model {param.value.shape}")
+            param.value[...] = value
+    return net

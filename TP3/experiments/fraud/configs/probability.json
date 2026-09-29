@@ -5,7 +5,9 @@
   "loss": "mse",
   "optimizer": {"name": "sgd", "lr": 0.05},
   "training": {"epochs": 1000, "batch_size": 128, "epsilon": 0.001},
+  "split": {"test_ratio": 0.2, "strata_bins": 10},
   "cross_validation": {"folds": 5},
   "output": {"directory": "reports/fraud_probability"},
-  "callbacks": []
+  "callbacks": [],
+  "notes": "split.test_ratio of the rows (stratified by target-probability deciles) are held out as a test set. K-Fold, tuning and threshold selection only use the development rows."
 }

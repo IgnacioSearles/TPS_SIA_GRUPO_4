@@ -1,8 +1,8 @@
 """Exercise 1: learn BigModel's continuous fraud probability with perceptrons.
 
 Run from the TP3 directory:
-    python -m experiments.fraud_probability
-    python -m experiments.fraud_probability experiments/configs/fraud_probability.json
+    python -m experiments.fraud.probability
+    python -m experiments.fraud.probability experiments/fraud/configs/probability.json
 """
 
 import argparse
@@ -13,21 +13,23 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from data.preprocessing import StandardScaler
 from experiments.config import Config, deep_merge, load_config
-from experiments.evaluation import probability_metrics, save_weights
-from experiments.fraud_data import (
+from experiments.fraud.data import (
     FEATURE_COLUMNS,
     TEACHER_TARGET,
-    StandardScaler,
+    DevelopmentSplit,
     kfold,
     load_fraud_dataset,
     prepare_fold,
+    split_development_and_test,
     split_features_and_targets,
 )
 from experiments.runner import run_training
-from nn.network import Sequential, build_model
+from nn.network import Sequential, build_model, load_weights, save_weights
 from nn.registry import build
 from training.callbacks import Callback, EpochLogs, LossThreshold
+from training.metrics import probability_metrics
 from training.trainer import train
 
 
@@ -37,6 +39,8 @@ EXPERIMENT_DEFAULTS: Config = {
     "model": {"layers": [len(FEATURE_COLUMNS), 1], "activation": "sigmoid"},
     "optimizer": {"name": "sgd", "lr": 0.05},
     "training": {"epochs": 1000, "batch_size": 128, "epsilon": 0.001},
+    # test_ratio of the rows are held out and only used to evaluate the final model.
+    "split": {"test_ratio": 0.2, "strata_bins": 10},
     "cross_validation": {"folds": 5},
     "output": {"directory": "reports/fraud_probability"},
     "callbacks": [],
@@ -152,6 +156,8 @@ def _write_report(summary: dict[str, Any], path: Path) -> None:
             "improvement": f"{entry['last_20_loss_improvement']:.6f}",
         })
     cv = summary["cross_validation"]
+    split = summary["split"]
+    final = summary["final_model"]
     linear = comparison["identity"]
     nonlinear = comparison["sigmoid"]
     rmse_reduction = 100 * (1 - nonlinear["rmse"] / linear["rmse"])
@@ -174,9 +180,13 @@ def _write_report(summary: dict[str, Any], path: Path) -> None:
         "Las mejoras de pérdida en las últimas 20 épocas son pequeñas: ambas curvas muestran una meseta aproximada con estos hiperparámetros. Esto no demuestra un mínimo global.",
         "Se selecciona el sigmoide para generalización: además del menor error, su salida siempre queda en [0,1].",
         "",
-        "## Generalización: K-Fold",
+        "## Partición de los datos",
         "",
-        f"Se usaron {cv['folds']} folds aleatorios reproducibles. Cada fold ajustó su propio escalador solo con entrenamiento, inició un modelo nuevo y evaluó las probabilidades de validación.",
+        f"Se separó un {split['test_ratio']:.0%} de las filas como test ({split['test_samples']} filas), estratificado por deciles de la probabilidad objetivo. Quedan {split['development_samples']} filas de desarrollo: todo entrenamiento, K-Fold, ajuste de hiperparámetros y elección de umbral usa solo esas filas. El test se evalúa una única vez con el modelo final.",
+        "",
+        "## Generalización: K-Fold sobre desarrollo",
+        "",
+        f"Se usaron {cv['folds']} folds estratificados y reproducibles. Cada fold ajustó su propio escalador solo con entrenamiento, inició un modelo nuevo y evaluó las probabilidades de validación.",
         f"MAE de validación: {cv['mae_mean']:.6f} ± {cv['mae_std']:.6f}.",
         f"RMSE de validación: {cv['rmse_mean']:.6f} ± {cv['rmse_std']:.6f}.",
         f"RMSE promedio de train: {cv['train_rmse_mean']:.6f}; la brecha train-validación es {cv['rmse_gap']:.6f}.",
@@ -186,60 +196,121 @@ def _write_report(summary: dict[str, Any], path: Path) -> None:
         "",
         "## Modelo final",
         "",
-        f"Se reentrenó una sigmoide con todas las {summary['samples']} muestras. Tiene {summary['final_model']['parameters']} parámetros entrenables. Sus pesos están en `model_weights.npz` y el orden de variables y los parámetros de estandarización en `model_metadata.json`.",
-        f"Terminó después de {summary['final_model']['epochs']} épocas ({summary['final_model']['stop_reason']}).",
+        f"Se reentrenó una sigmoide con las {split['development_samples']} filas de desarrollo. Tiene {final['parameters']} parámetros entrenables. Sus pesos están en `model_weights.npz` y el orden de variables y los parámetros de estandarización en `model_metadata.json`.",
+        f"Terminó después de {final['epochs']} épocas ({final['stop_reason']}).",
+        f"Test (nunca usado antes): MAE {final['test_metrics']['mae']:.6f}, RMSE {final['test_metrics']['rmse']:.6f}; baseline constante RMSE {final['test_baseline_rmse']:.6f}.",
         "Para una transacción nueva, aplicar ese mismo escalador y luego la red. El resultado es una probabilidad en [0,1].",
+        "El análisis de validación y la recomendación de umbral se generan con `python -m experiments.fraud.validation_analysis`.",
     ]
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def run_experiment(config: Config) -> dict[str, Any]:
-    """Compare learning, validate the sigmoid model and fit the final model."""
-    if config["model"]["activation"] != "sigmoid":
-        raise ValueError("The final probability model must use sigmoid activation")
-    if config["loss"] != "mse":
-        raise ValueError("This exercise uses MSE loss")
-    data = load_fraud_dataset(config["dataset"])
+def _compare_learning(config: Config, data: pd.DataFrame, output: Path) -> dict[str, dict[str, float | int]]:
+    """Linear vs. sigmoid perceptron trained on every sample (learning capacity, not generalization)."""
     X, target = split_features_and_targets(data)
-    output = Path(config["output"]["directory"])
-    output.mkdir(parents=True, exist_ok=True)
-    _write_json(output / "experiment_config.json", config)
-
-    # Descriptive learning study required by the exercise: all available rows.
-    full_scaler = StandardScaler().fit(X)
-    X_full = full_scaler.transform(X)
+    X_full = StandardScaler().fit_transform(X)
     histories: dict[str, list[dict[str, float]]] = {}
-    comparison_nets = {}
     comparison: dict[str, dict[str, float | int]] = {}
     for activation in ("identity", "sigmoid"):
         result = run_training(_training_config(config, activation), X_full, target)
         predicted = result.net.forward(X_full)
-        metrics = probability_metrics(target, predicted)
         histories[activation] = result.history
-        comparison_nets[activation] = result.net
         comparison[activation] = {
-            **metrics,
+            **probability_metrics(target, predicted),
             "epochs": len(result.history),
             "initial_loss": result.history[0]["loss"],
             "final_loss": result.history[-1]["loss"],
             "last_20_loss_improvement": _last_improvement(result.history),
             "outside_0_1": int(((predicted < 0) | (predicted > 1)).sum()),
         }
-
+        pd.DataFrame(result.history).to_csv(output / f"learning_{activation}.csv", index=False)
+        save_weights(result.net, output / f"learning_{activation}_weights.npz")
     _plot_learning_curves(histories, output / "learning_curves.png")
-    for activation, history in histories.items():
-        pd.DataFrame(history).to_csv(output / f"learning_{activation}.csv", index=False)
-        comparison_net = comparison_nets[activation]
-        save_weights(comparison_net, output / f"learning_{activation}_weights.npz")
+    return comparison
 
-    # Each validation row is predicted by a model that was not trained on it.
-    folds = kfold(data, n_splits=config["cross_validation"]["folds"], seed=config["seed"])
-    oof = np.full(len(data), np.nan)
-    baseline_oof = np.full(len(data), np.nan)
+
+def _write_split(split: DevelopmentSplit, output: Path) -> None:
+    """Record which original rows belong to development and test, so analyses can rejoin them."""
+    rows = pd.concat([
+        pd.DataFrame({"row": split.development_rows, "set": "development"}),
+        pd.DataFrame({"row": split.test_rows, "set": "test"}),
+    ]).sort_values("row")
+    rows.to_csv(output / "split.csv", index=False)
+
+
+def run_experiment(config: Config) -> dict[str, Any]:
+    """Compare learning on all rows, cross-validate on the development set and test the final model."""
+    if config["model"]["activation"] != "sigmoid":
+        raise ValueError("The final probability model must use sigmoid activation")
+    if config["loss"] != "mse":
+        raise ValueError("This exercise uses MSE loss")
+    data = load_fraud_dataset(config["dataset"])
+    output = Path(config["output"]["directory"])
+    output.mkdir(parents=True, exist_ok=True)
+    _write_json(output / "experiment_config.json", config)
+
+    # The handout asks for the learning comparison on all available rows.
+    comparison = _compare_learning(config, data, output)
+
+    # Everything below only trains or tunes on development rows; test rows are touched once, at the end.
+    split = split_development_and_test(
+        data,
+        test_ratio=config["split"]["test_ratio"],
+        seed=config["seed"],
+        strata_bins=config["split"]["strata_bins"],
+    )
+    _write_split(split, output)
+    development = data.iloc[split.development_rows].reset_index(drop=True)
+    test = data.iloc[split.test_rows].reset_index(drop=True)
+
+    cv = _cross_validate(config, development, split.development_rows, output)
+    final_model = _fit_final_model(config, development, test, split.test_rows, output)
+
+    summary = {
+        "samples": len(data),
+        "selected_activation": "sigmoid",
+        "learning_comparison": comparison,
+        "split": {
+            "test_ratio": config["split"]["test_ratio"],
+            "strata_bins": config["split"]["strata_bins"],
+            "development_samples": len(development),
+            "test_samples": len(test),
+        },
+        "cross_validation": cv,
+        "final_model": final_model,
+        "configuration": {
+            "seed": config["seed"],
+            "optimizer": config["optimizer"],
+            "training": config["training"],
+            "folds": config["cross_validation"]["folds"],
+        },
+    }
+    _write_json(output / "summary.json", summary)
+    _write_report(summary, output / "report.md")
+    return summary
+
+
+def _cross_validate(
+    config: Config,
+    development: pd.DataFrame,
+    development_rows: np.ndarray,
+    output: Path,
+) -> dict[str, Any]:
+    """Stratified K-Fold on the development set; each row is predicted by a model that never saw it."""
+    _, target = split_features_and_targets(development)
+    folds = kfold(
+        development,
+        n_splits=config["cross_validation"]["folds"],
+        seed=config["seed"],
+        strata_bins=config["split"]["strata_bins"],
+    )
+    oof = np.full(len(development), np.nan)
+    baseline_oof = np.full(len(development), np.nan)
+    fold_of_row = np.zeros(len(development), dtype=int)
     fold_rows: list[dict[str, float | int]] = []
     fold_epoch_rows: list[dict[str, float | int]] = []
     for fold_number, fold in enumerate(folds, start=1):
-        prepared = prepare_fold(data, fold)
+        prepared = prepare_fold(development, fold)
         fold_config = _training_config(config, "sigmoid")
         rng = np.random.default_rng(fold_config["seed"])
         net = build_model(fold_config["model"], rng)
@@ -260,6 +331,7 @@ def run_experiment(config: Config) -> dict[str, Any]:
         )
         predictions = net.forward(prepared.X_validation)
         oof[fold.validation] = predictions[:, 0]
+        fold_of_row[fold.validation] = fold_number
         baseline_oof[fold.validation] = float(prepared.teacher_train.mean())
         validation_metrics = probability_metrics(prepared.teacher_validation, predictions)
         train_metrics = probability_metrics(prepared.teacher_train, net.forward(prepared.X_train))
@@ -291,11 +363,15 @@ def run_experiment(config: Config) -> dict[str, Any]:
     fold_epoch_history = pd.DataFrame(fold_epoch_rows)
     fold_epoch_history.to_csv(output / "cross_validation_epoch_metrics.csv", index=False)
     _plot_cross_validation_curves(fold_epoch_history, output / "cross_validation_error.png")
-    pd.DataFrame({"row": np.arange(len(data)), "target_probability": target[:, 0],
-                  "predicted_probability": oof}).to_csv(output / "out_of_fold_predictions.csv", index=False)
+    pd.DataFrame({
+        "row": development_rows,
+        "fold": fold_of_row,
+        "target_probability": target[:, 0],
+        "predicted_probability": oof,
+    }).to_csv(output / "out_of_fold_predictions.csv", index=False)
     oof_metrics = probability_metrics(target, oof.reshape(-1, 1))
     baseline_metrics = probability_metrics(target, baseline_oof.reshape(-1, 1))
-    cv = {
+    return {
         "folds": len(folds),
         "results": fold_rows,
         "mae_mean": float(np.mean([row["validation_mae"] for row in fold_rows])),
@@ -310,42 +386,49 @@ def run_experiment(config: Config) -> dict[str, Any]:
         "rmse_reduction_vs_baseline_pct": float(100 * (1 - oof_metrics["rmse"] / baseline_metrics["rmse"])),
     }
 
-    final = run_training(_training_config(config, "sigmoid"), X_full, target)
+
+def _fit_final_model(
+    config: Config,
+    development: pd.DataFrame,
+    test: pd.DataFrame,
+    test_rows: np.ndarray,
+    output: Path,
+) -> dict[str, Any]:
+    """Train on the whole development set, then predict the untouched test set once."""
+    X_development, target_development = split_features_and_targets(development)
+    X_test, target_test = split_features_and_targets(test)
+    scaler = StandardScaler().fit(X_development)
+    final = run_training(_training_config(config, "sigmoid"), scaler.transform(X_development), target_development)
     save_weights(final.net, output / "model_weights.npz")
     pd.DataFrame(final.history).to_csv(output / "final_history.csv", index=False)
     metadata = {
         "feature_columns": FEATURE_COLUMNS,
         "target": TEACHER_TARGET,
         "model": {"layers": [len(FEATURE_COLUMNS), 1], "activation": "sigmoid"},
-        "scaler": {"mean": full_scaler.mean_.tolist(), "scale": full_scaler.scale_.tolist()},
+        "scaler": {"mean": scaler.mean_.tolist(), "scale": scaler.scale_.tolist()},
         "parameters": sum(parameter.value.size for parameter in final.net.params()),
     }
     _write_json(output / "model_metadata.json", metadata)
-    summary = {
-        "samples": len(data),
-        "selected_activation": "sigmoid",
-        "learning_comparison": comparison,
-        "cross_validation": cv,
-        "final_model": {
-            "epochs": len(final.history),
-            "parameters": metadata["parameters"],
-            "stop_reason": (
-                "epsilon alcanzado" if config["training"]["epsilon"] is not None
-                and final.history[-1]["loss"] <= config["training"]["epsilon"]
-                else "máximo de épocas"
-            ),
-            "training_metrics": probability_metrics(target, final.net.forward(X_full)),
-        },
-        "configuration": {
-            "seed": config["seed"],
-            "optimizer": config["optimizer"],
-            "training": config["training"],
-            "folds": config["cross_validation"]["folds"],
-        },
+
+    test_predictions = final.net.forward(scaler.transform(X_test))
+    pd.DataFrame({
+        "row": test_rows,
+        "target_probability": target_test[:, 0],
+        "predicted_probability": test_predictions[:, 0],
+    }).to_csv(output / "test_predictions.csv", index=False)
+    baseline = np.full_like(target_test, target_development.mean())
+    stopped_early = (config["training"]["epsilon"] is not None
+                     and final.history[-1]["loss"] <= config["training"]["epsilon"])
+    return {
+        "epochs": len(final.history),
+        "parameters": metadata["parameters"],
+        "stop_reason": "epsilon alcanzado" if stopped_early else "máximo de épocas",
+        "training_metrics": probability_metrics(
+            target_development, final.net.forward(scaler.transform(X_development))
+        ),
+        "test_metrics": probability_metrics(target_test, test_predictions),
+        "test_baseline_rmse": probability_metrics(target_test, baseline)["rmse"],
     }
-    _write_json(output / "summary.json", summary)
-    _write_report(summary, output / "report.md")
-    return summary
 
 
 def load_probability_model(directory: str | Path) -> tuple[Sequential, StandardScaler, list[str]]:
@@ -353,13 +436,7 @@ def load_probability_model(directory: str | Path) -> tuple[Sequential, StandardS
     directory = Path(directory)
     with (directory / "model_metadata.json").open(encoding="utf-8") as file:
         metadata = json.load(file)
-    net = build_model(metadata["model"], np.random.default_rng(0))
-    with np.load(directory / "model_weights.npz", allow_pickle=False) as saved:
-        for parameter in net.params():
-            value = saved[parameter.name]
-            if value.shape != parameter.value.shape:
-                raise ValueError(f"Wrong shape for saved parameter {parameter.name}")
-            parameter.value[...] = value
+    net = load_weights(build_model(metadata["model"], np.random.default_rng(0)), directory / "model_weights.npz")
     scaler = StandardScaler(
         mean_=np.asarray(metadata["scaler"]["mean"], dtype=float),
         scale_=np.asarray(metadata["scaler"]["scale"], dtype=float),

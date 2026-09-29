@@ -21,79 +21,90 @@
       "outside_0_1": 0
     }
   },
+  "split": {
+    "test_ratio": 0.2,
+    "strata_bins": 10,
+    "development_samples": 6000,
+    "test_samples": 1500
+  },
   "cross_validation": {
     "folds": 5,
     "results": [
       {
         "fold": 1,
-        "train_samples": 6000,
-        "validation_samples": 1500,
+        "train_samples": 4800,
+        "validation_samples": 1200,
         "epochs": 1000,
-        "train_mae": 0.07637973774256375,
-        "train_rmse": 0.10421643656307955,
-        "validation_mae": 0.07711127730461474,
-        "validation_rmse": 0.10653005168456386
+        "train_mae": 0.07618363560435105,
+        "train_rmse": 0.10403927240596955,
+        "validation_mae": 0.0770578625635389,
+        "validation_rmse": 0.10659977548707715
       },
       {
         "fold": 2,
-        "train_samples": 6000,
-        "validation_samples": 1500,
+        "train_samples": 4800,
+        "validation_samples": 1200,
         "epochs": 1000,
-        "train_mae": 0.07649930193786046,
-        "train_rmse": 0.10482274221484995,
-        "validation_mae": 0.07637291389850694,
-        "validation_rmse": 0.10414824363053313
+        "train_mae": 0.07641371771539462,
+        "train_rmse": 0.10460661664788069,
+        "validation_mae": 0.07666475731552301,
+        "validation_rmse": 0.10439190182400457
       },
       {
         "fold": 3,
-        "train_samples": 6000,
-        "validation_samples": 1500,
+        "train_samples": 4800,
+        "validation_samples": 1200,
         "epochs": 1000,
-        "train_mae": 0.0764335264887087,
-        "train_rmse": 0.10490401461919398,
-        "validation_mae": 0.07738843710161361,
-        "validation_rmse": 0.10378844980000403
+        "train_mae": 0.07640060340843015,
+        "train_rmse": 0.10444221517847248,
+        "validation_mae": 0.07612508301038756,
+        "validation_rmse": 0.1050116278690305
       },
       {
         "fold": 4,
-        "train_samples": 6000,
-        "validation_samples": 1500,
+        "train_samples": 4800,
+        "validation_samples": 1200,
         "epochs": 1000,
-        "train_mae": 0.07627427510465262,
-        "train_rmse": 0.10458015514020878,
-        "validation_mae": 0.07678853664375627,
-        "validation_rmse": 0.1050996951464969
+        "train_mae": 0.07628470214093969,
+        "train_rmse": 0.10481107994444501,
+        "validation_mae": 0.07674409903616261,
+        "validation_rmse": 0.10351593858264567
       },
       {
         "fold": 5,
-        "train_samples": 6000,
-        "validation_samples": 1500,
+        "train_samples": 4800,
+        "validation_samples": 1200,
         "epochs": 1000,
-        "train_mae": 0.0766137936848688,
-        "train_rmse": 0.10469664499486728,
-        "validation_mae": 0.07526195265632712,
-        "validation_rmse": 0.10467038185462194
+        "train_mae": 0.07658015667407614,
+        "train_rmse": 0.10477331663836553,
+        "validation_mae": 0.0757694209498937,
+        "validation_rmse": 0.1037543627575083
       }
     ],
-    "mae_mean": 0.07658462352096373,
-    "mae_std": 0.0008305630954836394,
-    "train_rmse_mean": 0.1046439987064399,
-    "rmse_mean": 0.10484736442324398,
-    "rmse_std": 0.001064953062934428,
-    "rmse_gap": 0.00020336571680406313,
-    "oof_mae": 0.07658462352096375,
-    "oof_rmse": 0.10485169109996047,
-    "baseline_oof_rmse": 0.30253978310233837,
-    "rmse_reduction_vs_baseline_pct": 65.34284184883781
+    "mae_mean": 0.07647224457510116,
+    "mae_std": 0.0005168163677191747,
+    "train_rmse_mean": 0.10453450016302664,
+    "rmse_mean": 0.10465472130405325,
+    "rmse_std": 0.0012336089077406875,
+    "rmse_gap": 0.00012022114102658299,
+    "oof_mae": 0.07647224457510116,
+    "oof_rmse": 0.10466053756779037,
+    "baseline_oof_rmse": 0.3025577535603135,
+    "rmse_reduction_vs_baseline_pct": 65.40807950343049
   },
   "final_model": {
     "epochs": 1000,
     "parameters": 7,
     "stop_reason": "m\u00e1ximo de \u00e9pocas",
     "training_metrics": {
-      "mae": 0.07645848293507643,
-      "rmse": 0.10466502988285437
-    }
+      "mae": 0.07638435954866439,
+      "rmse": 0.10454743467842267
+    },
+    "test_metrics": {
+      "mae": 0.07694365561901566,
+      "rmse": 0.10521875171990394
+    },
+    "test_baseline_rmse": 0.3020320780127532
   },
   "configuration": {
     "seed": 42,

@@ -15,18 +15,24 @@ El sigmoide reduce el RMSE de entrenamiento un 35.3% respecto del lineal. El may
 Las mejoras de pérdida en las últimas 20 épocas son pequeñas: ambas curvas muestran una meseta aproximada con estos hiperparámetros. Esto no demuestra un mínimo global.
 Se selecciona el sigmoide para generalización: además del menor error, su salida siempre queda en [0,1].
 
-## Generalización: K-Fold
+## Partición de los datos
 
-Se usaron 5 folds aleatorios reproducibles. Cada fold ajustó su propio escalador solo con entrenamiento, inició un modelo nuevo y evaluó las probabilidades de validación.
-MAE de validación: 0.076585 ± 0.000831.
-RMSE de validación: 0.104847 ± 0.001065.
-RMSE promedio de train: 0.104644; la brecha train-validación es 0.000203.
-Métricas con todas las predicciones fuera de muestra reunidas: MAE 0.076585, RMSE 0.104852.
-Baseline constante (media de probabilidades de cada train): RMSE fuera de muestra 0.302540; el modelo reduce ese error un 65.3%.
+Se separó un 20% de las filas como test (1500 filas), estratificado por deciles de la probabilidad objetivo. Quedan 6000 filas de desarrollo: todo entrenamiento, K-Fold, ajuste de hiperparámetros y elección de umbral usa solo esas filas. El test se evalúa una única vez con el modelo final.
+
+## Generalización: K-Fold sobre desarrollo
+
+Se usaron 5 folds estratificados y reproducibles. Cada fold ajustó su propio escalador solo con entrenamiento, inició un modelo nuevo y evaluó las probabilidades de validación.
+MAE de validación: 0.076472 ± 0.000517.
+RMSE de validación: 0.104655 ± 0.001234.
+RMSE promedio de train: 0.104535; la brecha train-validación es 0.000120.
+Métricas con todas las predicciones fuera de muestra reunidas: MAE 0.076472, RMSE 0.104661.
+Baseline constante (media de probabilidades de cada train): RMSE fuera de muestra 0.302558; el modelo reduce ese error un 65.4%.
 La brecha pequeña y estable junto con la mejora casi nula al pasar de 600 a 1.000 épocas no muestra señales de overfitting en este rango.
 
 ## Modelo final
 
-Se reentrenó una sigmoide con todas las 7500 muestras. Tiene 7 parámetros entrenables. Sus pesos están en `model_weights.npz` y el orden de variables y los parámetros de estandarización en `model_metadata.json`.
+Se reentrenó una sigmoide con las 6000 filas de desarrollo. Tiene 7 parámetros entrenables. Sus pesos están en `model_weights.npz` y el orden de variables y los parámetros de estandarización en `model_metadata.json`.
 Terminó después de 1000 épocas (máximo de épocas).
+Test (nunca usado antes): MAE 0.076944, RMSE 0.105219; baseline constante RMSE 0.302032.
 Para una transacción nueva, aplicar ese mismo escalador y luego la red. El resultado es una probabilidad en [0,1].
+El análisis de validación y la recomendación de umbral se generan con `python -m experiments.fraud.validation_analysis`.
