@@ -1,0 +1,63 @@
+{
+  "selection": "highest validation accuracy, tie: lowest validation loss",
+  "winner": {
+    "architecture": "784-64-32-10",
+    "parameters": 52650,
+    "learning_rate": 0.1,
+    "seed": 42,
+    "best_epoch": 469,
+    "train_accuracy": 0.9946787148594377,
+    "validation_accuracy": 0.9646444355162715,
+    "validation_loss": 0.02993414014137227,
+    "validation_macro_f1": 0.9513283578705214,
+    "validation_recall_5": 0.8148148148148148,
+    "run_directory": "run_02"
+  },
+  "runs": [
+    {
+      "architecture": "784-32-10",
+      "parameters": 25450,
+      "learning_rate": 0.1,
+      "seed": 42,
+      "best_epoch": 498,
+      "train_accuracy": 0.9820281124497992,
+      "validation_accuracy": 0.950582563278425,
+      "validation_loss": 0.04101380291358555,
+      "validation_macro_f1": 0.9376988355938143,
+      "validation_recall_5": 0.7777777777777778,
+      "run_directory": "run_00"
+    },
+    {
+      "architecture": "784-64-10",
+      "parameters": 50890,
+      "learning_rate": 0.1,
+      "seed": 42,
+      "best_epoch": 500,
+      "train_accuracy": 0.9865461847389558,
+      "validation_accuracy": 0.9574126155082362,
+      "validation_loss": 0.035513672575197455,
+      "validation_macro_f1": 0.9467159240267117,
+      "validation_recall_5": 0.8518518518518519,
+      "run_directory": "run_01"
+    },
+    {
+      "architecture": "784-64-32-10",
+      "parameters": 52650,
+      "learning_rate": 0.1,
+      "seed": 42,
+      "best_epoch": 469,
+      "train_accuracy": 0.9946787148594377,
+      "validation_accuracy": 0.9646444355162715,
+      "validation_loss": 0.02993414014137227,
+      "validation_macro_f1": 0.9513283578705214,
+      "validation_recall_5": 0.8148148148148148,
+      "run_directory": "run_02"
+    }
+  ],
+  "same_split_verified": true,
+  "shuffle_seed": 42,
+  "dataset_sha256": "11271dbc12a3a8db967f6c2708e55ae1918d69186e81d91c53c24e305fc5d3f4",
+  "external_test_evaluated": false,
+  "epochs_budget": 500,
+  "scope": "Single training seed and fixed epoch budget; not a global optimum"
+}

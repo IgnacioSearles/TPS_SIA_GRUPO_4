@@ -1,0 +1,8 @@
+{
+  "mode": "full-data refit with fixed epochs; then test",
+  "epochs_fixed_before_test": 76,
+  "epoch_rule": "median of five selected development epochs for momentum 0.9",
+  "seed_rule": "original seed 42 retained by convention, not chosen for best validation",
+  "no_test_epoch_selection": true,
+  "configuration_sha256": "84a6058f170d473395a5fefd6a441c9baff285ebdcc5afe8c4eeffb0c2ecd15f"
+}

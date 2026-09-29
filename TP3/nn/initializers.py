@@ -18,3 +18,17 @@ class Uniform:
 
     def __call__(self, shape: tuple[int, ...]) -> np.ndarray:
         return self.rng.uniform(self.low, self.high, size=shape)
+
+
+@register("initializer", "xavier")
+class XavierUniform:
+    """Fan-in/fan-out scaled uniform initialization for dense layers."""
+
+    def __init__(self, rng: np.random.Generator):
+        self.rng = rng
+
+    def __call__(self, shape: tuple[int, ...]) -> np.ndarray:
+        if len(shape) != 2 or min(shape) < 1:
+            raise ValueError("Xavier requires a positive (fan_in, fan_out) shape")
+        limit = np.sqrt(6.0 / sum(shape))
+        return self.rng.uniform(-limit, limit, size=shape)
