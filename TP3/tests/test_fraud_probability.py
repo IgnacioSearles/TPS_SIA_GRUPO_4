@@ -2,6 +2,7 @@ import json
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from experiments.config import deep_merge, load_config
 from experiments.fraud.data import REQUIRED_COLUMNS, TEACHER_TARGET
@@ -87,3 +88,27 @@ def small_config(csv_path, output):
     config["cross_validation"] = {"folds": 3}
     config["training"] = {"epochs": 3, "batch_size": 8, "epsilon": None}
     return config
+
+
+def test_generalization_study_can_use_another_activation(tmp_path):
+    data = synthetic_dataset(60)
+    csv_path = tmp_path / "fraud.csv"
+    data.to_csv(csv_path, index=False)
+    config = small_config(csv_path, tmp_path / "result")
+    config["model"]["activation"] = "relu"
+    config["learning_comparison"] = {"activations": ["identity", "sigmoid", "relu"]}
+
+    summary = run_experiment(config)
+
+    assert summary["selected_activation"] == "relu"
+    assert set(summary["learning_comparison"]) == {"identity", "sigmoid", "relu"}
+    assert json.loads((tmp_path / "result" / "model_metadata.json").read_text())["model"]["activation"] == "relu"
+    assert "test_outside_0_1" in summary["final_model"]
+
+
+def test_learning_comparison_must_include_the_linear_reference_and_the_selected_activation(tmp_path):
+    config = small_config(tmp_path / "unused.csv", tmp_path / "result")
+    config["model"]["activation"] = "relu"
+
+    with pytest.raises(ValueError, match="must include 'identity' and 'relu'"):
+        run_experiment(config)

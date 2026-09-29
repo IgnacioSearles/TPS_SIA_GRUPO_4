@@ -2,6 +2,7 @@
   "dataset": "datasets/fraud_dataset.csv",
   "seed": 42,
   "model": {"layers": [6, 1], "activation": "sigmoid"},
+  "learning_comparison": {"activations": ["identity", "sigmoid"]},
   "loss": "mse",
   "optimizer": {"name": "sgd", "lr": 0.05},
   "training": {"epochs": 1000, "batch_size": 128, "epsilon": 0.001},
