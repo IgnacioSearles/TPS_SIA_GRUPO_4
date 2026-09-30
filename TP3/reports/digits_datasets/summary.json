@@ -1,0 +1,107 @@
+{
+  "datasets": {
+    "digits.csv": {
+      "path": "datasets/digits.csv",
+      "samples": 12449,
+      "unique_images": 12449,
+      "duplicate_images": 0,
+      "class_counts": [
+        1480,
+        1685,
+        1489,
+        1532,
+        1460,
+        271,
+        1479,
+        1566,
+        0,
+        1487
+      ],
+      "missing_classes": [
+        8
+      ],
+      "imbalance_ratio": 6.217712177121771
+    },
+    "more_digits.csv": {
+      "path": "datasets/more_digits.csv",
+      "samples": 15741,
+      "unique_images": 15741,
+      "duplicate_images": 0,
+      "class_counts": [
+        1776,
+        2022,
+        1787,
+        1839,
+        1752,
+        542,
+        1775,
+        1879,
+        585,
+        1784
+      ],
+      "missing_classes": [],
+      "imbalance_ratio": 3.7306273062730626
+    },
+    "digits_test.csv": {
+      "path": "datasets/digits_test.csv",
+      "samples": 2497,
+      "unique_images": 2497,
+      "duplicate_images": 0,
+      "class_counts": [
+        245,
+        283,
+        258,
+        252,
+        245,
+        223,
+        239,
+        257,
+        243,
+        252
+      ],
+      "missing_classes": [],
+      "imbalance_ratio": 1.2690582959641257
+    }
+  },
+  "overlap": {
+    "digits.csv ∩ more_digits.csv": 3689,
+    "digits.csv ∩ digits_test.csv": 0,
+    "more_digits.csv ∩ digits_test.csv": 0
+  },
+  "train_name": "digits.csv",
+  "test_name": "digits_test.csv",
+  "accuracy_ceiling": {
+    "train": "digits.csv",
+    "test": "digits_test.csv",
+    "value": 0.9026832198638366,
+    "unlearnable_classes": [
+      8
+    ],
+    "unlearnable_rows": 243,
+    "test_rows": 2497
+  },
+  "union": {
+    "names": [
+      "digits.csv",
+      "more_digits.csv"
+    ],
+    "unique_images": 24501,
+    "rows_before_deduplication": 28190,
+    "class_counts": [
+      2795,
+      3212,
+      2817,
+      2895,
+      2788,
+      785,
+      2825,
+      2969,
+      585,
+      2830
+    ],
+    "missing_classes": [],
+    "imbalance_ratio": 5.490598290598291,
+    "accuracy_ceiling": 1.0,
+    "test_overlap": 0
+  }
+}
