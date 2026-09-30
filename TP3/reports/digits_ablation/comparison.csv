@@ -1,0 +1,5 @@
+step,training_files,training_rows,balance,augment,seeds,validation_accuracy_mean,validation_accuracy_std,train_accuracy_mean,macro_f1_mean,recall_5_mean,recall_8_mean,median_best_epoch
+Ejercicio 2 (solo digits.csv),['digits.csv'],9967,False,False,3,0.9377551020408162,0.001731690076375187,0.9948831142771145,0.8447420733879673,0.8004246284501062,0.0,92.0
++ more_digits.csv (sin repetidos),"['digits.csv', 'more_digits.csv']",19601,False,False,3,0.9673469387755101,0.0014526637077593274,0.9956124687515944,0.9572291616710763,0.8853503184713376,0.8746438746438746,63.0
++ balanceo de clases,"['digits.csv', 'more_digits.csv']",25700,True,False,3,0.9684353741496597,0.0021099404652068997,0.9957587548638132,0.9586511995850113,0.9129511677282377,0.8888888888888888,37.0
++ imágenes desplazadas y rotadas,"['digits.csv', 'more_digits.csv']",25700,True,True,3,0.9812925170068026,0.0007513851032100268,0.986420233463035,0.9757725460619255,0.9639065817409765,0.94017094017094,127.0

@@ -1,0 +1,5 @@
+{
+  "training": {"epochs": 400, "batch_size": 128},
+  "output": {"directory": "reports/digits_ablation_long"},
+  "notes": "Same ablation with a longer budget. Justified by validation: at 150 epochs the augmented variant still peaked at epoch 149, so it had not converged."
+}
