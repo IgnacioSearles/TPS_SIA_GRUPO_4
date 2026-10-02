@@ -84,6 +84,34 @@ class Tanh:
         return []
 
 
+@register("activation", "softmax")
+class Softmax:
+    """a_i = exp(z_i) / sum_j exp(z_j), per sample. Outputs are positive and sum to 1.
+
+    Unlike the other activations, each output depends on every input of its row,
+    so backward is a full Jacobian product rather than an elementwise derivative.
+    Paired with cross-entropy, the two backwards combine into a - y.
+    """
+
+    def __init__(self) -> None:
+        self._a: np.ndarray | None = None
+
+    def forward(self, z: np.ndarray) -> np.ndarray:
+        # Subtracting the row max leaves the result unchanged and keeps exp from overflowing.
+        exp_z = np.exp(z - z.max(axis=1, keepdims=True))
+        self._a = exp_z / exp_z.sum(axis=1, keepdims=True)
+        return self._a
+
+    def backward(self, grad: np.ndarray) -> np.ndarray:
+        if self._a is None:
+            raise RuntimeError("Softmax.backward called before forward")
+        # da_i/dz_k = a_i (delta_ik - a_k), so dL/dz_k = a_k (dL/da_k - sum_i dL/da_i a_i).
+        return self._a * (grad - np.sum(grad * self._a, axis=1, keepdims=True))
+
+    def params(self) -> list[Parameter]:
+        return []
+
+
 @register("activation", "relu")
 class ReLU:
     """a = max(0, z)."""
