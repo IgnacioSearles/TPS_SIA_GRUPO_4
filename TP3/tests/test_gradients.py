@@ -40,8 +40,32 @@ def test_mse_gradient():
     assert relative_error(analytical, numerical) < TOLERANCE
 
 
+def test_cross_entropy_gradient():
+    rng = np.random.default_rng(0)
+    y_pred = build("activation", "softmax").forward(rng.normal(size=(4, 3)))
+    y_true = np.eye(3)[[0, 2, 1, 2]]
+    loss = build("loss", "cross_entropy")
+
+    loss.forward(y_pred, y_true)
+    analytical = loss.backward() / len(y_pred)
+    numerical = numerical_gradient(lambda: loss.forward(y_pred, y_true), y_pred)
+
+    assert relative_error(analytical, numerical) < TOLERANCE
+
+
+def test_softmax_with_cross_entropy_backpropagates_prediction_minus_target():
+    rng = np.random.default_rng(1)
+    z = rng.normal(size=(5, 4)) * 10
+    y_true = np.eye(4)[[3, 0, 1, 1, 2]]
+    softmax, loss = build("activation", "softmax"), build("loss", "cross_entropy")
+
+    loss.forward(softmax.forward(z), y_true)
+
+    np.testing.assert_allclose(softmax.backward(loss.backward()), softmax._a - y_true, atol=1e-12)
+
+
 # Step is excluded: its straight-through backward is intentionally not its true derivative.
-@pytest.mark.parametrize("activation_name", ["identity", "sigmoid", "tanh", "relu"])
+@pytest.mark.parametrize("activation_name", ["identity", "sigmoid", "tanh", "relu", "softmax"])
 def test_activation_gradient(activation_name):
     rng = np.random.default_rng(0)
     z = rng.normal(size=(4, 3))
@@ -74,6 +98,20 @@ def test_multilayer_network_parameter_gradients_with_tanh():
     net = build_model({"layers": [2, 3, 2, 1], "activation": "tanh"}, rng)
     loss = build("loss", "mse")
     X, Y = rng.normal(size=(4, 2)), rng.normal(size=(4, 1))
+
+    loss.forward(net.forward(X), Y)
+    net.backward(loss.backward())
+
+    for param in net.params():
+        numerical = numerical_gradient(lambda: loss.forward(net.forward(X), Y), param.value)
+        assert relative_error(param.grad, numerical) < TOLERANCE, param.name
+
+
+def test_softmax_cross_entropy_network_parameter_gradients():
+    rng = np.random.default_rng(2)
+    net = build_model({"layers": [3, 4, 3], "activation": "tanh", "output_activation": "softmax"}, rng)
+    loss = build("loss", "cross_entropy")
+    X, Y = rng.normal(size=(6, 3)), np.eye(3)[[0, 1, 2, 2, 1, 0]]
 
     loss.forward(net.forward(X), Y)
     net.backward(loss.backward())
