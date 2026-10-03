@@ -1,0 +1,304 @@
+{
+  "config": {
+    "files": [
+      "datasets/digits.csv",
+      "datasets/more_digits.csv"
+    ],
+    "baseline_files": [
+      "datasets/digits.csv"
+    ],
+    "test_file": "datasets/digits_test.csv",
+    "validation_ratio": 0.2,
+    "split_seed": 2026,
+    "seeds": [
+      42,
+      7,
+      21
+    ],
+    "model": {
+      "layers": [
+        784,
+        64,
+        32,
+        10
+      ],
+      "activation": "tanh",
+      "output_activation": "sigmoid",
+      "initializer": "xavier"
+    },
+    "optimizer": {
+      "name": "momentum",
+      "lr": 0.1,
+      "momentum": 0.9
+    },
+    "training": {
+      "epochs": 400,
+      "batch_size": 128,
+      "early_stopping": {
+        "patience": 50,
+        "min_delta": 0.0005
+      }
+    },
+    "augmentation": {
+      "max_rotation": 10.0,
+      "max_scale": 0.1,
+      "max_shift": 2.0,
+      "sigma": 0.0
+    },
+    "output": {
+      "directory": "reports/digits_e3_factorial"
+    },
+    "study": {
+      "target_accuracy": 0.98,
+      "steps": [
+        {
+          "name": "Sin balanceo ni augmentación",
+          "files": [
+            "datasets/digits.csv",
+            "datasets/more_digits.csv"
+          ],
+          "balance": false,
+          "augment": false
+        },
+        {
+          "name": "Solo balanceo",
+          "files": [
+            "datasets/digits.csv",
+            "datasets/more_digits.csv"
+          ],
+          "balance": true,
+          "augment": false
+        },
+        {
+          "name": "Solo augmentación",
+          "files": [
+            "datasets/digits.csv",
+            "datasets/more_digits.csv"
+          ],
+          "balance": false,
+          "augment": true
+        },
+        {
+          "name": "Balanceo y augmentación",
+          "files": [
+            "datasets/digits.csv",
+            "datasets/more_digits.csv"
+          ],
+          "balance": true,
+          "augment": true
+        }
+      ]
+    }
+  },
+  "rows": [
+    {
+      "step": "Sin balanceo ni augmentación",
+      "training_files": [
+        "digits.csv",
+        "more_digits.csv"
+      ],
+      "training_rows": 19601,
+      "balance": false,
+      "augment": false,
+      "seeds": 3,
+      "validation_accuracy_mean": 0.9617006802721088,
+      "validation_accuracy_std": 0.0019456258021871107,
+      "train_accuracy_mean": 0.9955104331411663,
+      "macro_f1_mean": 0.9501284545420522,
+      "recall_5_mean": 0.8789808917197451,
+      "recall_8_mean": 0.8575498575498576,
+      "median_best_epoch": 62.0
+    },
+    {
+      "step": "Solo balanceo",
+      "training_files": [
+        "digits.csv",
+        "more_digits.csv"
+      ],
+      "training_rows": 25700,
+      "balance": true,
+      "augment": false,
+      "seeds": 3,
+      "validation_accuracy_mean": 0.9608163265306123,
+      "validation_accuracy_std": 0.0025160873481505906,
+      "train_accuracy_mean": 0.9964980544747082,
+      "macro_f1_mean": 0.9505518055590443,
+      "recall_5_mean": 0.8959660297239914,
+      "recall_8_mean": 0.8746438746438746,
+      "median_best_epoch": 64.0
+    },
+    {
+      "step": "Solo augmentación",
+      "training_files": [
+        "digits.csv",
+        "more_digits.csv"
+      ],
+      "training_rows": 19601,
+      "balance": false,
+      "augment": true,
+      "seeds": 3,
+      "validation_accuracy_mean": 0.9806802721088436,
+      "validation_accuracy_std": 0.0017817416127495172,
+      "train_accuracy_mean": 0.9857660323452885,
+      "macro_f1_mean": 0.9760355540219198,
+      "recall_5_mean": 0.9617834394904459,
+      "recall_8_mean": 0.9202279202279202,
+      "median_best_epoch": 145.0
+    },
+    {
+      "step": "Balanceo y augmentación",
+      "training_files": [
+        "digits.csv",
+        "more_digits.csv"
+      ],
+      "training_rows": 25700,
+      "balance": true,
+      "augment": true,
+      "seeds": 3,
+      "validation_accuracy_mean": 0.980748299319728,
+      "validation_accuracy_std": 0.0005356467941504698,
+      "train_accuracy_mean": 0.987172503242542,
+      "macro_f1_mean": 0.9755580902977653,
+      "recall_5_mean": 0.9766454352441615,
+      "recall_8_mean": 0.9458689458689458,
+      "median_best_epoch": 125.0
+    }
+  ],
+  "runs": [
+    {
+      "step": "Sin balanceo ni augmentación",
+      "seed": 42,
+      "best_epoch": 90,
+      "epochs_ran": 94,
+      "train_accuracy": 0.9966838426610887,
+      "validation_accuracy": 0.9642857142857143,
+      "validation_macro_f1": 0.9547502271262639,
+      "recall_5": 0.9171974522292994,
+      "recall_8": 0.8547008547008547
+    },
+    {
+      "step": "Sin balanceo ni augmentación",
+      "seed": 7,
+      "best_epoch": 57,
+      "epochs_ran": 95,
+      "train_accuracy": 0.9946941482577419,
+      "validation_accuracy": 0.9595918367346938,
+      "validation_macro_f1": 0.9467355507348664,
+      "recall_5": 0.8471337579617835,
+      "recall_8": 0.8803418803418803
+    },
+    {
+      "step": "Sin balanceo ni augmentación",
+      "seed": 21,
+      "best_epoch": 62,
+      "epochs_ran": 99,
+      "train_accuracy": 0.9951533085046681,
+      "validation_accuracy": 0.9612244897959183,
+      "validation_macro_f1": 0.9488995857650263,
+      "recall_5": 0.8726114649681529,
+      "recall_8": 0.8376068376068376
+    },
+    {
+      "step": "Solo balanceo",
+      "seed": 42,
+      "best_epoch": 110,
+      "epochs_ran": 115,
+      "train_accuracy": 0.9973540856031129,
+      "validation_accuracy": 0.9640816326530612,
+      "validation_macro_f1": 0.9565869177465961,
+      "recall_5": 0.9299363057324841,
+      "recall_8": 0.8888888888888888
+    },
+    {
+      "step": "Solo balanceo",
+      "seed": 7,
+      "best_epoch": 49,
+      "epochs_ran": 99,
+      "train_accuracy": 0.995408560311284,
+      "validation_accuracy": 0.9579591836734694,
+      "validation_macro_f1": 0.9458534621915389,
+      "recall_5": 0.8789808917197452,
+      "recall_8": 0.8376068376068376
+    },
+    {
+      "step": "Solo balanceo",
+      "seed": 21,
+      "best_epoch": 64,
+      "epochs_ran": 114,
+      "train_accuracy": 0.9967315175097277,
+      "validation_accuracy": 0.9604081632653061,
+      "validation_macro_f1": 0.949215036738998,
+      "recall_5": 0.8789808917197452,
+      "recall_8": 0.8974358974358975
+    },
+    {
+      "step": "Solo augmentación",
+      "seed": 42,
+      "best_epoch": 135,
+      "epochs_ran": 150,
+      "train_accuracy": 0.9864292638130707,
+      "validation_accuracy": 0.9820408163265306,
+      "validation_macro_f1": 0.9778413991524528,
+      "recall_5": 0.9617834394904459,
+      "recall_8": 0.9316239316239316
+    },
+    {
+      "step": "Solo augmentación",
+      "seed": 7,
+      "best_epoch": 145,
+      "epochs_ran": 195,
+      "train_accuracy": 0.9842865159940819,
+      "validation_accuracy": 0.9781632653061224,
+      "validation_macro_f1": 0.9723818698959587,
+      "recall_5": 0.9490445859872612,
+      "recall_8": 0.8888888888888888
+    },
+    {
+      "step": "Solo augmentación",
+      "seed": 21,
+      "best_epoch": 167,
+      "epochs_ran": 217,
+      "train_accuracy": 0.9865823172287128,
+      "validation_accuracy": 0.9818367346938776,
+      "validation_macro_f1": 0.9778833930173481,
+      "recall_5": 0.9745222929936306,
+      "recall_8": 0.9401709401709402
+    },
+    {
+      "step": "Balanceo y augmentación",
+      "seed": 42,
+      "best_epoch": 125,
+      "epochs_ran": 175,
+      "train_accuracy": 0.9860311284046692,
+      "validation_accuracy": 0.98,
+      "validation_macro_f1": 0.9745668515913399,
+      "recall_5": 0.9808917197452229,
+      "recall_8": 0.9316239316239316
+    },
+    {
+      "step": "Balanceo y augmentación",
+      "seed": 7,
+      "best_epoch": 214,
+      "epochs_ran": 264,
+      "train_accuracy": 0.9878210116731517,
+      "validation_accuracy": 0.9810204081632653,
+      "validation_macro_f1": 0.9765591282431043,
+      "recall_5": 0.9745222929936306,
+      "recall_8": 0.9658119658119658
+    },
+    {
+      "step": "Balanceo y augmentación",
+      "seed": 21,
+      "best_epoch": 123,
+      "epochs_ran": 173,
+      "train_accuracy": 0.9876653696498054,
+      "validation_accuracy": 0.9812244897959184,
+      "validation_macro_f1": 0.9755482910588519,
+      "recall_5": 0.9745222929936306,
+      "recall_8": 0.9401709401709402
+    }
+  ],
+  "winner": "Solo augmentación",
+  "selection": "among mean validation accuracy >= 0.9800, highest mean macro F1",
+  "validation_samples": 4900
+}

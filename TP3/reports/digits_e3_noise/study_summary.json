@@ -1,0 +1,21 @@
+{
+  "architecture": [
+    784,
+    128,
+    128,
+    10
+  ],
+  "selected_by": "among mean validation accuracy >= 0.9800, highest mean macro F1",
+  "samples": 2497,
+  "sigmas": [
+    0.0,
+    0.05,
+    0.1,
+    0.2,
+    0.4
+  ],
+  "replicates": 5,
+  "uses_digits_test": true,
+  "digits_test_was_evaluated_in_prior_reports": true,
+  "interpretation": "descriptive robustness analysis; do not use to retune the model"
+}
