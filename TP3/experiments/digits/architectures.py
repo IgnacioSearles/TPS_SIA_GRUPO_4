@@ -30,12 +30,18 @@ def configurations(config):
         raise ValueError("architectures must be unique")
     if config["training"].get("shuffle_seed") is None:
         raise ValueError("An independent shuffle_seed is required for architecture comparisons")
+    seeds = config["study"].get("seeds", [config["seed"]])
+    if not seeds or any(type(seed) is not int for seed in seeds):
+        raise ValueError("study.seeds must be a non-empty list of integer seeds")
     runs = []
-    for index, layers in enumerate(architectures):
+    for index, (layers, seed) in enumerate(
+            ((layers, seed) for layers in architectures for seed in seeds)):
         current = copy.deepcopy(config)
         current.pop("study")
         current["model"]["layers"] = layers.copy()
-        current["output"]["directory"] = str(Path(config["output"]["directory"]) / f"run_{index:02d}")
+        current["seed"] = seed
+        current["output"]["directory"] = str(
+            Path(config["output"]["directory"]) / f"run_{index:02d}_seed_{seed}")
         runs.append(current)
     return runs
 
@@ -44,12 +50,24 @@ def run_study(config):
     runs = configurations(config)
     output = Path(config["output"]["directory"])
     output.mkdir(parents=True, exist_ok=True)
-    (output / "study_config.json").write_text(json.dumps(config, indent=2, allow_nan=False) + "\n")
-    rows, histories = [], []
+    study_config_path = output / "study_config.json"
+    if study_config_path.exists() and json.loads(study_config_path.read_text()) != config:
+        raise ValueError(f"Study config differs from existing {study_config_path}; use a new output directory")
+    study_config_path.write_text(json.dumps(config, indent=2, allow_nan=False) + "\n")
+    comparison_path = output / "comparison.csv"
+    rows = pd.read_csv(comparison_path).to_dict("records") if comparison_path.exists() else []
+    completed = {row["run_directory"] for row in rows}
+    histories = []
     reference = None
     for current in runs:
-        summary = run(current)
         directory = Path(current["output"]["directory"])
+        saved_config, saved_summary = directory / "config.json", directory / "summary.json"
+        if directory.name in completed and saved_config.exists() and saved_summary.exists():
+            if json.loads(saved_config.read_text()) != current:
+                raise ValueError(f"Completed run config mismatch in {directory}")
+            summary = json.loads(saved_summary.read_text())
+        else:
+            summary = run(current)
         with np.load(directory / "split_indices.npz") as split:
             signature = (summary["dataset_sha256"], split["train"].copy(), split["validation"].copy(),
                          summary["initial_validation"])
@@ -62,29 +80,43 @@ def run_study(config):
             # Different architectures have different initial outputs and parameter shapes.
         validation = summary["validation"]
         layers = current["model"]["layers"]
-        rows.append({"architecture": "-".join(map(str, layers)),
-                     "parameters": sum(a * b + b for a, b in zip(layers[:-1], layers[1:])),
-                     "learning_rate": current["optimizer"]["lr"], "seed": current["seed"],
-                     "best_epoch": summary["best_epoch"], "train_accuracy": summary["train"]["accuracy"],
-                     "validation_accuracy": validation["accuracy"], "validation_loss": validation["loss"],
-                     "validation_macro_f1": validation["macro_f1"],
-                     "validation_recall_5": validation["per_class"][5]["recall"],
-                     "run_directory": directory.name})
+        if directory.name not in completed:
+            rows.append({"architecture": "-".join(map(str, layers)),
+                         "parameters": sum(a * b + b for a, b in zip(layers[:-1], layers[1:])),
+                         "learning_rate": current["optimizer"]["lr"], "seed": current["seed"],
+                         "epochs_ran": summary["epochs_ran"], "best_epoch": summary["best_epoch"],
+                         "train_accuracy": summary["train"]["accuracy"],
+                         "validation_accuracy": validation["accuracy"], "validation_loss": validation["loss"],
+                         "validation_macro_f1": validation["macro_f1"],
+                         "validation_recall_5": validation["per_class"][5]["recall"],
+                         "run_directory": directory.name})
+            completed.add(directory.name)
+        pd.DataFrame(rows).to_csv(comparison_path, index=False)
         histories.append(pd.read_csv(directory / "history.csv"))
-        pd.DataFrame(rows).to_csv(output / "comparison.csv", index=False)
-    winner = max(rows, key=lambda row: (row["validation_accuracy"], -row["validation_loss"]))
-    result = {"selection": "highest validation accuracy, tie: lowest validation loss",
+    grouped = pd.DataFrame(rows).groupby("architecture").agg(
+        parameters=("parameters", "first"), seeds=("seed", "nunique"),
+        validation_accuracy_mean=("validation_accuracy", "mean"),
+        validation_accuracy_std=("validation_accuracy", "std"),
+        validation_loss_mean=("validation_loss", "mean"),
+        validation_macro_f1_mean=("validation_macro_f1", "mean"),
+    ).reset_index()
+    grouped.to_csv(output / "architecture_summary.csv", index=False)
+    winner = grouped.sort_values(
+        ["validation_accuracy_mean", "validation_loss_mean"],
+        ascending=[False, True],
+    ).iloc[0].to_dict()
+    result = {"selection": "highest mean validation accuracy across seeds, tie: lowest mean validation loss",
               "winner": winner, "runs": rows, "same_split_verified": True, "shuffle_seed": config["training"]["shuffle_seed"],
               "dataset_sha256": reference[0], "external_test_evaluated": False,
               "epochs_budget": config["training"]["epochs"],
-              "scope": "Single training seed and fixed epoch budget; not a global optimum"}
+              "scope": "Repeated training seeds with fixed split and early stopping; not a global optimum"}
     (output / "study_summary.json").write_text(json.dumps(result, indent=2, allow_nan=False) + "\n")
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     fig, axes = plt.subplots(1, 2, figsize=(11, 4))
     for row, history in zip(rows, histories):
-        label = row["architecture"]
+        label = f"{row['architecture']} seed {row['seed']}"
         axes[0].plot(history.epoch, history.validation_loss, label=label)
         axes[1].plot(history.epoch, history.validation_accuracy, label=label)
     for ax, title in zip(axes, ["Error cuadrático en validación", "Accuracy de validación"]):
