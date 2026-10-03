@@ -67,15 +67,20 @@ def digit_metrics(labels: np.ndarray, outputs: np.ndarray) -> dict:
 
 
 class ValidationRecorder(Callback):
-    """Select by validation accuracy, then lower loss; restore copied parameters."""
+    """Select by validation accuracy, optionally stop after validation stalls."""
 
-    def __init__(self, net, X_train, labels_train, X_validation, labels_validation):
+    def __init__(self, net, X_train, labels_train, X_validation, labels_validation,
+                 patience=None, min_delta=0.0):
         self.net = net
         self.X_train, self.labels_train = X_train, labels_train
         self.X_validation, self.labels_validation = X_validation, labels_validation
         self.best_key = None
         self.best_epoch = None
         self.best_weights = None
+        self.patience = patience
+        self.min_delta = min_delta
+        self.epochs_without_accuracy_gain = 0
+        self.stop_requested = False
 
     def on_epoch_end(self, logs):
         train_outputs = self.net.forward(self.X_train)
@@ -89,6 +94,15 @@ class ValidationRecorder(Callback):
         if self.best_key is None or key > self.best_key:
             self.best_key, self.best_epoch = key, int(logs["epoch"])
             self.best_weights = [param.value.copy() for param in self.net.params()]
+        if self.patience is not None:
+            accuracy = validation["accuracy"]
+            if accuracy > getattr(self, "best_stopping_accuracy", -1.0) + self.min_delta:
+                self.best_stopping_accuracy = accuracy
+                self.epochs_without_accuracy_gain = 0
+            else:
+                self.epochs_without_accuracy_gain += 1
+                if self.epochs_without_accuracy_gain >= self.patience:
+                    self.stop_requested = True
 
     def on_train_end(self, history):
         for param, value in zip(self.net.params(), self.best_weights):
@@ -149,7 +163,12 @@ def run(config):
     counts = np.bincount(labels, minlength=10)
     missing = np.flatnonzero(counts == 0).tolist()
     print(f"Train: {len(train_idx)}; validation: {len(validation_idx)}; missing classes: {missing}", flush=True)
-    recorder = ValidationRecorder(net, X_train, labels_train, X_validation, labels_validation)
+    early_stopping = config["training"].get("early_stopping", {})
+    recorder = ValidationRecorder(
+        net, X_train, labels_train, X_validation, labels_validation,
+        patience=early_stopping.get("patience"),
+        min_delta=early_stopping.get("min_delta", 0.0),
+    )
     # Separate batch randomness from architecture-dependent initialization draws.
     shuffle_seed = config["training"].get("shuffle_seed")
     batch_rng = rng if shuffle_seed is None else np.random.default_rng(shuffle_seed)
@@ -176,7 +195,8 @@ def run(config):
                "train_counts": np.bincount(labels_train, minlength=10).tolist(),
                "validation_counts": np.bincount(labels_validation, minlength=10).tolist(),
                "selection": "highest validation accuracy, tie: lowest validation loss",
-               "best_epoch": recorder.best_epoch, "initial_validation": initial,
+               "best_epoch": recorder.best_epoch, "epochs_ran": len(history),
+               "initial_validation": initial,
                "train": train_metrics, "validation": validation,
                "weights_reload_verified": True, "external_test_evaluated": False}
     for name, value in [("summary.json", summary), ("config.json", config)]:

@@ -1,0 +1,17 @@
+{
+  "output": {
+    "directory": "results/digits_experiment_queue"
+  },
+  "jobs": [
+    {
+      "name": "depth_width_64",
+      "module": "experiments.digits.depth_sweep",
+      "config": "experiments/digits/configs/depth_sweep.json"
+    },
+    {
+      "name": "width_two_hidden_layers",
+      "module": "experiments.digits.architectures",
+      "config": "experiments/digits/configs/width_sweep.json"
+    }
+  ]
+}
