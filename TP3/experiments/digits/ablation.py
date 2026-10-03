@@ -31,6 +31,7 @@ from pathlib import Path
 from typing import Any, Sequence
 
 import numpy as np
+import pandas as pd
 
 import nn  # noqa: F401  (registers activations, losses, optimizers, initializers)
 import training  # noqa: F401  (registers callbacks)
@@ -47,7 +48,7 @@ from experiments.digits.data import (
     one_hot,
     split_train_validation,
 )
-from nn.network import build_model, save_weights
+from nn.network import build_model, load_weights, save_weights
 from nn.registry import build
 from training.trainer import train
 
@@ -137,11 +138,15 @@ def build_variants(
 ) -> list[Variant]:
     """Prepare each row's training data. Validation is untouched and identical for all."""
     variants = []
+    balanced_rows_by_files: dict[tuple[str, ...], np.ndarray] = {}
     for step in steps:
         rows = training_rows_for(data, train_rows, step["files"])
         X_train, y_train = data.X[rows], data.y[rows]
         if step["balance"]:
-            indices = balanced_indices(y_train, rng)
+            key = tuple(step["files"])
+            if key not in balanced_rows_by_files:
+                balanced_rows_by_files[key] = balanced_indices(y_train, rng)
+            indices = balanced_rows_by_files[key]
             X_train, y_train = X_train[indices], y_train[indices]
         variants.append(Variant(
             name=step["name"], files=list(step["files"]),
@@ -170,6 +175,10 @@ def train_variant(variant: Variant, config: dict[str, Any], seed: int) -> dict[s
     history: list[dict[str, float]] = []
     best = {"accuracy": -1.0, "loss": np.inf, "epoch": 0}
     best_weights: list[np.ndarray] = []
+    early_stopping = config["training"].get("early_stopping", {})
+    patience = early_stopping.get("patience")
+    min_delta = early_stopping.get("min_delta", 0.0)
+    best_stop_accuracy, stale_epochs = -1.0, 0
 
     for epoch in range(1, config["training"]["epochs"] + 1):
         X_epoch = augment(variant.X_train, rng, **augmentation) if variant.augment else variant.X_train
@@ -182,6 +191,10 @@ def train_variant(variant: Variant, config: dict[str, Any], seed: int) -> dict[s
                         "validation_accuracy": validation["accuracy"],
                         "validation_loss": validation["loss"],
                         "validation_macro_f1": validation["macro_f1"]})
+        if epoch == 1 or epoch % 25 == 0:
+            print(f"{variant.name} seed={seed} epoch={epoch}/{config['training']['epochs']} "
+                  f"val_accuracy={validation['accuracy']:.4%} "
+                  f"val_macro_f1={validation['macro_f1']:.4f}", flush=True)
 
         # Select on validation accuracy, breaking ties by lower loss, as ejercicio 2 did.
         if (validation["accuracy"], -validation["loss"]) > (best["accuracy"], -best["loss"]):
@@ -190,9 +203,17 @@ def train_variant(variant: Variant, config: dict[str, Any], seed: int) -> dict[s
                     "per_class": validation["per_class"]}
             best_weights = [param.value.copy() for param in net.params()]
 
+        if patience is not None:
+            if validation["accuracy"] > best_stop_accuracy + min_delta:
+                best_stop_accuracy, stale_epochs = validation["accuracy"], 0
+            else:
+                stale_epochs += 1
+                if stale_epochs >= patience:
+                    break
+
     for param, value in zip(net.params(), best_weights):
         param.value[...] = value
-    return {"net": net, "history": history, "best": best,
+    return {"net": net, "history": history, "best": best, "epochs_ran": len(history),
             "train_accuracy": history[best["epoch"] - 1]["train_accuracy"]}
 
 
@@ -207,18 +228,49 @@ def run_ablation(config: dict[str, Any]) -> dict[str, Any]:
     train_rows, validation_rows = split_train_validation(
         data.y, config["validation_ratio"], config["split_seed"])
 
-    steps = resolve_steps(config["files"], config["baseline_files"])
+    steps = config.get("study", {}).get("steps") or resolve_steps(
+        config["files"], config["baseline_files"])
     variants = build_variants(data, train_rows, validation_rows, steps,
                               np.random.default_rng(config["split_seed"]))
 
+    output = Path(config["output"]["directory"])
+    run_root = output / "runs"
     rows, runs, best_models = [], [], {}
-    for variant in variants:
-        per_seed = [train_variant(variant, config, seed) for seed in config["seeds"]]
+    for step_index, variant in enumerate(variants):
+        per_seed = []
+        for seed_index, seed in enumerate(config["seeds"]):
+            run_dir = run_root / f"step_{step_index:02d}" / f"seed_{seed}"
+            protocol = {"config": config, "step": {"name": variant.name, "files": variant.files,
+                        "balance": variant.balance, "augment": variant.augment}, "seed": seed,
+                        "training_rows": len(variant.y_train)}
+            protocol_path, summary_path = run_dir / "protocol.json", run_dir / "run_summary.json"
+            history_path, weights_path = run_dir / "history.csv", run_dir / "best_weights.npz"
+            if summary_path.exists() and protocol_path.exists() and history_path.exists() and weights_path.exists():
+                if json.loads(protocol_path.read_text()) != protocol:
+                    raise ValueError(f"Saved run protocol differs in {run_dir}")
+                saved = json.loads(summary_path.read_text())
+                net = build_model(config["model"], np.random.default_rng(seed))
+                load_weights(net, weights_path)
+                result = {"net": net, "history": pd.read_csv(history_path).to_dict("records"),
+                          "best": saved["best"], "epochs_ran": saved["epochs_ran"],
+                          "train_accuracy": saved["train_accuracy"]}
+            else:
+                result = train_variant(variant, config, seed)
+                run_dir.mkdir(parents=True, exist_ok=True)
+                save_weights(result["net"], weights_path)
+                pd.DataFrame(result["history"]).to_csv(history_path, index=False)
+                protocol_path.write_text(json.dumps(protocol, indent=2, allow_nan=False) + "\n")
+                summary = {key: result[key] for key in ("best", "epochs_ran", "train_accuracy")}
+                summary_path.write_text(json.dumps(summary, indent=2, allow_nan=False) + "\n")
+            per_seed.append(result)
+            print(f"{variant.name} — semilla {seed}: val={result['best']['accuracy']:.4%}, "
+                  f"época={result['best']['epoch']}/{result['epochs_ran']}", flush=True)
         accuracies = [result["best"]["accuracy"] for result in per_seed]
         best_models[variant.name] = per_seed[int(np.argmax(accuracies))]
         for seed, result in zip(config["seeds"], per_seed):
             runs.append({"step": variant.name, "seed": seed,
                          "best_epoch": result["best"]["epoch"],
+                         "epochs_ran": result["epochs_ran"],
                          "train_accuracy": result["train_accuracy"],
                          "validation_accuracy": result["best"]["accuracy"],
                          "validation_macro_f1": result["best"]["macro_f1"],
@@ -244,8 +296,16 @@ def run_ablation(config: dict[str, Any]) -> dict[str, Any]:
             "median_best_epoch": float(np.median([r["best"]["epoch"] for r in per_seed])),
         })
 
-    winner = max(rows, key=lambda row: row["validation_accuracy_mean"])
+    target = config.get("study", {}).get("target_accuracy")
+    eligible = [row for row in rows if target is not None and row["validation_accuracy_mean"] >= target]
+    if eligible:
+        winner = max(eligible, key=lambda row: (row["macro_f1_mean"], row["validation_accuracy_mean"]))
+        selection = f"among mean validation accuracy >= {target:.4f}, highest mean macro F1"
+    else:
+        winner = max(rows, key=lambda row: (row["validation_accuracy_mean"], row["macro_f1_mean"]))
+        selection = "highest mean validation accuracy; macro F1 tie-break"
     return {"config": config, "rows": rows, "runs": runs, "winner": winner["step"],
+            "selection": selection,
             "validation_samples": int(len(validation_rows)),
             "histories": {variant.name: best_models[variant.name]["history"] for variant in variants},
             "_models": best_models}
@@ -318,7 +378,8 @@ def write_report(result: dict[str, Any], output: str | Path, test: dict[str, Any
     fig.savefig(output / "validation_curves.png", dpi=150)
     plt.close(fig)
 
-    baseline, winner = rows[0], max(rows, key=lambda row: row["validation_accuracy_mean"])
+    baseline = rows[0]
+    winner = next(row for row in rows if row["step"] == result["winner"])
     lines = [
         "# Ejercicio 3: qué aporta cada cambio", "",
         f"Cada fila cambia **una sola cosa** respecto de la anterior y se mide sobre "

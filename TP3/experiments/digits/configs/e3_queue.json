@@ -1,0 +1,8 @@
+{
+  "output": {"directory": "reports/digits_e3_queue"},
+  "jobs": [
+    {"name": "balance_augment_factorial", "module": "experiments.digits.ablation", "config": "experiments/digits/configs/e3_factorial.json"},
+    {"name": "expanded_data_architectures", "module": "experiments.digits.architecture_e3", "config": "experiments/digits/configs/e3_architectures.json"},
+    {"name": "noise_robustness", "module": "experiments.digits.noise_sweep", "config": "experiments/digits/configs/e3_noise.json"}
+  ]
+}
