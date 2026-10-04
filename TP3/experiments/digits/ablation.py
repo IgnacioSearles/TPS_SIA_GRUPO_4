@@ -72,6 +72,7 @@ DEFAULTS: dict[str, Any] = {
     # Ejercicio 2's winning configuration, held fixed so only the data changes.
     "model": {"layers": [784, 64, 32, 10], "activation": "tanh",
               "output_activation": "sigmoid", "initializer": "xavier"},
+    "loss": "mse",
     "optimizer": {"name": "momentum", "lr": 0.1, "momentum": 0.9},
     "training": {"epochs": 150, "batch_size": 128},
     "augmentation": {"max_rotation": 10.0, "max_scale": 0.1, "max_shift": 2.0, "sigma": 0.0},
@@ -168,7 +169,7 @@ def train_variant(variant: Variant, config: dict[str, Any], seed: int) -> dict[s
     rng = np.random.default_rng(seed)
     net = build_model(config["model"], rng)
     optimizer = build("optimizer", config["optimizer"])
-    loss = build("loss", "mse")
+    loss = build("loss", config["loss"])
     augmentation = config["augmentation"]
 
     Y_train = one_hot(variant.y_train)

@@ -1,0 +1,4 @@
+step,output_activation,loss,optimizer,seeds,validation_accuracy_mean,validation_accuracy_std,macro_f1_mean,train_accuracy_mean,median_best_epoch
+Referencia: sigmoide + MSE + momentum,sigmoid,mse,"{'name': 'momentum', 'lr': 0.1, 'momentum': 0.9}",3,0.9807482993197278,0.0009177372491994696,0.9750850451549403,0.9860570687418937,124.0
++ softmax y entropía cruzada,softmax,cross_entropy,"{'name': 'momentum', 'lr': 0.01, 'momentum': 0.9}",3,0.9836734693877552,0.0002886150127292065,0.9776820422371285,0.9908171206225681,129.0
++ Adam,softmax,cross_entropy,"{'name': 'adam', 'lr': 0.001}",3,0.9829251700680272,0.0002545345161070739,0.9781831768270365,0.9894941634241246,89.0
