@@ -37,6 +37,7 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+import pandas as pd
 
 from experiments.config import deep_merge, read_json
 from experiments.digits.ablation import (
@@ -102,6 +103,35 @@ def choose_learning_rate(variant, config: dict[str, Any], changes: dict[str, Any
     return best["lr"], trials
 
 
+def top_label_calibration(labels: np.ndarray, outputs: np.ndarray, n_bins: int = 10):
+    """Top-score reliability diagnostics; sigmoid scores are a proxy, not probabilities."""
+    confidence = outputs.max(axis=1)
+    predicted = outputs.argmax(axis=1)
+    correct = (predicted == labels).astype(float)
+    bins = []
+    ece = 0.0
+    for index in range(n_bins):
+        lower, upper = index / n_bins, (index + 1) / n_bins
+        mask = ((confidence >= lower) & (confidence < upper)
+                if index < n_bins - 1 else (confidence >= lower) & (confidence <= upper))
+        count = int(mask.sum())
+        if count:
+            mean_confidence = float(confidence[mask].mean())
+            accuracy = float(correct[mask].mean())
+            ece += count / len(labels) * abs(mean_confidence - accuracy)
+        else:
+            mean_confidence = accuracy = None
+        bins.append({"bin": index, "lower": lower, "upper": upper, "count": count,
+                     "mean_confidence": mean_confidence, "accuracy": accuracy})
+    errors = ~correct.astype(bool)
+    return {
+        "top_label_ece": float(ece),
+        "mean_top_score_on_errors": float(confidence[errors].mean()) if errors.any() else None,
+        "error_fraction_with_top_score_ge_0_99": float(np.mean(confidence[errors] >= 0.99)) if errors.any() else None,
+        "bins": bins,
+    }
+
+
 def winning_variant(config: dict[str, Any]):
     """Training data of the data ablation's last row: both files, balanced, augmented."""
     data = merge_digit_files(config["files"])
@@ -136,27 +166,73 @@ def run_study(config: dict[str, Any]) -> dict[str, Any]:
     config = merge_config(deep_merge(DEFAULTS, config))
     variant = winning_variant(config)
     validation_rows = variant.validation_rows
+    output = Path(config["output"]["directory"])
+    output.mkdir(parents=True, exist_ok=True)
+    selected_indices = config.get("study", {}).get("rows", list(range(len(ROWS))))
+    specs = [(index, ROWS[index]) for index in selected_indices]
 
-    rows, runs, lr_search, models, histories = [], [], [], {}, {}
-    for spec in ROWS:
-        if spec["learning_rates"]:
-            lr, trials = choose_learning_rate(variant, config, spec["changes"], spec["learning_rates"])
+    rows, runs, lr_search, models, histories, calibration_bins = [], [], [], {}, {}, []
+    for row_index, spec in specs:
+        fixed_lr = config.get("study", {}).get("fixed_learning_rates", {}).get(spec["name"])
+        if spec["learning_rates"] and fixed_lr is None:
+            grid = config.get("study", {}).get("learning_rate_grids", {}).get(
+                spec["name"], spec["learning_rates"])
+            lr, trials = choose_learning_rate(variant, config, spec["changes"], grid)
             lr_search.extend({"step": spec["name"], **trial} for trial in trials)
             print(f"{spec['name']}: lr {lr} " + ", ".join(
                 f"{t['lr']}: {100 * t['validation_accuracy']:.2f} %" for t in trials))
+        elif spec["learning_rates"]:
+            lr = float(fixed_lr)
+            print(f"{spec['name']}: lr {lr} (reutilizada del estudio previo)", flush=True)
         else:
             lr = None
         training_config = row_config(config, spec["changes"], lr)
 
-        per_seed = [train_variant(variant, training_config, seed) for seed in config["seeds"]]
+        per_seed = []
+        for seed in config["seeds"]:
+            run_dir = output / "runs" / f"row_{row_index:02d}" / f"seed_{seed}"
+            protocol = {"row_index": row_index, "step": spec["name"], "seed": seed,
+                        "training_config": training_config, "validation_samples": len(validation_rows)}
+            protocol_path, summary_path = run_dir / "protocol.json", run_dir / "summary.json"
+            weights_path, history_path = run_dir / "best_weights.npz", run_dir / "history.csv"
+            if all(path.exists() for path in (protocol_path, summary_path, weights_path, history_path)):
+                if json.loads(protocol_path.read_text(encoding="utf-8")) != protocol:
+                    raise ValueError(f"Saved run protocol differs in {run_dir}; use a new output directory")
+                saved = json.loads(summary_path.read_text(encoding="utf-8"))
+                net = build_model(training_config["model"], np.random.default_rng(seed))
+                load_weights(net, weights_path)
+                per_seed.append({"net": net, "best": saved["best"], "epochs_ran": saved["epochs_ran"],
+                                 "train_accuracy": saved["train_accuracy"],
+                                 "history": pd.read_csv(history_path).to_dict("records")})
+                print(f"{spec['name']} seed={seed}: reutiliza corrida guardada", flush=True)
+            else:
+                result = train_variant(variant, training_config, seed)
+                run_dir.mkdir(parents=True, exist_ok=True)
+                save_weights(result["net"], weights_path)
+                pd.DataFrame(result["history"]).to_csv(history_path, index=False)
+                protocol_path.write_text(json.dumps(protocol, indent=2, ensure_ascii=False) + "\n",
+                                         encoding="utf-8")
+                summary_path.write_text(json.dumps({key: result[key] for key in
+                    ("best", "epochs_ran", "train_accuracy")}, indent=2, ensure_ascii=False) + "\n",
+                    encoding="utf-8")
+                per_seed.append(result)
         accuracies = [result["best"]["accuracy"] for result in per_seed]
         models[spec["name"]] = per_seed[int(np.argmax(accuracies))]
         histories[spec["name"]] = models[spec["name"]]["history"]
+        calibration = []
         for seed, result in zip(config["seeds"], per_seed):
+            diagnostics = top_label_calibration(variant.y_validation,
+                                                result["net"].forward(variant.X_validation))
+            calibration.append(diagnostics)
+            calibration_bins.extend({"step": spec["name"], "seed": seed, **entry}
+                                    for entry in diagnostics["bins"])
             runs.append({"step": spec["name"], "seed": seed, "best_epoch": result["best"]["epoch"],
                          "train_accuracy": result["train_accuracy"],
                          "validation_accuracy": result["best"]["accuracy"],
-                         "validation_macro_f1": result["best"]["macro_f1"]})
+                         "validation_macro_f1": result["best"]["macro_f1"],
+                         "top_label_ece": diagnostics["top_label_ece"],
+                         "mean_top_score_on_errors": diagnostics["mean_top_score_on_errors"],
+                         "error_fraction_top_score_ge_0_99": diagnostics["error_fraction_with_top_score_ge_0_99"]})
         rows.append({
             "step": spec["name"],
             "output_activation": training_config["model"]["output_activation"],
@@ -166,6 +242,13 @@ def run_study(config: dict[str, Any]) -> dict[str, Any]:
             "validation_accuracy_mean": float(np.mean(accuracies)),
             "validation_accuracy_std": float(np.std(accuracies)),
             "macro_f1_mean": float(np.mean([r["best"]["macro_f1"] for r in per_seed])),
+            "top_label_ece_mean": float(np.mean([item["top_label_ece"] for item in calibration])),
+            "top_label_ece_std": float(np.std([item["top_label_ece"] for item in calibration])),
+            "mean_top_score_on_errors": float(np.mean([item["mean_top_score_on_errors"] for item in calibration
+                                                       if item["mean_top_score_on_errors"] is not None])),
+            "error_fraction_top_score_ge_0_99": float(np.mean([
+                item["error_fraction_with_top_score_ge_0_99"] for item in calibration
+                if item["error_fraction_with_top_score_ge_0_99"] is not None])),
             "train_accuracy_mean": float(np.mean([r["train_accuracy"] for r in per_seed])),
             "median_best_epoch": float(np.median([r["best"]["epoch"] for r in per_seed])),
         })
@@ -174,7 +257,7 @@ def run_study(config: dict[str, Any]) -> dict[str, Any]:
     winner = max(rows, key=lambda row: row["validation_accuracy_mean"])
     return {"config": config, "rows": rows, "runs": runs, "lr_search": lr_search,
             "winner": winner["step"], "validation_samples": int(len(validation_rows)),
-            "histories": histories, "_models": models}
+            "histories": histories, "calibration_bins": calibration_bins, "_models": models}
 
 
 def merge_lr_searches(lr_search: list[dict[str, Any]], output: Path) -> list[dict[str, Any]]:
@@ -192,11 +275,15 @@ def merge_lr_searches(lr_search: list[dict[str, Any]], output: Path) -> list[dic
     return sorted(unique.values(), key=lambda trial: (order.get(trial["step"], len(order)), trial["lr"]))
 
 
-def reference_note(reference: dict[str, Any], summary_path: Path = DATA_ABLATION_SUMMARY) -> list[str]:
+def reference_note(reference: dict[str, Any], config: dict[str, Any],
+                   summary_path: Path = DATA_ABLATION_SUMMARY) -> list[str]:
     """A paragraph explaining why the reference row differs from the data ablation's winner, if it does."""
     if not summary_path.exists():
         return []
-    previous = json.loads(summary_path.read_text(encoding="utf-8"))["rows"][-1]
+    saved = json.loads(summary_path.read_text(encoding="utf-8"))
+    if saved.get("config", {}).get("model", {}).get("layers") != config["model"]["layers"]:
+        return []
+    previous = saved["rows"][-1]
     gap = 100 * abs(reference["validation_accuracy_mean"] - previous["validation_accuracy_mean"])
     if gap < 0.005:
         return []
@@ -235,6 +322,34 @@ def evaluate_saved_winner(output: Path) -> dict[str, Any]:
     return test
 
 
+def _plot_calibration(calibration_bins: list[dict[str, Any]], output: Path) -> None:
+    """Plot pooled validation reliability curves, with each seed contributing equally by rows."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    import pandas as pd
+
+    frame = pd.DataFrame(calibration_bins)
+    fig, ax = plt.subplots(figsize=(6, 6))
+    ax.plot([0, 1], [0, 1], linestyle="--", color="black", label="calibración ideal")
+    for step, group in frame.groupby("step", sort=False):
+        present = group[group["count"] > 0].copy()
+        present["confidence_weighted"] = present["mean_confidence"] * present["count"]
+        present["accuracy_weighted"] = present["accuracy"] * present["count"]
+        pooled = present.groupby("bin").agg(count=("count", "sum"),
+                                             confidence=("confidence_weighted", "sum"),
+                                             accuracy=("accuracy_weighted", "sum"))
+        ax.plot(pooled.confidence / pooled["count"], pooled.accuracy / pooled["count"],
+                marker="o", label=step)
+    ax.set(xlim=(0, 1), ylim=(0, 1), xlabel="Score máximo promedio",
+           ylabel="Frecuencia de acierto", title="Confiabilidad en validación")
+    ax.grid(alpha=0.25)
+    ax.legend(fontsize=8)
+    fig.tight_layout()
+    fig.savefig(output / "validation_reliability.png", dpi=160)
+    plt.close(fig)
+
+
 def write_report(result: dict[str, Any], output: str | Path, test: dict[str, Any] | None = None) -> Path:
     """Write tables, summary and report. Without `histories` (a rewrite from summary.json),
     the existing validation-curve figure is kept."""
@@ -250,6 +365,9 @@ def write_report(result: dict[str, Any], output: str | Path, test: dict[str, Any
     pd.DataFrame(rows).to_csv(output / "comparison.csv", index=False)
     pd.DataFrame(result["runs"]).to_csv(output / "runs.csv", index=False)
     pd.DataFrame(result["lr_search"]).to_csv(output / "lr_search.csv", index=False)
+    if result.get("calibration_bins"):
+        pd.DataFrame(result["calibration_bins"]).to_csv(output / "calibration_bins.csv", index=False)
+        _plot_calibration(result["calibration_bins"], output)
     serializable = {key: value for key, value in result.items() if key not in ("_models", "histories")}
     if test is not None:
         serializable["test"] = test
@@ -269,24 +387,37 @@ def write_report(result: dict[str, Any], output: str | Path, test: dict[str, Any
         plt.close(fig)
 
     config = result["config"]
+    study_options = config.get("study", {})
+    fixed_rates = study_options.get("fixed_learning_rates", {})
+    if fixed_rates:
+        rate_note = "Las tasas de las variantes softmax/Adam se reutilizan del estudio previo " \
+                    "con arquitectura [784,64,32,10]; no se vuelven a optimizar aquí."
+    else:
+        rate_note = (f"Las variantes que cambian la pérdida o el optimizador seleccionan su tasa "
+                     f"con una corrida corta ({config['lr_search_epochs']} épocas) sobre validación.")
     lines = [
         "# Ejercicio 3: qué aporta cambiar cómo aprende la red", "",
         f"Mismos datos en todas las filas (ambos archivos, balanceados y con imágenes "
         f"desplazadas y rotadas) y **el mismo conjunto de validación** "
         f"({result['validation_samples']} imágenes). Cada fila agrega un cambio a la anterior y "
         f"se entrena con {len(config['seeds'])} semillas y {config['training']['epochs']} épocas.", "",
-        f"Las filas que cambian la pérdida o el optimizador eligen primero su tasa de aprendizaje "
-        f"con una corrida corta ({config['lr_search_epochs']} épocas, semilla {config['seeds'][0]}) "
-        f"sobre la misma validación.", "",
-        "| Paso | Salida | Pérdida | Optimizador | η | Accuracy de validación | F1 macro |",
-        "| --- | --- | --- | --- | ---: | ---: | ---: |",
+        rate_note, "",
+        "| Paso | Salida | Pérdida | Optimizador | η | Accuracy validación | F1 macro | ECE top-score* | Score medio en errores |",
+        "| --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: |",
     ]
     for row in rows:
         lines.append(
             f"| {row['step']} | {row['output_activation']} | {row['loss']} | {row['optimizer']['name']} | "
             f"{row['optimizer']['lr']} | {_percent(row['validation_accuracy_mean'])} ± "
-            f"{_number(100 * row['validation_accuracy_std'])} | {_number(row['macro_f1_mean'], 4)} |")
-    lines += ["", *reference_note(rows[0])]
+            f"{_number(100 * row['validation_accuracy_std'])} | {_number(row['macro_f1_mean'], 4)} | "
+            f"{_number(row.get('top_label_ece_mean'), 4)} ± {_number(row.get('top_label_ece_std'), 4)} | "
+            f"{_number(row.get('mean_top_score_on_errors'), 4)} |")
+    lines += ["", "*ECE compara el score máximo con la frecuencia de acierto en 10 bins. Para softmax es "
+              "una medida de calibración top-label; para salidas sigmoides independientes, el score máximo "
+              "es solo un proxy diagnóstico, no una probabilidad categórica.", "",
+              "`mean_top_score_on_errors` resume cuán alto es el score asignado a la clase predicha cuando "
+              "el modelo se equivoca. Ninguna de estas métricas se calcula sobre el test.", "",
+              *reference_note(rows[0], result["config"])]
     lines += ["## Búsqueda de tasa de aprendizaje", "", "| Paso | η | Accuracy de validación |",
               "| --- | ---: | ---: |"]
     lines += [f"| {t['step']} | {t['lr']} | {_percent(t['validation_accuracy'])} |" for t in result["lr_search"]]

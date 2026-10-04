@@ -1,0 +1,79 @@
+{
+  "architecture": [
+    784,
+    128,
+    128,
+    10
+  ],
+  "model_selection": "existing E3 validation study",
+  "source": "fixed E3 validation split; correct cases and confident misclassifications",
+  "validation_samples": 4900,
+  "validation_accuracy": 0.9875510204081632,
+  "validation_macro_f1": 0.9844236371653127,
+  "correct_examples_analyzed": 10,
+  "error_examples_analyzed": 19,
+  "methods": [
+    "absolute input gradient of predicted-class score margin",
+    "change in predicted-class score margin after zeroing 4x4 pixel patches"
+  ],
+  "correct_case_reference": "runner-up class",
+  "error_case_reference": "true class",
+  "largest_validation_confusions": [
+    {
+      "true": 2,
+      "predicted": 7,
+      "count": 5
+    },
+    {
+      "true": 9,
+      "predicted": 7,
+      "count": 4
+    },
+    {
+      "true": 4,
+      "predicted": 6,
+      "count": 3
+    },
+    {
+      "true": 4,
+      "predicted": 9,
+      "count": 3
+    },
+    {
+      "true": 9,
+      "predicted": 0,
+      "count": 3
+    },
+    {
+      "true": 0,
+      "predicted": 6,
+      "count": 2
+    },
+    {
+      "true": 1,
+      "predicted": 3,
+      "count": 2
+    },
+    {
+      "true": 1,
+      "predicted": 6,
+      "count": 2
+    },
+    {
+      "true": 2,
+      "predicted": 1,
+      "count": 2
+    },
+    {
+      "true": 2,
+      "predicted": 3,
+      "count": 2
+    }
+  ],
+  "uses_digits_test": false,
+  "limitations": [
+    "Attributions describe this trained model, not causal evidence about handwriting.",
+    "Input gradients are local and can be noisy; occlusion depends on the zero-pixel baseline and patch size.",
+    "The examples are selected from validation, which was also used for model selection; they illustrate model behavior, not an independent performance estimate."
+  ]
+}

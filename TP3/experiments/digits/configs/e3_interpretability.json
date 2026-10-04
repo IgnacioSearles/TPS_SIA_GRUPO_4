@@ -1,0 +1,7 @@
+{
+  "architecture_study": "reports/digits_e3_architectures",
+  "correct_examples_per_class": 1,
+  "errors_per_true_class": 2,
+  "occlusion_patch_size": 4,
+  "output": {"directory": "reports/digits_e3_interpretability"}
+}
