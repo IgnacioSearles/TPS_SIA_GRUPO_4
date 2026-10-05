@@ -162,12 +162,15 @@ def _plot_learning_rates(history: pd.DataFrame, output: Path) -> None:
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    grouped = history.groupby(["learning_rate", "epoch"])["validation_rmse"]
-    means = grouped.mean().reset_index()
+    # Mean across folds, with a ±1 std band so the spread between folds is visible.
+    stats = history.groupby(["learning_rate", "epoch"])["validation_rmse"].agg(["mean", "std"]).reset_index()
     fig, axis = plt.subplots(figsize=(9, 5))
-    for rate, rows in means.groupby("learning_rate"):
-        axis.plot(rows["epoch"], rows["validation_rmse"], label=f"lr={rate:g}")
-    axis.set(xlabel="Época", ylabel="RMSE validación", title="Efecto del learning rate (K-Fold)")
+    for rate, rows in stats.groupby("learning_rate"):
+        line, = axis.plot(rows["epoch"], rows["mean"], label=f"lr={rate:g}")
+        axis.fill_between(rows["epoch"], rows["mean"] - rows["std"], rows["mean"] + rows["std"],
+                          color=line.get_color(), alpha=0.2, linewidth=0)
+    axis.set(xlabel="Época", ylabel="RMSE validación (media ± desvío entre folds)",
+             title="Efecto del learning rate (K-Fold)")
     axis.grid(alpha=0.25)
     axis.legend(ncol=2)
     fig.tight_layout()
@@ -181,8 +184,9 @@ def _plot_initialization(summary: pd.DataFrame, output: Path) -> None:
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    grouped = summary.groupby("initialization")[["initial_validation_rmse", "final_validation_rmse"]].mean()
-    ax = grouped.plot.bar(figsize=(8, 5), color=["#ed7d31", "#4472c4"])
+    columns = ["initial_validation_rmse", "final_validation_rmse"]
+    grouped = summary.groupby("initialization")[columns]
+    ax = grouped.mean().plot.bar(figsize=(8, 5), yerr=grouped.std(), capsize=4, color=["#ed7d31", "#4472c4"])
     ax.set(xlabel="Inicialización", ylabel="RMSE validación", title="Inicialización aleatoria vs. guiada (K-Fold)")
     ax.grid(axis="y", alpha=0.25)
     ax.legend(["Inicial", "Final"])
@@ -197,12 +201,14 @@ def _plot_initialization_curves(history: pd.DataFrame, output: Path) -> None:
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    grouped = history.groupby(["initialization", "epoch"])["validation_rmse"]
-    means = grouped.mean().reset_index()
+    stats = history.groupby(["initialization", "epoch"])["validation_rmse"].agg(["mean", "std"]).reset_index()
     fig, axis = plt.subplots(figsize=(8, 5))
-    for name, rows in means.groupby("initialization"):
-        axis.plot(rows["epoch"], rows["validation_rmse"], label=name)
-    axis.set(xlabel="Época", ylabel="RMSE validación", title="Progreso según inicialización (K-Fold)")
+    for name, rows in stats.groupby("initialization"):
+        line, = axis.plot(rows["epoch"], rows["mean"], label=name)
+        axis.fill_between(rows["epoch"], rows["mean"] - rows["std"], rows["mean"] + rows["std"],
+                          color=line.get_color(), alpha=0.2, linewidth=0)
+    axis.set(xlabel="Época", ylabel="RMSE validación (media ± desvío entre folds)",
+             title="Progreso según inicialización (K-Fold)")
     axis.grid(alpha=0.25)
     axis.legend()
     fig.tight_layout()

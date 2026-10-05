@@ -178,7 +178,12 @@ def test_training_ablation_report_merges_searches_and_explains_the_reference(tmp
         (softmax, 0.003), (softmax, 0.01), (softmax, 0.1), (ROWS[2]["name"], 0.001)]
 
     summary = tmp_path / "summary.json"
-    summary.write_text(json.dumps({"rows": [{"validation_accuracy_mean": 0.9813}]}), encoding="utf-8")
-    assert "98,13 %" in reference_note({"validation_accuracy_mean": 0.9807}, summary)[0]
-    assert reference_note({"validation_accuracy_mean": 0.9813}, summary) == []
-    assert reference_note({"validation_accuracy_mean": 0.9807}, tmp_path / "missing.json") == []
+    small = {"model": {"layers": [784, 64, 32, 10]}}
+    summary.write_text(json.dumps({"config": small, "rows": [{"validation_accuracy_mean": 0.9813}]}),
+                       encoding="utf-8")
+    assert "98,13 %" in reference_note({"validation_accuracy_mean": 0.9807}, small, summary)[0]
+    assert reference_note({"validation_accuracy_mean": 0.9813}, small, summary) == []
+    assert reference_note({"validation_accuracy_mean": 0.9807}, small, tmp_path / "missing.json") == []
+    # A study on another architecture is not comparable, so no note.
+    wide = {"model": {"layers": [784, 128, 128, 10]}}
+    assert reference_note({"validation_accuracy_mean": 0.9807}, wide, summary) == []

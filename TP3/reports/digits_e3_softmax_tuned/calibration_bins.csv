@@ -1,0 +1,101 @@
+step,seed,bin,lower,upper,count,mean_confidence,accuracy
+Referencia: sigmoide + MSE + momentum,42,0,0.0,0.1,3,0.06368711523584382,1.0
+Referencia: sigmoide + MSE + momentum,42,1,0.1,0.2,9,0.16370882508466109,0.6666666666666666
+Referencia: sigmoide + MSE + momentum,42,2,0.2,0.3,13,0.25089825125223153,0.6923076923076923
+Referencia: sigmoide + MSE + momentum,42,3,0.3,0.4,11,0.3542167088480036,0.6363636363636364
+Referencia: sigmoide + MSE + momentum,42,4,0.4,0.5,21,0.4565279661825702,0.6190476190476191
+Referencia: sigmoide + MSE + momentum,42,5,0.5,0.6,22,0.5537602993338446,0.8636363636363636
+Referencia: sigmoide + MSE + momentum,42,6,0.6,0.7,42,0.6608929255061617,0.7380952380952381
+Referencia: sigmoide + MSE + momentum,42,7,0.7,0.8,43,0.7555405136346897,0.9069767441860465
+Referencia: sigmoide + MSE + momentum,42,8,0.8,0.9,76,0.8619865187320364,0.868421052631579
+Referencia: sigmoide + MSE + momentum,42,9,0.9,1.0,4660,0.9956173501920739,0.996137339055794
+Referencia: sigmoide + MSE + momentum,7,0,0.0,0.1,0,,
+Referencia: sigmoide + MSE + momentum,7,1,0.1,0.2,5,0.1665111347444615,0.2
+Referencia: sigmoide + MSE + momentum,7,2,0.2,0.3,9,0.25492282299897145,0.6666666666666666
+Referencia: sigmoide + MSE + momentum,7,3,0.3,0.4,7,0.35980869951608846,0.7142857142857143
+Referencia: sigmoide + MSE + momentum,7,4,0.4,0.5,20,0.45276493775186644,0.7
+Referencia: sigmoide + MSE + momentum,7,5,0.5,0.6,24,0.550765803164446,0.6666666666666666
+Referencia: sigmoide + MSE + momentum,7,6,0.6,0.7,27,0.6646942633992547,0.6296296296296297
+Referencia: sigmoide + MSE + momentum,7,7,0.7,0.8,41,0.7569233862181587,0.8292682926829268
+Referencia: sigmoide + MSE + momentum,7,8,0.8,0.9,60,0.8603655085622779,0.9
+Referencia: sigmoide + MSE + momentum,7,9,0.9,1.0,4707,0.996110970888493,0.9951136605056299
+Referencia: sigmoide + MSE + momentum,21,0,0.0,0.1,0,,
+Referencia: sigmoide + MSE + momentum,21,1,0.1,0.2,3,0.1509687119681661,0.0
+Referencia: sigmoide + MSE + momentum,21,2,0.2,0.3,8,0.2595623576106837,0.25
+Referencia: sigmoide + MSE + momentum,21,3,0.3,0.4,16,0.3479359133043286,0.8125
+Referencia: sigmoide + MSE + momentum,21,4,0.4,0.5,11,0.4494459530007765,0.7272727272727273
+Referencia: sigmoide + MSE + momentum,21,5,0.5,0.6,19,0.549352977168979,0.5789473684210527
+Referencia: sigmoide + MSE + momentum,21,6,0.6,0.7,25,0.6521061254403777,0.68
+Referencia: sigmoide + MSE + momentum,21,7,0.7,0.8,36,0.7563870925991998,0.6388888888888888
+Referencia: sigmoide + MSE + momentum,21,8,0.8,0.9,67,0.8531973920792588,0.8656716417910447
+Referencia: sigmoide + MSE + momentum,21,9,0.9,1.0,4715,0.9961382828606664,0.9968186638388123
+Referencia: sigmoide + MSE + momentum,11,0,0.0,0.1,1,0.08627939235261313,1.0
+Referencia: sigmoide + MSE + momentum,11,1,0.1,0.2,7,0.14230566889639204,0.7142857142857143
+Referencia: sigmoide + MSE + momentum,11,2,0.2,0.3,13,0.2328246926397356,0.5384615384615384
+Referencia: sigmoide + MSE + momentum,11,3,0.3,0.4,8,0.33282539454783766,0.625
+Referencia: sigmoide + MSE + momentum,11,4,0.4,0.5,13,0.46060153128885706,0.6923076923076923
+Referencia: sigmoide + MSE + momentum,11,5,0.5,0.6,14,0.5602274135370273,0.35714285714285715
+Referencia: sigmoide + MSE + momentum,11,6,0.6,0.7,27,0.645072079274766,0.7777777777777778
+Referencia: sigmoide + MSE + momentum,11,7,0.7,0.8,33,0.7538178111303793,0.696969696969697
+Referencia: sigmoide + MSE + momentum,11,8,0.8,0.9,68,0.8507049341232659,0.8676470588235294
+Referencia: sigmoide + MSE + momentum,11,9,0.9,1.0,4716,0.9963364360177754,0.996607294317218
+Referencia: sigmoide + MSE + momentum,2025,0,0.0,0.1,3,0.05926634700388848,0.6666666666666666
+Referencia: sigmoide + MSE + momentum,2025,1,0.1,0.2,7,0.15624683577711654,0.5714285714285714
+Referencia: sigmoide + MSE + momentum,2025,2,0.2,0.3,9,0.24530696503345384,0.7777777777777778
+Referencia: sigmoide + MSE + momentum,2025,3,0.3,0.4,9,0.35552164520087737,0.6666666666666666
+Referencia: sigmoide + MSE + momentum,2025,4,0.4,0.5,10,0.44453547670947663,0.6
+Referencia: sigmoide + MSE + momentum,2025,5,0.5,0.6,14,0.551856242476503,0.8571428571428571
+Referencia: sigmoide + MSE + momentum,2025,6,0.6,0.7,18,0.6389981319144628,0.7222222222222222
+Referencia: sigmoide + MSE + momentum,2025,7,0.7,0.8,45,0.7502979339642925,0.8444444444444444
+Referencia: sigmoide + MSE + momentum,2025,8,0.8,0.9,82,0.8581494689328699,0.8780487804878049
+Referencia: sigmoide + MSE + momentum,2025,9,0.9,1.0,4703,0.9961365120142952,0.9948968743355305
++ softmax y entropía cruzada,42,0,0.0,0.1,0,,
++ softmax y entropía cruzada,42,1,0.1,0.2,0,,
++ softmax y entropía cruzada,42,2,0.2,0.3,0,,
++ softmax y entropía cruzada,42,3,0.3,0.4,0,,
++ softmax y entropía cruzada,42,4,0.4,0.5,5,0.4676895286359562,0.2
++ softmax y entropía cruzada,42,5,0.5,0.6,30,0.5584952954564948,0.6
++ softmax y entropía cruzada,42,6,0.6,0.7,20,0.6564009501829123,0.55
++ softmax y entropía cruzada,42,7,0.7,0.8,29,0.7463703101922904,0.896551724137931
++ softmax y entropía cruzada,42,8,0.8,0.9,62,0.8625038999355792,0.8225806451612904
++ softmax y entropía cruzada,42,9,0.9,1.0,4754,0.9977740902933746,0.9955826672275978
++ softmax y entropía cruzada,7,0,0.0,0.1,0,,
++ softmax y entropía cruzada,7,1,0.1,0.2,0,,
++ softmax y entropía cruzada,7,2,0.2,0.3,1,0.2868352314491666,1.0
++ softmax y entropía cruzada,7,3,0.3,0.4,1,0.3959054272442213,1.0
++ softmax y entropía cruzada,7,4,0.4,0.5,3,0.47055814353253983,0.6666666666666666
++ softmax y entropía cruzada,7,5,0.5,0.6,14,0.5472940297005489,0.5
++ softmax y entropía cruzada,7,6,0.6,0.7,27,0.6677472142036227,0.6296296296296297
++ softmax y entropía cruzada,7,7,0.7,0.8,33,0.7566134449538529,0.7878787878787878
++ softmax y entropía cruzada,7,8,0.8,0.9,53,0.8562011384834671,0.7924528301886793
++ softmax y entropía cruzada,7,9,0.9,1.0,4768,0.9979753043340447,0.9953859060402684
++ softmax y entropía cruzada,21,0,0.0,0.1,0,,
++ softmax y entropía cruzada,21,1,0.1,0.2,0,,
++ softmax y entropía cruzada,21,2,0.2,0.3,0,,
++ softmax y entropía cruzada,21,3,0.3,0.4,0,,
++ softmax y entropía cruzada,21,4,0.4,0.5,7,0.4705493380280685,0.14285714285714285
++ softmax y entropía cruzada,21,5,0.5,0.6,15,0.5398906698161502,0.7333333333333333
++ softmax y entropía cruzada,21,6,0.6,0.7,20,0.6487369023400849,0.6
++ softmax y entropía cruzada,21,7,0.7,0.8,28,0.748148460433167,0.5357142857142857
++ softmax y entropía cruzada,21,8,0.8,0.9,45,0.8551952594580372,0.8222222222222222
++ softmax y entropía cruzada,21,9,0.9,1.0,4785,0.9978042607132971,0.9958202716823407
++ softmax y entropía cruzada,11,0,0.0,0.1,0,,
++ softmax y entropía cruzada,11,1,0.1,0.2,0,,
++ softmax y entropía cruzada,11,2,0.2,0.3,0,,
++ softmax y entropía cruzada,11,3,0.3,0.4,0,,
++ softmax y entropía cruzada,11,4,0.4,0.5,8,0.4741258857308476,0.375
++ softmax y entropía cruzada,11,5,0.5,0.6,21,0.5397503218872827,0.5714285714285714
++ softmax y entropía cruzada,11,6,0.6,0.7,28,0.6437326885334481,0.75
++ softmax y entropía cruzada,11,7,0.7,0.8,28,0.7479372570094655,0.7857142857142857
++ softmax y entropía cruzada,11,8,0.8,0.9,53,0.8539120007587139,0.7547169811320755
++ softmax y entropía cruzada,11,9,0.9,1.0,4762,0.9980025926679228,0.995170096598068
++ softmax y entropía cruzada,2025,0,0.0,0.1,0,,
++ softmax y entropía cruzada,2025,1,0.1,0.2,0,,
++ softmax y entropía cruzada,2025,2,0.2,0.3,0,,
++ softmax y entropía cruzada,2025,3,0.3,0.4,0,,
++ softmax y entropía cruzada,2025,4,0.4,0.5,6,0.4700520207867112,0.3333333333333333
++ softmax y entropía cruzada,2025,5,0.5,0.6,21,0.5447723163925652,0.5714285714285714
++ softmax y entropía cruzada,2025,6,0.6,0.7,29,0.6604809581569863,0.7586206896551724
++ softmax y entropía cruzada,2025,7,0.7,0.8,41,0.7544294687820811,0.6585365853658537
++ softmax y entropía cruzada,2025,8,0.8,0.9,59,0.8577767407474468,0.8135593220338984
++ softmax y entropía cruzada,2025,9,0.9,1.0,4744,0.9980332989420331,0.9970489038785835

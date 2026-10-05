@@ -53,5 +53,9 @@
   "results__digits_l2__l2_comparison.png": "results/digits_l2/l2_comparison.png",
   "results__digits_relu_depth__gradient_profile.png": "results/digits_relu_depth/gradient_profile.png",
   "results__digits_relu_depth__depth_comparison.png": "results/digits_relu_depth/depth_comparison.png",
-  "reports__digits_e3_l2__l2_e3_validation.png": "reports/digits_e3_l2/l2_e3_validation.png"
+  "reports__digits_e3_l2__l2_e3_validation.png": "reports/digits_e3_l2/l2_e3_validation.png",
+  "reports__presentation__ej2_learning_rates.png": "reports/presentation/ej2_learning_rates.png",
+  "reports__presentation__ej2_optimizadores_curvas.png": "reports/presentation/ej2_optimizadores_curvas.png",
+  "reports__presentation__ej3_softmax_validacion_vs_test.png": "reports/presentation/ej3_softmax_validacion_vs_test.png",
+  "reports__presentation__ej3_softmax_comparison.png": "reports/presentation/ej3_softmax_comparison.png"
 }

@@ -1,0 +1,1256 @@
+{
+  "config": {
+    "files": [
+      "datasets/digits.csv",
+      "datasets/more_digits.csv"
+    ],
+    "baseline_files": [
+      "datasets/digits.csv"
+    ],
+    "test_file": "datasets/digits_test.csv",
+    "validation_ratio": 0.2,
+    "split_seed": 2026,
+    "seeds": [
+      42,
+      7,
+      21,
+      11,
+      2025
+    ],
+    "model": {
+      "layers": [
+        784,
+        128,
+        128,
+        10
+      ],
+      "activation": "tanh",
+      "output_activation": "sigmoid",
+      "initializer": "xavier"
+    },
+    "loss": "mse",
+    "optimizer": {
+      "name": "momentum",
+      "lr": 0.1,
+      "momentum": 0.9
+    },
+    "training": {
+      "epochs": 150,
+      "batch_size": 128,
+      "early_stopping": {
+        "patience": 50,
+        "min_delta": 0.0005
+      },
+      "record_train_accuracy": false,
+      "progress_every": 10
+    },
+    "augmentation": {
+      "max_rotation": 10.0,
+      "max_scale": 0.1,
+      "max_shift": 2.0,
+      "sigma": 0.0
+    },
+    "output": {
+      "directory": "reports/digits_e3_softmax_tuned"
+    },
+    "lr_search_epochs": 40,
+    "study": {
+      "rows": [
+        0,
+        1
+      ],
+      "learning_rate_grids": {
+        "+ softmax y entropía cruzada": [
+          0.003,
+          0.01,
+          0.03,
+          0.1
+        ]
+      }
+    }
+  },
+  "rows": [
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "output_activation": "sigmoid",
+      "loss": "mse",
+      "optimizer": {
+        "name": "momentum",
+        "lr": 0.1,
+        "momentum": 0.9
+      },
+      "seeds": 5,
+      "validation_accuracy_mean": 0.9866122448979591,
+      "validation_accuracy_std": 0.0005714285714285513,
+      "macro_f1_mean": 0.9827894361416405,
+      "top_label_ece_mean": 0.0057555197311019105,
+      "top_label_ece_std": 0.0013127338426849838,
+      "mean_top_score_on_errors": 0.6926582616932684,
+      "error_fraction_top_score_ge_0_99": 0.03651999754888523,
+      "train_accuracy_mean": 0.9954007782101166,
+      "median_best_epoch": 133.0
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "output_activation": "softmax",
+      "loss": "cross_entropy",
+      "optimizer": {
+        "name": "momentum",
+        "lr": 0.03,
+        "momentum": 0.9
+      },
+      "seeds": 5,
+      "validation_accuracy_mean": 0.9877959183673468,
+      "validation_accuracy_std": 0.0003511153170221523,
+      "macro_f1_mean": 0.9847000527067342,
+      "top_label_ece_mean": 0.004289100411867374,
+      "top_label_ece_std": 0.000626773142575329,
+      "mean_top_score_on_errors": 0.7801026633744177,
+      "error_fraction_top_score_ge_0_99": 0.09014351581271511,
+      "train_accuracy_mean": 0.9977354085603112,
+      "median_best_epoch": 123.0
+    }
+  ],
+  "runs": [
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 42,
+      "best_epoch": 106,
+      "train_accuracy": 0.9947859922178989,
+      "validation_accuracy": 0.986734693877551,
+      "validation_macro_f1": 0.9827943184364507,
+      "top_label_ece": 0.007974308574182801,
+      "mean_top_score_on_errors": 0.6787558654325644,
+      "error_fraction_top_score_ge_0_99": 0.03076923076923077
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 7,
+      "best_epoch": 133,
+      "train_accuracy": 0.995408560311284,
+      "validation_accuracy": 0.9859183673469388,
+      "validation_macro_f1": 0.9823402990245762,
+      "top_label_ece": 0.005115529740188902,
+      "mean_top_score_on_errors": 0.700632562253408,
+      "error_fraction_top_score_ge_0_99": 0.043478260869565216
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 21,
+      "best_epoch": 134,
+      "train_accuracy": 0.9955252918287938,
+      "validation_accuracy": 0.9861224489795918,
+      "validation_macro_f1": 0.98144348216734,
+      "top_label_ece": 0.0041942595050838884,
+      "mean_top_score_on_errors": 0.6715062911820074,
+      "error_fraction_top_score_ge_0_99": 0.029411764705882353
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 11,
+      "best_epoch": 130,
+      "train_accuracy": 0.9961867704280155,
+      "validation_accuracy": 0.986734693877551,
+      "validation_macro_f1": 0.9823308952539751,
+      "top_label_ece": 0.005096345815124338,
+      "mean_top_score_on_errors": 0.676377495754982,
+      "error_fraction_top_score_ge_0_99": 0.046153846153846156
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 2025,
+      "best_epoch": 140,
+      "train_accuracy": 0.9950972762645914,
+      "validation_accuracy": 0.9875510204081632,
+      "validation_macro_f1": 0.9850381858258599,
+      "top_label_ece": 0.006397155020929623,
+      "mean_top_score_on_errors": 0.7360190938433799,
+      "error_fraction_top_score_ge_0_99": 0.03278688524590164
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 42,
+      "best_epoch": 116,
+      "train_accuracy": 0.9975875486381323,
+      "validation_accuracy": 0.9877551020408163,
+      "validation_macro_f1": 0.9854536941549181,
+      "top_label_ece": 0.00448166037515828,
+      "mean_top_score_on_errors": 0.7740877070841362,
+      "error_fraction_top_score_ge_0_99": 0.06666666666666667
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 7,
+      "best_epoch": 148,
+      "train_accuracy": 0.9980544747081712,
+      "validation_accuracy": 0.9881632653061224,
+      "validation_macro_f1": 0.9859463372467374,
+      "top_label_ece": 0.004153784455282907,
+      "mean_top_score_on_errors": 0.8044697823268258,
+      "error_fraction_top_score_ge_0_99": 0.10344827586206896
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 21,
+      "best_epoch": 123,
+      "train_accuracy": 0.9975097276264592,
+      "validation_accuracy": 0.9879591836734694,
+      "validation_macro_f1": 0.9834559612423603,
+      "top_label_ece": 0.004713378458494441,
+      "mean_top_score_on_errors": 0.7811079963590841,
+      "error_fraction_top_score_ge_0_99": 0.1016949152542373
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 11,
+      "best_epoch": 140,
+      "train_accuracy": 0.9984824902723736,
+      "validation_accuracy": 0.9871428571428571,
+      "validation_macro_f1": 0.9840324770740614,
+      "top_label_ece": 0.004946362076708711,
+      "mean_top_score_on_errors": 0.7837332700508935,
+      "error_fraction_top_score_ge_0_99": 0.1111111111111111
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 2025,
+      "best_epoch": 107,
+      "train_accuracy": 0.9970428015564202,
+      "validation_accuracy": 0.9879591836734694,
+      "validation_macro_f1": 0.9846117938155936,
+      "top_label_ece": 0.0031503166936925316,
+      "mean_top_score_on_errors": 0.7571145610511494,
+      "error_fraction_top_score_ge_0_99": 0.06779661016949153
+    }
+  ],
+  "lr_search": [
+    {
+      "step": "+ softmax y entropía cruzada",
+      "lr": 0.003,
+      "validation_accuracy": 0.9657142857142857,
+      "best_epoch": 40
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "lr": 0.01,
+      "validation_accuracy": 0.9777551020408163,
+      "best_epoch": 40
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "lr": 0.03,
+      "validation_accuracy": 0.9840816326530613,
+      "best_epoch": 40
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "lr": 0.1,
+      "validation_accuracy": 0.9814285714285714,
+      "best_epoch": 40
+    }
+  ],
+  "winner": "+ softmax y entropía cruzada",
+  "validation_samples": 4900,
+  "calibration_bins": [
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 42,
+      "bin": 0,
+      "lower": 0.0,
+      "upper": 0.1,
+      "count": 3,
+      "mean_confidence": 0.06368711523584382,
+      "accuracy": 1.0
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 42,
+      "bin": 1,
+      "lower": 0.1,
+      "upper": 0.2,
+      "count": 9,
+      "mean_confidence": 0.16370882508466109,
+      "accuracy": 0.6666666666666666
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 42,
+      "bin": 2,
+      "lower": 0.2,
+      "upper": 0.3,
+      "count": 13,
+      "mean_confidence": 0.25089825125223153,
+      "accuracy": 0.6923076923076923
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 42,
+      "bin": 3,
+      "lower": 0.3,
+      "upper": 0.4,
+      "count": 11,
+      "mean_confidence": 0.3542167088480036,
+      "accuracy": 0.6363636363636364
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 42,
+      "bin": 4,
+      "lower": 0.4,
+      "upper": 0.5,
+      "count": 21,
+      "mean_confidence": 0.4565279661825702,
+      "accuracy": 0.6190476190476191
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 42,
+      "bin": 5,
+      "lower": 0.5,
+      "upper": 0.6,
+      "count": 22,
+      "mean_confidence": 0.5537602993338446,
+      "accuracy": 0.8636363636363636
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 42,
+      "bin": 6,
+      "lower": 0.6,
+      "upper": 0.7,
+      "count": 42,
+      "mean_confidence": 0.6608929255061617,
+      "accuracy": 0.7380952380952381
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 42,
+      "bin": 7,
+      "lower": 0.7,
+      "upper": 0.8,
+      "count": 43,
+      "mean_confidence": 0.7555405136346897,
+      "accuracy": 0.9069767441860465
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 42,
+      "bin": 8,
+      "lower": 0.8,
+      "upper": 0.9,
+      "count": 76,
+      "mean_confidence": 0.8619865187320364,
+      "accuracy": 0.868421052631579
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 42,
+      "bin": 9,
+      "lower": 0.9,
+      "upper": 1.0,
+      "count": 4660,
+      "mean_confidence": 0.9956173501920739,
+      "accuracy": 0.996137339055794
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 7,
+      "bin": 0,
+      "lower": 0.0,
+      "upper": 0.1,
+      "count": 0,
+      "mean_confidence": null,
+      "accuracy": null
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 7,
+      "bin": 1,
+      "lower": 0.1,
+      "upper": 0.2,
+      "count": 5,
+      "mean_confidence": 0.1665111347444615,
+      "accuracy": 0.2
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 7,
+      "bin": 2,
+      "lower": 0.2,
+      "upper": 0.3,
+      "count": 9,
+      "mean_confidence": 0.25492282299897145,
+      "accuracy": 0.6666666666666666
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 7,
+      "bin": 3,
+      "lower": 0.3,
+      "upper": 0.4,
+      "count": 7,
+      "mean_confidence": 0.35980869951608846,
+      "accuracy": 0.7142857142857143
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 7,
+      "bin": 4,
+      "lower": 0.4,
+      "upper": 0.5,
+      "count": 20,
+      "mean_confidence": 0.45276493775186644,
+      "accuracy": 0.7
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 7,
+      "bin": 5,
+      "lower": 0.5,
+      "upper": 0.6,
+      "count": 24,
+      "mean_confidence": 0.550765803164446,
+      "accuracy": 0.6666666666666666
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 7,
+      "bin": 6,
+      "lower": 0.6,
+      "upper": 0.7,
+      "count": 27,
+      "mean_confidence": 0.6646942633992547,
+      "accuracy": 0.6296296296296297
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 7,
+      "bin": 7,
+      "lower": 0.7,
+      "upper": 0.8,
+      "count": 41,
+      "mean_confidence": 0.7569233862181587,
+      "accuracy": 0.8292682926829268
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 7,
+      "bin": 8,
+      "lower": 0.8,
+      "upper": 0.9,
+      "count": 60,
+      "mean_confidence": 0.8603655085622779,
+      "accuracy": 0.9
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 7,
+      "bin": 9,
+      "lower": 0.9,
+      "upper": 1.0,
+      "count": 4707,
+      "mean_confidence": 0.996110970888493,
+      "accuracy": 0.9951136605056299
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 21,
+      "bin": 0,
+      "lower": 0.0,
+      "upper": 0.1,
+      "count": 0,
+      "mean_confidence": null,
+      "accuracy": null
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 21,
+      "bin": 1,
+      "lower": 0.1,
+      "upper": 0.2,
+      "count": 3,
+      "mean_confidence": 0.1509687119681661,
+      "accuracy": 0.0
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 21,
+      "bin": 2,
+      "lower": 0.2,
+      "upper": 0.3,
+      "count": 8,
+      "mean_confidence": 0.2595623576106837,
+      "accuracy": 0.25
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 21,
+      "bin": 3,
+      "lower": 0.3,
+      "upper": 0.4,
+      "count": 16,
+      "mean_confidence": 0.3479359133043286,
+      "accuracy": 0.8125
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 21,
+      "bin": 4,
+      "lower": 0.4,
+      "upper": 0.5,
+      "count": 11,
+      "mean_confidence": 0.4494459530007765,
+      "accuracy": 0.7272727272727273
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 21,
+      "bin": 5,
+      "lower": 0.5,
+      "upper": 0.6,
+      "count": 19,
+      "mean_confidence": 0.549352977168979,
+      "accuracy": 0.5789473684210527
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 21,
+      "bin": 6,
+      "lower": 0.6,
+      "upper": 0.7,
+      "count": 25,
+      "mean_confidence": 0.6521061254403777,
+      "accuracy": 0.68
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 21,
+      "bin": 7,
+      "lower": 0.7,
+      "upper": 0.8,
+      "count": 36,
+      "mean_confidence": 0.7563870925991998,
+      "accuracy": 0.6388888888888888
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 21,
+      "bin": 8,
+      "lower": 0.8,
+      "upper": 0.9,
+      "count": 67,
+      "mean_confidence": 0.8531973920792588,
+      "accuracy": 0.8656716417910447
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 21,
+      "bin": 9,
+      "lower": 0.9,
+      "upper": 1.0,
+      "count": 4715,
+      "mean_confidence": 0.9961382828606664,
+      "accuracy": 0.9968186638388123
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 11,
+      "bin": 0,
+      "lower": 0.0,
+      "upper": 0.1,
+      "count": 1,
+      "mean_confidence": 0.08627939235261313,
+      "accuracy": 1.0
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 11,
+      "bin": 1,
+      "lower": 0.1,
+      "upper": 0.2,
+      "count": 7,
+      "mean_confidence": 0.14230566889639204,
+      "accuracy": 0.7142857142857143
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 11,
+      "bin": 2,
+      "lower": 0.2,
+      "upper": 0.3,
+      "count": 13,
+      "mean_confidence": 0.2328246926397356,
+      "accuracy": 0.5384615384615384
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 11,
+      "bin": 3,
+      "lower": 0.3,
+      "upper": 0.4,
+      "count": 8,
+      "mean_confidence": 0.33282539454783766,
+      "accuracy": 0.625
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 11,
+      "bin": 4,
+      "lower": 0.4,
+      "upper": 0.5,
+      "count": 13,
+      "mean_confidence": 0.46060153128885706,
+      "accuracy": 0.6923076923076923
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 11,
+      "bin": 5,
+      "lower": 0.5,
+      "upper": 0.6,
+      "count": 14,
+      "mean_confidence": 0.5602274135370273,
+      "accuracy": 0.35714285714285715
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 11,
+      "bin": 6,
+      "lower": 0.6,
+      "upper": 0.7,
+      "count": 27,
+      "mean_confidence": 0.645072079274766,
+      "accuracy": 0.7777777777777778
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 11,
+      "bin": 7,
+      "lower": 0.7,
+      "upper": 0.8,
+      "count": 33,
+      "mean_confidence": 0.7538178111303793,
+      "accuracy": 0.696969696969697
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 11,
+      "bin": 8,
+      "lower": 0.8,
+      "upper": 0.9,
+      "count": 68,
+      "mean_confidence": 0.8507049341232659,
+      "accuracy": 0.8676470588235294
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 11,
+      "bin": 9,
+      "lower": 0.9,
+      "upper": 1.0,
+      "count": 4716,
+      "mean_confidence": 0.9963364360177754,
+      "accuracy": 0.996607294317218
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 2025,
+      "bin": 0,
+      "lower": 0.0,
+      "upper": 0.1,
+      "count": 3,
+      "mean_confidence": 0.05926634700388848,
+      "accuracy": 0.6666666666666666
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 2025,
+      "bin": 1,
+      "lower": 0.1,
+      "upper": 0.2,
+      "count": 7,
+      "mean_confidence": 0.15624683577711654,
+      "accuracy": 0.5714285714285714
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 2025,
+      "bin": 2,
+      "lower": 0.2,
+      "upper": 0.3,
+      "count": 9,
+      "mean_confidence": 0.24530696503345384,
+      "accuracy": 0.7777777777777778
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 2025,
+      "bin": 3,
+      "lower": 0.3,
+      "upper": 0.4,
+      "count": 9,
+      "mean_confidence": 0.35552164520087737,
+      "accuracy": 0.6666666666666666
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 2025,
+      "bin": 4,
+      "lower": 0.4,
+      "upper": 0.5,
+      "count": 10,
+      "mean_confidence": 0.44453547670947663,
+      "accuracy": 0.6
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 2025,
+      "bin": 5,
+      "lower": 0.5,
+      "upper": 0.6,
+      "count": 14,
+      "mean_confidence": 0.551856242476503,
+      "accuracy": 0.8571428571428571
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 2025,
+      "bin": 6,
+      "lower": 0.6,
+      "upper": 0.7,
+      "count": 18,
+      "mean_confidence": 0.6389981319144628,
+      "accuracy": 0.7222222222222222
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 2025,
+      "bin": 7,
+      "lower": 0.7,
+      "upper": 0.8,
+      "count": 45,
+      "mean_confidence": 0.7502979339642925,
+      "accuracy": 0.8444444444444444
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 2025,
+      "bin": 8,
+      "lower": 0.8,
+      "upper": 0.9,
+      "count": 82,
+      "mean_confidence": 0.8581494689328699,
+      "accuracy": 0.8780487804878049
+    },
+    {
+      "step": "Referencia: sigmoide + MSE + momentum",
+      "seed": 2025,
+      "bin": 9,
+      "lower": 0.9,
+      "upper": 1.0,
+      "count": 4703,
+      "mean_confidence": 0.9961365120142952,
+      "accuracy": 0.9948968743355305
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 42,
+      "bin": 0,
+      "lower": 0.0,
+      "upper": 0.1,
+      "count": 0,
+      "mean_confidence": null,
+      "accuracy": null
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 42,
+      "bin": 1,
+      "lower": 0.1,
+      "upper": 0.2,
+      "count": 0,
+      "mean_confidence": null,
+      "accuracy": null
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 42,
+      "bin": 2,
+      "lower": 0.2,
+      "upper": 0.3,
+      "count": 0,
+      "mean_confidence": null,
+      "accuracy": null
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 42,
+      "bin": 3,
+      "lower": 0.3,
+      "upper": 0.4,
+      "count": 0,
+      "mean_confidence": null,
+      "accuracy": null
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 42,
+      "bin": 4,
+      "lower": 0.4,
+      "upper": 0.5,
+      "count": 5,
+      "mean_confidence": 0.4676895286359562,
+      "accuracy": 0.2
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 42,
+      "bin": 5,
+      "lower": 0.5,
+      "upper": 0.6,
+      "count": 30,
+      "mean_confidence": 0.5584952954564948,
+      "accuracy": 0.6
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 42,
+      "bin": 6,
+      "lower": 0.6,
+      "upper": 0.7,
+      "count": 20,
+      "mean_confidence": 0.6564009501829123,
+      "accuracy": 0.55
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 42,
+      "bin": 7,
+      "lower": 0.7,
+      "upper": 0.8,
+      "count": 29,
+      "mean_confidence": 0.7463703101922904,
+      "accuracy": 0.896551724137931
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 42,
+      "bin": 8,
+      "lower": 0.8,
+      "upper": 0.9,
+      "count": 62,
+      "mean_confidence": 0.8625038999355792,
+      "accuracy": 0.8225806451612904
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 42,
+      "bin": 9,
+      "lower": 0.9,
+      "upper": 1.0,
+      "count": 4754,
+      "mean_confidence": 0.9977740902933746,
+      "accuracy": 0.9955826672275978
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 7,
+      "bin": 0,
+      "lower": 0.0,
+      "upper": 0.1,
+      "count": 0,
+      "mean_confidence": null,
+      "accuracy": null
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 7,
+      "bin": 1,
+      "lower": 0.1,
+      "upper": 0.2,
+      "count": 0,
+      "mean_confidence": null,
+      "accuracy": null
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 7,
+      "bin": 2,
+      "lower": 0.2,
+      "upper": 0.3,
+      "count": 1,
+      "mean_confidence": 0.2868352314491666,
+      "accuracy": 1.0
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 7,
+      "bin": 3,
+      "lower": 0.3,
+      "upper": 0.4,
+      "count": 1,
+      "mean_confidence": 0.3959054272442213,
+      "accuracy": 1.0
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 7,
+      "bin": 4,
+      "lower": 0.4,
+      "upper": 0.5,
+      "count": 3,
+      "mean_confidence": 0.47055814353253983,
+      "accuracy": 0.6666666666666666
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 7,
+      "bin": 5,
+      "lower": 0.5,
+      "upper": 0.6,
+      "count": 14,
+      "mean_confidence": 0.5472940297005489,
+      "accuracy": 0.5
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 7,
+      "bin": 6,
+      "lower": 0.6,
+      "upper": 0.7,
+      "count": 27,
+      "mean_confidence": 0.6677472142036227,
+      "accuracy": 0.6296296296296297
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 7,
+      "bin": 7,
+      "lower": 0.7,
+      "upper": 0.8,
+      "count": 33,
+      "mean_confidence": 0.7566134449538529,
+      "accuracy": 0.7878787878787878
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 7,
+      "bin": 8,
+      "lower": 0.8,
+      "upper": 0.9,
+      "count": 53,
+      "mean_confidence": 0.8562011384834671,
+      "accuracy": 0.7924528301886793
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 7,
+      "bin": 9,
+      "lower": 0.9,
+      "upper": 1.0,
+      "count": 4768,
+      "mean_confidence": 0.9979753043340447,
+      "accuracy": 0.9953859060402684
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 21,
+      "bin": 0,
+      "lower": 0.0,
+      "upper": 0.1,
+      "count": 0,
+      "mean_confidence": null,
+      "accuracy": null
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 21,
+      "bin": 1,
+      "lower": 0.1,
+      "upper": 0.2,
+      "count": 0,
+      "mean_confidence": null,
+      "accuracy": null
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 21,
+      "bin": 2,
+      "lower": 0.2,
+      "upper": 0.3,
+      "count": 0,
+      "mean_confidence": null,
+      "accuracy": null
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 21,
+      "bin": 3,
+      "lower": 0.3,
+      "upper": 0.4,
+      "count": 0,
+      "mean_confidence": null,
+      "accuracy": null
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 21,
+      "bin": 4,
+      "lower": 0.4,
+      "upper": 0.5,
+      "count": 7,
+      "mean_confidence": 0.4705493380280685,
+      "accuracy": 0.14285714285714285
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 21,
+      "bin": 5,
+      "lower": 0.5,
+      "upper": 0.6,
+      "count": 15,
+      "mean_confidence": 0.5398906698161502,
+      "accuracy": 0.7333333333333333
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 21,
+      "bin": 6,
+      "lower": 0.6,
+      "upper": 0.7,
+      "count": 20,
+      "mean_confidence": 0.6487369023400849,
+      "accuracy": 0.6
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 21,
+      "bin": 7,
+      "lower": 0.7,
+      "upper": 0.8,
+      "count": 28,
+      "mean_confidence": 0.748148460433167,
+      "accuracy": 0.5357142857142857
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 21,
+      "bin": 8,
+      "lower": 0.8,
+      "upper": 0.9,
+      "count": 45,
+      "mean_confidence": 0.8551952594580372,
+      "accuracy": 0.8222222222222222
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 21,
+      "bin": 9,
+      "lower": 0.9,
+      "upper": 1.0,
+      "count": 4785,
+      "mean_confidence": 0.9978042607132971,
+      "accuracy": 0.9958202716823407
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 11,
+      "bin": 0,
+      "lower": 0.0,
+      "upper": 0.1,
+      "count": 0,
+      "mean_confidence": null,
+      "accuracy": null
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 11,
+      "bin": 1,
+      "lower": 0.1,
+      "upper": 0.2,
+      "count": 0,
+      "mean_confidence": null,
+      "accuracy": null
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 11,
+      "bin": 2,
+      "lower": 0.2,
+      "upper": 0.3,
+      "count": 0,
+      "mean_confidence": null,
+      "accuracy": null
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 11,
+      "bin": 3,
+      "lower": 0.3,
+      "upper": 0.4,
+      "count": 0,
+      "mean_confidence": null,
+      "accuracy": null
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 11,
+      "bin": 4,
+      "lower": 0.4,
+      "upper": 0.5,
+      "count": 8,
+      "mean_confidence": 0.4741258857308476,
+      "accuracy": 0.375
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 11,
+      "bin": 5,
+      "lower": 0.5,
+      "upper": 0.6,
+      "count": 21,
+      "mean_confidence": 0.5397503218872827,
+      "accuracy": 0.5714285714285714
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 11,
+      "bin": 6,
+      "lower": 0.6,
+      "upper": 0.7,
+      "count": 28,
+      "mean_confidence": 0.6437326885334481,
+      "accuracy": 0.75
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 11,
+      "bin": 7,
+      "lower": 0.7,
+      "upper": 0.8,
+      "count": 28,
+      "mean_confidence": 0.7479372570094655,
+      "accuracy": 0.7857142857142857
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 11,
+      "bin": 8,
+      "lower": 0.8,
+      "upper": 0.9,
+      "count": 53,
+      "mean_confidence": 0.8539120007587139,
+      "accuracy": 0.7547169811320755
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 11,
+      "bin": 9,
+      "lower": 0.9,
+      "upper": 1.0,
+      "count": 4762,
+      "mean_confidence": 0.9980025926679228,
+      "accuracy": 0.995170096598068
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 2025,
+      "bin": 0,
+      "lower": 0.0,
+      "upper": 0.1,
+      "count": 0,
+      "mean_confidence": null,
+      "accuracy": null
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 2025,
+      "bin": 1,
+      "lower": 0.1,
+      "upper": 0.2,
+      "count": 0,
+      "mean_confidence": null,
+      "accuracy": null
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 2025,
+      "bin": 2,
+      "lower": 0.2,
+      "upper": 0.3,
+      "count": 0,
+      "mean_confidence": null,
+      "accuracy": null
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 2025,
+      "bin": 3,
+      "lower": 0.3,
+      "upper": 0.4,
+      "count": 0,
+      "mean_confidence": null,
+      "accuracy": null
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 2025,
+      "bin": 4,
+      "lower": 0.4,
+      "upper": 0.5,
+      "count": 6,
+      "mean_confidence": 0.4700520207867112,
+      "accuracy": 0.3333333333333333
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 2025,
+      "bin": 5,
+      "lower": 0.5,
+      "upper": 0.6,
+      "count": 21,
+      "mean_confidence": 0.5447723163925652,
+      "accuracy": 0.5714285714285714
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 2025,
+      "bin": 6,
+      "lower": 0.6,
+      "upper": 0.7,
+      "count": 29,
+      "mean_confidence": 0.6604809581569863,
+      "accuracy": 0.7586206896551724
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 2025,
+      "bin": 7,
+      "lower": 0.7,
+      "upper": 0.8,
+      "count": 41,
+      "mean_confidence": 0.7544294687820811,
+      "accuracy": 0.6585365853658537
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 2025,
+      "bin": 8,
+      "lower": 0.8,
+      "upper": 0.9,
+      "count": 59,
+      "mean_confidence": 0.8577767407474468,
+      "accuracy": 0.8135593220338984
+    },
+    {
+      "step": "+ softmax y entropía cruzada",
+      "seed": 2025,
+      "bin": 9,
+      "lower": 0.9,
+      "upper": 1.0,
+      "count": 4744,
+      "mean_confidence": 0.9980332989420331,
+      "accuracy": 0.9970489038785835
+    }
+  ]
+}

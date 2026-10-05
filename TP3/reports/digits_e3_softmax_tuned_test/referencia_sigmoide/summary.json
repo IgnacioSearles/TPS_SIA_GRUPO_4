@@ -1,0 +1,167 @@
+{
+  "architecture": "784-128-128-10",
+  "output_activation": "sigmoid",
+  "test_samples": 2497,
+  "test_accuracy_mean": 0.9856627953544255,
+  "test_accuracy_std": 0.0013402643596861664,
+  "test_accuracy_min": 0.9835802963556267,
+  "test_accuracy_max": 0.9871846215458551,
+  "test_macro_f1_mean": 0.9855264329161963,
+  "shown_seed": 2025,
+  "shown_seed_rule": "highest validation accuracy",
+  "shown_seed_test_accuracy": 0.9835802963556267,
+  "confusion_matrix": [
+    [
+      244,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      283,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      2,
+      252,
+      0,
+      0,
+      1,
+      0,
+      2,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      250,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      241,
+      0,
+      0,
+      1,
+      0,
+      2
+    ],
+    [
+      1,
+      0,
+      0,
+      1,
+      0,
+      218,
+      1,
+      0,
+      1,
+      1
+    ],
+    [
+      2,
+      1,
+      0,
+      0,
+      0,
+      1,
+      235,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0,
+      255,
+      0,
+      0
+    ],
+    [
+      2,
+      0,
+      1,
+      2,
+      0,
+      2,
+      0,
+      1,
+      235,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      1,
+      2,
+      1,
+      0,
+      3,
+      1,
+      243
+    ]
+  ],
+  "top_confusions": [
+    {
+      "real": 9,
+      "predicho": 7,
+      "cantidad": 3
+    },
+    {
+      "real": 9,
+      "predicho": 4,
+      "cantidad": 2
+    },
+    {
+      "real": 8,
+      "predicho": 5,
+      "cantidad": 2
+    },
+    {
+      "real": 8,
+      "predicho": 3,
+      "cantidad": 2
+    },
+    {
+      "real": 8,
+      "predicho": 0,
+      "cantidad": 2
+    },
+    {
+      "real": 7,
+      "predicho": 2,
+      "cantidad": 2
+    }
+  ]
+}

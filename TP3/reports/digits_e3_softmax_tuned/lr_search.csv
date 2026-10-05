@@ -1,0 +1,5 @@
+step,lr,validation_accuracy,best_epoch
++ softmax y entropía cruzada,0.003,0.9657142857142857,40
++ softmax y entropía cruzada,0.01,0.9777551020408163,40
++ softmax y entropía cruzada,0.03,0.9840816326530613,40
++ softmax y entropía cruzada,0.1,0.9814285714285714,40

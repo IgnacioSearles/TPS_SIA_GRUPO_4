@@ -270,6 +270,49 @@ def softmax_comparison():
     return summary
 
 
+def softmax_validation_vs_test():
+    """784-128-128-10, softmax + CE (η 0,03) against its sigmoid + MSE reference, paired by seed.
+
+    Same 5 seeds and protocol for both (reports/digits_e3_softmax_tuned); test read from
+    the one declared extra look at digits_test.csv (reports/digits_e3_softmax_tuned_test).
+    """
+    test_dir = Path("reports/digits_e3_softmax_tuned_test")
+    conditions = [("Sigmoide + MSE", test_dir / "referencia_sigmoide" / "test_por_semilla.csv", GREY),
+                  ("Softmax + CE", test_dir / "test_por_semilla.csv", "C0")]
+    tables = [pd.read_csv(path).set_index("seed") for _, path, _ in conditions]
+    seeds = tables[0].index
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.4), sharey=True)
+    summary = {}
+    for ax, column, title in [(axes[0], "validation_accuracy", "Validación (4900 imágenes)"),
+                              (axes[1], "test_accuracy", "Test (2497 imágenes)")]:
+        values = np.array([100 * table.loc[seeds, column].to_numpy() for table in tables])
+        for seed_values in values.T:
+            ax.plot([0, 1], seed_values, color="#cfcfcf", linewidth=1, zorder=1)
+        for x, ((name, _, color), condition) in enumerate(zip(conditions, values)):
+            ax.scatter(np.full(len(condition), x), condition, s=28, color=color, alpha=0.55, zorder=2)
+            mean, std = condition.mean(), condition.std(ddof=1)
+            offset = -0.18 if x == 0 else 0.18
+            ax.errorbar(x + offset, mean, yerr=std, fmt="o", color=color, markersize=8, capsize=5,
+                        linewidth=1.6, zorder=3)
+            ax.annotate(f"{_comma(mean)} %\n± {_comma(std)}", (x + offset, mean),
+                        xytext=(-12 if x == 0 else 12, 0), textcoords="offset points",
+                        ha="right" if x == 0 else "left", va="center", fontsize=9, color="#333")
+            summary[(title, name)] = (mean, std)
+        difference = values[1] - values[0]
+        ax.set_title(f"{title}\nsoftmax − sigmoide: {difference.mean():+.2f} ± {difference.std(ddof=1):.2f} pp"
+                     .replace(".", ","), fontsize=11)
+        ax.set(xticks=[0, 1], xticklabels=[name for name, _, _ in conditions], xlim=(-0.7, 1.7))
+        ax.grid(axis="y", alpha=0.25)
+        ax.spines[["top", "right"]].set_visible(False)
+    axes[0].set_ylabel("Accuracy (%)")
+    fig.text(0.99, 0.01, f"784-128-128-10. Una línea por semilla ({len(seeds)}); punto grande = media ± 1 DE.",
+             ha="right", fontsize=8, color="#666")
+    fig.tight_layout(rect=(0, 0.03, 1, 1))
+    fig.savefig(OUTPUT / "ej3_softmax_validacion_vs_test.png", dpi=170)
+    plt.close(fig)
+    return summary
+
+
 def expanded_architectures():
     frame = pd.read_csv("reports/digits_e3_architectures/architecture_summary.csv")
     frame = frame.sort_values(["hidden_layers", "parameters"])
@@ -285,8 +328,66 @@ def expanded_architectures():
     plt.close(fig)
 
 
+def _seed_histories(study, group_columns):
+    """Every run's history from a study and its _seed7/_seed21 reruns, tagged by `group_columns`."""
+    frames = []
+    for directory in [study, f"{study}_seed7", f"{study}_seed21"]:
+        comparison = pd.read_csv(Path(directory) / "comparison.csv")
+        for row in comparison.itertuples():
+            history = pd.read_csv(Path(directory) / row.run_directory / "history.csv")
+            frames.append(history.assign(seed=row.seed, **{c: getattr(row, c) for c in group_columns}))
+    return pd.concat(frames, ignore_index=True)
+
+
+def _band_curves(table, group_columns, label, filename, accuracy_ylim):
+    """Validation error and accuracy per epoch: mean across seeds with a ±1 std band."""
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4.2))
+    for index, (key, group) in enumerate(table.groupby(group_columns, sort=False)):
+        color = f"C{index}"
+        stats = group.groupby("epoch")[["validation_loss", "validation_accuracy"]].agg(["mean", "std"])
+        for ax, column, scale in [(axes[0], "validation_loss", 1), (axes[1], "validation_accuracy", 100)]:
+            mean, std = scale * stats[column]["mean"], scale * stats[column]["std"]
+            ax.plot(stats.index, mean, color=color, label=label(key))
+            ax.fill_between(stats.index, mean - std, mean + std, color=color, alpha=0.2, linewidth=0)
+    axes[0].set(xlabel="Época", ylabel="Error cuadrático de validación", title="Error")
+    axes[1].set(xlabel="Época", ylabel="Accuracy de validación (%)", title="Accuracy", ylim=accuracy_ylim)
+    for ax in axes:
+        ax.grid(alpha=0.25)
+        ax.spines[["top", "right"]].set_visible(False)
+    axes[1].legend(frameon=False, loc="lower right", fontsize=9)
+    fig.text(0.99, 0.01, f"Media ± 1 DE entre {table.seed.nunique()} semillas.", ha="right", fontsize=8,
+             color="#666")
+    fig.tight_layout()
+    fig.savefig(OUTPUT / filename, dpi=170)
+    plt.close(fig)
+    final = table[table.epoch == table.epoch.max()]
+    return final.groupby(group_columns, sort=False).validation_accuracy.agg(["mean", "std"])
+
+
+def learning_rate_curves():
+    """Ejercicio 2 learning rates. Seed 42 is the original study; seeds 7 and 21 rerun it
+    with the same split (configs learning_rates_500_seed7/21.json)."""
+    table = _seed_histories("results/digits_learning_rates_500", ["learning_rate"])
+    return _band_curves(table, "learning_rate", lambda rate: f"η = {_comma(rate, 3).rstrip('0')}",
+                        "ej2_learning_rates.png", (60, 100))
+
+
+def optimizer_curves():
+    """Ejercicio 2 optimizers, same three seeds (configs optimizers_seed7/21.json)."""
+    columns = ["optimizer", "momentum", "learning_rate"]
+    table = _seed_histories("results/digits_optimizers", columns)
+
+    def label(key):
+        name, momentum, rate = key
+        memory = f", memoria {_comma(momentum, 1)}" if name == "momentum" else ""
+        return f"{'SGD' if name == 'sgd' else 'Momentum'}{memory}, η = {_comma(rate, 2).rstrip('0')}"
+    return _band_curves(table, columns, label, "ej2_optimizadores_curvas.png", (85, 98))
+
+
 def main():
     OUTPUT.mkdir(parents=True, exist_ok=True)
+    print(learning_rate_curves())
+    print(optimizer_curves())
     print(optimizers())
     print(activations())
     architectures()
@@ -294,6 +395,7 @@ def main():
     factorial()
     expanded_architectures()
     print(softmax_comparison())
+    print(softmax_validation_vs_test())
     print(f"Figuras en {OUTPUT}")
 
 

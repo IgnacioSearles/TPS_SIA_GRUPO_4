@@ -382,9 +382,9 @@
 <section class="evidence">
   <header><span>Ejercicio 2 · Tasa de aprendizaje</span></header>
   <h2>Una tasa menor necesita muchas más épocas</h2>
-  <main><figure><img src="assets/results__digits_learning_rates_500__learning_rate_comparison.png" alt="Curvas de validación por tasa de aprendizaje"></figure></main>
-  <div class="take">A 500 épocas: η = 0,1 llega a 95,10 %; η = 0,01, a 92,85 %. Seguimos con 0,1.</div>
-  <aside class="notes">SGD, 784-32-10, semilla 42, validación. Con η = 0,01 la accuracy pasa de 87,42 % a 92,85 % entre 50 y 500 épocas: una comparación corta penaliza a las tasas pequeñas. Más épocas pueden mejorar una tasa chica, pero no garantizan que termine siendo la mejor.<br>Fuentes: results/digits_learning_rates_500/learning_rate_comparison.png</aside>
+  <main><figure><img src="assets/reports__presentation__ej2_learning_rates.png" alt="Curvas de validación por tasa de aprendizaje, media y desvío de tres semillas"></figure></main>
+  <div class="take">A 500 épocas: η = 0,1 llega a 95,09 % ± 0,02; η = 0,01, a 92,75 % ± 0,08 (3 semillas). Seguimos con 0,1.</div>
+  <aside class="notes">SGD, 784-32-10, semillas 42, 7 y 21 (mismo split), validación; banda = ±1 desvío entre semillas. Con η = 0,01 y semilla 42 la accuracy pasa de 87,42 % a 92,85 % entre 50 y 500 épocas: una comparación corta penaliza a las tasas pequeñas. Más épocas pueden mejorar una tasa chica, pero no garantizan que termine siendo la mejor.<br>Fuentes: reports/presentation/ej2_learning_rates.png (results/digits_learning_rates_500, _seed7, _seed21)</aside>
 </section>
 
 <section class="evidence">
@@ -550,10 +550,10 @@
 
 <section class="evidence">
   <header><span>Ejercicio 3 · Experimento adicional</span></header>
-  <h2>Softmax con entropía cruzada suma 0,3 puntos en la red chica</h2>
-  <main><figure><img src="assets/reports__digits_training_ablation__validation_curves.png" alt="Curvas de validación: referencia, softmax y Adam"></figure></main>
-  <div class="take">64-32: 98,07 % → 98,37 %; Adam no agrega más. Falta probarlo en 128-128.</div>
-  <aside class="notes">Softmax hace que las diez salidas sumen uno; la entropía cruzada penaliza asignar poca probabilidad a la clase correcta. Tres semillas y tasa elegida por configuración; se cambian juntas salida y pérdida. Cifras de validación, no de test. No concluir que softmax calibró las probabilidades ni que Adam no sirve.<br>Fuentes: reports/digits_training_ablation/report.md</aside>
+  <h2>Softmax gana en validación, pero en test empata</h2>
+  <main><figure><img src="assets/reports__presentation__ej3_softmax_validacion_vs_test.png" alt="Accuracy por semilla de sigmoide y softmax en validación y en test, con media y desvío"></figure></main>
+  <div class="take">784-128-128-10, 5 semillas: validación 98,66 → 98,78 %; test 98,57 % en ambos. El modelo final sigue siendo el de sigmoide.</div>
+  <aside class="notes">Softmax hace que las diez salidas sumen uno; la entropía cruzada penaliza asignar poca probabilidad a la clase correcta. Se cambian juntas salida y pérdida. Mismas 5 semillas (42, 7, 21, 11, 2025), mismos datos y 150 épocas; η de softmax elegido en validación con una corrida corta (0,03; con 0,01 daba menos). En validación softmax gana en las 5 semillas (+0,12 ± 0,08 pp, pareado). En test la diferencia pareada es 0,00 ± 0,09 pp: por semilla, entre −3 y +3 imágenes de 2497. Posibles razones: η se eligió mirando la misma validación, y la validación sale de los mismos archivos que el entrenamiento mientras que el test es otro archivo. Esta fue una consulta adicional al test, declarada; no se usó para elegir nada. En la red chica 64-32 softmax sumó 0,3 pp en validación (98,07 → 98,37 %, 3 semillas). No concluir que softmax empeora ni que mejora el test.<br>Fuentes: reports/digits_e3_softmax_tuned/report.md, reports/digits_e3_softmax_tuned_test/report.md, reports/digits_e3_softmax_tuned_test/referencia_sigmoide/report.md</aside>
 </section>
 
 <section class="section-divider">
@@ -706,7 +706,7 @@
 
 <section class="chart"><header><span>Apéndice · Ejercicio 2</span></header><h2>Ocho capas ocultas suman medio punto y más variabilidad</h2><main><figure><img src="assets/results__digits_depth_sweep__depth_comparison.png" alt="Accuracy y F1 por profundidad"><figcaption>De 1 a 8 capas: 96,08 % → 96,63 %; con 7 capas el desvío llega a 0,55 puntos.</figcaption></figure></main><aside class="notes">Fuentes: results/digits_depth_sweep/depth_comparison.png</aside></section>
 
-<section class="chart"><header><span>Apéndice · Ejercicio 2</span></header><h2>Curvas de validación por optimizador</h2><main><figure><img src="assets/results__digits_optimizers__optimizer_comparison.png" alt="Error y accuracy de validación por optimizador"><figcaption>Una corrida por optimizador; complementa el resumen de cinco semillas.</figcaption></figure></main><aside class="notes">Fuentes: results/digits_optimizers/optimizer_comparison.png</aside></section>
+<section class="chart"><header><span>Apéndice · Ejercicio 2</span></header><h2>Curvas de validación por optimizador</h2><main><figure><img src="assets/reports__presentation__ej2_optimizadores_curvas.png" alt="Error y accuracy de validación por optimizador, media y desvío de tres semillas"><figcaption>Media ± 1 desvío entre 3 semillas (42, 7, 21); complementa el resumen de cinco semillas.</figcaption></figure></main><aside class="notes">Fuentes: reports/presentation/ej2_optimizadores_curvas.png (results/digits_optimizers, _seed7, _seed21)</aside></section>
 
 <section class="chart"><header><span>Apéndice · Ejercicio 2</span></header><h2>Con cinco semillas, los optimizadores difieren en 0,1 puntos</h2><main><figure><img src="assets/results__digits_seeds__seed_comparison.png" alt="Accuracy y recall del 5 por semilla y optimizador"><figcaption>SGD 96,24 %, momentum 0,5 96,35 %, momentum 0,9 96,26 %. Mejor época mediana: 457, 380 y 76.</figcaption></figure></main><aside class="notes">Fuentes: results/digits_seeds/seed_comparison.png</aside></section>
 
@@ -721,6 +721,8 @@
 <section class="chart"><header><span>Apéndice · Ejercicio 3</span></header><h2>El tamaño de lote cambia el tiempo, no la accuracy</h2><main><figure><img src="assets/reports__digits_e3_batch_sizes__batch_size_comparison.png" alt="Accuracy y tiempo por tamaño de lote"><figcaption>784-128-128-10, tres semillas. Accuracy media entre 98,64 % y 98,73 % con lotes de 32 a 256.</figcaption></figure></main><aside class="notes">Con 25 700 filas, un lote de 32 hace 804 actualizaciones por época y uno de 256, 101. Tiempos medios de 43 a 63 minutos. El modelo final usa lote 128.<br>Fuentes: reports/digits_e3_batch_sizes/batch_size_comparison.png</aside></section>
 
 <section class="chart"><header><span>Apéndice · Ejercicio 3</span></header><h2>En E3, L2 no ayuda: la augmentación ya regulariza</h2><main><figure><img src="assets/reports__digits_e3_l2__l2_e3_validation.png" alt="Accuracy de validación de 784-128-128-10 según λ"><figcaption>Validación, tres semillas: sin L2 98,69 %; λ = 10⁻⁴ 98,63 % (empate); λ = 3·10⁻⁴, el mejor de E2, 97,97 %.</figcaption></figure></main><aside class="notes">Mismo protocolo que el modelo final de E3 (784-128-128-10, balanceo y augmentación, mismas semillas y partición); solo cambia λ. En E2 la red sobreajustaba (la validación caía desde la época ~40) y L2 sumó 0,7 puntos. En E3 cada época ve imágenes nuevas rotadas, escaladas y desplazadas, con el doble de datos: la augmentación ya regulariza y L2 solo agrega sesgo. λ se eligió solo con validación; como ningún λ superó a λ = 0, el test no se volvió a abrir. Reentrenar λ = 0 con la semilla 42 reprodujo exactamente el resultado guardado (98,6735 %).<br>Fuentes: reports/digits_e3_l2; experiments/digits/l2_e3_selection.py</aside></section>
+
+<section class="chart"><header><span>Apéndice · Ejercicio 3</span></header><h2>Softmax y Adam en las dos arquitecturas (validación)</h2><main><figure><img src="assets/reports__presentation__ej3_softmax_comparison.png" alt="Accuracy y F1 macro de validación para sigmoide, softmax y Adam en 64-32 y 128-128"><figcaption>3 semillas, media ± 1 DE. En 128-128, η reusado de la red chica (0,01); con η propio y 5 semillas, ver el slide de softmax.</figcaption></figure></main><aside class="notes">Fuentes: reports/digits_training_ablation/report.md, reports/digits_e3_softmax_best_arch/report.md</aside></section>
 
 <section class="chart"><header><span>Apéndice · Ejercicio 3</span></header><h2>Qué imágenes sigue confundiendo el modelo</h2><main><figure><img src="assets/reports__digits_e3_final__test_errores.png" alt="Errores de test con mayor score"><figcaption>Errores de test con mayor score para la clase equivocada: una selección dirigida, no aleatoria.</figcaption></figure></main><aside class="notes">Un score alto no impide equivocarse: las diez sigmoides no son una distribución calibrada. No medimos desempeño humano.<br>Fuentes: reports/digits_e3_final/test_errores.png</aside></section>
 

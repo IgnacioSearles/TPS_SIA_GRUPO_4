@@ -1,0 +1,12 @@
+{
+  "output": {
+    "directory": "reports/digits_e3_softmax_tuned_queue"
+  },
+  "jobs": [
+    {
+      "name": "softmax_lr_search_128_128_5_seeds",
+      "module": "experiments.digits.training_ablation",
+      "config": "experiments/digits/configs/e3_softmax_tuned.json"
+    }
+  ]
+}

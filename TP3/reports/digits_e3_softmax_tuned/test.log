@@ -1,0 +1,51 @@
+ seed  validation_accuracy  test_accuracy  test_macro_f1  test_errors  recall_0  recall_1  recall_2  recall_3  recall_4  recall_5  recall_6  recall_7  recall_8  recall_9
+   42             0.987755       0.986784       0.986537           33  0.991837  0.992933  0.988372  0.992063  0.983673  0.973094  0.991632  1.000000  0.967078  0.984127
+    7             0.988163       0.985182       0.984972           37  0.979592  0.996466  0.976744  1.000000  0.991837  0.968610  0.991632  0.984436  0.975309  0.984127
+   21             0.987959       0.985983       0.985798           35  0.991837  0.989399  0.996124  0.992063  0.991837  0.982063  0.987448  0.980545  0.975309  0.972222
+   11             0.987143       0.987185       0.987035           32  0.987755  0.992933  0.988372  1.000000  0.987755  0.973094  0.991632  0.988327  0.971193  0.988095
+ 2025             0.987959       0.983180       0.982935           42  0.991837  0.992933  0.976744  0.992063  0.987755  0.982063  0.979079  0.996109  0.942387  0.988095
+{
+  "architecture": "784-128-128-10",
+  "output_activation": "softmax",
+  "test_samples": 2497,
+  "test_accuracy_mean": 0.9856627953544252,
+  "test_accuracy_std": 0.0015868332203571437,
+  "test_accuracy_min": 0.9831798157789348,
+  "test_accuracy_max": 0.9871846215458551,
+  "test_macro_f1_mean": 0.9854555839760459,
+  "shown_seed": 7,
+  "shown_seed_rule": "highest validation accuracy",
+  "shown_seed_test_accuracy": 0.9851822186623949,
+  "top_confusions": [
+    {
+      "real": 5,
+      "predicho": 3,
+      "cantidad": 3
+    },
+    {
+      "real": 9,
+      "predicho": 7,
+      "cantidad": 2
+    },
+    {
+      "real": 8,
+      "predicho": 3,
+      "cantidad": 2
+    },
+    {
+      "real": 7,
+      "predicho": 2,
+      "cantidad": 2
+    },
+    {
+      "real": 5,
+      "predicho": 0,
+      "cantidad": 2
+    },
+    {
+      "real": 2,
+      "predicho": 7,
+      "cantidad": 2
+    }
+  ]
+}

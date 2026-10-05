@@ -1,0 +1,10 @@
+{
+  "queue_sha256": "59d46f0f0be1e7fb795e6a000499279b5f554cbafe9541c0d71bfed2c23d74e9",
+  "job_config_sha256": {
+    "softmax_lr_search_128_128_5_seeds": "206df8869c95630fd7561bd2b713a2d1a1f489436d9b1db1c97fe222585f5fbe"
+  },
+  "completed": [
+    "softmax_lr_search_128_128_5_seeds"
+  ],
+  "active": null
+}

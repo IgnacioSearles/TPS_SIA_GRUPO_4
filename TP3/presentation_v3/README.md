@@ -1,6 +1,6 @@
 # TP3 — Presentación v3 (45 minutos)
 
-Versión corta de presentation_v2 para el tiempo de exposición: 60 diapositivas de relato (14 son separadores de sección, casi sin tiempo de exposición) y un apéndice de 24 gráficos para preguntas. presentation_v2 queda como versión extendida de referencia.
+Versión corta de presentation_v2 para el tiempo de exposición: 60 diapositivas de relato (14 son separadores de sección, casi sin tiempo de exposición) y un apéndice de 25 gráficos para preguntas. presentation_v2 queda como versión extendida de referencia.
 
 Abrir index.html. Flechas: avanzar. F: pantalla completa. S: notas del orador. Funciona sin conexión. Para compartir, enviar la carpeta completa.
 
@@ -19,7 +19,7 @@ Los opcionales de la consigna para los ejercicios 2 y 3 son conjuntos: se presen
 | Ejercicio 2 | 27–42 | 13 min |
 | Ejercicio 3 | 43–59 | 13 min |
 | Cierre | 60 | 2 min |
-| Apéndice | 61–85 | solo para preguntas |
+| Apéndice | 61–86 | solo para preguntas |
 
 ## Dónde se responde cada pregunta de la consigna
 
