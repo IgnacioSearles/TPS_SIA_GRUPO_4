@@ -1,0 +1,12 @@
+{
+  "study": {
+    "seeds": [42, 7, 21, 84, 123],
+    "reuse_directory": null,
+    "optimizers": [
+      {"name": "adam", "lr": 0.0003},
+      {"name": "adam", "lr": 0.001},
+      {"name": "adam", "lr": 0.003}
+    ]
+  },
+  "output": {"directory": "results/digits_adam"}
+}

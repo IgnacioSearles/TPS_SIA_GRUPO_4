@@ -1,0 +1,166 @@
+{
+  "architecture": "784-128-128-10",
+  "test_samples": 2497,
+  "test_accuracy_mean": 0.986250166866907,
+  "test_accuracy_std": 0.0015161949928715183,
+  "test_accuracy_min": 0.9851822186623949,
+  "test_accuracy_max": 0.9879855826992391,
+  "test_macro_f1_mean": 0.9861507912887495,
+  "shown_seed": 7,
+  "shown_seed_rule": "highest validation accuracy",
+  "shown_seed_test_accuracy": 0.9879855826992391,
+  "confusion_matrix": [
+    [
+      242,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      1,
+      0
+    ],
+    [
+      0,
+      283,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      254,
+      0,
+      0,
+      0,
+      0,
+      2,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      249,
+      0,
+      1,
+      0,
+      0,
+      0,
+      2
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      243,
+      0,
+      0,
+      0,
+      0,
+      2
+    ],
+    [
+      0,
+      1,
+      0,
+      1,
+      0,
+      220,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      237,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      255,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      1,
+      1,
+      0,
+      1,
+      1,
+      1,
+      237,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      3,
+      1,
+      247
+    ]
+  ],
+  "top_confusions": [
+    {
+      "real": 9,
+      "predicho": 7,
+      "cantidad": 3
+    },
+    {
+      "real": 4,
+      "predicho": 9,
+      "cantidad": 2
+    },
+    {
+      "real": 3,
+      "predicho": 9,
+      "cantidad": 2
+    },
+    {
+      "real": 2,
+      "predicho": 7,
+      "cantidad": 2
+    },
+    {
+      "real": 0,
+      "predicho": 7,
+      "cantidad": 2
+    },
+    {
+      "real": 9,
+      "predicho": 8,
+      "cantidad": 1
+    }
+  ]
+}

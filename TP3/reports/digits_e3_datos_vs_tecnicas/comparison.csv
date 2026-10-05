@@ -1,0 +1,5 @@
+step,training_files,training_rows,balance,augment,seeds,validation_accuracy_mean,validation_accuracy_std,train_accuracy_mean,macro_f1_mean,recall_5_mean,recall_8_mean,median_best_epoch
+"Solo digits.csv, sin técnicas",['digits.csv'],10003,False,False,3,0.9317687074829931,0.0006734350297014818,0.9960678463127728,0.8392472293752258,0.8259023354564756,0.0,88.0
+"Solo digits.csv, balanceo y augmentación",['digits.csv'],12321,True,True,3,0.9548979591836736,0.0007263318538796897,0.9901793685577469,0.8655157118848159,0.9490445859872612,0.0,134.0
+"Combinado, sin técnicas","['digits.csv', 'more_digits.csv']",19601,False,False,3,0.9617006802721088,0.0019456258021871107,0.9955104331411663,0.9501284545420522,0.8789808917197451,0.8575498575498576,62.0
+"Combinado, balanceo y augmentación","['digits.csv', 'more_digits.csv']",25700,True,True,3,0.9787755102040817,0.0026452002850644303,0.9857068741893644,0.9733334300585285,0.9766454352441615,0.9629629629629629,106.0

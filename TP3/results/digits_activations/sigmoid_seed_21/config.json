@@ -1,0 +1,43 @@
+{
+  "seed": 21,
+  "model": {
+    "activation": "sigmoid",
+    "initializer": "xavier",
+    "layers": [
+      784,
+      64,
+      32,
+      10
+    ],
+    "output_activation": "sigmoid"
+  },
+  "loss": "mse",
+  "optimizer": {
+    "name": "momentum",
+    "lr": 0.1,
+    "momentum": 0.9
+  },
+  "training": {
+    "epochs": 500,
+    "batch_size": 128,
+    "epsilon": null,
+    "shuffle_seed": 21
+  },
+  "evaluation": {
+    "classification": false
+  },
+  "output": {
+    "directory": "results/digits_activations/sigmoid_seed_21"
+  },
+  "callbacks": [
+    {
+      "name": "progress",
+      "every": 10
+    }
+  ],
+  "data": {
+    "path": "datasets/digits.csv",
+    "validation_ratio": 0.2,
+    "split_seed": 42
+  }
+}

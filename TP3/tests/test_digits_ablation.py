@@ -1,4 +1,5 @@
 import copy
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -49,6 +50,8 @@ def small_config(first, second, **overrides):
                   "output_activation": "sigmoid", "initializer": "xavier"},
         "optimizer": {"name": "momentum", "lr": 0.1, "momentum": 0.9},
         "training": {"epochs": 2, "batch_size": 16},
+        # Saved runs are resumed, so tests must never write into reports/.
+        "output": {"directory": str(Path(first).parent / "ablation")},
     }
     config.update(overrides)
     return config
@@ -136,6 +139,8 @@ def test_run_ablation_is_reproducible(tmp_path):
     config = small_config(first, second, optimizer={"name": "sgd", "lr": 0.1})
 
     first_run = [row["validation_accuracy_mean"] for row in run_ablation(config)["rows"]]
+    # A fresh directory, so the second run trains again instead of resuming the first.
+    config["output"] = {"directory": str(tmp_path / "second")}
     second_run = [row["validation_accuracy_mean"] for row in run_ablation(config)["rows"]]
 
     assert first_run == second_run
