@@ -1,0 +1,2 @@
+architecture,hidden_layers,parameters,seeds,validation_accuracy_mean,validation_accuracy_std,validation_macro_f1_mean,validation_macro_f1_std,validation_loss_mean
+784-128-128-10,2,118282,3,0.9700000000000001,0.0007358267909110579,0.9628584562529404,0.0006549750536526795,0.03873795593234065
