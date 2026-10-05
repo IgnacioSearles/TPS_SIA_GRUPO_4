@@ -72,6 +72,7 @@ DEFAULTS: dict[str, Any] = {
     # Ejercicio 2's winning configuration, held fixed so only the data changes.
     "model": {"layers": [784, 64, 32, 10], "activation": "tanh",
               "output_activation": "sigmoid", "initializer": "xavier"},
+    "loss": "mse",
     "optimizer": {"name": "momentum", "lr": 0.1, "momentum": 0.9},
     "training": {"epochs": 150, "batch_size": 128},
     "augmentation": {"max_rotation": 10.0, "max_scale": 0.1, "max_shift": 2.0, "sigma": 0.0},
@@ -168,7 +169,7 @@ def train_variant(variant: Variant, config: dict[str, Any], seed: int) -> dict[s
     rng = np.random.default_rng(seed)
     net = build_model(config["model"], rng)
     optimizer = build("optimizer", config["optimizer"])
-    loss = build("loss", "mse")
+    loss = build("loss", config["loss"])
     augmentation = config["augmentation"]
 
     Y_train = one_hot(variant.y_train)
@@ -179,6 +180,8 @@ def train_variant(variant: Variant, config: dict[str, Any], seed: int) -> dict[s
     patience = early_stopping.get("patience")
     min_delta = early_stopping.get("min_delta", 0.0)
     best_stop_accuracy, stale_epochs = -1.0, 0
+    progress_every = int(config["training"].get("progress_every", 25))
+    record_train_accuracy = config["training"].get("record_train_accuracy", True)
 
     for epoch in range(1, config["training"]["epochs"] + 1):
         X_epoch = augment(variant.X_train, rng, **augmentation) if variant.augment else variant.X_train
@@ -186,12 +189,13 @@ def train_variant(variant: Variant, config: dict[str, Any], seed: int) -> dict[s
               batch_size=config["training"]["batch_size"], rng=rng, callbacks=[])
 
         validation = digit_metrics(variant.y_validation, net.forward(variant.X_validation))
-        train_accuracy = float(np.mean(net.forward(variant.X_train).argmax(axis=1) == variant.y_train))
+        train_accuracy = (float(np.mean(net.forward(variant.X_train).argmax(axis=1) == variant.y_train))
+                          if record_train_accuracy else None)
         history.append({"epoch": epoch, "train_accuracy": train_accuracy,
                         "validation_accuracy": validation["accuracy"],
                         "validation_loss": validation["loss"],
                         "validation_macro_f1": validation["macro_f1"]})
-        if epoch == 1 or epoch % 25 == 0:
+        if epoch == 1 or epoch % progress_every == 0:
             print(f"{variant.name} seed={seed} epoch={epoch}/{config['training']['epochs']} "
                   f"val_accuracy={validation['accuracy']:.4%} "
                   f"val_macro_f1={validation['macro_f1']:.4f}", flush=True)
@@ -213,8 +217,11 @@ def train_variant(variant: Variant, config: dict[str, Any], seed: int) -> dict[s
 
     for param, value in zip(net.params(), best_weights):
         param.value[...] = value
+    best_train_accuracy = history[best["epoch"] - 1]["train_accuracy"]
+    if best_train_accuracy is None:
+        best_train_accuracy = float(np.mean(net.forward(variant.X_train).argmax(axis=1) == variant.y_train))
     return {"net": net, "history": history, "best": best, "epochs_ran": len(history),
-            "train_accuracy": history[best["epoch"] - 1]["train_accuracy"]}
+            "train_accuracy": best_train_accuracy}
 
 
 def _recall(per_class: list[dict[str, Any]], digit: int) -> float | None:

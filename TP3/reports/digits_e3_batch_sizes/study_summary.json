@@ -1,0 +1,28 @@
+{
+  "batch_sizes": [
+    32,
+    64,
+    128,
+    256
+  ],
+  "seeds": [
+    42,
+    7,
+    21
+  ],
+  "split_seed": 2026,
+  "validation_samples": 4900,
+  "training_samples_per_epoch": 25700,
+  "architecture": [
+    784,
+    128,
+    128,
+    10
+  ],
+  "optimizer": {
+    "name": "momentum",
+    "lr": 0.1,
+    "momentum": 0.9
+  },
+  "validation_only": true
+}

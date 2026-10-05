@@ -138,8 +138,18 @@ def augment(
     this once per epoch with a fresh draw rather than building one fixed augmented
     dataset — the point is that the model rarely sees the same pixels twice.
     """
-    return add_gaussian_noise(
-        random_affine(X, rng, max_rotation=max_rotation, max_scale=max_scale, max_shift=max_shift),
-        rng,
-        sigma=sigma,
-    )
+    X = _as_images(X).reshape(-1, N_PIXELS)
+    count = len(X)
+    # Draw all parameters first, then warp in chunks. This preserves the same
+    # seeded transformations as random_affine while avoiding multi-gigabyte
+    # temporary arrays for the expanded, balanced E3 training set.
+    angles = rng.uniform(-max_rotation, max_rotation, count)
+    scales = rng.uniform(1 - max_scale, 1 + max_scale, count)
+    shifts = rng.uniform(-max_shift, max_shift, (count, 2))
+    warped = np.empty_like(X)
+    chunk_size = 1024
+    for start in range(0, count, chunk_size):
+        stop = min(start + chunk_size, count)
+        warped[start:stop] = affine_warp(X[start:stop], angles[start:stop],
+                                         scales[start:stop], shifts[start:stop])
+    return add_gaussian_noise(warped, rng, sigma=sigma)

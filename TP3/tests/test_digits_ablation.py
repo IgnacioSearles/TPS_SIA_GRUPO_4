@@ -1,3 +1,4 @@
+import copy
 from pathlib import Path
 
 import numpy as np
@@ -6,6 +7,7 @@ import pandas as pd
 from experiments.digits.ablation import (
     STEPS,
     build_variants,
+    merge_config,
     resolve_steps,
     run_ablation,
     training_rows_for,
@@ -142,3 +144,41 @@ def test_run_ablation_is_reproducible(tmp_path):
     second_run = [row["validation_accuracy_mean"] for row in run_ablation(config)["rows"]]
 
     assert first_run == second_run
+
+
+def test_training_ablation_rows_never_mutate_the_shared_config():
+    from experiments.digits.training_ablation import ROWS, row_config
+
+    config = merge_config({})
+    before = copy.deepcopy(config)
+    reference, softmax, adam = (row_config(config, row["changes"], 0.5) for row in ROWS)
+
+    assert config == before
+    assert reference["optimizer"] == {"name": "momentum", "lr": 0.5, "momentum": 0.9}
+    assert softmax["loss"] == "cross_entropy" and softmax["model"]["output_activation"] == "softmax"
+    assert adam["optimizer"] == {"name": "adam", "lr": 0.5}
+
+
+def test_training_ablation_report_merges_searches_and_explains_the_reference(tmp_path):
+    import json
+
+    from experiments.digits.training_ablation import ROWS, merge_lr_searches, reference_note
+
+    softmax = ROWS[1]["name"]
+    pd.DataFrame([{"step": softmax, "lr": 0.003, "validation_accuracy": 0.96, "best_epoch": 39},
+                  {"step": softmax, "lr": 0.01, "validation_accuracy": 0.97, "best_epoch": 40}]
+                 ).to_csv(tmp_path / "lr_search_row1.csv", index=False)
+    study = [{"step": ROWS[2]["name"], "lr": 0.001, "validation_accuracy": 0.98, "best_epoch": 28},
+             {"step": softmax, "lr": 0.01, "validation_accuracy": 0.97, "best_epoch": 40},
+             {"step": softmax, "lr": 0.1, "validation_accuracy": 0.95, "best_epoch": 39}]
+
+    merged = merge_lr_searches(study, tmp_path)
+
+    assert [(t["step"], t["lr"]) for t in merged] == [
+        (softmax, 0.003), (softmax, 0.01), (softmax, 0.1), (ROWS[2]["name"], 0.001)]
+
+    summary = tmp_path / "summary.json"
+    summary.write_text(json.dumps({"rows": [{"validation_accuracy_mean": 0.9813}]}), encoding="utf-8")
+    assert "98,13 %" in reference_note({"validation_accuracy_mean": 0.9807}, summary)[0]
+    assert reference_note({"validation_accuracy_mean": 0.9813}, summary) == []
+    assert reference_note({"validation_accuracy_mean": 0.9807}, tmp_path / "missing.json") == []
