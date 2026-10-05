@@ -1,0 +1,38 @@
+{
+  "dataset": "datasets/fraud_dataset.csv",
+  "output": "reports/fraud_asymmetric",
+  "seed": 42,
+  "folds": 5,
+  "epochs": 1000,
+  "batch_size": 128,
+  "learning_rate": 0.05,
+  "log_every": 100,
+  "big_threshold": 0.85,
+  "variants": [
+    {
+      "name": "symmetric_1_1",
+      "over_weight": 1.0,
+      "under_weight": 1.0
+    },
+    {
+      "name": "under_2_1",
+      "over_weight": 1.0,
+      "under_weight": 2.0
+    },
+    {
+      "name": "under_4_1",
+      "over_weight": 1.0,
+      "under_weight": 4.0
+    },
+    {
+      "name": "over_2_1",
+      "over_weight": 2.0,
+      "under_weight": 1.0
+    },
+    {
+      "name": "over_4_1",
+      "over_weight": 4.0,
+      "under_weight": 1.0
+    }
+  ]
+}
