@@ -1,0 +1,101 @@
+{
+  "config": {
+    "files": [
+      "datasets/digits.csv",
+      "datasets/more_digits.csv"
+    ],
+    "baseline_files": [
+      "datasets/digits.csv"
+    ],
+    "test_file": "datasets/digits_test.csv",
+    "validation_ratio": 0.2,
+    "split_seed": 2026,
+    "seeds": [
+      42,
+      7,
+      21
+    ],
+    "model": {
+      "layers": [
+        784,
+        64,
+        32,
+        10
+      ],
+      "activation": "tanh",
+      "output_activation": "sigmoid",
+      "initializer": "xavier"
+    },
+    "optimizer": {
+      "name": "momentum",
+      "lr": 0.1,
+      "momentum": 0.9
+    },
+    "training": {
+      "epochs": 400,
+      "batch_size": 128,
+      "early_stopping": {
+        "patience": 50,
+        "min_delta": 0.0005
+      }
+    },
+    "augmentation": {
+      "max_rotation": 10.0,
+      "max_scale": 0.1,
+      "max_shift": 2.0,
+      "sigma": 0.0
+    },
+    "output": {
+      "directory": "reports/digits_e3_datos_vs_tecnicas"
+    },
+    "study": {
+      "target_accuracy": 0.98,
+      "steps": [
+        {
+          "name": "Solo digits.csv, sin t\u00e9cnicas",
+          "files": [
+            "datasets/digits.csv"
+          ],
+          "balance": false,
+          "augment": false
+        },
+        {
+          "name": "Solo digits.csv, balanceo y augmentaci\u00f3n",
+          "files": [
+            "datasets/digits.csv"
+          ],
+          "balance": true,
+          "augment": true
+        },
+        {
+          "name": "Combinado, sin t\u00e9cnicas",
+          "files": [
+            "datasets/digits.csv",
+            "datasets/more_digits.csv"
+          ],
+          "balance": false,
+          "augment": false
+        },
+        {
+          "name": "Combinado, balanceo y augmentaci\u00f3n",
+          "files": [
+            "datasets/digits.csv",
+            "datasets/more_digits.csv"
+          ],
+          "balance": true,
+          "augment": true
+        }
+      ]
+    }
+  },
+  "step": {
+    "name": "Solo digits.csv, balanceo y augmentaci\u00f3n",
+    "files": [
+      "datasets/digits.csv"
+    ],
+    "balance": true,
+    "augment": true
+  },
+  "seed": 7,
+  "training_rows": 12321
+}

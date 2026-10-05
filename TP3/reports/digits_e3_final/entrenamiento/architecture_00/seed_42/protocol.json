@@ -1,0 +1,80 @@
+{
+  "architecture": [
+    784,
+    128,
+    128,
+    10
+  ],
+  "seed": 42,
+  "split_seed": 2026,
+  "training_rows": 25700,
+  "config": {
+    "files": [
+      "datasets/digits.csv",
+      "datasets/more_digits.csv"
+    ],
+    "validation_ratio": 0.2,
+    "split_seed": 2026,
+    "seeds": [
+      42,
+      7,
+      21
+    ],
+    "target_accuracy": 0.98,
+    "model": {
+      "layers": [
+        784,
+        64,
+        32,
+        10
+      ],
+      "activation": "tanh",
+      "output_activation": "sigmoid",
+      "initializer": "xavier"
+    },
+    "optimizer": {
+      "name": "momentum",
+      "lr": 0.1,
+      "momentum": 0.9
+    },
+    "training": {
+      "epochs": 400,
+      "batch_size": 128,
+      "early_stopping": {
+        "patience": 50,
+        "min_delta": 0.0005
+      },
+      "epsilon": null
+    },
+    "augmentation": {
+      "max_rotation": 10.0,
+      "max_scale": 0.1,
+      "max_shift": 2.0,
+      "sigma": 0.0
+    },
+    "study": {
+      "architectures": [
+        [
+          784,
+          128,
+          128,
+          10
+        ]
+      ]
+    },
+    "output": {
+      "directory": "reports/digits_e3_final/entrenamiento"
+    },
+    "seed": 42,
+    "loss": "mse",
+    "evaluation": {
+      "classification": false
+    },
+    "callbacks": [
+      {
+        "name": "progress",
+        "every": 10
+      }
+    ]
+  }
+}
