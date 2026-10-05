@@ -1,11 +1,3 @@
-balance+augment seed=42 epoch=1/400 val_accuracy=90.2245% val_macro_f1=0.8794
-balance+augment seed=42 epoch=25/400 val_accuracy=97.3061% val_macro_f1=0.9652
-balance+augment seed=42 epoch=50/400 val_accuracy=97.9388% val_macro_f1=0.9754
-balance+augment seed=42 epoch=75/400 val_accuracy=98.3061% val_macro_f1=0.9779
-balance+augment seed=42 epoch=100/400 val_accuracy=98.4490% val_macro_f1=0.9817
-balance+augment seed=42 epoch=125/400 val_accuracy=98.5714% val_macro_f1=0.9820
-balance+augment seed=42 epoch=150/400 val_accuracy=98.4898% val_macro_f1=0.9816
-architecture_00\seed_42: accuracy=98.6735%, F1 macro=0.9828, época=156
 {
   "selection": "among mean validation accuracy >= 0.9800, highest mean macro F1",
   "target_accuracy": 0.98,

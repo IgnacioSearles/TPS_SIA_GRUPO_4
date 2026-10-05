@@ -424,7 +424,7 @@
   <h2>L2 con λ = 3·10⁻⁴ suma 0,7 puntos en las tres semillas</h2>
   <main><figure><img src="assets/results__digits_l2__l2_validation_curves.png" alt="Curvas de validación por valor de λ"></figure></main>
   <div class="take">Sin L2, la red empieza a memorizar cerca de la época 40; con L2 sigue mejorando hasta la ~290.</div>
-  <aside class="notes">L2 suma λ·W al gradiente de cada matriz de pesos (no a los sesgos): penaliza pesos grandes. Misma red y protocolo de E2 (784-64-32-10, tanh, momentum 0,9, η = 0,1, 300 épocas, mejor época de validación), tres semillas. Validación: 96,25 % sin L2 y 96,96 % con λ = 3·10⁻⁴ (+0,60, +0,88 y +0,64 por semilla, por encima del ruido entre semillas de 0,1–0,2). λ = 10⁻³ ya es neutro y 3·10⁻³ subajusta (−3,7 puntos). La mejor época queda cerca del límite de 300: entrenar más podría sumar algo. Solo se midió en E2; el resumen por λ está en el apéndice.<br>Fuentes: results/digits_l2; experiments/digits/l2_study.py</aside>
+  <aside class="notes">El gráfico muestra la media de las tres semillas con una banda de ±1 desvío: desde la época ~100 las bandas de λ = 0 y λ = 3·10⁻⁴ no se superponen. L2 suma λ·W al gradiente de cada matriz de pesos (no a los sesgos): penaliza pesos grandes. Misma red y protocolo de E2 (784-64-32-10, tanh, momentum 0,9, η = 0,1, 300 épocas, mejor época de validación), tres semillas. Validación: 96,25 % sin L2 y 96,96 % con λ = 3·10⁻⁴ (+0,60, +0,88 y +0,64 por semilla, por encima del ruido entre semillas de 0,1–0,2). λ = 10⁻³ ya es neutro y 3·10⁻³ subajusta (−3,7 puntos). La mejor época queda cerca del límite de 300: entrenar más podría sumar algo. Solo se midió en E2; el resumen por λ está en el apéndice.<br>Fuentes: results/digits_l2; experiments/digits/l2_study.py</aside>
 </section>
 
 <section class="section-divider">
@@ -436,11 +436,11 @@
 </section>
 
 <section class="evidence">
-  <header><span>Ejercicio 2 · Resultado en test</span></header>
+  <header><span>Ejercicio 2 · Resultado en test · modelo final 784-64-32-10, tanh, momentum 0,9</span></header>
   <h2>85,90 % en test: siete de cada diez errores son ochos</h2>
   <main><figure><img src="assets/results__digits_final__test_confusion_matrix.png" alt="Matriz de confusión en test del ejercicio 2"></figure></main>
   <div class="take">Ningún hiperparámetro resuelve una clase ausente.</div>
-  <aside class="notes">Red 784-64-32-10, momentum 0,9, 76 épocas, reentrenada sobre todo digits.csv. Sin los ochos, la accuracy es 95,16 %: es un diagnóstico, no el resultado de la tarea completa. Recall del 5: 83,41 %. Pregunta b: variamos tasa, arquitectura, optimizador y activación. Lo que sigue: datos de las diez clases.<br>Fuentes: results/digits_final/test_confusion_matrix.png</aside>
+  <aside class="notes">El mensaje es el 8, no el modelo: cualquier red entrenada solo con digits.csv falla todos los ochos, porque nunca vio uno. Modelo final de E2: 784-64-32-10, tanh, momentum 0,9, 76 épocas, reentrenado sobre todo digits.csv; se fijó antes del estudio de L2, así que no usa regularización. Sin los ochos, la accuracy es 95,16 %: es un diagnóstico, no el resultado de la tarea completa. Recall del 5: 83,41 %. Pregunta b: variamos tasa, arquitectura, optimizador y activación. Lo que sigue: datos de las diez clases.<br>Fuentes: results/digits_final/test_confusion_matrix.png</aside>
 </section>
 
 <!-- =====================================================================

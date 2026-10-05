@@ -2,3 +2,7 @@ balance+augment seed=42 epoch=1/400 val_accuracy=90.2041% val_macro_f1=0.8792
 balance+augment seed=42 epoch=25/400 val_accuracy=97.0816% val_macro_f1=0.9647
 balance+augment seed=42 epoch=50/400 val_accuracy=97.2041% val_macro_f1=0.9667
 balance+augment seed=42 epoch=75/400 val_accuracy=97.6122% val_macro_f1=0.9686
+balance+augment seed=42 epoch=100/400 val_accuracy=97.5510% val_macro_f1=0.9720
+architecture_00\seed_42: accuracy=97.9796%, F1 macro=0.9734, época=117
+balance+augment seed=7 epoch=1/400 val_accuracy=89.3673% val_macro_f1=0.8703
+balance+augment seed=7 epoch=25/400 val_accuracy=97.1020% val_macro_f1=0.9662

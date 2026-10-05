@@ -1,0 +1,2 @@
+architecture,hidden_layers,parameters,seed,epochs_ran,validation_accuracy,validation_macro_f1,validation_loss,validation_recall_5,validation_recall_8,run_directory
+784-128-128-10,2,118282,42,117,0.9797959183673469,0.973403838956086,0.023107436959168327,0.9936305732484076,0.9572649572649573,architecture_00\seed_42

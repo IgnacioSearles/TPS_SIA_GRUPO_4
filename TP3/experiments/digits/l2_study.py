@@ -103,13 +103,20 @@ def _plot(output: Path, aggregate: pd.DataFrame, config: dict) -> None:
     fig.savefig(output / "l2_comparison.png", dpi=150)
     plt.close(fig)
 
-    seed = config["study"]["seeds"][0]
+    # Mean ± 1 standard deviation across seeds, for a readable subset of λ values.
+    seeds = config["study"]["seeds"]
+    shown = config["study"].get("curve_weight_decays", list(aggregate["weight_decay"]))
     fig, ax = plt.subplots(figsize=(9, 4.5))
-    for weight_decay in aggregate["weight_decay"]:
-        history = pd.read_csv(output / f"wd_{weight_decay:g}_seed_{seed}" / "history.csv")
-        ax.plot(history["epoch"], 100 * history["validation_accuracy"], label=f"λ = {weight_decay:g}")
-    ax.set(xlabel="Época", ylabel="Accuracy de validación (%)", title=f"Curvas de validación por λ (semilla {seed})",
-           ylim=(90, 97.5))
+    for index, weight_decay in enumerate(shown):
+        curves = [pd.read_csv(output / f"wd_{weight_decay:g}_seed_{seed}" / "history.csv")["validation_accuracy"]
+                  for seed in seeds]
+        values = 100 * pd.concat(curves, axis=1)
+        epochs = values.index + 1
+        mean, std = values.mean(axis=1), values.std(axis=1)
+        ax.plot(epochs, mean, color=f"C{index}", label=f"λ = {weight_decay:g}")
+        ax.fill_between(epochs, mean - std, mean + std, color=f"C{index}", alpha=0.2)
+    ax.set(xlabel="Época", ylabel="Accuracy de validación (%)",
+           title=f"Curvas de validación por λ (media de {len(seeds)} semillas ± 1 desvío)", ylim=(90, 97.5))
     ax.grid(alpha=0.25)
     ax.legend(ncol=2)
     fig.tight_layout()
