@@ -1,0 +1,750 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TP3 · Perceptrón simple y multicapa · Grupo 4</title>
+<link rel="stylesheet" href="vendor/reveal/reset.css">
+<link rel="stylesheet" href="vendor/reveal/reveal.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+<!-- =====================================================================
+     Apertura (2 diapositivas)
+     ===================================================================== -->
+
+<section class="cover">
+  <header><span>Sistemas de Inteligencia Artificial · 2026</span><span>TP3 · Grupo 4</span></header>
+  <h2>Perceptrón simple y multicapa</h2>
+  <main>
+    <p class="authors">Ignacio Searles · Ivo Vilamowski · Agustín Galán<br>Nicolás Koron · Toribio Viton Sconza</p>
+  </main>
+  <aside class="notes">Introducir las dos tareas y el criterio común: medir, interpretar y decidir. Al final hay un apéndice con gráficos de respaldo para preguntas.</aside>
+</section>
+
+<!-- =====================================================================
+     Ejercicio 1 (16 diapositivas, ~13 min)
+     ===================================================================== -->
+
+<section class="divider">
+  <main>
+    <p class="divider-number">1</p>
+    <h2>Detección de fraude con un perceptrón simple</h2>
+    <p class="lead">¿Un perceptrón simple puede imitar a BigModel y servir para decidir?</p>
+  </main>
+</section>
+
+<section>
+  <header><span>Ejercicio 1 · Problema</span></header>
+  <h2>Imitar a BigModel con 7 parámetros y decidir con un umbral</h2>
+  <main>
+    <p class="formula">\[\hat{p}=\sigma(\mathbf{w}^{\top}\mathbf{x}+b)\qquad \mathcal{L}=\tfrac{1}{2}(\hat{p}-p)^2\]</p>
+    <div class="columns">
+      <div><h3>Aprender</h3><p>Seis características entran a una neurona: seis pesos y un sesgo. El objetivo \(p\) es la probabilidad de BigModel.</p></div>
+      <div><h3>Decidir</h3><p>La sigmoide deja \(\hat{p}\) entre 0 y 1. Un umbral lo convierte en alarma.</p></div>
+    </div>
+  </main>
+  <aside class="notes">El objetivo continuo es la salida de BigModel; flagged_fraud no entra como característica. RMSE mide el desvío respecto de BigModel; precisión y recall miden decisiones respecto de la etiqueta disponible. El factor 1/2 simplifica la derivada y no cambia el mínimo. La pérdida es por muestra; el entrenamiento promedia sobre las muestras.</aside>
+</section>
+
+<section class="section-divider">
+  <main>
+    <p class="section-number">1.1</p>
+    <h2>Exploración de datos</h2>
+    <p class="roadmap"><span class="current">Exploración de datos</span> · Entrenamiento · Resultados · Conclusiones · Opcionales</p>
+  </main>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 1 · Exploración</span></header>
+  <h2>La etiqueta es la decisión de BigModel con umbral 0,85</h2>
+  <main><figure><img src="assets/reports__fraud_eda__target_distribution.png" alt="Probabilidad de BigModel por etiqueta"></figure></main>
+  <div class="take">flagged_fraud sirve para evaluar alarmas; no entra al modelo.</div>
+  <aside class="notes">En las 7 500 filas, flagged_fraud coincide con aplicar p &gt; 0,85. Usamos la probabilidad continua como objetivo para reproducir también los valores intermedios. La coincidencia es un hallazgo del dataset: no demuestra cómo se produjo la etiqueta ni garantiza validez frente al fraude real.<br>Fuentes: reports/fraud_eda/target_distribution.png</aside>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 1 · Datos</span></header>
+  <h2>Seis entradas se asocian con el objetivo; tres no aportan</h2>
+  <main><figure><img src="assets/reports__fraud_eda__target_correlations.png" alt="Correlación de cada característica con el objetivo"></figure></main>
+  <div class="take">7 500 filas, sin faltantes ni duplicados; 11,6 % es fraude.</div>
+  <aside class="notes">Sin faltantes ni duplicados. Pearson mide relación lineal; Spearman, monótona. Descartamos timestamp, device_screen_resolution y time_since_last_login_s. Una correlación baja justifica explorar la selección, no demuestra ausencia de información (el apéndice muestra que esas tres columnas también son planas por rango).<br>Fuentes: reports/fraud_eda/target_correlations.png</aside>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 1 · Exploración</span></header>
+  <h2>La relación no es lineal: hay saltos que una recta no captura</h2>
+  <main><figure><img src="assets/reports__fraud_eda__model_features_vs_target.png" alt="Probabilidad media por rango de cada característica"></figure></main>
+  <div class="take">Con más de 9 unidades o más de 14 artículos vistos, \(p \approx 1\).</div>
+  <aside class="notes">La línea naranja es la probabilidad media por rango. Las cuentas recientes y las sesiones cortas también se asocian con valores mayores. Hipótesis: una recta tendrá dificultades con estos cambios, así que comparamos el perceptrón lineal con uno sigmoide.<br>Fuentes: reports/fraud_eda/model_features_vs_target.png</aside>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 1 · Preprocesamiento</span></header>
+  <h2>Escalas muy distintas y colas largas: estandarizamos</h2>
+  <main><figure><img src="assets/reports__fraud_eda__feature_scales.png" alt="Box plots estandarizados de cada característica"></figure></main>
+  <div class="take">Media y desvío se calculan solo con entrenamiento, en cada partición.</div>
+  <aside class="notes">Montos y antigüedad usan unidades y rangos diferentes, lo que afecta la escala de los gradientes. Aplicamos las mismas estadísticas a validación y test sin recalcularlas. Escalar facilita la optimización; no agrega información ni elimina por sí mismo los valores atípicos.<br>Fuentes: reports/fraud_eda/feature_scales.png</aside>
+</section>
+
+<section class="section-divider">
+  <main>
+    <p class="section-number">1.2</p>
+    <h2>Entrenamiento</h2>
+    <p class="roadmap">Exploración de datos · <span class="current">Entrenamiento</span> · Resultados · Conclusiones · Opcionales</p>
+  </main>
+</section>
+
+<section class="evidence side">
+  <header><span>Ejercicio 1 · Aprendizaje con todas las muestras</span></header>
+  <h2>La sigmoide reduce el error un 35 % frente al lineal</h2>
+  <main>
+    <figure><img src="assets/reports__fraud_probability__learning_curves.png" alt="Curvas de aprendizaje lineal y sigmoide"></figure>
+    <div class="points">
+      <p><b>a) Underfitting:</b> el lineal se estanca en RMSE 0,162 y da 428 salidas fuera de [0, 1].</p>
+      <p><b>b) Saturación:</b> ambas curvas llegan a una meseta antes de 200 épocas.</p>
+      <p><b>c) Elegimos sigmoide:</b> RMSE 0,105 y salida siempre en [0, 1].</p>
+    </div>
+  </main>
+  <aside class="notes">Comparación sobre las 7 500 muestras, como pide la consigna. La meseta es evidencia de saturación bajo este entrenamiento, no prueba de un óptimo global. Una sola neurona no puede representar cualquier relación: la persistencia del error motiva las características derivadas del opcional.<br>Fuentes: reports/fraud_probability/learning_curves.png</aside>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 1 · Hiperparámetros</span></header>
+  <h2>Desde η = 0,05, todas las tasas llegan al mismo error</h2>
+  <main><figure><img src="assets/reports__fraud_probability__hyperparameter_studies__learning_rate_curves.png" alt="RMSE de validación por época para cada tasa"></figure></main>
+  <div class="take">SGD, η = 0,05, lotes de 128, 1 000 épocas. El test no participa.</div>
+  <aside class="notes">K-fold sobre desarrollo. Con η = 0,001 el aprendizaje sigue lento al terminar el presupuesto corto; desde 0,05 las curvas se aproximan a RMSE 0,1047. Elegimos una tasa que llega rápido a la región estable; el barrido no demuestra que cualquier tasa mayor sea adecuada. La inicialización guiada converge antes pero termina igual (apéndice).<br>Fuentes: reports/fraud_probability/hyperparameter_studies/learning_rate_curves.png</aside>
+</section>
+
+<section class="section-divider">
+  <main>
+    <p class="section-number">1.3</p>
+    <h2>Resultados</h2>
+    <p class="roadmap">Exploración de datos · Entrenamiento · <span class="current">Resultados</span> · Conclusiones · Opcionales</p>
+  </main>
+</section>
+
+<section class="evidence side">
+  <header><span>Ejercicio 1 · Generalización</span></header>
+  <h2>Train, validación y test dan el mismo error</h2>
+  <main>
+    <figure><img src="assets/reports__fraud_probability__validation__fold_errors.png" alt="RMSE por fold y en test"></figure>
+    <div class="points">
+      <p><b>Desarrollo:</b> 6 000 filas, K-fold estratificado de 5.</p>
+      <p><b>Test:</b> 1 500 filas, evaluado una sola vez.</p>
+      <p><b>RMSE:</b> 0,1045 train · 0,1047 validación · 0,1052 test.</p>
+    </div>
+  </main>
+  <aside class="notes">Pregunta b: entrenamos en cuatro partes y validamos en la quinta, rotando. Estratificamos por deciles de p para que cada partición sea representativa: se busca un conjunto representativo, no el split que dé mejor número. Hiperparámetros y umbral se eligen solo con desarrollo. La comparación inicial sobre todas las filas fue el estudio de aprendizaje exigido. Evitar afirmar ausencia absoluta de sobreajuste.<br>Fuentes: reports/fraud_probability/validation/fold_errors.png</aside>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 1 · Diagnóstico</span></header>
+  <h2>TinyModel sigue a BigModel, con un sesgo en la zona media</h2>
+  <main><figure><img src="assets/reports__fraud_probability__validation__predicted_vs_target.png" alt="TinyModel contra BigModel en validación y test"></figure></main>
+  <div class="take">Error de aproximación: el límite de una sola neurona.</div>
+  <aside class="notes">La diagonal es imitación perfecta. TinyModel sobreestima probabilidades bajas y subestima parte de la zona entre 0,6 y 0,8. Que el error sea parecido en entrenamiento y validación no significa ajuste perfecto. El error por rango aparece de nuevo en el opcional de calibración.<br>Fuentes: reports/fraud_probability/validation/predicted_vs_target.png</aside>
+</section>
+
+<section>
+  <header><span>Ejercicio 1 · Métricas</span></header>
+  <h2>Cada pregunta tiene su métrica</h2>
+  <main>
+    <table>
+      <thead><tr><th>Pregunta</th><th>Métrica</th></tr></thead>
+      <tbody>
+        <tr><td>¿Qué tan bien imita a BigModel?</td><td>MAE, RMSE</td></tr>
+        <tr><td>¿Ordena los fraudes por encima de las legítimas?</td><td>ROC AUC, precisión promedio</td></tr>
+        <tr><td>¿Qué tan buena es la alarma con un umbral?</td><td>Precisión, recall, F1</td></tr>
+      </tbody>
+    </table>
+  </main>
+  <div class="take">Accuracy sola engaña: marcar todo como legítimo acierta 88,4 %.</div>
+  <aside class="notes">Pregunta a del estudio de generalización. MAE mide la magnitud media del error; RMSE pesa más los errores grandes. AUC y precisión-recall evalúan el orden de los puntajes; precisión, recall y F1 evalúan una decisión con umbral.</aside>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 1 · Ranking</span></header>
+  <h2>Como detector, ordena casi perfecto: AUC 0,992 en test</h2>
+  <main><figure><img src="assets/reports__fraud_probability__validation__roc_pr_curves.png" alt="Curvas ROC y precisión-recall"></figure></main>
+  <aside class="notes">El modelo ordena bien aunque la escala de sus probabilidades tenga sesgo. La curva PR aporta contexto frente al desbalance. La distribución de puntajes por clase está en el apéndice.<br>Fuentes: reports/fraud_probability/validation/roc_pr_curves.png</aside>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 1 · Decisión</span></header>
+  <h2>El umbral que maximiza F1 en validación es 0,888</h2>
+  <main><figure><img src="assets/reports__fraud_probability__validation__threshold_metrics.png" alt="Precisión, recall y F1 según el umbral"></figure></main>
+  <aside class="notes">Precisión: qué proporción de alarmas es fraude. Recall: qué proporción de fraudes detectamos. F1 combina ambas; su máximo en validación (out-of-fold) está en 0,888. El umbral se eligió antes de evaluar en test. No hay un umbral óptimo independiente del costo de equivocarse.<br>Fuentes: reports/fraud_probability/validation/threshold_metrics.png</aside>
+</section>
+
+<section class="evidence side">
+  <header><span>Ejercicio 1 · Evaluación en test</span></header>
+  <h2>En test, 0,888 supera en F1 al corte de BigModel</h2>
+  <main>
+    <figure><img src="assets/reports__fraud_probability__validation__confusion_matrices.png" alt="Matrices de confusión con umbral 0,888"></figure>
+    <div class="points">
+      <table>
+        <thead><tr><th>Test</th><th>0,888</th><th>0,85</th></tr></thead>
+        <tbody>
+          <tr><td>Precisión</td><td>0,886</td><td>0,832</td></tr>
+          <tr><td>Recall</td><td>0,865</td><td>0,900</td></tr>
+          <tr><td>F1</td><td>0,875</td><td>0,864</td></tr>
+        </tbody>
+      </table>
+      <p>Si un fraude perdido cuesta más, conviene un umbral menor.</p>
+    </div>
+  </main>
+  <aside class="notes">Pregunta c. En 1 500 muestras de test, con 0,888: 147 fraudes detectados, 23 perdidos y 19 falsas alarmas. El corte 0,85 detecta 6 fraudes más pero agrega 12 falsas alarmas. Mejor modelo para el cliente: perceptrón sigmoide de 7 parámetros entrenado con todo desarrollo, RMSE 0,1052 en test.<br>Fuentes: reports/fraud_probability/validation/confusion_matrices.png</aside>
+</section>
+
+<section class="section-divider">
+  <main>
+    <p class="section-number">1.4</p>
+    <h2>Conclusiones</h2>
+    <p class="roadmap">Exploración de datos · Entrenamiento · Resultados · <span class="current">Conclusiones</span> · Opcionales</p>
+  </main>
+</section>
+
+<section>
+  <header><span>Ejercicio 1 · Recomendación</span></header>
+  <h2>Recomendación para CompanyX</h2>
+  <main>
+    <div class="columns">
+      <div>
+        <p>Marcar como fraude cuando TinyModel da</p>
+        <div class="big">≥ 0,888</div>
+        <p>De cada 100 alarmas, unas 89 son fraude.<br>De cada 100 fraudes, detecta unos 86.</p>
+      </div>
+      <div>
+        <table>
+          <tbody>
+            <tr><td>Modelo</td><td>Perceptrón sigmoide, 7 parámetros</td></tr>
+            <tr><td>Entradas</td><td>6 columnas, estandarizadas con desarrollo</td></tr>
+            <tr><td>Marca</td><td>11,1 % de las transacciones (test)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+  <div class="take">Si un fraude perdido cuesta más que una falsa alarma, bajar el umbral.</div>
+  <aside class="notes">Pregunta c, explícita para el cliente. El modelo se entrenó con las 6 000 filas de desarrollo; el escalador guarda su media y desvío y se aplica igual a cada transacción nueva. Números de test con 0,888: precisión 0,886, recall 0,865, F1 0,875, RMSE 0,1052 frente a BigModel. Siete parámetros en lugar de BigModel: el costo de inferencia es una suma ponderada y una sigmoide. Revisar el umbral si cambian los costos o la tasa de fraude; idealmente, después de calibrar (opcional siguiente). Precisión y recall se miden contra flagged_fraud, que es la decisión de BigModel, no fraude confirmado.<br>Fuentes: reports/fraud_probability/validation/threshold_summary.json; reports/fraud_probability/summary.json</aside>
+</section>
+
+<section class="section-divider">
+  <main>
+    <p class="section-number">1.5</p>
+    <h2>Opcionales</h2>
+    <p class="roadmap">Exploración de datos · Entrenamiento · Resultados · Conclusiones · <span class="current">Opcionales</span></p>
+  </main>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 1 · Opcional: ReLU</span></header>
+  <h2>Con una sola neurona, ReLU se comporta como el lineal</h2>
+  <main><figure><img src="assets/reports__fraud_activation_comparison__target_vs_pre_activation.png" alt="Probabilidad objetivo contra la preactivación, sigmoide y ReLU"></figure></main>
+  <div class="take">RMSE 0,169 y 74 salidas &gt; 1 en test. En un multicapa, varias ReLU sí arman cortes.</div>
+  <aside class="notes">ReLU es max(0, z): un único quiebre en 0, sin techo en 1. Con una neurona, cambiar a ReLU no mejora la imitación. En un multicapa, ReLU(z) − ReLU(z − 1) ya recorta a [0, 1] y más unidades pueden ubicar los saltos de las features. La salida de una probabilidad sigue necesitando una activación acotada.<br>Fuentes: reports/fraud_activation_comparison; docs/ejercicio1_opcionales.md</aside>
+</section>
+
+<section>
+  <header><span>Ejercicio 1 · Opcional teórico: features</span></header>
+  <h2>Features derivadas: los saltos que una neurona no aprende sola</h2>
+  <main>
+    <div class="columns">
+      <div>
+        <table>
+          <thead><tr><th>Indicador</th><th>Filas</th><th>Fraude</th></tr></thead>
+          <tbody>
+            <tr><td>Cantidad &gt; 9</td><td>524</td><td>100 %</td></tr>
+            <tr><td>Artículos vistos &gt; 14</td><td>490</td><td>100 %</td></tr>
+            <tr><td>Cuenta de ≤ 30 días</td><td>119</td><td>97,5 %</td></tr>
+            <tr><td>Monto = 100 USD</td><td>156</td><td>98,7 %</td></tr>
+            <tr><td>Login en la misma sesión</td><td>527</td><td>3,0 %</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="points">
+        <p>Tasa base: <b>11,6 %</b>. Las tres primeras juntas cubren el <b>78,5 %</b> de los fraudes con <b>99,6 %</b> de precisión.</p>
+        <p>Como entradas binarias, le darían a la neurona los saltos que hoy no puede representar.</p>
+        <p>Transformaciones: log(monto), artículos por minuto (r = 0,31).</p>
+      </div>
+    </div>
+  </main>
+  <div class="take">Hipótesis: los umbrales se elegirían solo con desarrollo.</div>
+  <aside class="notes">Opcional teórico, pero verificado con el dataset completo. El techo del perceptrón viene de los saltos del EDA: un perceptrón solo aprende σ(w·x + b), monótono en cada entrada. Estos indicadores contienen el salto ya hecho. time_since_last_login_s no correlaciona crudo, pero "logueado dentro de la sesión" baja el fraude a 3 %. Riesgos: colinealidad con la columna original y reglas tan limpias que pueden ser un artefacto del dataset; confirmarlas en validación.<br>Fuentes: docs/ejercicio1_opcionales.md</aside>
+</section>
+
+<section>
+  <header><span>Ejercicio 1 · Opcional teórico: features</span></header>
+  <h2>Qué columnas descartaríamos y por qué</h2>
+  <main>
+    <table>
+      <thead><tr><th>Columna</th><th>Motivo</th></tr></thead>
+      <tbody>
+        <tr><td>timestamp crudo</td><td>Solo crece con el tiempo: un peso aprendido hoy extrapola mal mañana.</td></tr>
+        <tr><td>Hora, día y mes</td><td>Sin señal: el fraude va de 11,0 % a 12,4 % en todos los bloques de 4 horas.</td></tr>
+        <tr><td>Resolución de pantalla</td><td>Es ancho × alto, un código y no una magnitud. Sus 5 grupos tienen 10–13 % de fraude.</td></tr>
+        <tr><td>flagged_fraud</td><td>Fuga del objetivo: es exactamente p &gt; 0,85.</td></tr>
+      </tbody>
+    </table>
+  </main>
+  <aside class="notes">time_since_last_login_s crudo tiene Pearson 0,002 y Spearman 0,001, pero derivado ("login dentro de la sesión") sí informa: por eso no lo descartamos del todo. Los 82 montos de exactamente 1,00 USD tienen 0 % de fraude y coinciden con el mínimo de la columna: puede ser un recorte de los datos; consultarlo con el cliente antes de usarlo.<br>Fuentes: docs/ejercicio1_opcionales.md</aside>
+</section>
+
+<section class="evidence side">
+  <header><span>Ejercicio 1 · Opcional teórico: calibración</span></header>
+  <h2>Calibrar: que un puntaje de 0,7 signifique 70 % de fraude</h2>
+  <main>
+    <figure><img src="assets/reports__fraud_probability__validation__error_by_target__sesgo.png" alt="Error medio de TinyModel según la probabilidad de BigModel"></figure>
+    <div class="points">
+      <p><b>Qué es:</b> entre los casos con \(\hat{p} \approx 0{,}7\), el 70 % es fraude.</p>
+      <p><b>Hoy no se cumple:</b> frente a BigModel, TinyModel suma +0,05 en \(p\) bajas y resta hasta 0,08 entre 0,6 y 0,8.</p>
+      <p><b>Los umbrales no se transfieren:</b> BigModel 0,85 · sigmoide 0,888 · ReLU 0,687.</p>
+    </div>
+  </main>
+  <div class="take">Un AUC de 0,992 no garantiza probabilidades calibradas.</div>
+  <aside class="notes">Calibración y capacidad de ordenar son cosas distintas: la ReLU ordena casi igual que la sigmoide, pero sus valores no son probabilidades. El gráfico muestra el error medio de TinyModel por rango de la probabilidad de BigModel: un sesgo sistemático y monótono, justo lo que corrige una recalibración. Se mide con diagrama de confiabilidad, ECE (error de calibración esperado) y Brier. Se muestra solo el panel derecho del gráfico original.<br>Fuentes: reports/fraud_probability/validation/error_by_target.png; docs/ejercicio1_opcionales.md</aside>
+</section>
+
+<section>
+  <header><span>Ejercicio 1 · Opcional teórico: calibración</span></header>
+  <h2>Por qué conviene calibrar y cómo lo haríamos</h2>
+  <main>
+    <p class="formula">\[\text{marcar si }\ \hat{p} &gt; \frac{C_{FP}}{C_{FP}+C_{FN}}\]</p>
+    <div class="columns">
+      <div><h3>Por qué</h3><p>Ese umbral por costos solo vale si \(\hat{p}\) está calibrada. Si un fraude perdido cuesta 10 falsas alarmas, el umbral es 1/11 ≈ 0,09.</p><p>La tasa de fraude cambia con el tiempo: recalibrar es más barato que reentrenar.</p></div>
+      <div><h3>Cómo</h3><p>Regresión isotónica sobre las predicciones out-of-fold; evaluar en test con diagrama de confiabilidad, ECE y Brier.</p><p>Límite: solo podemos calibrar contra BigModel. Para fraude real hacen falta contracargos.</p></div>
+    </div>
+  </main>
+  <div class="take">Calibrar corrige la escala de los puntajes sin reentrenar el modelo.</div>
+  <aside class="notes">C_FP: costo de una falsa alarma; C_FN: costo de un fraude perdido. Nuestro 0,888 se eligió empíricamente (máximo F1) justamente porque no podemos confiar en la escala. La regresión isotónica es una función escalonada monótona: corrige los valores y casi no cambia el orden (puede introducir empates, así que el AUC no se conserva exactamente). Platt scaling aportaría poco: el perceptrón ya tiene forma sigmoide. Entrenamos con MSE contra un objetivo continuo, que no es el Brier score contra la etiqueta binaria: el sesgo viene de la capacidad de una neurona, no de la pérdida.<br>Fuentes: docs/ejercicio1_opcionales.md</aside>
+</section>
+
+<!-- =====================================================================
+     Ejercicio 2 (8 diapositivas, ~11 min)
+     ===================================================================== -->
+
+<section class="divider">
+  <main>
+    <p class="divider-number">2</p>
+    <h2>Reconocimiento de dígitos con un perceptrón multicapa</h2>
+    <p class="lead">¿Qué mejora al cambiar el aprendizaje y qué limitan los datos?</p>
+  </main>
+</section>
+
+<section>
+  <header><span>Ejercicio 2 · Método</span></header>
+  <h2>Cómo aprende y cómo evaluamos el multicapa</h2>
+  <main>
+    <p class="formula">\[E=\frac{1}{2p}\sum_{\mu}\sum_{j=1}^{10}\left(O_j^{\mu}-\zeta_j^{\mu}\right)^2\qquad \zeta^{\mu}=\text{one-hot}(d)\]</p>
+    <div class="columns">
+      <div><h3>Aprender</h3><p>784 píxeles → capas tanh → 10 salidas sigmoides. Gana la salida mayor.</p></div>
+      <div><h3>Evaluar (a)</h3><p>Accuracy, F1 macro y matriz de confusión. Elegimos con validación; el test, una vez.</p></div>
+    </div>
+  </main>
+  <aside class="notes">Pregunta a. Objetivo one-hot: un 1 en la clase correcta y ceros en las otras; se optimiza MSE. Las diez sigmoides son puntajes independientes, no suman uno. F1 macro da igual peso a cada dígito. Partición común: 9 960 para entrenar y 2 489 para validar, estratificada; la época se elige por accuracy de validación. Xavier inicializa los pesos. Aquí p es la cantidad de muestras (en E1 era probabilidad).<br>Fuentes: results/digits_final; nn/losses.py</aside>
+</section>
+
+<section class="section-divider">
+  <main>
+    <p class="section-number">2.1</p>
+    <h2>Exploración de datos</h2>
+    <p class="roadmap"><span class="current">Exploración de datos</span> · Entrenamiento · Resultados · Conclusiones</p>
+  </main>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 2 · Datos</span></header>
+  <h2>digits.csv no tiene ningún 8: el techo en test es 90,3 %</h2>
+  <main><figure><img src="assets/reports__digits_datasets__class_distribution.png" alt="Cantidad de imágenes por dígito en cada archivo"></figure></main>
+  <div class="take">Solo 271 cincos y ningún 8; el test tiene 243 ochos entre 2 497 imágenes.</div>
+  <aside class="notes">Cálculo: (2 497 − 243) / 2 497 = 90,3 %, si el modelo falla todos los ochos. La salida 8 recibe objetivos cero durante el entrenamiento. La validación de E2 tampoco mide el 8: explica por qué una buena validación de nueve clases convive con un test peor.<br>Fuentes: reports/digits_datasets/class_distribution.png</aside>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 2 · Datos · Ejemplos</span></header>
+  <h2>Así se ve el problema: la fila del 8 está vacía</h2>
+  <main><figure><img src="assets/results__digits_baseline__eda__examples.png" alt="Ejemplos por dígito sin la fila del 8"></figure></main>
+  <aside class="notes">Ocho ejemplos por dígito de digits.csv.<br>Fuentes: results/digits_baseline/eda/examples.png</aside>
+</section>
+
+<section class="section-divider">
+  <main>
+    <p class="section-number">2.2</p>
+    <h2>Entrenamiento</h2>
+    <p class="roadmap">Exploración de datos · <span class="current">Entrenamiento</span> · Resultados · Conclusiones</p>
+  </main>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 2 · Tasa de aprendizaje</span></header>
+  <h2>Una tasa menor necesita muchas más épocas</h2>
+  <main><figure><img src="assets/results__digits_learning_rates_500__learning_rate_comparison.png" alt="Curvas de validación por tasa de aprendizaje"></figure></main>
+  <div class="take">A 500 épocas: η = 0,1 llega a 95,10 %; η = 0,01, a 92,85 %. Seguimos con 0,1.</div>
+  <aside class="notes">SGD, 784-32-10, semilla 42, validación. Con η = 0,01 la accuracy pasa de 87,42 % a 92,85 % entre 50 y 500 épocas: una comparación corta penaliza a las tasas pequeñas. Más épocas pueden mejorar una tasa chica, pero no garantizan que termine siendo la mejor.<br>Fuentes: results/digits_learning_rates_500/learning_rate_comparison.png</aside>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 2 · Arquitectura</span></header>
+  <h2>Agregar ancho ayuda más que agregar capas</h2>
+  <main><figure><img src="assets/reports__presentation__ej2_arquitecturas.png" alt="Accuracy de validación por arquitectura"></figure></main>
+  <div class="take">De 32-32 a 128-128: +1,3 puntos. De 1 a 8 capas de 64: +0,5.</div>
+  <aside class="notes">Momentum 0,9, η = 0,1, tres semillas, validación de E2. Ancho: neuronas por capa; profundidad: capas ocultas. Más parámetros cuestan tiempo y no garantizan mejor generalización. La red ancha es candidata para E3; este gráfico no mide desempeño sobre los ochos. Las curvas por ancho y profundidad están en el apéndice.<br>Fuentes: reports/presentation/ej2_arquitecturas.png</aside>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 2 · Optimización</span></header>
+  <h2>Momentum 0,9 llega antes; la accuracy final es similar</h2>
+  <main><figure><img src="assets/reports__presentation__ej2_optimizadores.png" alt="Accuracy y época de mejor validación por optimizador"></figure></main>
+  <div class="take">Todos rondan el 96,3 %. Mejor época mediana: 76 con momentum 0,9 y 457 con SGD.</div>
+  <aside class="notes">784-64-32-10, hasta 500 épocas, cinco semillas. Momentum acumula parte de las actualizaciones previas; 0,9 conserva más memoria que 0,5. Elegimos momentum 0,9 por convergencia temprana. Épocas no equivale automáticamente a tiempo de pared.<br>Fuentes: reports/presentation/ej2_optimizadores.png</aside>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 2 · Activaciones</span></header>
+  <h2>Tanh y sigmoide empatan; ReLU es inestable</h2>
+  <main><figure><img src="assets/reports__presentation__ej2_activaciones.png" alt="Accuracy de validación por activación oculta"></figure></main>
+  <div class="take">ReLU cae a 71,8 % y 84,3 % en 2 de 5 semillas. Mantuvimos tanh, que converge antes.</div>
+  <aside class="notes">Tanh ≈ 96,26 % y sigmoide ≈ 96,49 %; mejor época mediana 76 (tanh) y 443 (sigmoide). La inestabilidad de ReLU con este protocolo justifica probar otra tasa o inicialización antes de descartarla en general. Neuronas inactivas es una hipótesis, no una causa demostrada.<br>Fuentes: reports/presentation/ej2_activaciones.png</aside>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 2 · Gradientes en profundidad</span></header>
+  <h2>El gradiente se desvanece con sigmoide, no con tanh ni ReLU</h2>
+  <main><figure><img src="assets/results__digits_relu_depth__gradient_profile.png" alt="Gradiente medio por capa al inicializar, 8 capas ocultas"></figure></main>
+  <div class="take">Gradiente de la primera capa / la última: sigmoide 10⁻⁶ · tanh 0,21 · ReLU 0,08.</div>
+  <aside class="notes">Hasta 8 capas, ReLU no tiene nada que corregir frente a tanh. Gradiente medio |∂L/∂W| de cada capa en un lote de 1 000 imágenes, antes de entrenar; red de 8 capas ocultas de 64, tres semillas. La sigmoide multiplica por a lo sumo 0,25 en cada capa: el gradiente se achica un millón de veces hasta la entrada. Tanh con Xavier y ReLU con He mantienen el gradiente parejo. Barrido de profundidad con ReLU + He (apéndice): con η = 0,1 colapsa desde 2 capas ("ReLU muerta": 30–45 % de unidades apagadas, accuracy de azar); con su propio η = 0,01, elegido en validación, queda por debajo de tanh en todas las profundidades (−0,4 puntos con 1 capa, −1,8 con 6). La ventaja de ReLU aparece en redes mucho más profundas o con otras técnicas que este TP no usa.<br>Fuentes: results/digits_relu_depth; experiments/digits/relu_depth.py</aside>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 2 · Regularización L2</span></header>
+  <h2>L2 con λ = 3·10⁻⁴ suma 0,7 puntos en las tres semillas</h2>
+  <main><figure><img src="assets/results__digits_l2__l2_validation_curves.png" alt="Curvas de validación por valor de λ"></figure></main>
+  <div class="take">Sin L2, la red empieza a memorizar cerca de la época 40; con L2 sigue mejorando hasta la ~290.</div>
+  <aside class="notes">L2 suma λ·W al gradiente de cada matriz de pesos (no a los sesgos): penaliza pesos grandes. Misma red y protocolo de E2 (784-64-32-10, tanh, momentum 0,9, η = 0,1, 300 épocas, mejor época de validación), tres semillas. Validación: 96,25 % sin L2 y 96,96 % con λ = 3·10⁻⁴ (+0,60, +0,88 y +0,64 por semilla, por encima del ruido entre semillas de 0,1–0,2). λ = 10⁻³ ya es neutro y 3·10⁻³ subajusta (−3,7 puntos). La mejor época queda cerca del límite de 300: entrenar más podría sumar algo. Solo se midió en E2; el resumen por λ está en el apéndice.<br>Fuentes: results/digits_l2; experiments/digits/l2_study.py</aside>
+</section>
+
+<section class="section-divider">
+  <main>
+    <p class="section-number">2.3</p>
+    <h2>Resultados</h2>
+    <p class="roadmap">Exploración de datos · Entrenamiento · <span class="current">Resultados</span> · Conclusiones</p>
+  </main>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 2 · Resultado en test</span></header>
+  <h2>85,90 % en test: siete de cada diez errores son ochos</h2>
+  <main><figure><img src="assets/results__digits_final__test_confusion_matrix.png" alt="Matriz de confusión en test del ejercicio 2"></figure></main>
+  <div class="take">Ningún hiperparámetro resuelve una clase ausente.</div>
+  <aside class="notes">Red 784-64-32-10, momentum 0,9, 76 épocas, reentrenada sobre todo digits.csv. Sin los ochos, la accuracy es 95,16 %: es un diagnóstico, no el resultado de la tarea completa. Recall del 5: 83,41 %. Pregunta b: variamos tasa, arquitectura, optimizador y activación. Lo que sigue: datos de las diez clases.<br>Fuentes: results/digits_final/test_confusion_matrix.png</aside>
+</section>
+
+<!-- =====================================================================
+     Ejercicio 3 (11 diapositivas, ~14 min)
+     ===================================================================== -->
+
+<section class="section-divider">
+  <main>
+    <p class="section-number">2.4</p>
+    <h2>Conclusiones</h2>
+    <p class="roadmap">Exploración de datos · Entrenamiento · Resultados · <span class="current">Conclusiones</span></p>
+  </main>
+</section>
+
+<section>
+  <header><span>Ejercicio 2 · Conclusiones</span></header>
+  <h2>Los hiperparámetros mejoran el aprendizaje; los datos ponen el techo</h2>
+  <main>
+    <table>
+      <thead><tr><th>Pregunta</th><th>Respuesta</th></tr></thead>
+      <tbody>
+        <tr><td>(a) ¿Cómo evaluamos?</td><td>Accuracy, F1 macro y matriz de confusión. Validación para elegir; test una vez.</td></tr>
+        <tr><td>(b) ¿Qué variantes?</td><td>Tasa η = 0,1 · red más ancha · momentum 0,9 · tanh · L2 (λ = 3·10⁻⁴).</td></tr>
+        <tr><td>Resultado</td><td>85,90 % en test; siete de cada diez errores son ochos.</td></tr>
+      </tbody>
+    </table>
+  </main>
+  <aside class="notes">Lo que sí mejoramos: la tasa y momentum reducen las épocas necesarias; una red más ancha mejora la validación; la matriz de confusión explica un resultado que la accuracy sola oculta. Lo que no resolvimos: ningún cambio de hiperparámetros compensa la ausencia del 8. Siguiente paso: datos nuevos y técnicas que los aprovechen.<br>Fuentes: results/digits_final; enunciado.md</aside>
+</section>
+
+<section class="divider">
+  <main>
+    <p class="divider-number">3</p>
+    <h2>Llegar al 98 % con más datos</h2>
+    <p class="lead">¿Cuánto aportan los datos nuevos y cuánto nuestras técnicas?</p>
+  </main>
+</section>
+
+<section class="section-divider">
+  <main>
+    <p class="section-number">3.1</p>
+    <h2>Exploración de datos</h2>
+    <p class="roadmap"><span class="current">Exploración de datos</span> · Entrenamiento · Resultados · Conclusiones · Opcionales</p>
+  </main>
+</section>
+
+<section>
+  <header><span>Ejercicio 3 · Datos</span></header>
+  <h2>Los nuevos datos traen los ochos que faltaban</h2>
+  <main>
+    <div class="columns">
+      <div>
+        <table>
+          <thead><tr><th>Imágenes distintas</th><th>E2</th><th>Unión E3</th></tr></thead>
+          <tbody>
+            <tr><td>Total</td><td>12 449</td><td>24 501</td></tr>
+            <tr><td>Dígito 8</td><td>0</td><td>585</td></tr>
+            <tr><td>Dígito 5</td><td>271</td><td>785</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div><p>Eliminamos 3 689 imágenes repetidas y separamos 4 900 de validación con las diez clases.</p></div>
+    </div>
+  </main>
+  <aside class="notes">Primero deduplicamos para que una misma imagen no quede a ambos lados de la partición. Validación fija (split_seed = 2026); entrenamiento: 19 601. Balanceo y augmentación se aplican solo a entrenamiento. No comparar directamente la validación de E2 con la de E3: difieren clases y muestras.<br>Fuentes: reports/digits_datasets; experiments/digits/data.py</aside>
+</section>
+
+<section class="section-divider">
+  <main>
+    <p class="section-number">3.2</p>
+    <h2>Entrenamiento</h2>
+    <p class="roadmap">Exploración de datos · <span class="current">Entrenamiento</span> · Resultados · Conclusiones · Opcionales</p>
+  </main>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 3 · Técnicas</span></header>
+  <h2>Augmentación y balanceo, solo sobre entrenamiento</h2>
+  <main><figure><img src="assets/reports__digits_augmentation__examples.png" alt="Ejemplos de augmentación"></figure></main>
+  <div class="take">Rotación ±10°, escala ±10 %, desplazamiento ±2 px. El balanceo repite clases escasas.</div>
+  <aside class="notes">La augmentación genera variaciones nuevas en cada época; una transformación debe conservar la etiqueta. El balanceo cambia cuánto pesan las clases. Ninguna de las dos crea ejemplos genuinos de una clase ausente.<br>Fuentes: reports/digits_augmentation/examples.png</aside>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 3 · 3(c) Datos y técnicas</span></header>
+  <h2>Los datos nuevos y las técnicas aportan por separado</h2>
+  <main><figure><img src="assets/reports__presentation__ej3_datos_vs_tecnicas.png" alt="Accuracy de validación según datos y técnicas"></figure></main>
+  <div class="take">Misma red: 93,18 % → 96,17 % con datos nuevos → 97,88 % con datos y técnicas.</div>
+  <aside class="notes">Pregunta c. Misma red 784-64-32-10, validación común de diez clases, tres semillas. Solo digits.csv con técnicas: 95,49 %. Efecto de las técnicas: 2,31 puntos con digits y 1,71 con la unión: no son exactamente aditivos. Sin los nuevos datos, el recall del 8 sigue en cero.<br>Fuentes: reports/presentation/ej3_datos_vs_tecnicas.png</aside>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 3 · 3(b) Técnicas</span></header>
+  <h2>La augmentación da el salto; el balanceo levanta el 5 y el 8</h2>
+  <main><figure><img src="assets/reports__presentation__ej3_factorial.png" alt="Accuracy y recall por combinación de técnicas"></figure></main>
+  <div class="take">Con ambas, recall del 5: 96,2 → 97,7 %; del 8: 92,0 → 94,6 %.</div>
+  <aside class="notes">Pregunta b. Unión de datos, red 784-64-32-10, tres semillas. Sin técnicas 96,17 %; con augmentación ≈ 98,07 %. El selector por F1 macro favorecía augmentación sola; usamos ambas para priorizar el recall de las clases escasas. El 97,88 % anterior y el 98,07 % difieren por el sorteo del balanceo, no son una mejora nueva.<br>Fuentes: reports/presentation/ej3_factorial.png</aside>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 3 · Arquitectura</span></header>
+  <h2>Con más datos, la red ancha vuelve a ganar: 98,69 %</h2>
+  <main><figure><img src="assets/reports__presentation__ej3_arquitecturas.png" alt="Accuracy de validación por arquitectura en E3"></figure></main>
+  <div class="take">784-128-128-10, tanh, sigmoide + MSE, momentum 0,9, con ambas técnicas.</div>
+  <aside class="notes">Tres semillas; selección por F1 macro entre arquitecturas con accuracy media ≥ 98 % en validación. 118 282 parámetros. Mayor anchura resultó favorable en este rango, sin prometer que seguir aumentando mejore. No atribuir este resultado a softmax.<br>Fuentes: reports/presentation/ej3_arquitecturas.png</aside>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 3 · Experimento adicional</span></header>
+  <h2>Softmax con entropía cruzada suma 0,3 puntos en la red chica</h2>
+  <main><figure><img src="assets/reports__digits_training_ablation__validation_curves.png" alt="Curvas de validación: referencia, softmax y Adam"></figure></main>
+  <div class="take">64-32: 98,07 % → 98,37 %; Adam no agrega más. Falta probarlo en 128-128.</div>
+  <aside class="notes">Softmax hace que las diez salidas sumen uno; la entropía cruzada penaliza asignar poca probabilidad a la clase correcta. Tres semillas y tasa elegida por configuración; se cambian juntas salida y pérdida. Cifras de validación, no de test. No concluir que softmax calibró las probabilidades ni que Adam no sirve.<br>Fuentes: reports/digits_training_ablation/report.md</aside>
+</section>
+
+<section class="section-divider">
+  <main>
+    <p class="section-number">3.3</p>
+    <h2>Resultados</h2>
+    <p class="roadmap">Exploración de datos · Entrenamiento · <span class="current">Resultados</span> · Conclusiones · Opcionales</p>
+  </main>
+</section>
+
+<section>
+  <header><span>Ejercicio 3 · 3(a) Resultado</span></header>
+  <h2>Las tres semillas superan el 98 % en test</h2>
+  <main>
+    <div class="columns">
+      <div><div class="big">98,63 %</div><p>Accuracy media sobre 2 497 imágenes.</p></div>
+      <div>
+        <table>
+          <thead><tr><th>Semilla</th><th>Validación</th><th>Test</th></tr></thead>
+          <tbody>
+            <tr><td>42</td><td>98,67 %</td><td>98,56 %</td></tr>
+            <tr><td>7</td><td>98,76 %</td><td>98,80 %</td></tr>
+            <tr><td>21</td><td>98,63 %</td><td>98,52 %</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+  <div class="take">Mejor: 98,80 % con la semilla 7, que también es la mejor en validación.</div>
+  <aside class="notes">Modelo final: 784-128-128-10, sigmoide + MSE, momentum 0,9. Reportamos todas las semillas, sin elegir por test. Se consultó el mismo test en varias etapas de E3; las decisiones registradas se basan en validación. Los números describen ese test, no garantizan 98 % en otra población.<br>Fuentes: reports/digits_e3_final/summary.json</aside>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 3 · Análisis del resultado</span></header>
+  <h2>El recall del 8 pasa de 0 % a 97,53 %</h2>
+  <main><figure><img src="assets/reports__digits_e3_final__test_confusion_matrix.png" alt="Matriz de confusión en test del ejercicio 3"></figure></main>
+  <div class="take">Quedan 30 errores en 2 497. Recall del 5: 83,41 → 98,65 %.</div>
+  <aside class="notes">Semilla 7. El error más frecuente, 9 → 7, tiene 3 casos. Esta comparación E2/E3 cambia datos, técnicas y arquitectura a la vez; el experimento de datos y técnicas sirve para separar aportes. Los ejemplos de error están en el apéndice.<br>Fuentes: reports/digits_e3_final/test_confusion_matrix.png</aside>
+</section>
+
+<section class="section-divider">
+  <main>
+    <p class="section-number">3.4</p>
+    <h2>Conclusiones</h2>
+    <p class="roadmap">Exploración de datos · Entrenamiento · Resultados · <span class="current">Conclusiones</span> · Opcionales</p>
+  </main>
+</section>
+
+<section>
+  <header><span>Ejercicio 3 · Conclusiones</span></header>
+  <h2>98,63 % en test: datos nuevos, técnicas y una red más ancha</h2>
+  <main>
+    <table>
+      <thead><tr><th>Pregunta</th><th>Respuesta</th></tr></thead>
+      <tbody>
+        <tr><td>(a) Mejor resultado</td><td>98,63 % de media en tres semillas; mejor 98,80 %.</td></tr>
+        <tr><td>(b) Técnicas</td><td>Augmentación, balanceo y red 784-128-128-10.</td></tr>
+        <tr><td>(c) Otros factores</td><td>Datos nuevos: más ejemplos y los ochos que faltaban (93,18 → 96,17 % sin técnicas).</td></tr>
+      </tbody>
+    </table>
+  </main>
+  <aside class="notes">Los aportes no son exactamente aditivos (técnicas: 2,31 puntos con digits.csv y 1,71 con la unión). El test se consultó en varias etapas de E3; las decisiones se tomaron con validación. Una evaluación independiente requiere imágenes nuevas.<br>Fuentes: reports/presentation/ej3_datos_vs_tecnicas.png; reports/digits_e3_final/summary.json</aside>
+</section>
+
+<section class="section-divider">
+  <main>
+    <p class="section-number">3.5</p>
+    <h2>Opcionales (ejercicios 2 y 3)</h2>
+    <p class="roadmap">Exploración de datos · Entrenamiento · Resultados · Conclusiones · <span class="current">Opcionales</span></p>
+  </main>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 3 · Opcional: ruido</span></header>
+  <h2>Tolera ruido leve; con σ = 0,2 cae a 86 %</h2>
+  <main><figure><img src="assets/reports__digits_e3_noise__noise_robustness.png" alt="Accuracy según el nivel de ruido gaussiano"></figure></main>
+  <div class="take">σ = 0,05: 98,73 % · σ = 0,2: 85,99 % · σ = 0,4: 47,73 %.</div>
+  <aside class="notes">σ es la intensidad del ruido gaussiano sobre píxeles en [0, 1]. Cinco realizaciones por nivel, sobre el mismo test. σ = 0 da 98,80 % y σ = 0,1 da 97,94 %. No se entrenó con ruido: incorporarlo sería una prueba futura. Los ejemplos visuales de cada nivel están en el apéndice.<br>Fuentes: reports/digits_e3_noise/noise_robustness.png</aside>
+</section>
+
+<section>
+  <header><span>Ejercicio 3 · Opcional: interpretabilidad</span></header>
+  <h2>Un error visto por dentro: el modelo confunde un 0 con un 6</h2>
+  <main>
+    <div class="row-crop"><img src="assets/reports__digits_e3_interpretability__attribution_errors.png" alt="Imagen, gradiente y oclusión para el error 0 a 6"></div>
+    <p class="small"><strong>Gradiente:</strong> qué píxeles cambian más la ventaja del 6. <strong>Oclusión:</strong> tapamos parches de 4 × 4; rojo = taparlo reduce esa ventaja.</p>
+  </main>
+  <div class="take">Explica una predicción concreta; no prueba que la red "entienda" el dígito.</div>
+  <aside class="notes">Etiqueta real 0, predicción 6; comparamos el score del 6 frente al del 0. Se muestra la primera fila del reporte de errores. El mapa ayuda a explicar una predicción concreta; no prueba que la red comprenda la forma como una persona. Se analizaron 10 aciertos (apéndice) y 19 errores de validación seleccionados, no una muestra aleatoria.<br>Fuentes: reports/digits_e3_interpretability/attribution_errors.png; docs/ejercicio3_interpretabilidad.md</aside>
+</section>
+
+<!-- =====================================================================
+     Cierre (1 diapositiva)
+     ===================================================================== -->
+
+<section class="closing">
+  <header><span>Cierre</span></header>
+  <h2>Qué le responderíamos a CompanyX</h2>
+  <main>
+    <table>
+      <thead><tr><th>Pregunta</th><th>Respuesta</th></tr></thead>
+      <tbody>
+        <tr><td>E1 · Modelo y umbral</td><td>Perceptrón sigmoide de 7 parámetros. Umbral 0,888 por F1.</td></tr>
+        <tr><td>E2 · Desempeño y variantes</td><td>85,90 % en test. Los hiperparámetros mejoran el aprendizaje; falta la clase 8.</td></tr>
+        <tr><td>E3(a) · Mejor resultado</td><td>98,63 % de media en tres semillas; mejor 98,80 %.</td></tr>
+        <tr><td>E3(b) · Técnicas</td><td>Augmentación, balanceo y una red más ancha.</td></tr>
+        <tr><td>E3(c) · Otros factores</td><td>Más ejemplos y cobertura de las diez clases.</td></tr>
+      </tbody>
+    </table>
+  </main>
+  <div class="take">Los datos y la evaluación pesan tanto como la elección de la red.</div>
+  <aside class="notes">Cerrar conectando cada respuesta con la evidencia mostrada. Límites: el test de E3 se consultó en varias etapas, y la robustez a ruido intenso es baja. Una evaluación independiente requiere imágenes nuevas.<br>Fuentes: enunciado.md; reports/digits_e3_final/summary.json</aside>
+</section>
+
+<!-- =====================================================================
+     Apéndice: respaldo para preguntas (no se presenta)
+     ===================================================================== -->
+
+<section class="divider">
+  <main>
+    <p class="divider-number">A</p>
+    <h2>Gráficos de respaldo</h2>
+  </main>
+  <aside class="notes">Mostrar solo si alguna pregunta lo requiere.</aside>
+</section>
+
+<section class="chart"><header><span>Apéndice · Ejercicio 1</span></header><h2>Correlaciones entre todas las columnas</h2><main><figure><img src="assets/reports__fraud_eda__correlation_matrices.png" alt="Matrices de correlación de Pearson y Spearman"><figcaption>Pearson (lineal) y Spearman (monótona). Correlación no implica causalidad.</figcaption></figure></main><aside class="notes">Fuentes: reports/fraud_eda/correlation_matrices.png</aside></section>
+
+<section class="chart"><header><span>Apéndice · Ejercicio 1</span></header><h2>Las tres columnas descartadas no cambian la probabilidad media</h2><main><figure><img src="assets/reports__fraud_eda__feature_vs_target.png" alt="Probabilidad media por rango de las nueve columnas"><figcaption>timestamp, device_screen_resolution y time_since_last_login_s quedan planas, cerca de la media global (0,42).</figcaption></figure></main><aside class="notes">Fuentes: reports/fraud_eda/feature_vs_target.png</aside></section>
+
+<section class="chart"><header><span>Apéndice · Ejercicio 1</span></header><h2>Distribución de cada característica por clase</h2><main><figure><img src="assets/reports__fraud_eda__feature_distributions_by_class.png" alt="Histogramas por clase"><figcaption>Complementa la correlación: muestra diferencias que un único coeficiente resume demasiado.</figcaption></figure></main><aside class="notes">Fuentes: reports/fraud_eda/feature_distributions_by_class.png</aside></section>
+
+<section class="chart"><header><span>Apéndice · Ejercicio 1</span></header><h2>Train y validación bajan juntos durante todo el entrenamiento</h2><main><figure><img src="assets/reports__fraud_probability__cross_validation_error.png" alt="RMSE de train y validación por época"><figcaption>RMSE medio de los 5 folds por época (4 800 filas de entrenamiento y 1 200 de validación por fold).</figcaption></figure></main><aside class="notes">Fuentes: reports/fraud_probability/cross_validation_error.png</aside></section>
+
+<section class="chart"><header><span>Apéndice · Ejercicio 1</span></header><h2>Desde 200 épocas el error ya no baja</h2><main><figure><img src="assets/reports__fraud_probability__epoch_sweep.png" alt="RMSE según cantidad de épocas"><figcaption>Sigmoide: 0,135 con 25 épocas, 0,1051 con 200 y 0,1047 con 1 000. El lineal queda en 0,162 desde la época 10.</figcaption></figure></main><aside class="notes">Fuentes: reports/fraud_probability/epoch_sweep.png</aside></section>
+
+<section class="chart"><header><span>Apéndice · Ejercicio 1</span></header><h2>La inicialización guiada converge antes, pero termina igual</h2><main><figure><img src="assets/reports__fraud_probability__hyperparameter_studies__initialization_curves.png" alt="RMSE de validación según inicialización"><figcaption>Una buena inicialización acelera la optimización; no aumenta la capacidad de una sola neurona.</figcaption></figure></main><aside class="notes">Fuentes: reports/fraud_probability/hyperparameter_studies/initialization_curves.png</aside></section>
+
+<section class="chart"><header><span>Apéndice · Ejercicio 1</span></header><h2>Puntajes de TinyModel por clase</h2><main><figure><img src="assets/reports__fraud_probability__validation__score_distribution_by_class.png" alt="Histograma del puntaje por clase"><figcaption>El solapamiento cerca del umbral explica por qué ningún umbral elimina todos los errores.</figcaption></figure></main><aside class="notes">Fuentes: reports/fraud_probability/validation/score_distribution_by_class.png</aside></section>
+
+<section class="chart"><header><span>Apéndice · Ejercicio 1</span></header><h2>Una sola ReLU produce 74 salidas mayores que 1 en test</h2><main><figure><img src="assets/reports__fraud_activation_comparison__predicted_vs_target_by_activation.png" alt="Predicciones en test por activación"><figcaption>Las salidas por encima de 1 son los fraudes más evidentes: la ReLU no satura. La sigmoide no tiene ninguna fuera de [0, 1].</figcaption></figure></main><aside class="notes">Fuentes: reports/fraud_activation_comparison/predicted_vs_target_by_activation.png</aside></section>
+
+<section class="chart"><header><span>Apéndice · Ejercicio 2</span></header><h2>El 5 y el 8 están subrepresentados en entrenamiento, no en test</h2><main><figure><img src="assets/reports__digits_datasets__class_share.png" alt="Proporción de cada dígito por archivo"><figcaption>digits.csv: 271 cincos (2 %) y ningún 8. more_digits.csv agrega 585 ochos. En test, cada dígito ronda el 10 %.</figcaption></figure></main><aside class="notes">Fuentes: reports/digits_datasets/class_share.png</aside></section>
+
+<section class="chart"><header><span>Apéndice · Ejercicio 2</span></header><h2>Imagen promedio de cada dígito</h2><main><figure><img src="assets/results__digits_baseline__eda__mean_images.png" alt="Imágenes promedio por dígito"><figcaption>Los promedios muestran trazos frecuentes; no sustituyen a los ejemplos individuales.</figcaption></figure></main><aside class="notes">Fuentes: results/digits_baseline/eda/mean_images.png</aside></section>
+
+<section class="chart"><header><span>Apéndice · Ejercicio 2</span></header><h2>Curvas de validación por ancho</h2><main><figure><img src="assets/results__digits_width_sweep__architecture_comparison.png" alt="Curvas de validación por ancho"><figcaption>Distintas cantidades de neuronas por capa.</figcaption></figure></main><aside class="notes">Fuentes: results/digits_width_sweep/architecture_comparison.png</aside></section>
+
+<section class="chart"><header><span>Apéndice · Ejercicio 2</span></header><h2>Curvas de validación por profundidad</h2><main><figure><img src="assets/results__digits_depth_sweep__depth_learning_curves.png" alt="Curvas de validación por profundidad"><figcaption>Curvas medias según la cantidad de capas ocultas.</figcaption></figure></main><aside class="notes">Fuentes: results/digits_depth_sweep/depth_learning_curves.png</aside></section>
+
+<section class="chart"><header><span>Apéndice · Ejercicio 2</span></header><h2>Ocho capas ocultas suman medio punto y más variabilidad</h2><main><figure><img src="assets/results__digits_depth_sweep__depth_comparison.png" alt="Accuracy y F1 por profundidad"><figcaption>De 1 a 8 capas: 96,08 % → 96,63 %; con 7 capas el desvío llega a 0,55 puntos.</figcaption></figure></main><aside class="notes">Fuentes: results/digits_depth_sweep/depth_comparison.png</aside></section>
+
+<section class="chart"><header><span>Apéndice · Ejercicio 2</span></header><h2>Curvas de validación por optimizador</h2><main><figure><img src="assets/results__digits_optimizers__optimizer_comparison.png" alt="Error y accuracy de validación por optimizador"><figcaption>Una corrida por optimizador; complementa el resumen de cinco semillas.</figcaption></figure></main><aside class="notes">Fuentes: results/digits_optimizers/optimizer_comparison.png</aside></section>
+
+<section class="chart"><header><span>Apéndice · Ejercicio 2</span></header><h2>Con cinco semillas, los optimizadores difieren en 0,1 puntos</h2><main><figure><img src="assets/results__digits_seeds__seed_comparison.png" alt="Accuracy y recall del 5 por semilla y optimizador"><figcaption>SGD 96,24 %, momentum 0,5 96,35 %, momentum 0,9 96,26 %. Mejor época mediana: 457, 380 y 76.</figcaption></figure></main><aside class="notes">Fuentes: results/digits_seeds/seed_comparison.png</aside></section>
+
+<section class="chart"><header><span>Apéndice · Ejercicio 2</span></header><h2>L2 según λ: accuracy, brecha y norma de los pesos</h2><main><figure><img src="assets/results__digits_l2__l2_comparison.png" alt="Accuracy, brecha y norma de pesos por λ"><figcaption>Mejor λ = 3·10⁻⁴ (96,96 %). Con λ = 3·10⁻³ la brecha casi desaparece porque baja también el entrenamiento: subajuste.</figcaption></figure></main><aside class="notes">La brecha en la mejor época no es la mejor lectura: sin L2 la mejor época es tan temprana (~40) que el entrenamiento todavía no saturó. Las curvas de validación muestran mejor el efecto.<br>Fuentes: results/digits_l2/l2_comparison.png</aside></section>
+
+<section class="chart"><header><span>Apéndice · Ejercicio 2</span></header><h2>ReLU en profundidad: colapsa con η = 0,1 y queda debajo de tanh con η = 0,01</h2><main><figure><img src="assets/results__digits_relu_depth__depth_comparison.png" alt="Accuracy por profundidad para tanh y ReLU"><figcaption>ReLU con η = 0,01 frente a tanh: −0,4 puntos con 1 capa, −1,8 con 6; con 8 capas una semilla colapsa (71,7 %).</figcaption></figure></main><aside class="notes">Mismo protocolo que el barrido de profundidad con tanh, salvo activación, inicialización y tasa. η = 0,01 para ReLU se eligió en validación con 4 capas (results/digits_relu_lr_check). Con η = 0,1 se apagan 30–45 % de las unidades en la primera época y la red queda prediciendo una sola clase.<br>Fuentes: results/digits_relu_depth/depth_comparison.png</aside></section>
+
+<section class="chart"><header><span>Apéndice · Ejercicio 3</span></header><h2>Datos nuevos y técnicas mejoran la validación en cada paso</h2><main><figure><img src="assets/reports__digits_e3_datos_vs_tecnicas__validation_curves.png" alt="Curvas de validación por paso"><figcaption>Mejor semilla de cada paso: 93,18 %, 95,49 %, 96,17 % y 97,88 % (medias de tres semillas).</figcaption></figure></main><aside class="notes">Fuentes: reports/digits_e3_datos_vs_tecnicas/validation_curves.png</aside></section>
+
+<section class="chart"><header><span>Apéndice · Ejercicio 3</span></header><h2>Curvas de validación del factorial de técnicas</h2><main><figure><img src="assets/reports__digits_e3_factorial__validation_curves.png" alt="Curvas de validación por combinación de técnicas"><figcaption>Mismos datos y validación: ninguna técnica, balanceo, augmentación y ambas.</figcaption></figure></main><aside class="notes">Fuentes: reports/digits_e3_factorial/validation_curves.png</aside></section>
+
+<section class="chart"><header><span>Apéndice · Ejercicio 3</span></header><h2>El tamaño de lote cambia el tiempo, no la accuracy</h2><main><figure><img src="assets/reports__digits_e3_batch_sizes__batch_size_comparison.png" alt="Accuracy y tiempo por tamaño de lote"><figcaption>784-128-128-10, tres semillas. Accuracy media entre 98,64 % y 98,73 % con lotes de 32 a 256.</figcaption></figure></main><aside class="notes">Con 25 700 filas, un lote de 32 hace 804 actualizaciones por época y uno de 256, 101. Tiempos medios de 43 a 63 minutos. El modelo final usa lote 128.<br>Fuentes: reports/digits_e3_batch_sizes/batch_size_comparison.png</aside></section>
+
+<section class="chart"><header><span>Apéndice · Ejercicio 3</span></header><h2>Qué imágenes sigue confundiendo el modelo</h2><main><figure><img src="assets/reports__digits_e3_final__test_errores.png" alt="Errores de test con mayor score"><figcaption>Errores de test con mayor score para la clase equivocada: una selección dirigida, no aleatoria.</figcaption></figure></main><aside class="notes">Un score alto no impide equivocarse: las diez sigmoides no son una distribución calibrada. No medimos desempeño humano.<br>Fuentes: reports/digits_e3_final/test_errores.png</aside></section>
+
+<section class="chart"><header><span>Apéndice · Ejercicio 3</span></header><h2>Niveles de ruido gaussiano</h2><main><figure><img src="assets/reports__digits_augmentation__noise_levels.png" alt="Ejemplos con distintos niveles de ruido"><figcaption>Cómo se ve cada σ sobre píxeles normalizados en [0, 1].</figcaption></figure></main><aside class="notes">Fuentes: reports/digits_augmentation/noise_levels.png</aside></section>
+
+<section class="chart"><header><span>Apéndice · Ejercicio 3</span></header><h2>En los aciertos, pocas regiones sostienen la decisión</h2><main><figure><img src="assets/reports__digits_e3_interpretability__attribution_correct__grilla.png" alt="Atribuciones para un acierto de cada dígito"><figcaption>Un acierto por dígito, de validación: imagen, gradiente y oclusión (rojo: tapar ese parche reduce el margen).</figcaption></figure></main><aside class="notes">Figura reorganizada en grilla, sin el texto lateral. Ilustra el comportamiento del modelo; no es evidencia causal.<br>Fuentes: reports/digits_e3_interpretability/attribution_correct.png</aside></section>
+
+</div></div>
+<script src="vendor/reveal/reveal.js"></script>
+<script src="vendor/reveal/plugin/notes.js"></script>
+<script src="vendor/reveal/plugin/math.js"></script>
+<script>
+  Reveal.initialize({
+    width: 1280,
+    height: 720,
+    margin: 0.025,
+    center: false,
+    hash: true,
+    controls: false,
+    progress: false,
+    slideNumber: "c/t",
+    transition: "none",
+    backgroundTransition: "none",
+    katex: { local: "vendor/katex" },
+    plugins: [RevealNotes, RevealMath.KaTeX],
+  });
+</script>
+</body>
+</html>

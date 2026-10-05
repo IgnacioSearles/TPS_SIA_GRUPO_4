@@ -1,0 +1,4 @@
+balance+augment seed=42 epoch=1/400 val_accuracy=90.1020% val_macro_f1=0.8781
+balance+augment seed=42 epoch=25/400 val_accuracy=96.2245% val_macro_f1=0.9530
+balance+augment seed=42 epoch=50/400 val_accuracy=96.3469% val_macro_f1=0.9546
+balance+augment seed=42 epoch=75/400 val_accuracy=96.0816% val_macro_f1=0.9472
