@@ -120,7 +120,7 @@ def write_eda(X: np.ndarray, y: np.ndarray, output: Path) -> None:
     lines += [
         "", "La intensidad media es el promedio de los 784 valores de píxel de una imagen, promediado por clase. Incluye el fondo; por eso se complementa con la intensidad del trazo, el área activa y su geometría.",
         "", "## Medidas completas", "",
-        "`image_features.csv` contiene 23 medidas por imagen y `class_features.csv` resume cada medida por dígito con media, mediana, desvío y cuartiles. Incluyen intensidad total y del trazo; píxeles > 0,1 y > 0,5; caja, densidad y proporción; centro y dispersión horizontal/vertical; fracción de masa en la mitad izquierda/superior; simetría y variación entre píxeles vecinos.",
+        "Se calcularon 23 medidas por imagen: intensidad total y del trazo; píxeles > 0,1 y > 0,5; caja, densidad y proporción; centro y dispersión horizontal/vertical; fracción de masa en la mitad izquierda/superior; simetría y variación entre píxeles vecinos. `image_features.csv` guarda el detalle por imagen y se genera localmente, pero se omite del repositorio por tamaño. `class_features.csv` conserva el resumen por dígito (media, mediana, desvío y cuartiles).",
         "", "| Familia | Columnas | Interpretación |", "| --- | --- | --- |",
         "| Intensidad | `pixel_mean`, `pixel_std`, `total_intensity`, `foreground_mean` | Brillo global, variación, suma de píxeles y brillo de los activos |",
         "| Área activa | `active_pixels`, `active_fraction`, `strong_pixels`, `strong_fraction` | Cantidad y proporción de píxeles > 0,1 y > 0,5 |",
