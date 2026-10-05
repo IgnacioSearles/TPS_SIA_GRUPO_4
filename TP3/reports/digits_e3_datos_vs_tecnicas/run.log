@@ -1,0 +1,86 @@
+Solo digits.csv, sin técnicas seed=42 epoch=1/400 val_accuracy=83.9592% val_macro_f1=0.6899
+Solo digits.csv, sin técnicas seed=42 epoch=25/400 val_accuracy=92.1837% val_macro_f1=0.8223
+Solo digits.csv, sin técnicas seed=42 epoch=50/400 val_accuracy=93.0408% val_macro_f1=0.8363
+Solo digits.csv, sin técnicas seed=42 epoch=75/400 val_accuracy=93.2449% val_macro_f1=0.8400
+Solo digits.csv, sin técnicas seed=42 epoch=100/400 val_accuracy=93.1020% val_macro_f1=0.8380
+Solo digits.csv, sin técnicas seed=42 epoch=125/400 val_accuracy=93.1633% val_macro_f1=0.8386
+Solo digits.csv, sin técnicas — semilla 42: val=93.2653%, época=88/138
+Solo digits.csv, sin técnicas seed=7 epoch=1/400 val_accuracy=83.3673% val_macro_f1=0.6843
+Solo digits.csv, sin técnicas seed=7 epoch=25/400 val_accuracy=92.4694% val_macro_f1=0.8287
+Solo digits.csv, sin técnicas seed=7 epoch=50/400 val_accuracy=93.0204% val_macro_f1=0.8366
+Solo digits.csv, sin técnicas seed=7 epoch=75/400 val_accuracy=93.1224% val_macro_f1=0.8384
+Solo digits.csv, sin técnicas seed=7 epoch=100/400 val_accuracy=93.0408% val_macro_f1=0.8374
+Solo digits.csv, sin técnicas — semilla 7: val=93.1633%, época=66/108
+Solo digits.csv, sin técnicas seed=21 epoch=1/400 val_accuracy=84.2857% val_macro_f1=0.6927
+Solo digits.csv, sin técnicas seed=21 epoch=25/400 val_accuracy=92.0816% val_macro_f1=0.8270
+Solo digits.csv, sin técnicas seed=21 epoch=50/400 val_accuracy=92.7551% val_macro_f1=0.8352
+Solo digits.csv, sin técnicas seed=21 epoch=75/400 val_accuracy=92.9388% val_macro_f1=0.8371
+Solo digits.csv, sin técnicas seed=21 epoch=100/400 val_accuracy=93.0612% val_macro_f1=0.8388
+Solo digits.csv, sin técnicas seed=21 epoch=125/400 val_accuracy=92.9796% val_macro_f1=0.8378
+Solo digits.csv, sin técnicas — semilla 21: val=93.1020%, época=101/128
+Solo digits.csv, balanceo y augmentación seed=42 epoch=1/400 val_accuracy=80.2449% val_macro_f1=0.7023
+Solo digits.csv, balanceo y augmentación seed=42 epoch=25/400 val_accuracy=94.5306% val_macro_f1=0.8529
+Solo digits.csv, balanceo y augmentación seed=42 epoch=50/400 val_accuracy=94.8980% val_macro_f1=0.8576
+Solo digits.csv, balanceo y augmentación seed=42 epoch=75/400 val_accuracy=95.0816% val_macro_f1=0.8598
+Solo digits.csv, balanceo y augmentación seed=42 epoch=100/400 val_accuracy=95.3469% val_macro_f1=0.8661
+Solo digits.csv, balanceo y augmentación seed=42 epoch=125/400 val_accuracy=95.4490% val_macro_f1=0.8657
+Solo digits.csv, balanceo y augmentación — semilla 42: val=95.5510%, época=80/130
+Solo digits.csv, balanceo y augmentación seed=7 epoch=1/400 val_accuracy=76.3265% val_macro_f1=0.6429
+Solo digits.csv, balanceo y augmentación seed=7 epoch=25/400 val_accuracy=93.9796% val_macro_f1=0.8479
+Solo digits.csv, balanceo y augmentación seed=7 epoch=50/400 val_accuracy=94.5306% val_macro_f1=0.8528
+Solo digits.csv, balanceo y augmentación seed=7 epoch=75/400 val_accuracy=95.1429% val_macro_f1=0.8590
+Solo digits.csv, balanceo y augmentación seed=7 epoch=100/400 val_accuracy=95.1429% val_macro_f1=0.8601
+Solo digits.csv, balanceo y augmentación seed=7 epoch=125/400 val_accuracy=95.3061% val_macro_f1=0.8600
+Solo digits.csv, balanceo y augmentación seed=7 epoch=150/400 val_accuracy=95.1020% val_macro_f1=0.8587
+Solo digits.csv, balanceo y augmentación — semilla 7: val=95.5306%, época=162/163
+Solo digits.csv, balanceo y augmentación seed=21 epoch=1/400 val_accuracy=77.6531% val_macro_f1=0.6833
+Solo digits.csv, balanceo y augmentación seed=21 epoch=25/400 val_accuracy=93.6735% val_macro_f1=0.8474
+Solo digits.csv, balanceo y augmentación seed=21 epoch=50/400 val_accuracy=94.7551% val_macro_f1=0.8577
+Solo digits.csv, balanceo y augmentación seed=21 epoch=75/400 val_accuracy=94.9388% val_macro_f1=0.8607
+Solo digits.csv, balanceo y augmentación seed=21 epoch=100/400 val_accuracy=94.8776% val_macro_f1=0.8587
+Solo digits.csv, balanceo y augmentación seed=21 epoch=125/400 val_accuracy=95.1837% val_macro_f1=0.8615
+Solo digits.csv, balanceo y augmentación — semilla 21: val=95.3878%, época=134/141
+Combinado, sin técnicas seed=42 epoch=1/400 val_accuracy=86.7143% val_macro_f1=0.7132
+Combinado, sin técnicas seed=42 epoch=25/400 val_accuracy=95.7143% val_macro_f1=0.9437
+Combinado, sin técnicas seed=42 epoch=50/400 val_accuracy=96.3061% val_macro_f1=0.9509
+Combinado, sin técnicas seed=42 epoch=75/400 val_accuracy=96.2449% val_macro_f1=0.9513
+Combinado, sin técnicas — semilla 42: val=96.4286%, época=90/94
+Combinado, sin técnicas seed=7 epoch=1/400 val_accuracy=86.8571% val_macro_f1=0.7144
+Combinado, sin técnicas seed=7 epoch=25/400 val_accuracy=95.4082% val_macro_f1=0.9401
+Combinado, sin técnicas seed=7 epoch=50/400 val_accuracy=95.8367% val_macro_f1=0.9445
+Combinado, sin técnicas seed=7 epoch=75/400 val_accuracy=95.7551% val_macro_f1=0.9449
+Combinado, sin técnicas — semilla 7: val=95.9592%, época=57/95
+Combinado, sin técnicas seed=21 epoch=1/400 val_accuracy=86.8980% val_macro_f1=0.7146
+Combinado, sin técnicas seed=21 epoch=25/400 val_accuracy=95.4898% val_macro_f1=0.9409
+Combinado, sin técnicas seed=21 epoch=50/400 val_accuracy=96.1224% val_macro_f1=0.9487
+Combinado, sin técnicas seed=21 epoch=75/400 val_accuracy=96.0204% val_macro_f1=0.9491
+Combinado, sin técnicas — semilla 21: val=96.1224%, época=62/99
+Combinado, balanceo y augmentación seed=42 epoch=1/400 val_accuracy=86.6122% val_macro_f1=0.8379
+Combinado, balanceo y augmentación seed=42 epoch=25/400 val_accuracy=95.8367% val_macro_f1=0.9416
+Combinado, balanceo y augmentación seed=42 epoch=50/400 val_accuracy=97.2449% val_macro_f1=0.9660
+Combinado, balanceo y augmentación seed=42 epoch=75/400 val_accuracy=97.2857% val_macro_f1=0.9655
+Combinado, balanceo y augmentación seed=42 epoch=100/400 val_accuracy=97.6327% val_macro_f1=0.9691
+Combinado, balanceo y augmentación seed=42 epoch=125/400 val_accuracy=97.4286% val_macro_f1=0.9650
+Combinado, balanceo y augmentación — semilla 42: val=97.7551%, época=106/142
+Combinado, balanceo y augmentación seed=7 epoch=1/400 val_accuracy=87.3878% val_macro_f1=0.8401
+Combinado, balanceo y augmentación seed=7 epoch=25/400 val_accuracy=96.3878% val_macro_f1=0.9522
+Combinado, balanceo y augmentación seed=7 epoch=50/400 val_accuracy=96.5510% val_macro_f1=0.9571
+Combinado, balanceo y augmentación seed=7 epoch=75/400 val_accuracy=97.4490% val_macro_f1=0.9669
+Combinado, balanceo y augmentación seed=7 epoch=100/400 val_accuracy=97.3265% val_macro_f1=0.9641
+Combinado, balanceo y augmentación seed=7 epoch=125/400 val_accuracy=97.6531% val_macro_f1=0.9712
+Combinado, balanceo y augmentación seed=7 epoch=150/400 val_accuracy=97.6939% val_macro_f1=0.9706
+Combinado, balanceo y augmentación seed=7 epoch=175/400 val_accuracy=97.7347% val_macro_f1=0.9723
+Combinado, balanceo y augmentación seed=7 epoch=200/400 val_accuracy=97.5918% val_macro_f1=0.9673
+Combinado, balanceo y augmentación — semilla 7: val=98.2449%, época=167/217
+Combinado, balanceo y augmentación seed=21 epoch=1/400 val_accuracy=87.7551% val_macro_f1=0.8539
+Combinado, balanceo y augmentación seed=21 epoch=25/400 val_accuracy=96.4898% val_macro_f1=0.9546
+Combinado, balanceo y augmentación seed=21 epoch=50/400 val_accuracy=97.0408% val_macro_f1=0.9626
+Combinado, balanceo y augmentación seed=21 epoch=75/400 val_accuracy=96.8776% val_macro_f1=0.9577
+Combinado, balanceo y augmentación seed=21 epoch=100/400 val_accuracy=97.2041% val_macro_f1=0.9624
+Combinado, balanceo y augmentación — semilla 21: val=97.6327%, época=99/106
+Solo digits.csv, sin técnicas           93.18 % ± 0.07  (8: 0,00 %)
+Solo digits.csv, balanceo y augmentación  95.49 % ± 0.07  (8: 0,00 %)
+Combinado, sin técnicas                 96.17 % ± 0.19  (8: 85,75 %)
+Combinado, balanceo y augmentación      97.88 % ± 0.26  (8: 96,30 %)
+
+Report: reports/digits_e3_datos_vs_tecnicas

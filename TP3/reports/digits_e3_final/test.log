@@ -1,0 +1,48 @@
+ seed  validation_accuracy  test_accuracy  test_macro_f1  test_errors  recall_0  recall_1  recall_2  recall_3  recall_4  recall_5  recall_6  recall_7  recall_8  recall_9
+   42             0.986735       0.985583       0.985504           36  0.991837  0.992933  0.980620  0.992063  0.987755  0.977578  0.987448  0.992218  0.971193  0.980159
+    7             0.987551       0.987986       0.987898           30  0.987755  1.000000  0.984496  0.988095  0.991837  0.986547  0.991632  0.992218  0.975309  0.980159
+   21             0.986327       0.985182       0.985050           37  0.995918  0.996466  0.980620  0.992063  0.995918  0.982063  0.991632  0.988327  0.958848  0.968254
+{
+  "architecture": "784-128-128-10",
+  "test_samples": 2497,
+  "test_accuracy_mean": 0.986250166866907,
+  "test_accuracy_std": 0.0015161949928715183,
+  "test_accuracy_min": 0.9851822186623949,
+  "test_accuracy_max": 0.9879855826992391,
+  "test_macro_f1_mean": 0.9861507912887495,
+  "shown_seed": 7,
+  "shown_seed_rule": "highest validation accuracy",
+  "shown_seed_test_accuracy": 0.9879855826992391,
+  "top_confusions": [
+    {
+      "real": 9,
+      "predicho": 7,
+      "cantidad": 3
+    },
+    {
+      "real": 4,
+      "predicho": 9,
+      "cantidad": 2
+    },
+    {
+      "real": 3,
+      "predicho": 9,
+      "cantidad": 2
+    },
+    {
+      "real": 2,
+      "predicho": 7,
+      "cantidad": 2
+    },
+    {
+      "real": 0,
+      "predicho": 7,
+      "cantidad": 2
+    },
+    {
+      "real": 9,
+      "predicho": 8,
+      "cantidad": 1
+    }
+  ]
+}
