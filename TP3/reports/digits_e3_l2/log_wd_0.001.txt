@@ -1,0 +1,43 @@
+balance+augment seed=42 epoch=1/400 val_accuracy=90.1020% val_macro_f1=0.8781
+balance+augment seed=42 epoch=25/400 val_accuracy=96.2245% val_macro_f1=0.9530
+balance+augment seed=42 epoch=50/400 val_accuracy=96.3469% val_macro_f1=0.9546
+balance+augment seed=42 epoch=75/400 val_accuracy=96.0816% val_macro_f1=0.9472
+architecture_00\seed_42: accuracy=96.9184%, F1 macro=0.9621, época=91
+balance+augment seed=7 epoch=1/400 val_accuracy=89.3673% val_macro_f1=0.8710
+balance+augment seed=7 epoch=25/400 val_accuracy=96.1633% val_macro_f1=0.9541
+balance+augment seed=7 epoch=50/400 val_accuracy=96.4286% val_macro_f1=0.9575
+balance+augment seed=7 epoch=75/400 val_accuracy=96.6939% val_macro_f1=0.9593
+balance+augment seed=7 epoch=100/400 val_accuracy=96.6122% val_macro_f1=0.9576
+balance+augment seed=7 epoch=125/400 val_accuracy=96.6531% val_macro_f1=0.9584
+architecture_00\seed_7: accuracy=97.0612%, F1 macro=0.9633, época=138
+balance+augment seed=21 epoch=1/400 val_accuracy=89.5306% val_macro_f1=0.8710
+balance+augment seed=21 epoch=25/400 val_accuracy=96.2449% val_macro_f1=0.9537
+balance+augment seed=21 epoch=50/400 val_accuracy=96.5510% val_macro_f1=0.9567
+balance+augment seed=21 epoch=75/400 val_accuracy=96.2041% val_macro_f1=0.9528
+balance+augment seed=21 epoch=100/400 val_accuracy=95.5510% val_macro_f1=0.9419
+architecture_00\seed_21: accuracy=97.0204%, F1 macro=0.9632, época=117
+{
+  "selection": "no architecture met target; highest mean validation accuracy, macro F1 tie-break",
+  "target_accuracy": 0.98,
+  "winner": {
+    "architecture": "784-128-128-10",
+    "hidden_layers": 2,
+    "parameters": 118282,
+    "seeds": 3,
+    "validation_accuracy_mean": 0.9700000000000001,
+    "validation_accuracy_std": 0.0007358267909110579,
+    "validation_macro_f1_mean": 0.9628584562529404,
+    "validation_macro_f1_std": 0.0006549750536526795,
+    "validation_loss_mean": 0.03873795593234065
+  },
+  "selected_seed": 7,
+  "selected_run": "architecture_00\\seed_7",
+  "seeds": [
+    42,
+    7,
+    21
+  ],
+  "split_seed": 2026,
+  "validation_samples": 4900,
+  "external_test_evaluated": false
+}

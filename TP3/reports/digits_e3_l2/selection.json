@@ -1,0 +1,15 @@
+{
+  "rule": "highest mean validation accuracy (macro F1 tie-break); adopted only if it beats \u03bb = 0",
+  "selected_weight_decay": 0.0,
+  "adopted": false,
+  "selected_directory": "reports/digits_e3_final/entrenamiento",
+  "validation_accuracy_mean": 0.9868707482993196,
+  "baseline_validation_accuracy_mean": 0.9868707482993196,
+  "reproduction_check": {
+    "seed": 42,
+    "saved_validation_accuracy": 0.986734693877551,
+    "retrained_validation_accuracy": 0.986734693877551,
+    "identical": true
+  },
+  "external_test_evaluated": false
+}

@@ -1,0 +1,25 @@
+{
+  "selection": "no architecture met target; highest mean validation accuracy, macro F1 tie-break",
+  "target_accuracy": 0.98,
+  "winner": {
+    "architecture": "784-128-128-10",
+    "hidden_layers": 2,
+    "parameters": 118282,
+    "seeds": 3,
+    "validation_accuracy_mean": 0.9797278911564625,
+    "validation_accuracy_std": 0.0005135941792701105,
+    "validation_macro_f1_mean": 0.975347607365015,
+    "validation_macro_f1_std": 0.002221189787983172,
+    "validation_loss_mean": 0.022077502353766154
+  },
+  "selected_seed": 7,
+  "selected_run": "architecture_00\\seed_7",
+  "seeds": [
+    42,
+    7,
+    21
+  ],
+  "split_seed": 2026,
+  "validation_samples": 4900,
+  "external_test_evaluated": false
+}
