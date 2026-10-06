@@ -105,6 +105,7 @@ python -m experiments.digits.l2_study experiments/digits/configs/l2.json   # E2:
 python -m experiments.digits.relu_depth                    # E2: gradientes y ReLU en redes profundas
 python -m experiments.digits.noise_figure                  # E3: ruido gaussiano contra accuracy
 python -m experiments.digits.interpretability_maps         # E3: mapas de oclusión y pesos de la primera capa
+python -m experiments.digits.ensemble --evaluate-test    # E3 extra: ensamble elegido en validación, una vez en test
 
 # Figuras resumen de la presentación (no entrena; lee los CSV guardados)
 python -m experiments.digits.presentation_figures
@@ -140,6 +141,7 @@ técnicas (balanceo y augmentación), unos 2 más
 | 2 | El gradiente se desvanece con sigmoide, no con tanh. Hasta 8 capas ocultas, ReLU no supera a tanh. | `results/digits_relu_depth/` |
 | 3 | Con ruido gaussiano σ = 0,1 la accuracy de test se mantiene en 97,9 %; con σ = 0,2 cae a 86,0 % y con σ = 0,4, a 47,7 %. | `reports/digits_e3_noise/` |
 | 3 | Mapas de oclusión por dígito y pesos de la primera capa (solo validación). | `reports/digits_e3_interpretability_maps/` |
+| 3 (extra) | Promediar 12 redes ya entrenadas da **98,92 %** en test, contra 98,58 % ± 0,14 de cada red sola. El ensamble se eligió en validación entre 7 candidatos; bajar η con un coseno no mejoró. | `reports/digits_e3_ensemble/` |
 
 ## Tests
 

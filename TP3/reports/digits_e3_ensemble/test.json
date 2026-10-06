@@ -6,17 +6,53 @@
   "single_network_test_mean": 0.985816312908824,
   "single_network_test_std": 0.001372372526695513,
   "networks": [
-    "reports/digits_e3_final/entrenamiento/architecture_00/seed_21",
-    "reports/digits_e3_final/entrenamiento/architecture_00/seed_42",
-    "reports/digits_e3_final/entrenamiento/architecture_00/seed_7",
-    "reports/digits_e3_softmax_tuned/runs/row_00/seed_11",
-    "reports/digits_e3_softmax_tuned/runs/row_00/seed_2025",
-    "reports/digits_e3_softmax_tuned/runs/row_00/seed_21",
-    "reports/digits_e3_softmax_tuned/runs/row_00/seed_7",
-    "reports/digits_e3_softmax_tuned/runs/row_01/seed_11",
-    "reports/digits_e3_softmax_tuned/runs/row_01/seed_2025",
-    "reports/digits_e3_softmax_tuned/runs/row_01/seed_21",
-    "reports/digits_e3_softmax_tuned/runs/row_01/seed_42",
-    "reports/digits_e3_softmax_tuned/runs/row_01/seed_7"
+    {
+      "run_directory": "reports/digits_e3_final/entrenamiento/architecture_00/seed_21",
+      "test_accuracy": 0.9851822186623949
+    },
+    {
+      "run_directory": "reports/digits_e3_final/entrenamiento/architecture_00/seed_42",
+      "test_accuracy": 0.9855826992390869
+    },
+    {
+      "run_directory": "reports/digits_e3_final/entrenamiento/architecture_00/seed_7",
+      "test_accuracy": 0.9879855826992391
+    },
+    {
+      "run_directory": "reports/digits_e3_softmax_tuned/runs/row_00/seed_11",
+      "test_accuracy": 0.9871846215458551
+    },
+    {
+      "run_directory": "reports/digits_e3_softmax_tuned/runs/row_00/seed_2025",
+      "test_accuracy": 0.9835802963556267
+    },
+    {
+      "run_directory": "reports/digits_e3_softmax_tuned/runs/row_00/seed_21",
+      "test_accuracy": 0.9855826992390869
+    },
+    {
+      "run_directory": "reports/digits_e3_softmax_tuned/runs/row_00/seed_7",
+      "test_accuracy": 0.9863836603924709
+    },
+    {
+      "run_directory": "reports/digits_e3_softmax_tuned/runs/row_01/seed_11",
+      "test_accuracy": 0.9871846215458551
+    },
+    {
+      "run_directory": "reports/digits_e3_softmax_tuned/runs/row_01/seed_2025",
+      "test_accuracy": 0.9831798157789348
+    },
+    {
+      "run_directory": "reports/digits_e3_softmax_tuned/runs/row_01/seed_21",
+      "test_accuracy": 0.985983179815779
+    },
+    {
+      "run_directory": "reports/digits_e3_softmax_tuned/runs/row_01/seed_42",
+      "test_accuracy": 0.986784140969163
+    },
+    {
+      "run_directory": "reports/digits_e3_softmax_tuned/runs/row_01/seed_7",
+      "test_accuracy": 0.9851822186623949
+    }
   ]
 }

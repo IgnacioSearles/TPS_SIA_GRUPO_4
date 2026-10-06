@@ -389,10 +389,10 @@
 
 <section class="evidence">
   <header><span>Ejercicio 2 · Arquitectura</span></header>
-  <h2>Agregar ancho ayuda más que agregar capas</h2>
+  <h2>Más ancho ayuda hasta 128 neuronas; después se estanca</h2>
   <main><figure><img src="assets/reports__presentation__ej2_arquitecturas.png" alt="Accuracy de validación por arquitectura"></figure></main>
-  <div class="take">De 32-32 a 128-128: +1,3 puntos. De 1 a 8 capas de 64: +0,5.</div>
-  <aside class="notes">Momentum 0,9, η = 0,1, tres semillas, validación de E2. Ancho: neuronas por capa; profundidad: capas ocultas. Más parámetros cuestan tiempo y no garantizan mejor generalización. La red ancha es candidata para E3; este gráfico no mide desempeño sobre los ochos. Las curvas por ancho y profundidad están en el apéndice.<br>Fuentes: reports/presentation/ej2_arquitecturas.png</aside>
+  <div class="take">De 32 a 128 neuronas: +1,3 puntos. 256 y 512 no mejoran. De 1 a 8 capas de 64: +0,5.</div>
+  <aside class="notes">Momentum 0,9, η = 0,1, tres semillas, validación de E2. Ancho: neuronas por capa; profundidad: capas ocultas. Con 256 y 512 neuronas la accuracy queda al nivel de 128, dentro de la variación entre semillas: más parámetros cuestan tiempo y no mejoran la generalización. Por eso 128-128 es la candidata para E3; este gráfico no mide desempeño sobre los ochos. Las curvas por ancho y profundidad están en el apéndice.<br>Fuentes: reports/presentation/ej2_arquitecturas.png</aside>
 </section>
 
 <section class="evidence">
@@ -648,6 +648,14 @@
   <main><figure><img src="assets/reports__digits_e3_interpretability_maps__first_layer_weights.png" alt="Pesos de 24 neuronas de la primera capa como imágenes de 28 × 28"></figure></main>
   <div class="take">Cada cuadro: los 784 pesos de una neurona. Rojo la activa, azul la inhibe.</div>
   <aside class="notes">Cada neurona de la primera capa tiene un peso por píxel, así que sus pesos se pueden dibujar como una imagen de 28 × 28. Una franja roja junto a una azul responde a un trazo en esa posición y ángulo: es un detector de bordes. Las capas siguientes combinan estos trazos en partes de dígitos. Se muestran las 24 neuronas (de 128) cuya activación más varía entre imágenes de validación. Modelo final de E3, semilla 7.<br>Fuentes: reports/digits_e3_interpretability_maps/first_layer_weights.png</aside>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 3 · Extra</span></header>
+  <h2>Promediando 12 redes: 98,92 % en test, mejor que cualquier red sola</h2>
+  <main><figure><img src="assets/reports__digits_e3_ensemble__ensemble_vs_single.png" alt="Accuracy de cada red sola contra el ensamble, en validación y en test"></figure></main>
+  <div class="take">Las redes se equivocan en imágenes distintas: el promedio elimina un cuarto de los errores.</div>
+  <aside class="notes">Sin reentrenar: promediamos las probabilidades de redes 784-128-128-10 ya entrenadas con los mismos datos y la misma partición (3 sigmoides del modelo final, 4 sigmoides de referencia y 5 softmax; las salidas sigmoide se normalizan para que sumen 1). Declaramos 7 ensambles candidatos antes de ver resultados y elegimos el mejor en validación (99,12 %); el test se abrió solo para ese. En test: 27 errores de 2497 (98,92 %), contra 98,58 % ± 0,14 de las redes solas; la mejor red sola da 98,80 %. Cautela: contra la mejor red son 3 imágenes, dentro del ruido; la comparación justa es contra el promedio. También probamos bajar η con un coseno durante el entrenamiento: no mejoró ni las redes solas ni el ensamble.<br>Fuentes: experiments/digits/ensemble.py, reports/digits_e3_ensemble/test.json</aside>
 </section>
 
 <!-- =====================================================================

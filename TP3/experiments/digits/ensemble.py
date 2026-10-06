@@ -125,7 +125,8 @@ def evaluate_test(members: list[Member], test_file: str) -> dict:
     return {"test_samples": int(len(y)), "test_accuracy": accuracy,
             "test_errors": int(round((1 - accuracy) * len(y))),
             "single_network_test_mean": float(np.mean(single)), "single_network_test_std": float(np.std(single)),
-            "networks": [member.run_directory.as_posix() for member in members]}
+            "networks": [{"run_directory": member.run_directory.as_posix(), "test_accuracy": accuracy}
+                         for member, accuracy in zip(members, single)]}
 
 
 def evaluate(config: Config) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, list[Member]]]:

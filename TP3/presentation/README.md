@@ -1,6 +1,6 @@
 # TP3 — Presentación (45 minutos)
 
-Presentación para los 45 minutos de exposición: 61 diapositivas de relato (14 son separadores de sección, casi sin tiempo de exposición) y un apéndice de 25 gráficos para preguntas.
+Presentación para los 45 minutos de exposición: 62 diapositivas de relato (14 son separadores de sección, casi sin tiempo de exposición) y un apéndice de 25 gráficos para preguntas.
 
 Abrir index.html. Flechas: avanzar. F: pantalla completa. S: notas del orador. Funciona sin conexión. Para compartir, enviar la carpeta completa.
 
@@ -17,9 +17,9 @@ Los opcionales de la consigna para los ejercicios 2 y 3 son conjuntos: se presen
 | Portada | 1 | 1 min |
 | Ejercicio 1 | 2–26 | 17 min |
 | Ejercicio 2 | 27–42 | 13 min |
-| Ejercicio 3 | 43–60 | 14 min |
-| Cierre | 61 | 2 min |
-| Apéndice | 62–87 | solo para preguntas |
+| Ejercicio 3 | 43–61 | 15 min |
+| Cierre | 62 | 2 min |
+| Apéndice | 63–88 | solo para preguntas |
 
 ## Dónde se responde cada pregunta de la consigna
 
@@ -34,6 +34,7 @@ Los opcionales de la consigna para los ejercicios 2 y 3 son conjuntos: se presen
 | E2 b (variantes) | 33–38 y 42 (incluye gradientes y L2) |
 | E3 a / b / c | 53 / 49 / 48, resumidas en 56 |
 | E2-E3 opcionales: ruido · interpretabilidad | 58 · 59–60 |
+| Extra: ensamble de redes (98,92 % en test) | 61 |
 
 ## Criterios
 
