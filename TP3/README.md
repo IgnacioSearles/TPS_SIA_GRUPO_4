@@ -43,7 +43,7 @@ cualquier experimento.
 | `experiments/` | Un script por estudio, agrupados en `fraud/`, `digits/` y `validation/`, con sus configs JSON en `configs/`. |
 | `reports/`, `results/` | Salidas de los experimentos: tablas, figuras, historiales y un `report.md` por estudio. |
 | `tests/` | Tests de la librería y de los experimentos (`pytest`). |
-| `presentation_v3/` | La presentación (`index.html`, funciona sin conexión). |
+| `presentation/` | La presentación (`index.html`, funciona sin conexión). |
 
 Por tamaño, el repositorio no incluye los pesos de cada corrida ni las predicciones
 por muestra: cualquier corrida los vuelve a generar. Sí incluye los pesos de los
@@ -152,6 +152,6 @@ Incluyen una verificación numérica de los gradientes de cada capa
 
 ## Presentación
 
-Abrir `presentation_v3/index.html` en el navegador. Flechas para avanzar, `F`
-para pantalla completa y `S` para las notas del orador. `presentation_v3/README.md`
+Abrir `presentation/index.html` en el navegador. Flechas para avanzar, `F`
+para pantalla completa y `S` para las notas del orador. `presentation/README.md`
 explica la estructura y `FUENTES.json`, de qué archivo sale cada figura.

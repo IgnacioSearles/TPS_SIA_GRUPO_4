@@ -1,4 +1,4 @@
-# TP3 — Presentación v3 (45 minutos)
+# TP3 — Presentación (45 minutos)
 
 Presentación para los 45 minutos de exposición: 61 diapositivas de relato (14 son separadores de sección, casi sin tiempo de exposición) y un apéndice de 25 gráficos para preguntas.
 
