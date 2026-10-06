@@ -1,0 +1,58 @@
+{
+  "seed": 42,
+  "model": {
+    "activation": "relu",
+    "initializer": "he",
+    "layers": [
+      784,
+      64,
+      10
+    ],
+    "output_activation": "sigmoid"
+  },
+  "loss": "mse",
+  "optimizer": {
+    "name": "momentum",
+    "lr": 0.01,
+    "momentum": 0.9
+  },
+  "training": {
+    "epochs": 350,
+    "batch_size": 128,
+    "epsilon": null,
+    "shuffle_seed": 42,
+    "early_stopping": {
+      "patience": 40,
+      "min_delta": 0.0005
+    }
+  },
+  "evaluation": {
+    "classification": false
+  },
+  "output": {
+    "directory": "results/digits_depth_sweep_relu"
+  },
+  "callbacks": [
+    {
+      "name": "progress",
+      "every": 10
+    }
+  ],
+  "data": {
+    "path": "datasets/digits.csv",
+    "validation_ratio": 0.2,
+    "split_seed": 42
+  },
+  "study": {
+    "max_hidden_layers": 8,
+    "width": 64,
+    "seeds": [
+      42,
+      7,
+      21
+    ],
+    "patience": 2,
+    "min_delta": 0.002,
+    "stop_on_plateau": false
+  }
+}

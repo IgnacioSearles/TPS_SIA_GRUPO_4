@@ -27,6 +27,10 @@ pip install -r requirements.txt
 
 Todos los comandos de este archivo se corren desde `TP3`.
 
+Los CSV de la consigna no se suben al repositorio. Copiar `fraud_dataset.csv`,
+`digits.csv`, `more_digits.csv` y `digits_test.csv` en `datasets/` antes de correr
+cualquier experimento.
+
 ## Estructura
 
 | Carpeta | Qué contiene |
@@ -34,12 +38,18 @@ Todos los comandos de este archivo se corren desde `TP3`.
 | `nn/` | La librería: capas densas, activaciones, pérdidas, inicializadores, optimizadores y la red secuencial. |
 | `training/` | El bucle de entrenamiento por mini-lotes, los callbacks y las métricas. |
 | `data/` | Preprocesamiento, particiones (train/validación, K-Fold) y augmentación de imágenes. |
-| `datasets/` | Los CSV de la consigna y su cargador. |
+| `analysis/` | Utilidades de gráficos compartidas por los experimentos. |
+| `datasets/` | El cargador de dígitos; acá van los CSV de la consigna. |
 | `experiments/` | Un script por estudio, agrupados en `fraud/`, `digits/` y `validation/`, con sus configs JSON en `configs/`. |
-| `reports/`, `results/` | Salidas de los experimentos: tablas, figuras, pesos y un `report.md` por estudio. |
+| `reports/`, `results/` | Salidas de los experimentos: tablas, figuras, historiales y un `report.md` por estudio. |
 | `tests/` | Tests de la librería y de los experimentos (`pytest`). |
-| `docs/` | Bitácoras y notas de diseño de algunos experimentos. |
-| `presentation_v3/` | La presentación vigente (`index.html`, funciona sin conexión). `presentation/` y `presentation_v2/` son versiones anteriores. |
+| `presentation_v3/` | La presentación (`index.html`, funciona sin conexión). |
+
+Por tamaño, el repositorio no incluye los pesos de cada corrida ni las predicciones
+por muestra: cualquier corrida los vuelve a generar. Sí incluye los pesos de los
+modelos finales (`reports/fraud_probability/model_weights.npz`,
+`results/digits_final/final_weights.npz` y `reports/digits_e3_final/entrenamiento/`),
+que usan los scripts de test final, ruido e interpretabilidad.
 
 ## La librería
 
@@ -89,6 +99,13 @@ python -m experiments.digits.optimizer_study experiments/digits/configs/optimize
 python -m experiments.digits.architecture_e3 experiments/digits/configs/e3_final.json
 python -m experiments.digits.final_test_e3
 
+# Opcionales
+python -m experiments.fraud.activation_comparison         # E1: ReLU contra sigmoide
+python -m experiments.digits.l2_study experiments/digits/configs/l2.json   # E2: regularización L2
+python -m experiments.digits.relu_depth                    # E2: gradientes y ReLU en redes profundas
+python -m experiments.digits.noise_figure                  # E3: ruido gaussiano contra accuracy
+python -m experiments.digits.interpretability_maps         # E3: mapas de oclusión y pesos de la primera capa
+
 # Figuras resumen de la presentación (no entrena; lee los CSV guardados)
 python -m experiments.digits.presentation_figures
 ```
@@ -113,6 +130,16 @@ solo para el resultado final y cada script lo dice en su reporte.
 En el ejercicio 3, agregar los datos que faltaban aporta unos 3 puntos y las
 técnicas (balanceo y augmentación), unos 2 más
 (`reports/digits_e3_datos_vs_tecnicas/report.md`).
+
+### Opcionales
+
+| Ejercicio | Resultado | Fuente |
+| --- | --- | --- |
+| 1 | Con una sola neurona, ReLU empeora la imitación: RMSE de test 0,169 contra 0,105 de la sigmoide, y 74 salidas mayores que 1. | `reports/fraud_activation_comparison/` |
+| 2 | L2 con λ = 3·10⁻⁴: 96,96 % contra 96,25 % en validación, mejor en las tres semillas. En E3 no ayuda, porque la augmentación ya regulariza. | `results/digits_l2/`, `reports/digits_e3_l2/` |
+| 2 | El gradiente se desvanece con sigmoide, no con tanh. Hasta 8 capas ocultas, ReLU no supera a tanh. | `results/digits_relu_depth/` |
+| 3 | Con ruido gaussiano σ = 0,1 la accuracy de test se mantiene en 97,9 %; con σ = 0,2 cae a 86,0 % y con σ = 0,4, a 47,7 %. | `reports/digits_e3_noise/` |
+| 3 | Mapas de oclusión por dígito y pesos de la primera capa (solo validación). | `reports/digits_e3_interpretability_maps/` |
 
 ## Tests
 

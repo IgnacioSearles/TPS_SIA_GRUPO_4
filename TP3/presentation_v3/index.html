@@ -246,7 +246,7 @@
   <h2>Con una sola neurona, ReLU se comporta como el lineal</h2>
   <main><figure><img src="assets/reports__fraud_activation_comparison__target_vs_pre_activation.png" alt="Probabilidad objetivo contra la preactivación, sigmoide y ReLU"></figure></main>
   <div class="take">RMSE 0,169 y 74 salidas &gt; 1 en test. En un multicapa, varias ReLU sí arman cortes.</div>
-  <aside class="notes">ReLU es max(0, z): un único quiebre en 0, sin techo en 1. Con una neurona, cambiar a ReLU no mejora la imitación. En un multicapa, ReLU(z) − ReLU(z − 1) ya recorta a [0, 1] y más unidades pueden ubicar los saltos de las features. La salida de una probabilidad sigue necesitando una activación acotada.<br>Fuentes: reports/fraud_activation_comparison; docs/ejercicio1_opcionales.md</aside>
+  <aside class="notes">ReLU es max(0, z): un único quiebre en 0, sin techo en 1. Con una neurona, cambiar a ReLU no mejora la imitación. En un multicapa, ReLU(z) − ReLU(z − 1) ya recorta a [0, 1] y más unidades pueden ubicar los saltos de las features. La salida de una probabilidad sigue necesitando una activación acotada.<br>Fuentes: reports/fraud_activation_comparison</aside>
 </section>
 
 <section>
@@ -274,7 +274,7 @@
     </div>
   </main>
   <div class="take">Hipótesis: los umbrales se elegirían solo con desarrollo.</div>
-  <aside class="notes">Opcional teórico, pero verificado con el dataset completo. El techo del perceptrón viene de los saltos del EDA: un perceptrón solo aprende σ(w·x + b), monótono en cada entrada. Estos indicadores contienen el salto ya hecho. time_since_last_login_s no correlaciona crudo, pero "logueado dentro de la sesión" baja el fraude a 3 %. Riesgos: colinealidad con la columna original y reglas tan limpias que pueden ser un artefacto del dataset; confirmarlas en validación.<br>Fuentes: docs/ejercicio1_opcionales.md</aside>
+  <aside class="notes">Opcional teórico, pero verificado con el dataset completo. El techo del perceptrón viene de los saltos del EDA: un perceptrón solo aprende σ(w·x + b), monótono en cada entrada. Estos indicadores contienen el salto ya hecho. time_since_last_login_s no correlaciona crudo, pero "logueado dentro de la sesión" baja el fraude a 3 %. Riesgos: colinealidad con la columna original y reglas tan limpias que pueden ser un artefacto del dataset; confirmarlas en validación.<br>Fuentes: reports/fraud_eda y datasets/fraud_dataset.csv (análisis teórico)</aside>
 </section>
 
 <section>
@@ -291,7 +291,7 @@
       </tbody>
     </table>
   </main>
-  <aside class="notes">time_since_last_login_s crudo tiene Pearson 0,002 y Spearman 0,001, pero derivado ("login dentro de la sesión") sí informa: por eso no lo descartamos del todo. Los 82 montos de exactamente 1,00 USD tienen 0 % de fraude y coinciden con el mínimo de la columna: puede ser un recorte de los datos; consultarlo con el cliente antes de usarlo.<br>Fuentes: docs/ejercicio1_opcionales.md</aside>
+  <aside class="notes">time_since_last_login_s crudo tiene Pearson 0,002 y Spearman 0,001, pero derivado ("login dentro de la sesión") sí informa: por eso no lo descartamos del todo. Los 82 montos de exactamente 1,00 USD tienen 0 % de fraude y coinciden con el mínimo de la columna: puede ser un recorte de los datos; consultarlo con el cliente antes de usarlo.<br>Fuentes: reports/fraud_eda y datasets/fraud_dataset.csv (análisis teórico)</aside>
 </section>
 
 <section class="evidence side">
@@ -306,7 +306,7 @@
     </div>
   </main>
   <div class="take">Un AUC de 0,992 no garantiza probabilidades calibradas.</div>
-  <aside class="notes">Calibración y capacidad de ordenar son cosas distintas: la ReLU ordena casi igual que la sigmoide, pero sus valores no son probabilidades. El gráfico muestra el error medio de TinyModel por rango de la probabilidad de BigModel: un sesgo sistemático y monótono, justo lo que corrige una recalibración. Se mide con diagrama de confiabilidad, ECE (error de calibración esperado) y Brier. Se muestra solo el panel derecho del gráfico original.<br>Fuentes: reports/fraud_probability/validation/error_by_target.png; docs/ejercicio1_opcionales.md</aside>
+  <aside class="notes">Calibración y capacidad de ordenar son cosas distintas: la ReLU ordena casi igual que la sigmoide, pero sus valores no son probabilidades. El gráfico muestra el error medio de TinyModel por rango de la probabilidad de BigModel: un sesgo sistemático y monótono, justo lo que corrige una recalibración. Se mide con diagrama de confiabilidad, ECE (error de calibración esperado) y Brier. Se muestra solo el panel derecho del gráfico original.<br>Fuentes: reports/fraud_probability/validation/error_by_target.png</aside>
 </section>
 
 <section>
@@ -320,7 +320,7 @@
     </div>
   </main>
   <div class="take">Calibrar corrige la escala de los puntajes sin reentrenar el modelo.</div>
-  <aside class="notes">C_FP: costo de una falsa alarma; C_FN: costo de un fraude perdido. Nuestro 0,888 se eligió empíricamente (máximo F1) justamente porque no podemos confiar en la escala. La regresión isotónica es una función escalonada monótona: corrige los valores y casi no cambia el orden (puede introducir empates, así que el AUC no se conserva exactamente). Platt scaling aportaría poco: el perceptrón ya tiene forma sigmoide. Entrenamos con MSE contra un objetivo continuo, que no es el Brier score contra la etiqueta binaria: el sesgo viene de la capacidad de una neurona, no de la pérdida.<br>Fuentes: docs/ejercicio1_opcionales.md</aside>
+  <aside class="notes">C_FP: costo de una falsa alarma; C_FN: costo de un fraude perdido. Nuestro 0,888 se eligió empíricamente (máximo F1) justamente porque no podemos confiar en la escala. La regresión isotónica es una función escalonada monótona: corrige los valores y casi no cambia el orden (puede introducir empates, así que el AUC no se conserva exactamente). Platt scaling aportaría poco: el perceptrón ya tiene forma sigmoide. Entrenamos con MSE contra un objetivo continuo, que no es el Brier score contra la etiqueta binaria: el sesgo viene de la capacidad de una neurona, no de la pérdida.<br>Fuentes: reports/fraud_probability/validation (análisis teórico)</aside>
 </section>
 
 <!-- =====================================================================
@@ -731,7 +731,7 @@
 
 <section class="chart"><header><span>Apéndice · Ejercicio 3</span></header><h2>Qué imágenes sigue confundiendo el modelo</h2><main><figure><img src="assets/reports__digits_e3_final__test_errores.png" alt="Errores de test con mayor score"><figcaption>Errores de test con mayor score para la clase equivocada: una selección dirigida, no aleatoria.</figcaption></figure></main><aside class="notes">Un score alto no impide equivocarse: las diez sigmoides no son una distribución calibrada. No medimos desempeño humano.<br>Fuentes: reports/digits_e3_final/test_errores.png</aside></section>
 
-<section class="chart"><header><span>Apéndice · Ejercicio 3</span></header><h2>Un error visto por dentro: el modelo confunde un 0 con un 6</h2><main><div class="row-crop"><img src="assets/reports__digits_e3_interpretability__attribution_errors.png" alt="Imagen, gradiente y oclusión para el error 0 a 6"></div><p class="small"><strong>Gradiente:</strong> qué píxeles cambian más la ventaja del 6. <strong>Oclusión:</strong> tapamos parches de 4 × 4; rojo = taparlo reduce esa ventaja.</p></main><aside class="notes">Etiqueta real 0, predicción 6; comparamos el score del 6 frente al del 0. Se muestra la primera fila del reporte de errores. Se analizaron 10 aciertos y 19 errores de validación seleccionados, no una muestra aleatoria.<br>Fuentes: reports/digits_e3_interpretability/attribution_errors.png; docs/ejercicio3_interpretabilidad.md</aside></section>
+<section class="chart"><header><span>Apéndice · Ejercicio 3</span></header><h2>Un error visto por dentro: el modelo confunde un 0 con un 6</h2><main><div class="row-crop"><img src="assets/reports__digits_e3_interpretability__attribution_errors.png" alt="Imagen, gradiente y oclusión para el error 0 a 6"></div><p class="small"><strong>Gradiente:</strong> qué píxeles cambian más la ventaja del 6. <strong>Oclusión:</strong> tapamos parches de 4 × 4; rojo = taparlo reduce esa ventaja.</p></main><aside class="notes">Etiqueta real 0, predicción 6; comparamos el score del 6 frente al del 0. Se muestra la primera fila del reporte de errores. Se analizaron 10 aciertos y 19 errores de validación seleccionados, no una muestra aleatoria.<br>Fuentes: reports/digits_e3_interpretability/attribution_errors.png</aside></section>
 
 <section class="chart"><header><span>Apéndice · Ejercicio 3</span></header><h2>En los aciertos, pocas regiones sostienen la decisión</h2><main><figure><img src="assets/reports__digits_e3_interpretability__attribution_correct__grilla.png" alt="Atribuciones para un acierto de cada dígito"><figcaption>Un acierto por dígito, de validación: imagen, gradiente y oclusión (rojo: tapar ese parche reduce el margen).</figcaption></figure></main><aside class="notes">Figura reorganizada en grilla, sin el texto lateral. Ilustra el comportamiento del modelo; no es evidencia causal.<br>Fuentes: reports/digits_e3_interpretability/attribution_correct.png</aside></section>
 

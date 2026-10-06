@@ -1,3 +1,4 @@
+*.pdf
 datasets/*
 !datasets/__init__.py
 !datasets/digit_dataset_loader.py
@@ -7,3 +8,12 @@ outputs/
 __pycache__/
 *.py[cod]
 .venv/
+
+# Experiment outputs: keep reports, figures and summaries; leave out weights and
+# per-sample predictions, which any run regenerates. Only the final models' weights stay.
+*.npz
+!reports/digits_e3_final/**/*.npz
+!results/digits_final/final_weights.npz
+!reports/fraud_probability/model_weights.npz
+validation_predictions.csv
+image_features.csv

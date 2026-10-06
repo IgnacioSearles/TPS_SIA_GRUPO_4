@@ -1,0 +1,499 @@
+Train: 9960; validation: 2489; missing classes: [8]
+epoch   1/350  loss 0.309314  epoch_time 0.149457  train_accuracy 0.475703  validation_loss 0.308824  validation_accuracy 0.477300  validation_macro_f1 0.314291
+epoch   5/350  loss 0.120615  epoch_time 0.129909  train_accuracy 0.814157  validation_loss 0.124067  validation_accuracy 0.807151  validation_macro_f1 0.678504
+epoch  10/350  loss 0.051540  epoch_time 0.139963  train_accuracy 0.938454  validation_loss 0.060456  validation_accuracy 0.923664  validation_macro_f1 0.829534
+epoch  15/350  loss 0.043587  epoch_time 0.148543  train_accuracy 0.946285  validation_loss 0.054478  validation_accuracy 0.929289  validation_macro_f1 0.834696
+epoch  20/350  loss 0.038632  epoch_time 0.158481  train_accuracy 0.951205  validation_loss 0.051558  validation_accuracy 0.934512  validation_macro_f1 0.839431
+epoch  25/350  loss 0.034398  epoch_time 0.183637  train_accuracy 0.955020  validation_loss 0.049150  validation_accuracy 0.935717  validation_macro_f1 0.840605
+epoch  30/350  loss 0.031295  epoch_time 0.139001  train_accuracy 0.958233  validation_loss 0.047509  validation_accuracy 0.937726  validation_macro_f1 0.856944
+epoch  35/350  loss 0.025200  epoch_time 0.161292  train_accuracy 0.973092  validation_loss 0.042737  validation_accuracy 0.950984  validation_macro_f1 0.931093
+epoch  40/350  loss 0.020477  epoch_time 0.170615  train_accuracy 0.978112  validation_loss 0.039558  validation_accuracy 0.957413  validation_macro_f1 0.943945
+epoch  45/350  loss 0.017432  epoch_time 0.147308  train_accuracy 0.980723  validation_loss 0.037885  validation_accuracy 0.957814  validation_macro_f1 0.945009
+epoch  50/350  loss 0.015679  epoch_time 0.115811  train_accuracy 0.981627  validation_loss 0.036976  validation_accuracy 0.956609  validation_macro_f1 0.944993
+epoch  55/350  loss 0.014095  epoch_time 0.119744  train_accuracy 0.982731  validation_loss 0.036336  validation_accuracy 0.957814  validation_macro_f1 0.945321
+epoch  60/350  loss 0.013038  epoch_time 0.113432  train_accuracy 0.984337  validation_loss 0.036514  validation_accuracy 0.957413  validation_macro_f1 0.944265
+epoch  65/350  loss 0.012038  epoch_time 0.110503  train_accuracy 0.985643  validation_loss 0.035549  validation_accuracy 0.958618  validation_macro_f1 0.944648
+epoch  70/350  loss 0.011173  epoch_time 0.167800  train_accuracy 0.986044  validation_loss 0.035474  validation_accuracy 0.958216  validation_macro_f1 0.945640
+epoch  75/350  loss 0.010518  epoch_time 0.128610  train_accuracy 0.986747  validation_loss 0.035402  validation_accuracy 0.959020  validation_macro_f1 0.945034
+epoch  80/350  loss 0.009784  epoch_time 0.144690  train_accuracy 0.987550  validation_loss 0.035127  validation_accuracy 0.961029  validation_macro_f1 0.947572
+epoch  85/350  loss 0.009229  epoch_time 0.153416  train_accuracy 0.987952  validation_loss 0.034973  validation_accuracy 0.959421  validation_macro_f1 0.946104
+epoch  90/350  loss 0.008685  epoch_time 0.150439  train_accuracy 0.988353  validation_loss 0.035281  validation_accuracy 0.960225  validation_macro_f1 0.948887
+epoch  95/350  loss 0.008256  epoch_time 0.134957  train_accuracy 0.988755  validation_loss 0.034919  validation_accuracy 0.959823  validation_macro_f1 0.949234
+epoch 100/350  loss 0.007831  epoch_time 0.145124  train_accuracy 0.988855  validation_loss 0.034914  validation_accuracy 0.961832  validation_macro_f1 0.949027
+epoch 105/350  loss 0.007517  epoch_time 0.161579  train_accuracy 0.989157  validation_loss 0.034879  validation_accuracy 0.962234  validation_macro_f1 0.950761
+epoch 110/350  loss 0.007261  epoch_time 0.175125  train_accuracy 0.989458  validation_loss 0.034853  validation_accuracy 0.961029  validation_macro_f1 0.949639
+epoch 115/350  loss 0.006991  epoch_time 0.160681  train_accuracy 0.989659  validation_loss 0.034836  validation_accuracy 0.961832  validation_macro_f1 0.951084
+epoch 120/350  loss 0.006751  epoch_time 0.140044  train_accuracy 0.990161  validation_loss 0.034676  validation_accuracy 0.961029  validation_macro_f1 0.950366
+epoch 125/350  loss 0.006578  epoch_time 0.162554  train_accuracy 0.990060  validation_loss 0.034462  validation_accuracy 0.961832  validation_macro_f1 0.951089
+epoch 130/350  loss 0.006417  epoch_time 0.168542  train_accuracy 0.990261  validation_loss 0.034384  validation_accuracy 0.961832  validation_macro_f1 0.951096
+Training finished after 133/350 epochs: epoch 133/350  loss 0.006319  epoch_time 0.156652  train_accuracy 0.990161  validation_loss 0.034400  validation_accuracy 0.961430  validation_macro_f1 0.949706
+Best epoch: 99; validation accuracy: 96.2636%
+Results: C:\Users\nacho\OneDrive\Documents\ITBA\5-1C\SIA\TPS_SIA_GRUPO_4\TP3\results\digits_depth_sweep_relu\depth_01\seed_42
+Train: 9960; validation: 2489; missing classes: [8]
+epoch   1/350  loss 0.383584  epoch_time 0.153075  train_accuracy 0.341968  validation_loss 0.383982  validation_accuracy 0.343110  validation_macro_f1 0.175778
+epoch   5/350  loss 0.185775  epoch_time 0.186000  train_accuracy 0.693474  validation_loss 0.186912  validation_accuracy 0.690639  validation_macro_f1 0.538227
+epoch  10/350  loss 0.165055  epoch_time 0.163521  train_accuracy 0.713253  validation_loss 0.170660  validation_accuracy 0.702692  validation_macro_f1 0.549667
+epoch  15/350  loss 0.050185  epoch_time 0.156376  train_accuracy 0.940562  validation_loss 0.059215  validation_accuracy 0.930092  validation_macro_f1 0.835492
+epoch  20/350  loss 0.041452  epoch_time 0.132028  train_accuracy 0.954819  validation_loss 0.052488  validation_accuracy 0.941744  validation_macro_f1 0.898123
+epoch  25/350  loss 0.032212  epoch_time 0.152653  train_accuracy 0.966867  validation_loss 0.046528  validation_accuracy 0.947368  validation_macro_f1 0.916633
+epoch  30/350  loss 0.026990  epoch_time 0.156069  train_accuracy 0.971787  validation_loss 0.042565  validation_accuracy 0.952591  validation_macro_f1 0.933295
+epoch  35/350  loss 0.023571  epoch_time 0.128733  train_accuracy 0.975502  validation_loss 0.041120  validation_accuracy 0.954198  validation_macro_f1 0.936826
+epoch  40/350  loss 0.020902  epoch_time 0.141036  train_accuracy 0.977811  validation_loss 0.040562  validation_accuracy 0.954198  validation_macro_f1 0.938777
+epoch  45/350  loss 0.018531  epoch_time 0.155421  train_accuracy 0.980522  validation_loss 0.039073  validation_accuracy 0.954600  validation_macro_f1 0.939204
+epoch  50/350  loss 0.016641  epoch_time 0.146085  train_accuracy 0.982129  validation_loss 0.039094  validation_accuracy 0.957011  validation_macro_f1 0.943612
+epoch  55/350  loss 0.014996  epoch_time 0.128243  train_accuracy 0.983434  validation_loss 0.038801  validation_accuracy 0.956207  validation_macro_f1 0.941468
+epoch  60/350  loss 0.014067  epoch_time 0.152495  train_accuracy 0.984137  validation_loss 0.038252  validation_accuracy 0.955002  validation_macro_f1 0.939274
+epoch  65/350  loss 0.012875  epoch_time 0.158406  train_accuracy 0.985040  validation_loss 0.038275  validation_accuracy 0.955404  validation_macro_f1 0.937890
+epoch  70/350  loss 0.012005  epoch_time 0.150606  train_accuracy 0.985241  validation_loss 0.037621  validation_accuracy 0.955404  validation_macro_f1 0.939870
+epoch  75/350  loss 0.011567  epoch_time 0.135287  train_accuracy 0.985743  validation_loss 0.038360  validation_accuracy 0.954198  validation_macro_f1 0.937898
+Training finished after 78/350 epochs: epoch  78/350  loss 0.011074  epoch_time 0.125667  train_accuracy 0.986145  validation_loss 0.037613  validation_accuracy 0.956609  validation_macro_f1 0.941695
+Best epoch: 58; validation accuracy: 95.7011%
+Results: C:\Users\nacho\OneDrive\Documents\ITBA\5-1C\SIA\TPS_SIA_GRUPO_4\TP3\results\digits_depth_sweep_relu\depth_01\seed_7
+Train: 9960; validation: 2489; missing classes: [8]
+epoch   1/350  loss 0.261002  epoch_time 0.148336  train_accuracy 0.576004  validation_loss 0.262273  validation_accuracy 0.576537  validation_macro_f1 0.410920
+epoch   5/350  loss 0.067824  epoch_time 0.144847  train_accuracy 0.921787  validation_loss 0.072456  validation_accuracy 0.915629  validation_macro_f1 0.822350
+epoch  10/350  loss 0.050078  epoch_time 0.152706  train_accuracy 0.939357  validation_loss 0.058896  validation_accuracy 0.927280  validation_macro_f1 0.832847
+epoch  15/350  loss 0.040239  epoch_time 0.141739  train_accuracy 0.952410  validation_loss 0.052431  validation_accuracy 0.934110  validation_macro_f1 0.868686
+epoch  20/350  loss 0.033189  epoch_time 0.137649  train_accuracy 0.964056  validation_loss 0.047673  validation_accuracy 0.944958  validation_macro_f1 0.917197
+epoch  25/350  loss 0.026973  epoch_time 0.157591  train_accuracy 0.972691  validation_loss 0.043858  validation_accuracy 0.949779  validation_macro_f1 0.931072
+epoch  30/350  loss 0.023433  epoch_time 0.144150  train_accuracy 0.975803  validation_loss 0.042636  validation_accuracy 0.952993  validation_macro_f1 0.935726
+epoch  35/350  loss 0.020924  epoch_time 0.126055  train_accuracy 0.977811  validation_loss 0.041741  validation_accuracy 0.950984  validation_macro_f1 0.933268
+epoch  40/350  loss 0.018096  epoch_time 0.144841  train_accuracy 0.981024  validation_loss 0.040397  validation_accuracy 0.953797  validation_macro_f1 0.935484
+epoch  45/350  loss 0.016277  epoch_time 0.146448  train_accuracy 0.982430  validation_loss 0.039898  validation_accuracy 0.955404  validation_macro_f1 0.937988
+epoch  50/350  loss 0.014718  epoch_time 0.132422  train_accuracy 0.983534  validation_loss 0.039927  validation_accuracy 0.955806  validation_macro_f1 0.939575
+epoch  55/350  loss 0.013500  epoch_time 0.143661  train_accuracy 0.984940  validation_loss 0.039286  validation_accuracy 0.955404  validation_macro_f1 0.938021
+epoch  60/350  loss 0.012595  epoch_time 0.149133  train_accuracy 0.985442  validation_loss 0.039688  validation_accuracy 0.955806  validation_macro_f1 0.940046
+epoch  65/350  loss 0.011705  epoch_time 0.124388  train_accuracy 0.986145  validation_loss 0.039128  validation_accuracy 0.954198  validation_macro_f1 0.938331
+epoch  70/350  loss 0.010890  epoch_time 0.150094  train_accuracy 0.986446  validation_loss 0.038806  validation_accuracy 0.955806  validation_macro_f1 0.938915
+epoch  75/350  loss 0.010276  epoch_time 0.147650  train_accuracy 0.987048  validation_loss 0.039057  validation_accuracy 0.954198  validation_macro_f1 0.936770
+epoch  80/350  loss 0.009652  epoch_time 0.125155  train_accuracy 0.987751  validation_loss 0.039020  validation_accuracy 0.955806  validation_macro_f1 0.938352
+epoch  85/350  loss 0.009166  epoch_time 0.147574  train_accuracy 0.988052  validation_loss 0.038647  validation_accuracy 0.955404  validation_macro_f1 0.937971
+epoch  90/350  loss 0.008779  epoch_time 0.145395  train_accuracy 0.987952  validation_loss 0.038577  validation_accuracy 0.955404  validation_macro_f1 0.938133
+epoch  95/350  loss 0.008433  epoch_time 0.126154  train_accuracy 0.988554  validation_loss 0.038622  validation_accuracy 0.953797  validation_macro_f1 0.935471
+epoch 100/350  loss 0.008114  epoch_time 0.146042  train_accuracy 0.988655  validation_loss 0.038655  validation_accuracy 0.954198  validation_macro_f1 0.937043
+Training finished after 101/350 epochs: epoch 101/350  loss 0.008128  epoch_time 0.150747  train_accuracy 0.988655  validation_loss 0.038562  validation_accuracy 0.954198  validation_macro_f1 0.936553
+Best epoch: 84; validation accuracy: 95.6609%
+Results: C:\Users\nacho\OneDrive\Documents\ITBA\5-1C\SIA\TPS_SIA_GRUPO_4\TP3\results\digits_depth_sweep_relu\depth_01\seed_21
+Train: 9960; validation: 2489; missing classes: [8]
+epoch   1/350  loss 0.387118  epoch_time 0.147655  train_accuracy 0.257229  validation_loss 0.386704  validation_accuracy 0.257935  validation_macro_f1 0.111871
+epoch   5/350  loss 0.122185  epoch_time 0.180968  train_accuracy 0.805422  validation_loss 0.124681  validation_accuracy 0.802330  validation_macro_f1 0.675281
+epoch  10/350  loss 0.102281  epoch_time 0.167455  train_accuracy 0.827711  validation_loss 0.111189  validation_accuracy 0.815589  validation_macro_f1 0.685973
+epoch  15/350  loss 0.093286  epoch_time 0.149272  train_accuracy 0.837651  validation_loss 0.106142  validation_accuracy 0.819606  validation_macro_f1 0.689408
+epoch  20/350  loss 0.087712  epoch_time 0.172703  train_accuracy 0.841968  validation_loss 0.104796  validation_accuracy 0.822017  validation_macro_f1 0.690013
+epoch  25/350  loss 0.083817  epoch_time 0.160506  train_accuracy 0.846386  validation_loss 0.102792  validation_accuracy 0.826838  validation_macro_f1 0.694571
+epoch  30/350  loss 0.081179  epoch_time 0.165969  train_accuracy 0.847791  validation_loss 0.102530  validation_accuracy 0.826035  validation_macro_f1 0.693950
+epoch  35/350  loss 0.079505  epoch_time 0.182024  train_accuracy 0.849197  validation_loss 0.101953  validation_accuracy 0.828847  validation_macro_f1 0.696181
+epoch  40/350  loss 0.077994  epoch_time 0.148738  train_accuracy 0.850402  validation_loss 0.101701  validation_accuracy 0.830454  validation_macro_f1 0.698659
+epoch  45/350  loss 0.077315  epoch_time 0.165610  train_accuracy 0.850602  validation_loss 0.101630  validation_accuracy 0.829650  validation_macro_f1 0.698615
+epoch  50/350  loss 0.076580  epoch_time 0.170005  train_accuracy 0.851506  validation_loss 0.101703  validation_accuracy 0.830052  validation_macro_f1 0.699189
+epoch  55/350  loss 0.076202  epoch_time 0.149690  train_accuracy 0.851606  validation_loss 0.101743  validation_accuracy 0.829650  validation_macro_f1 0.699004
+epoch  60/350  loss 0.075898  epoch_time 0.177234  train_accuracy 0.852209  validation_loss 0.101481  validation_accuracy 0.830052  validation_macro_f1 0.702557
+epoch  65/350  loss 0.075711  epoch_time 0.160975  train_accuracy 0.852309  validation_loss 0.101417  validation_accuracy 0.829650  validation_macro_f1 0.705543
+epoch  70/350  loss 0.075559  epoch_time 0.165729  train_accuracy 0.852811  validation_loss 0.101576  validation_accuracy 0.830052  validation_macro_f1 0.711659
+epoch  75/350  loss 0.075368  epoch_time 0.179064  train_accuracy 0.853313  validation_loss 0.101811  validation_accuracy 0.829249  validation_macro_f1 0.711707
+epoch  80/350  loss 0.075182  epoch_time 0.161317  train_accuracy 0.854418  validation_loss 0.101982  validation_accuracy 0.830052  validation_macro_f1 0.717862
+epoch  85/350  loss 0.074823  epoch_time 0.127721  train_accuracy 0.860843  validation_loss 0.101516  validation_accuracy 0.835275  validation_macro_f1 0.738364
+epoch  90/350  loss 0.068902  epoch_time 0.130472  train_accuracy 0.871486  validation_loss 0.095540  validation_accuracy 0.842105  validation_macro_f1 0.764985
+epoch  95/350  loss 0.066737  epoch_time 0.131241  train_accuracy 0.872289  validation_loss 0.094045  validation_accuracy 0.842507  validation_macro_f1 0.766047
+epoch 100/350  loss 0.065820  epoch_time 0.141727  train_accuracy 0.872490  validation_loss 0.093457  validation_accuracy 0.844516  validation_macro_f1 0.766596
+epoch 105/350  loss 0.065420  epoch_time 0.163494  train_accuracy 0.872892  validation_loss 0.093427  validation_accuracy 0.844516  validation_macro_f1 0.766906
+epoch 110/350  loss 0.064979  epoch_time 0.179809  train_accuracy 0.872992  validation_loss 0.093241  validation_accuracy 0.842909  validation_macro_f1 0.763636
+epoch 115/350  loss 0.064804  epoch_time 0.162742  train_accuracy 0.873092  validation_loss 0.093349  validation_accuracy 0.843311  validation_macro_f1 0.763654
+epoch 120/350  loss 0.064622  epoch_time 0.176299  train_accuracy 0.873092  validation_loss 0.093368  validation_accuracy 0.844918  validation_macro_f1 0.765020
+epoch 125/350  loss 0.064541  epoch_time 0.167562  train_accuracy 0.873092  validation_loss 0.093452  validation_accuracy 0.844114  validation_macro_f1 0.764751
+epoch 130/350  loss 0.064405  epoch_time 0.162690  train_accuracy 0.873092  validation_loss 0.093418  validation_accuracy 0.844114  validation_macro_f1 0.763691
+epoch 135/350  loss 0.064337  epoch_time 0.170983  train_accuracy 0.873092  validation_loss 0.093429  validation_accuracy 0.843311  validation_macro_f1 0.763988
+epoch 140/350  loss 0.064290  epoch_time 0.167625  train_accuracy 0.873193  validation_loss 0.093392  validation_accuracy 0.844516  validation_macro_f1 0.764467
+Training finished after 141/350 epochs: epoch 141/350  loss 0.064276  epoch_time 0.168519  train_accuracy 0.873193  validation_loss 0.093475  validation_accuracy 0.845319  validation_macro_f1 0.764624
+Best epoch: 109; validation accuracy: 84.5319%
+Results: C:\Users\nacho\OneDrive\Documents\ITBA\5-1C\SIA\TPS_SIA_GRUPO_4\TP3\results\digits_depth_sweep_relu\depth_02\seed_42
+Train: 9960; validation: 2489; missing classes: [8]
+epoch   1/350  loss 0.499999  epoch_time 0.179773  train_accuracy 0.118775  validation_loss 0.499999  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch   5/350  loss 0.499999  epoch_time 0.172224  train_accuracy 0.118775  validation_loss 0.499999  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  10/350  loss 0.499999  epoch_time 0.191012  train_accuracy 0.118775  validation_loss 0.499999  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  15/350  loss 0.499999  epoch_time 0.163695  train_accuracy 0.118775  validation_loss 0.499999  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  20/350  loss 0.499999  epoch_time 0.171203  train_accuracy 0.118775  validation_loss 0.499999  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  25/350  loss 0.499999  epoch_time 0.191051  train_accuracy 0.118775  validation_loss 0.499999  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  30/350  loss 0.499999  epoch_time 0.167121  train_accuracy 0.118775  validation_loss 0.499999  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  35/350  loss 0.499999  epoch_time 0.160617  train_accuracy 0.118775  validation_loss 0.499999  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  40/350  loss 0.499999  epoch_time 0.176993  train_accuracy 0.118775  validation_loss 0.499999  validation_accuracy 0.118923  validation_macro_f1 0.023619
+Training finished after 41/350 epochs: epoch  41/350  loss 0.499999  epoch_time 0.172324  train_accuracy 0.118775  validation_loss 0.499999  validation_accuracy 0.118923  validation_macro_f1 0.023619
+Best epoch: 41; validation accuracy: 11.8923%
+Results: C:\Users\nacho\OneDrive\Documents\ITBA\5-1C\SIA\TPS_SIA_GRUPO_4\TP3\results\digits_depth_sweep_relu\depth_02\seed_7
+Train: 9960; validation: 2489; missing classes: [8]
+epoch   1/350  loss 0.437732  epoch_time 0.172721  train_accuracy 0.150703  validation_loss 0.438075  validation_accuracy 0.150261  validation_macro_f1 0.044479
+epoch   5/350  loss 0.341147  epoch_time 0.173334  train_accuracy 0.393373  validation_loss 0.343347  validation_accuracy 0.392527  validation_macro_f1 0.236021
+epoch  10/350  loss 0.050164  epoch_time 0.174525  train_accuracy 0.936647  validation_loss 0.056894  validation_accuracy 0.926476  validation_macro_f1 0.832110
+epoch  15/350  loss 0.035525  epoch_time 0.165878  train_accuracy 0.953916  validation_loss 0.048180  validation_accuracy 0.936119  validation_macro_f1 0.840744
+epoch  20/350  loss 0.028853  epoch_time 0.184154  train_accuracy 0.961747  validation_loss 0.044894  validation_accuracy 0.938128  validation_macro_f1 0.850249
+epoch  25/350  loss 0.017164  epoch_time 0.161839  train_accuracy 0.982430  validation_loss 0.035214  validation_accuracy 0.955002  validation_macro_f1 0.938587
+epoch  30/350  loss 0.011960  epoch_time 0.179469  train_accuracy 0.987851  validation_loss 0.032813  validation_accuracy 0.961430  validation_macro_f1 0.948023
+epoch  35/350  loss 0.008867  epoch_time 0.169714  train_accuracy 0.989960  validation_loss 0.032278  validation_accuracy 0.960225  validation_macro_f1 0.948254
+epoch  40/350  loss 0.007263  epoch_time 0.161991  train_accuracy 0.990763  validation_loss 0.031530  validation_accuracy 0.961029  validation_macro_f1 0.947955
+epoch  45/350  loss 0.006291  epoch_time 0.188750  train_accuracy 0.991064  validation_loss 0.030853  validation_accuracy 0.964243  validation_macro_f1 0.954259
+epoch  50/350  loss 0.005710  epoch_time 0.156681  train_accuracy 0.992269  validation_loss 0.030224  validation_accuracy 0.964243  validation_macro_f1 0.954024
+epoch  55/350  loss 0.005080  epoch_time 0.180163  train_accuracy 0.992570  validation_loss 0.031016  validation_accuracy 0.962636  validation_macro_f1 0.950092
+epoch  60/350  loss 0.004757  epoch_time 0.159217  train_accuracy 0.993072  validation_loss 0.031437  validation_accuracy 0.961832  validation_macro_f1 0.949049
+epoch  65/350  loss 0.004510  epoch_time 0.161277  train_accuracy 0.993072  validation_loss 0.031021  validation_accuracy 0.963841  validation_macro_f1 0.950906
+epoch  70/350  loss 0.004355  epoch_time 0.174877  train_accuracy 0.993273  validation_loss 0.030840  validation_accuracy 0.963439  validation_macro_f1 0.951549
+epoch  75/350  loss 0.004140  epoch_time 0.160728  train_accuracy 0.994076  validation_loss 0.031137  validation_accuracy 0.963037  validation_macro_f1 0.950879
+epoch  80/350  loss 0.003962  epoch_time 0.179835  train_accuracy 0.994177  validation_loss 0.030701  validation_accuracy 0.962636  validation_macro_f1 0.950134
+epoch  85/350  loss 0.003809  epoch_time 0.171873  train_accuracy 0.994378  validation_loss 0.031045  validation_accuracy 0.963037  validation_macro_f1 0.951537
+epoch  90/350  loss 0.003646  epoch_time 0.185413  train_accuracy 0.994679  validation_loss 0.031418  validation_accuracy 0.961430  validation_macro_f1 0.949789
+epoch  95/350  loss 0.003402  epoch_time 0.196387  train_accuracy 0.994779  validation_loss 0.031314  validation_accuracy 0.961832  validation_macro_f1 0.949424
+epoch 100/350  loss 0.003260  epoch_time 0.189186  train_accuracy 0.994980  validation_loss 0.031160  validation_accuracy 0.962234  validation_macro_f1 0.949831
+Training finished after 103/350 epochs: epoch 103/350  loss 0.003201  epoch_time 0.188238  train_accuracy 0.994980  validation_loss 0.031136  validation_accuracy 0.962636  validation_macro_f1 0.950910
+Best epoch: 63; validation accuracy: 96.6252%
+Results: C:\Users\nacho\OneDrive\Documents\ITBA\5-1C\SIA\TPS_SIA_GRUPO_4\TP3\results\digits_depth_sweep_relu\depth_02\seed_21
+Train: 9960; validation: 2489; missing classes: [8]
+epoch   1/350  loss 0.500000  epoch_time 0.227637  train_accuracy 0.120080  validation_loss 0.500000  validation_accuracy 0.120129  validation_macro_f1 0.025018
+epoch   5/350  loss 0.500000  epoch_time 0.234008  train_accuracy 0.120181  validation_loss 0.500000  validation_accuracy 0.120129  validation_macro_f1 0.025018
+epoch  10/350  loss 0.500000  epoch_time 0.230653  train_accuracy 0.120181  validation_loss 0.500000  validation_accuracy 0.120129  validation_macro_f1 0.025018
+epoch  15/350  loss 0.500000  epoch_time 0.231442  train_accuracy 0.120482  validation_loss 0.500000  validation_accuracy 0.120530  validation_macro_f1 0.025676
+epoch  20/350  loss 0.500000  epoch_time 0.269881  train_accuracy 0.120482  validation_loss 0.500000  validation_accuracy 0.120530  validation_macro_f1 0.025676
+epoch  25/350  loss 0.500000  epoch_time 0.249889  train_accuracy 0.120582  validation_loss 0.500000  validation_accuracy 0.120932  validation_macro_f1 0.026331
+epoch  30/350  loss 0.500000  epoch_time 0.225046  train_accuracy 0.120683  validation_loss 0.500000  validation_accuracy 0.120932  validation_macro_f1 0.026331
+epoch  35/350  loss 0.500000  epoch_time 0.227145  train_accuracy 0.120783  validation_loss 0.500000  validation_accuracy 0.120932  validation_macro_f1 0.026331
+epoch  40/350  loss 0.500000  epoch_time 0.220244  train_accuracy 0.121084  validation_loss 0.500000  validation_accuracy 0.121334  validation_macro_f1 0.026981
+epoch  45/350  loss 0.500000  epoch_time 0.220708  train_accuracy 0.121185  validation_loss 0.500000  validation_accuracy 0.121334  validation_macro_f1 0.026981
+epoch  50/350  loss 0.500000  epoch_time 0.208823  train_accuracy 0.121285  validation_loss 0.500000  validation_accuracy 0.122137  validation_macro_f1 0.028272
+epoch  55/350  loss 0.500000  epoch_time 0.206583  train_accuracy 0.121687  validation_loss 0.500000  validation_accuracy 0.122539  validation_macro_f1 0.028911
+epoch  60/350  loss 0.500000  epoch_time 0.205151  train_accuracy 0.122088  validation_loss 0.500000  validation_accuracy 0.122941  validation_macro_f1 0.029547
+epoch  65/350  loss 0.500000  epoch_time 0.218097  train_accuracy 0.122390  validation_loss 0.500000  validation_accuracy 0.123744  validation_macro_f1 0.030808
+epoch  70/350  loss 0.500000  epoch_time 0.220799  train_accuracy 0.122590  validation_loss 0.500000  validation_accuracy 0.124950  validation_macro_f1 0.032673
+epoch  75/350  loss 0.500000  epoch_time 0.210950  train_accuracy 0.122892  validation_loss 0.500000  validation_accuracy 0.125352  validation_macro_f1 0.033288
+epoch  80/350  loss 0.500000  epoch_time 0.226305  train_accuracy 0.123193  validation_loss 0.500000  validation_accuracy 0.125352  validation_macro_f1 0.033288
+epoch  85/350  loss 0.500000  epoch_time 0.242740  train_accuracy 0.123896  validation_loss 0.500000  validation_accuracy 0.125352  validation_macro_f1 0.033288
+epoch  90/350  loss 0.500000  epoch_time 0.196386  train_accuracy 0.124498  validation_loss 0.500000  validation_accuracy 0.126557  validation_macro_f1 0.035112
+epoch  95/350  loss 0.500000  epoch_time 0.206781  train_accuracy 0.125100  validation_loss 0.500000  validation_accuracy 0.126557  validation_macro_f1 0.035112
+epoch 100/350  loss 0.500000  epoch_time 0.182842  train_accuracy 0.125502  validation_loss 0.500000  validation_accuracy 0.127360  validation_macro_f1 0.036311
+epoch 105/350  loss 0.500000  epoch_time 0.183117  train_accuracy 0.125703  validation_loss 0.500000  validation_accuracy 0.128566  validation_macro_f1 0.038085
+epoch 110/350  loss 0.500000  epoch_time 0.218241  train_accuracy 0.126606  validation_loss 0.500000  validation_accuracy 0.129369  validation_macro_f1 0.039251
+epoch 115/350  loss 0.500000  epoch_time 0.227421  train_accuracy 0.127209  validation_loss 0.500000  validation_accuracy 0.130575  validation_macro_f1 0.040978
+epoch 120/350  loss 0.500000  epoch_time 0.216734  train_accuracy 0.127711  validation_loss 0.500000  validation_accuracy 0.130976  validation_macro_f1 0.041547
+epoch 125/350  loss 0.500000  epoch_time 0.207270  train_accuracy 0.128514  validation_loss 0.500000  validation_accuracy 0.131378  validation_macro_f1 0.042113
+epoch 130/350  loss 0.500000  epoch_time 0.251881  train_accuracy 0.129518  validation_loss 0.500000  validation_accuracy 0.131780  validation_macro_f1 0.042676
+epoch 135/350  loss 0.500000  epoch_time 0.206572  train_accuracy 0.130221  validation_loss 0.500000  validation_accuracy 0.132182  validation_macro_f1 0.043193
+epoch 140/350  loss 0.500000  epoch_time 0.214277  train_accuracy 0.130723  validation_loss 0.500000  validation_accuracy 0.132182  validation_macro_f1 0.043193
+epoch 145/350  loss 0.500000  epoch_time 0.239657  train_accuracy 0.131325  validation_loss 0.500000  validation_accuracy 0.132583  validation_macro_f1 0.043749
+epoch 150/350  loss 0.500000  epoch_time 0.207341  train_accuracy 0.132129  validation_loss 0.500000  validation_accuracy 0.134190  validation_macro_f1 0.045894
+epoch 155/350  loss 0.500000  epoch_time 0.195693  train_accuracy 0.133534  validation_loss 0.500000  validation_accuracy 0.135798  validation_macro_f1 0.047984
+epoch 160/350  loss 0.500000  epoch_time 0.190665  train_accuracy 0.134940  validation_loss 0.500000  validation_accuracy 0.137003  validation_macro_f1 0.049559
+epoch 165/350  loss 0.500000  epoch_time 0.183485  train_accuracy 0.135743  validation_loss 0.500000  validation_accuracy 0.137806  validation_macro_f1 0.050537
+epoch 170/350  loss 0.500000  epoch_time 0.182502  train_accuracy 0.137149  validation_loss 0.500000  validation_accuracy 0.140217  validation_macro_f1 0.053579
+epoch 175/350  loss 0.500000  epoch_time 0.179193  train_accuracy 0.138655  validation_loss 0.500000  validation_accuracy 0.140619  validation_macro_f1 0.054078
+epoch 180/350  loss 0.500000  epoch_time 0.186464  train_accuracy 0.139458  validation_loss 0.500000  validation_accuracy 0.141824  validation_macro_f1 0.055488
+epoch 185/350  loss 0.500000  epoch_time 0.181695  train_accuracy 0.140562  validation_loss 0.500000  validation_accuracy 0.143029  validation_macro_f1 0.056943
+epoch 190/350  loss 0.500000  epoch_time 0.180598  train_accuracy 0.141968  validation_loss 0.500000  validation_accuracy 0.143833  validation_macro_f1 0.057901
+epoch 195/350  loss 0.500000  epoch_time 0.194335  train_accuracy 0.143474  validation_loss 0.500000  validation_accuracy 0.145440  validation_macro_f1 0.059712
+epoch 200/350  loss 0.500000  epoch_time 0.193755  train_accuracy 0.145080  validation_loss 0.500000  validation_accuracy 0.147047  validation_macro_f1 0.061481
+epoch 205/350  loss 0.500000  epoch_time 0.196026  train_accuracy 0.145884  validation_loss 0.500000  validation_accuracy 0.148654  validation_macro_f1 0.063042
+epoch 210/350  loss 0.500000  epoch_time 0.196971  train_accuracy 0.148394  validation_loss 0.500000  validation_accuracy 0.151466  validation_macro_f1 0.066027
+epoch 215/350  loss 0.500000  epoch_time 0.192498  train_accuracy 0.150201  validation_loss 0.500000  validation_accuracy 0.153074  validation_macro_f1 0.067736
+epoch 220/350  loss 0.500000  epoch_time 0.195061  train_accuracy 0.151908  validation_loss 0.500000  validation_accuracy 0.153877  validation_macro_f1 0.068579
+epoch 225/350  loss 0.500000  epoch_time 0.183069  train_accuracy 0.153514  validation_loss 0.500000  validation_accuracy 0.155886  validation_macro_f1 0.070464
+epoch 230/350  loss 0.500000  epoch_time 0.176389  train_accuracy 0.155321  validation_loss 0.500000  validation_accuracy 0.157895  validation_macro_f1 0.072389
+epoch 235/350  loss 0.500000  epoch_time 0.179768  train_accuracy 0.156526  validation_loss 0.500000  validation_accuracy 0.160305  validation_macro_f1 0.074256
+epoch 240/350  loss 0.500000  epoch_time 0.186667  train_accuracy 0.158534  validation_loss 0.500000  validation_accuracy 0.162716  validation_macro_f1 0.076241
+epoch 245/350  loss 0.500000  epoch_time 0.184870  train_accuracy 0.161044  validation_loss 0.500000  validation_accuracy 0.164323  validation_macro_f1 0.077322
+epoch 250/350  loss 0.500000  epoch_time 0.179726  train_accuracy 0.162851  validation_loss 0.500000  validation_accuracy 0.165930  validation_macro_f1 0.078370
+epoch 255/350  loss 0.500000  epoch_time 0.184362  train_accuracy 0.164859  validation_loss 0.500000  validation_accuracy 0.168742  validation_macro_f1 0.080333
+epoch 260/350  loss 0.500000  epoch_time 0.182210  train_accuracy 0.166566  validation_loss 0.500000  validation_accuracy 0.170751  validation_macro_f1 0.081032
+epoch 265/350  loss 0.500000  epoch_time 0.206018  train_accuracy 0.168675  validation_loss 0.500000  validation_accuracy 0.172760  validation_macro_f1 0.082293
+epoch 270/350  loss 0.500000  epoch_time 0.200797  train_accuracy 0.171285  validation_loss 0.500000  validation_accuracy 0.174769  validation_macro_f1 0.083414
+epoch 275/350  loss 0.500000  epoch_time 0.206987  train_accuracy 0.173695  validation_loss 0.500000  validation_accuracy 0.177581  validation_macro_f1 0.084528
+epoch 280/350  loss 0.500000  epoch_time 0.197943  train_accuracy 0.176004  validation_loss 0.500000  validation_accuracy 0.178385  validation_macro_f1 0.083925
+epoch 285/350  loss 0.500000  epoch_time 0.194807  train_accuracy 0.177610  validation_loss 0.500000  validation_accuracy 0.181599  validation_macro_f1 0.084815
+epoch 290/350  loss 0.500000  epoch_time 0.195202  train_accuracy 0.179116  validation_loss 0.500000  validation_accuracy 0.183608  validation_macro_f1 0.085466
+epoch 295/350  loss 0.500000  epoch_time 0.193644  train_accuracy 0.181627  validation_loss 0.500000  validation_accuracy 0.185617  validation_macro_f1 0.084985
+epoch 300/350  loss 0.500000  epoch_time 0.194593  train_accuracy 0.183835  validation_loss 0.500000  validation_accuracy 0.189233  validation_macro_f1 0.086288
+epoch 305/350  loss 0.500000  epoch_time 0.193616  train_accuracy 0.186747  validation_loss 0.500000  validation_accuracy 0.192045  validation_macro_f1 0.085828
+epoch 310/350  loss 0.500000  epoch_time 0.202111  train_accuracy 0.191064  validation_loss 0.500000  validation_accuracy 0.195661  validation_macro_f1 0.086268
+epoch 315/350  loss 0.500000  epoch_time 0.216236  train_accuracy 0.194980  validation_loss 0.500000  validation_accuracy 0.200080  validation_macro_f1 0.087285
+epoch 320/350  loss 0.500000  epoch_time 0.210594  train_accuracy 0.200000  validation_loss 0.500000  validation_accuracy 0.201687  validation_macro_f1 0.086493
+epoch 325/350  loss 0.500000  epoch_time 0.212563  train_accuracy 0.202811  validation_loss 0.500000  validation_accuracy 0.204902  validation_macro_f1 0.086126
+epoch 330/350  loss 0.500000  epoch_time 0.247492  train_accuracy 0.206928  validation_loss 0.500000  validation_accuracy 0.206509  validation_macro_f1 0.085203
+epoch 335/350  loss 0.500000  epoch_time 0.255626  train_accuracy 0.210141  validation_loss 0.500000  validation_accuracy 0.212535  validation_macro_f1 0.086347
+epoch 340/350  loss 0.500000  epoch_time 0.243657  train_accuracy 0.213153  validation_loss 0.500000  validation_accuracy 0.214544  validation_macro_f1 0.085028
+epoch 345/350  loss 0.500000  epoch_time 0.212252  train_accuracy 0.214659  validation_loss 0.500000  validation_accuracy 0.216955  validation_macro_f1 0.083780
+epoch 350/350  loss 0.500000  epoch_time 0.224595  train_accuracy 0.216667  validation_loss 0.500000  validation_accuracy 0.217758  validation_macro_f1 0.082183
+Training finished after 350/350 epochs: epoch 350/350  loss 0.500000  epoch_time 0.224595  train_accuracy 0.216667  validation_loss 0.500000  validation_accuracy 0.217758  validation_macro_f1 0.082183
+Best epoch: 348; validation accuracy: 21.8562%
+Results: C:\Users\nacho\OneDrive\Documents\ITBA\5-1C\SIA\TPS_SIA_GRUPO_4\TP3\results\digits_depth_sweep_relu\depth_03\seed_42
+Train: 9960; validation: 2489; missing classes: [8]
+epoch   1/350  loss 0.499982  epoch_time 0.214395  train_accuracy 0.135341  validation_loss 0.499970  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch   5/350  loss 0.500000  epoch_time 0.223379  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  10/350  loss 0.500000  epoch_time 0.216747  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  15/350  loss 0.500000  epoch_time 0.210608  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  20/350  loss 0.500000  epoch_time 0.210309  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  25/350  loss 0.500000  epoch_time 0.193059  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  30/350  loss 0.500000  epoch_time 0.186971  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  35/350  loss 0.500000  epoch_time 0.207249  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  40/350  loss 0.500000  epoch_time 0.245603  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+Training finished after 41/350 epochs: epoch  41/350  loss 0.500000  epoch_time 0.230075  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+Best epoch: 2; validation accuracy: 13.5396%
+Results: C:\Users\nacho\OneDrive\Documents\ITBA\5-1C\SIA\TPS_SIA_GRUPO_4\TP3\results\digits_depth_sweep_relu\depth_03\seed_7
+Train: 9960; validation: 2489; missing classes: [8]
+epoch   1/350  loss 0.499950  epoch_time 0.245677  train_accuracy 0.118775  validation_loss 0.499940  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch   5/350  loss 0.500000  epoch_time 0.201553  train_accuracy 0.118876  validation_loss 0.500000  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  10/350  loss 0.500000  epoch_time 0.200858  train_accuracy 0.118876  validation_loss 0.500000  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  15/350  loss 0.500000  epoch_time 0.208418  train_accuracy 0.118876  validation_loss 0.500000  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  20/350  loss 0.500000  epoch_time 0.231754  train_accuracy 0.118876  validation_loss 0.500000  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  25/350  loss 0.500000  epoch_time 0.228763  train_accuracy 0.118876  validation_loss 0.500000  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  30/350  loss 0.500000  epoch_time 0.196952  train_accuracy 0.118876  validation_loss 0.500000  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  35/350  loss 0.500000  epoch_time 0.285325  train_accuracy 0.118876  validation_loss 0.500000  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  40/350  loss 0.500000  epoch_time 0.304648  train_accuracy 0.118876  validation_loss 0.500000  validation_accuracy 0.118923  validation_macro_f1 0.023619
+Training finished after 41/350 epochs: epoch  41/350  loss 0.500000  epoch_time 0.326272  train_accuracy 0.118876  validation_loss 0.500000  validation_accuracy 0.118923  validation_macro_f1 0.023619
+Best epoch: 1; validation accuracy: 11.8923%
+Results: C:\Users\nacho\OneDrive\Documents\ITBA\5-1C\SIA\TPS_SIA_GRUPO_4\TP3\results\digits_depth_sweep_relu\depth_03\seed_21
+Train: 9960; validation: 2489; missing classes: [8]
+epoch   1/350  loss 0.500000  epoch_time 0.330256  train_accuracy 0.119478  validation_loss 0.500000  validation_accuracy 0.119325  validation_macro_f1 0.023690
+epoch   5/350  loss 0.500000  epoch_time 0.305807  train_accuracy 0.119478  validation_loss 0.500000  validation_accuracy 0.119325  validation_macro_f1 0.023690
+epoch  10/350  loss 0.500000  epoch_time 0.255576  train_accuracy 0.119478  validation_loss 0.500000  validation_accuracy 0.119325  validation_macro_f1 0.023690
+epoch  15/350  loss 0.500000  epoch_time 0.320141  train_accuracy 0.119478  validation_loss 0.500000  validation_accuracy 0.119325  validation_macro_f1 0.023690
+epoch  20/350  loss 0.500000  epoch_time 0.288204  train_accuracy 0.119478  validation_loss 0.500000  validation_accuracy 0.119325  validation_macro_f1 0.023690
+epoch  25/350  loss 0.500000  epoch_time 0.234759  train_accuracy 0.119478  validation_loss 0.500000  validation_accuracy 0.119325  validation_macro_f1 0.023690
+epoch  30/350  loss 0.500000  epoch_time 0.249328  train_accuracy 0.119478  validation_loss 0.500000  validation_accuracy 0.119325  validation_macro_f1 0.023690
+epoch  35/350  loss 0.500000  epoch_time 0.267369  train_accuracy 0.119478  validation_loss 0.500000  validation_accuracy 0.119325  validation_macro_f1 0.023690
+epoch  40/350  loss 0.500000  epoch_time 0.249715  train_accuracy 0.119478  validation_loss 0.500000  validation_accuracy 0.119325  validation_macro_f1 0.023690
+Training finished after 41/350 epochs: epoch  41/350  loss 0.500000  epoch_time 0.244934  train_accuracy 0.119478  validation_loss 0.500000  validation_accuracy 0.119325  validation_macro_f1 0.023690
+Best epoch: 41; validation accuracy: 11.9325%
+Results: C:\Users\nacho\OneDrive\Documents\ITBA\5-1C\SIA\TPS_SIA_GRUPO_4\TP3\results\digits_depth_sweep_relu\depth_04\seed_42
+Train: 9960; validation: 2489; missing classes: [8]
+epoch   1/350  loss 0.500000  epoch_time 0.280549  train_accuracy 0.123293  validation_loss 0.500000  validation_accuracy 0.122539  validation_macro_f1 0.029129
+epoch   5/350  loss 0.500000  epoch_time 0.277223  train_accuracy 0.123293  validation_loss 0.500000  validation_accuracy 0.122539  validation_macro_f1 0.029129
+epoch  10/350  loss 0.500000  epoch_time 0.257394  train_accuracy 0.123293  validation_loss 0.500000  validation_accuracy 0.122539  validation_macro_f1 0.029129
+epoch  15/350  loss 0.500000  epoch_time 0.392412  train_accuracy 0.123293  validation_loss 0.500000  validation_accuracy 0.122539  validation_macro_f1 0.029129
+epoch  20/350  loss 0.500000  epoch_time 0.238017  train_accuracy 0.123293  validation_loss 0.500000  validation_accuracy 0.122539  validation_macro_f1 0.029129
+epoch  25/350  loss 0.500000  epoch_time 0.265423  train_accuracy 0.123293  validation_loss 0.500000  validation_accuracy 0.122539  validation_macro_f1 0.029129
+epoch  30/350  loss 0.500000  epoch_time 0.242847  train_accuracy 0.123293  validation_loss 0.500000  validation_accuracy 0.122539  validation_macro_f1 0.029129
+epoch  35/350  loss 0.500000  epoch_time 0.271263  train_accuracy 0.123293  validation_loss 0.500000  validation_accuracy 0.122539  validation_macro_f1 0.029129
+epoch  40/350  loss 0.500000  epoch_time 0.236158  train_accuracy 0.123293  validation_loss 0.500000  validation_accuracy 0.122539  validation_macro_f1 0.029129
+Training finished after 41/350 epochs: epoch  41/350  loss 0.500000  epoch_time 0.228053  train_accuracy 0.123293  validation_loss 0.500000  validation_accuracy 0.122539  validation_macro_f1 0.029129
+Best epoch: 1; validation accuracy: 12.2539%
+Results: C:\Users\nacho\OneDrive\Documents\ITBA\5-1C\SIA\TPS_SIA_GRUPO_4\TP3\results\digits_depth_sweep_relu\depth_04\seed_7
+Train: 9960; validation: 2489; missing classes: [8]
+epoch   1/350  loss 0.500000  epoch_time 0.240194  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch   5/350  loss 0.500000  epoch_time 0.234294  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  10/350  loss 0.500000  epoch_time 0.233296  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  15/350  loss 0.500000  epoch_time 0.242382  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  20/350  loss 0.500000  epoch_time 0.245854  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  25/350  loss 0.500000  epoch_time 0.238827  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  30/350  loss 0.500000  epoch_time 0.234818  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  35/350  loss 0.500000  epoch_time 0.245313  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  40/350  loss 0.500000  epoch_time 0.243210  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+Training finished after 41/350 epochs: epoch  41/350  loss 0.500000  epoch_time 0.236374  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+Best epoch: 1; validation accuracy: 12.3343%
+Results: C:\Users\nacho\OneDrive\Documents\ITBA\5-1C\SIA\TPS_SIA_GRUPO_4\TP3\results\digits_depth_sweep_relu\depth_04\seed_21
+Train: 9960; validation: 2489; missing classes: [8]
+epoch   1/350  loss 0.500000  epoch_time 0.265240  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch   5/350  loss 0.500000  epoch_time 0.264108  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  10/350  loss 0.500000  epoch_time 0.267696  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  15/350  loss 0.500000  epoch_time 0.265823  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  20/350  loss 0.500000  epoch_time 0.261582  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  25/350  loss 0.500000  epoch_time 0.263116  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  30/350  loss 0.500000  epoch_time 0.262046  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  35/350  loss 0.500000  epoch_time 0.257038  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  40/350  loss 0.500000  epoch_time 0.282186  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+Training finished after 41/350 epochs: epoch  41/350  loss 0.500000  epoch_time 0.269584  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+Best epoch: 1; validation accuracy: 13.5396%
+Results: C:\Users\nacho\OneDrive\Documents\ITBA\5-1C\SIA\TPS_SIA_GRUPO_4\TP3\results\digits_depth_sweep_relu\depth_05\seed_42
+Train: 9960; validation: 2489; missing classes: [8]
+epoch   1/350  loss 0.500000  epoch_time 0.209295  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch   5/350  loss 0.500000  epoch_time 0.211199  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  10/350  loss 0.500000  epoch_time 0.259730  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  15/350  loss 0.500000  epoch_time 0.256772  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  20/350  loss 0.500000  epoch_time 0.257941  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  25/350  loss 0.500000  epoch_time 0.257873  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  30/350  loss 0.499997  epoch_time 0.291507  train_accuracy 0.122992  validation_loss 0.499998  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  35/350  loss 0.500000  epoch_time 0.270985  train_accuracy 0.118775  validation_loss 0.500000  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  40/350  loss 0.500000  epoch_time 0.259019  train_accuracy 0.118775  validation_loss 0.500000  validation_accuracy 0.118923  validation_macro_f1 0.023619
+Training finished after 41/350 epochs: epoch  41/350  loss 0.500000  epoch_time 0.261824  train_accuracy 0.118775  validation_loss 0.500000  validation_accuracy 0.118923  validation_macro_f1 0.023619
+Best epoch: 31; validation accuracy: 12.3343%
+Results: C:\Users\nacho\OneDrive\Documents\ITBA\5-1C\SIA\TPS_SIA_GRUPO_4\TP3\results\digits_depth_sweep_relu\depth_05\seed_7
+Train: 9960; validation: 2489; missing classes: [8]
+epoch   1/350  loss 0.500000  epoch_time 0.225268  train_accuracy 0.118876  validation_loss 0.500000  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch   5/350  loss 0.500000  epoch_time 0.249802  train_accuracy 0.118876  validation_loss 0.500000  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  10/350  loss 0.500000  epoch_time 0.225040  train_accuracy 0.118876  validation_loss 0.500000  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  15/350  loss 0.500000  epoch_time 0.230799  train_accuracy 0.118876  validation_loss 0.500000  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  20/350  loss 0.500000  epoch_time 0.233757  train_accuracy 0.118876  validation_loss 0.500000  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  25/350  loss 0.500000  epoch_time 0.232505  train_accuracy 0.118876  validation_loss 0.500000  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  30/350  loss 0.500000  epoch_time 0.232007  train_accuracy 0.118876  validation_loss 0.500000  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  35/350  loss 0.500000  epoch_time 0.230641  train_accuracy 0.118876  validation_loss 0.500000  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  40/350  loss 0.500000  epoch_time 0.235401  train_accuracy 0.118876  validation_loss 0.500000  validation_accuracy 0.118923  validation_macro_f1 0.023619
+Training finished after 41/350 epochs: epoch  41/350  loss 0.500000  epoch_time 0.233777  train_accuracy 0.118876  validation_loss 0.500000  validation_accuracy 0.118923  validation_macro_f1 0.023619
+Best epoch: 1; validation accuracy: 11.8923%
+Results: C:\Users\nacho\OneDrive\Documents\ITBA\5-1C\SIA\TPS_SIA_GRUPO_4\TP3\results\digits_depth_sweep_relu\depth_05\seed_21
+Train: 9960; validation: 2489; missing classes: [8]
+epoch   1/350  loss 0.499989  epoch_time 0.259329  train_accuracy 0.117269  validation_loss 0.499992  validation_accuracy 0.117316  validation_macro_f1 0.023333
+epoch   5/350  loss 0.499997  epoch_time 0.247719  train_accuracy 0.118775  validation_loss 0.499997  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  10/350  loss 0.499973  epoch_time 0.250165  train_accuracy 0.118775  validation_loss 0.499974  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  15/350  loss 0.499999  epoch_time 0.256707  train_accuracy 0.118876  validation_loss 0.499999  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  20/350  loss 0.499998  epoch_time 0.251539  train_accuracy 0.118876  validation_loss 0.499999  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  25/350  loss 0.499996  epoch_time 0.259677  train_accuracy 0.118876  validation_loss 0.499997  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  30/350  loss 0.499829  epoch_time 0.283830  train_accuracy 0.118876  validation_loss 0.499852  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  35/350  loss 0.442161  epoch_time 0.303796  train_accuracy 0.118876  validation_loss 0.443502  validation_accuracy 0.118923  validation_macro_f1 0.023619
+epoch  40/350  loss 0.330266  epoch_time 0.255645  train_accuracy 0.354016  validation_loss 0.335472  validation_accuracy 0.352350  validation_macro_f1 0.182780
+epoch  45/350  loss 0.324751  epoch_time 0.252920  train_accuracy 0.355422  validation_loss 0.332350  validation_accuracy 0.351949  validation_macro_f1 0.176487
+epoch  50/350  loss 0.324264  epoch_time 0.262577  train_accuracy 0.355723  validation_loss 0.334167  validation_accuracy 0.352752  validation_macro_f1 0.182203
+epoch  55/350  loss 0.323119  epoch_time 0.248067  train_accuracy 0.357430  validation_loss 0.333408  validation_accuracy 0.352752  validation_macro_f1 0.198930
+epoch  60/350  loss 0.322492  epoch_time 0.255747  train_accuracy 0.357932  validation_loss 0.333434  validation_accuracy 0.354359  validation_macro_f1 0.196599
+epoch  65/350  loss 0.322480  epoch_time 0.261426  train_accuracy 0.367369  validation_loss 0.332878  validation_accuracy 0.364403  validation_macro_f1 0.219374
+epoch  70/350  loss 0.322351  epoch_time 0.274923  train_accuracy 0.381325  validation_loss 0.332657  validation_accuracy 0.378867  validation_macro_f1 0.229997
+epoch  75/350  loss 0.322341  epoch_time 0.251490  train_accuracy 0.394478  validation_loss 0.332709  validation_accuracy 0.392929  validation_macro_f1 0.241904
+epoch  80/350  loss 0.322338  epoch_time 0.248395  train_accuracy 0.421386  validation_loss 0.332829  validation_accuracy 0.416231  validation_macro_f1 0.261908
+epoch  85/350  loss 0.322296  epoch_time 0.289026  train_accuracy 0.466867  validation_loss 0.333252  validation_accuracy 0.464845  validation_macro_f1 0.325236
+epoch  90/350  loss 0.265436  epoch_time 0.326925  train_accuracy 0.478112  validation_loss 0.277855  validation_accuracy 0.472479  validation_macro_f1 0.346528
+epoch  95/350  loss 0.256022  epoch_time 0.401873  train_accuracy 0.496888  validation_loss 0.269891  validation_accuracy 0.481720  validation_macro_f1 0.418120
+epoch 100/350  loss 0.252906  epoch_time 0.307129  train_accuracy 0.497892  validation_loss 0.269355  validation_accuracy 0.484130  validation_macro_f1 0.389110
+epoch 105/350  loss 0.251271  epoch_time 0.368020  train_accuracy 0.499297  validation_loss 0.266632  validation_accuracy 0.488148  validation_macro_f1 0.385322
+epoch 110/350  loss 0.251016  epoch_time 0.365383  train_accuracy 0.499297  validation_loss 0.265324  validation_accuracy 0.490558  validation_macro_f1 0.390869
+epoch 115/350  loss 0.250981  epoch_time 0.322881  train_accuracy 0.499398  validation_loss 0.265690  validation_accuracy 0.490558  validation_macro_f1 0.391168
+epoch 120/350  loss 0.252526  epoch_time 0.318990  train_accuracy 0.498896  validation_loss 0.268596  validation_accuracy 0.487746  validation_macro_f1 0.409242
+epoch 125/350  loss 0.251061  epoch_time 0.422166  train_accuracy 0.499498  validation_loss 0.264551  validation_accuracy 0.489353  validation_macro_f1 0.390542
+epoch 130/350  loss 0.250760  epoch_time 0.289188  train_accuracy 0.499699  validation_loss 0.265475  validation_accuracy 0.489353  validation_macro_f1 0.384208
+epoch 135/350  loss 0.250757  epoch_time 0.269493  train_accuracy 0.499699  validation_loss 0.265570  validation_accuracy 0.490157  validation_macro_f1 0.384375
+epoch 140/350  loss 0.250708  epoch_time 0.251086  train_accuracy 0.499598  validation_loss 0.265966  validation_accuracy 0.490157  validation_macro_f1 0.384131
+epoch 145/350  loss 0.250706  epoch_time 0.310822  train_accuracy 0.499598  validation_loss 0.266085  validation_accuracy 0.490157  validation_macro_f1 0.384663
+Training finished after 147/350 epochs: epoch 147/350  loss 0.250706  epoch_time 0.324566  train_accuracy 0.499598  validation_loss 0.266059  validation_accuracy 0.490157  validation_macro_f1 0.384845
+Best epoch: 109; validation accuracy: 49.1362%
+Results: C:\Users\nacho\OneDrive\Documents\ITBA\5-1C\SIA\TPS_SIA_GRUPO_4\TP3\results\digits_depth_sweep_relu\depth_06\seed_42
+Train: 9960; validation: 2489; missing classes: [8]
+epoch   1/350  loss 0.500000  epoch_time 0.335737  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch   5/350  loss 0.500000  epoch_time 0.345405  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  10/350  loss 0.500000  epoch_time 0.281492  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  15/350  loss 0.500000  epoch_time 0.397443  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  20/350  loss 0.500000  epoch_time 0.368067  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  25/350  loss 0.500000  epoch_time 0.408951  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  30/350  loss 0.500000  epoch_time 0.318946  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  35/350  loss 0.500000  epoch_time 0.319727  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  40/350  loss 0.500000  epoch_time 0.342097  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+Training finished after 41/350 epochs: epoch  41/350  loss 0.500000  epoch_time 0.313688  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+Best epoch: 1; validation accuracy: 13.5396%
+Results: C:\Users\nacho\OneDrive\Documents\ITBA\5-1C\SIA\TPS_SIA_GRUPO_4\TP3\results\digits_depth_sweep_relu\depth_06\seed_7
+Train: 9960; validation: 2489; missing classes: [8]
+epoch   1/350  loss 0.500000  epoch_time 0.288547  train_accuracy 0.117269  validation_loss 0.500000  validation_accuracy 0.117316  validation_macro_f1 0.023333
+epoch   5/350  loss 0.500000  epoch_time 0.356862  train_accuracy 0.117269  validation_loss 0.500000  validation_accuracy 0.117316  validation_macro_f1 0.023333
+epoch  10/350  loss 0.500000  epoch_time 0.306670  train_accuracy 0.117269  validation_loss 0.500000  validation_accuracy 0.117316  validation_macro_f1 0.023333
+epoch  15/350  loss 0.500000  epoch_time 0.327231  train_accuracy 0.117269  validation_loss 0.500000  validation_accuracy 0.117316  validation_macro_f1 0.023333
+epoch  20/350  loss 0.500000  epoch_time 0.301173  train_accuracy 0.117269  validation_loss 0.500000  validation_accuracy 0.117316  validation_macro_f1 0.023333
+epoch  25/350  loss 0.500000  epoch_time 0.308170  train_accuracy 0.117269  validation_loss 0.500000  validation_accuracy 0.117316  validation_macro_f1 0.023333
+epoch  30/350  loss 0.500000  epoch_time 0.339449  train_accuracy 0.117269  validation_loss 0.500000  validation_accuracy 0.117316  validation_macro_f1 0.023333
+epoch  35/350  loss 0.500000  epoch_time 0.293567  train_accuracy 0.117269  validation_loss 0.500000  validation_accuracy 0.117316  validation_macro_f1 0.023333
+epoch  40/350  loss 0.500000  epoch_time 0.286844  train_accuracy 0.117269  validation_loss 0.500000  validation_accuracy 0.117316  validation_macro_f1 0.023333
+Training finished after 41/350 epochs: epoch  41/350  loss 0.500000  epoch_time 0.268155  train_accuracy 0.117269  validation_loss 0.500000  validation_accuracy 0.117316  validation_macro_f1 0.023333
+Best epoch: 1; validation accuracy: 11.7316%
+Results: C:\Users\nacho\OneDrive\Documents\ITBA\5-1C\SIA\TPS_SIA_GRUPO_4\TP3\results\digits_depth_sweep_relu\depth_06\seed_21
+Train: 9960; validation: 2489; missing classes: [8]
+epoch   1/350  loss 0.500000  epoch_time 0.280484  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch   5/350  loss 0.500000  epoch_time 0.298361  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  10/350  loss 0.500000  epoch_time 0.300280  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  15/350  loss 0.500000  epoch_time 0.274975  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  20/350  loss 0.500000  epoch_time 0.295929  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  25/350  loss 0.500000  epoch_time 0.451221  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  30/350  loss 0.500000  epoch_time 0.360281  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  35/350  loss 0.500000  epoch_time 0.338931  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  40/350  loss 0.500000  epoch_time 0.374243  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+Training finished after 41/350 epochs: epoch  41/350  loss 0.500000  epoch_time 0.318712  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+Best epoch: 1; validation accuracy: 13.5396%
+Results: C:\Users\nacho\OneDrive\Documents\ITBA\5-1C\SIA\TPS_SIA_GRUPO_4\TP3\results\digits_depth_sweep_relu\depth_07\seed_42
+Train: 9960; validation: 2489; missing classes: [8]
+epoch   1/350  loss 0.500000  epoch_time 0.276672  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch   5/350  loss 0.500000  epoch_time 0.281246  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  10/350  loss 0.500000  epoch_time 0.404649  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  15/350  loss 0.500000  epoch_time 0.291484  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  20/350  loss 0.500000  epoch_time 0.305091  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  25/350  loss 0.500000  epoch_time 0.288854  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  30/350  loss 0.500000  epoch_time 0.313567  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  35/350  loss 0.500000  epoch_time 0.283273  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+epoch  40/350  loss 0.500000  epoch_time 0.225643  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+Training finished after 41/350 epochs: epoch  41/350  loss 0.500000  epoch_time 0.218694  train_accuracy 0.122992  validation_loss 0.500000  validation_accuracy 0.123343  validation_macro_f1 0.024400
+Best epoch: 1; validation accuracy: 12.3343%
+Results: C:\Users\nacho\OneDrive\Documents\ITBA\5-1C\SIA\TPS_SIA_GRUPO_4\TP3\results\digits_depth_sweep_relu\depth_07\seed_7
+Train: 9960; validation: 2489; missing classes: [8]
+epoch   1/350  loss 0.500000  epoch_time 0.309541  train_accuracy 0.119478  validation_loss 0.500000  validation_accuracy 0.119325  validation_macro_f1 0.023690
+epoch   5/350  loss 0.500000  epoch_time 0.293417  train_accuracy 0.119478  validation_loss 0.500000  validation_accuracy 0.119325  validation_macro_f1 0.023690
+epoch  10/350  loss 0.500000  epoch_time 0.277081  train_accuracy 0.119478  validation_loss 0.500000  validation_accuracy 0.119325  validation_macro_f1 0.023690
+epoch  15/350  loss 0.500000  epoch_time 0.286133  train_accuracy 0.119478  validation_loss 0.500000  validation_accuracy 0.119325  validation_macro_f1 0.023690
+epoch  20/350  loss 0.500000  epoch_time 0.282359  train_accuracy 0.119478  validation_loss 0.500000  validation_accuracy 0.119325  validation_macro_f1 0.023690
+epoch  25/350  loss 0.500000  epoch_time 0.286258  train_accuracy 0.119478  validation_loss 0.500000  validation_accuracy 0.119325  validation_macro_f1 0.023690
+epoch  30/350  loss 0.500000  epoch_time 0.278250  train_accuracy 0.119478  validation_loss 0.500000  validation_accuracy 0.119325  validation_macro_f1 0.023690
+epoch  35/350  loss 0.500000  epoch_time 0.279787  train_accuracy 0.119478  validation_loss 0.500000  validation_accuracy 0.119325  validation_macro_f1 0.023690
+epoch  40/350  loss 0.500000  epoch_time 0.277384  train_accuracy 0.119478  validation_loss 0.500000  validation_accuracy 0.119325  validation_macro_f1 0.023690
+Training finished after 41/350 epochs: epoch  41/350  loss 0.500000  epoch_time 0.276223  train_accuracy 0.119478  validation_loss 0.500000  validation_accuracy 0.119325  validation_macro_f1 0.023690
+Best epoch: 1; validation accuracy: 11.9325%
+Results: C:\Users\nacho\OneDrive\Documents\ITBA\5-1C\SIA\TPS_SIA_GRUPO_4\TP3\results\digits_depth_sweep_relu\depth_07\seed_21
+Train: 9960; validation: 2489; missing classes: [8]
+epoch   1/350  loss 0.500000  epoch_time 0.339093  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch   5/350  loss 0.500000  epoch_time 0.352045  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  10/350  loss 0.500000  epoch_time 0.346632  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  15/350  loss 0.500000  epoch_time 0.294167  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  20/350  loss 0.500000  epoch_time 0.312604  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  25/350  loss 0.500000  epoch_time 0.324508  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  30/350  loss 0.500000  epoch_time 0.322403  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  35/350  loss 0.500000  epoch_time 0.297473  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  40/350  loss 0.500000  epoch_time 0.301796  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+Training finished after 41/350 epochs: epoch  41/350  loss 0.500000  epoch_time 0.314500  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+Best epoch: 1; validation accuracy: 13.5396%
+Results: C:\Users\nacho\OneDrive\Documents\ITBA\5-1C\SIA\TPS_SIA_GRUPO_4\TP3\results\digits_depth_sweep_relu\depth_08\seed_42
+Train: 9960; validation: 2489; missing classes: [8]
+epoch   1/350  loss 0.500000  epoch_time 0.297859  train_accuracy 0.117269  validation_loss 0.500000  validation_accuracy 0.117316  validation_macro_f1 0.023333
+epoch   5/350  loss 0.500000  epoch_time 0.313310  train_accuracy 0.117269  validation_loss 0.500000  validation_accuracy 0.117316  validation_macro_f1 0.023333
+epoch  10/350  loss 0.500000  epoch_time 0.304025  train_accuracy 0.117269  validation_loss 0.500000  validation_accuracy 0.117316  validation_macro_f1 0.023333
+epoch  15/350  loss 0.500000  epoch_time 0.295115  train_accuracy 0.117269  validation_loss 0.500000  validation_accuracy 0.117316  validation_macro_f1 0.023333
+epoch  20/350  loss 0.500000  epoch_time 0.324742  train_accuracy 0.117269  validation_loss 0.500000  validation_accuracy 0.117316  validation_macro_f1 0.023333
+epoch  25/350  loss 0.500000  epoch_time 0.328992  train_accuracy 0.117269  validation_loss 0.500000  validation_accuracy 0.117316  validation_macro_f1 0.023333
+epoch  30/350  loss 0.500000  epoch_time 0.309226  train_accuracy 0.117269  validation_loss 0.500000  validation_accuracy 0.117316  validation_macro_f1 0.023333
+epoch  35/350  loss 0.500000  epoch_time 0.304789  train_accuracy 0.117269  validation_loss 0.500000  validation_accuracy 0.117316  validation_macro_f1 0.023333
+epoch  40/350  loss 0.500000  epoch_time 0.307951  train_accuracy 0.117269  validation_loss 0.500000  validation_accuracy 0.117316  validation_macro_f1 0.023333
+Training finished after 41/350 epochs: epoch  41/350  loss 0.500000  epoch_time 0.355907  train_accuracy 0.117269  validation_loss 0.500000  validation_accuracy 0.117316  validation_macro_f1 0.023333
+Best epoch: 1; validation accuracy: 11.7316%
+Results: C:\Users\nacho\OneDrive\Documents\ITBA\5-1C\SIA\TPS_SIA_GRUPO_4\TP3\results\digits_depth_sweep_relu\depth_08\seed_7
+Train: 9960; validation: 2489; missing classes: [8]
+epoch   1/350  loss 0.500000  epoch_time 0.302678  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch   5/350  loss 0.500000  epoch_time 0.302591  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  10/350  loss 0.500000  epoch_time 0.309932  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  15/350  loss 0.500000  epoch_time 0.507642  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  20/350  loss 0.500000  epoch_time 0.501335  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  25/350  loss 0.500000  epoch_time 0.417393  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  30/350  loss 0.500000  epoch_time 0.369375  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  35/350  loss 0.500000  epoch_time 0.364698  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+epoch  40/350  loss 0.500000  epoch_time 0.299239  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+Training finished after 41/350 epochs: epoch  41/350  loss 0.500000  epoch_time 0.367554  train_accuracy 0.135341  validation_loss 0.500000  validation_accuracy 0.135396  validation_macro_f1 0.026500
+Best epoch: 1; validation accuracy: 13.5396%
+Results: C:\Users\nacho\OneDrive\Documents\ITBA\5-1C\SIA\TPS_SIA_GRUPO_4\TP3\results\digits_depth_sweep_relu\depth_08\seed_21
+ hidden_layers  validation_accuracy_mean  validation_accuracy_std  validation_loss_mean  validation_macro_f1_mean  validation_macro_f1_std  validation_recall_5_mean  parameters
+             1                  0.958752                 0.003369              0.037484                  0.944676                 0.006348                  0.796296       50890
+             2                  0.643498                 0.458301              0.207889                  0.581827                 0.492514                  0.543210       55050
+             3                  0.157627                 0.053410              0.499927                  0.044412                 0.033550                  0.000000       59210
+             4                  0.121736                 0.002126              0.500000                  0.025740                 0.002957                  0.000000       63370
+             5                  0.125887                 0.008526              0.498624                  0.024839                 0.001490                  0.000000       67530
+             6                  0.248025                 0.210930              0.421762                  0.146806                 0.211125                  0.283951       71690
+             7                  0.126021                 0.008363              0.500000                  0.024863                 0.001461                  0.000000       75850
+             8                  0.129369                 0.010438              0.500000                  0.025444                 0.001828                  0.000000       80010
+{
+  "selection": "highest mean validation accuracy across seeds",
+  "best_depth": 1,
+  "best_mean_validation_accuracy": 0.9587518414356503,
+  "stop_reason": "reached_max_hidden_layers",
+  "depths_completed": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "seeds": [
+    42,
+    7,
+    21
+  ],
+  "width": 64,
+  "patience": 2,
+  "min_delta": 0.002,
+  "stop_on_plateau": false,
+  "external_test_evaluated": false
+}

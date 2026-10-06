@@ -1,0 +1,26 @@
+{
+  "selection": "highest mean validation accuracy across seeds",
+  "best_depth": 1,
+  "best_mean_validation_accuracy": 0.9571447703227535,
+  "stop_reason": "reached_max_hidden_layers",
+  "depths_completed": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "seeds": [
+    42,
+    7,
+    21
+  ],
+  "width": 64,
+  "patience": 2,
+  "min_delta": 0.002,
+  "stop_on_plateau": false,
+  "external_test_evaluated": false
+}

@@ -1,0 +1,40 @@
+{
+  "data": {
+    "path": "datasets/digits.csv",
+    "validation_ratio": 0.2,
+    "split_seed": 42
+  },
+  "gradient_profile": {
+    "depth": 8,
+    "width": 64,
+    "batch_size": 1000,
+    "seeds": [
+      42,
+      7,
+      21
+    ],
+    "configurations": [
+      {
+        "label": "sigmoide + Xavier",
+        "activation": "sigmoid",
+        "initializer": "xavier"
+      },
+      {
+        "label": "tanh + Xavier",
+        "activation": "tanh",
+        "initializer": "xavier"
+      },
+      {
+        "label": "ReLU + He",
+        "activation": "relu",
+        "initializer": "he"
+      }
+    ]
+  },
+  "depth_sweeps": {
+    "tanh + Xavier, \u03b7 = 0,1": "results/digits_depth_sweep",
+    "ReLU + He, \u03b7 = 0,01": "results/digits_depth_sweep_relu",
+    "ReLU + He, \u03b7 = 0,1": "results/digits_depth_sweep_relu_lr0.1"
+  },
+  "output_directory": "results/digits_relu_depth"
+}
