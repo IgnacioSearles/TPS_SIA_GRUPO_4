@@ -1,6 +1,6 @@
 # TP3 — Presentación (45 minutos)
 
-Presentación para los 45 minutos de exposición: 62 diapositivas de relato (14 son separadores de sección, casi sin tiempo de exposición) y un apéndice de 25 gráficos para preguntas.
+Presentación para los 45 minutos de exposición: 66 diapositivas de relato (14 son separadores de sección, casi sin tiempo de exposición) y un apéndice de 25 gráficos para preguntas.
 
 Abrir index.html. Flechas: avanzar. F: pantalla completa. S: notas del orador. Funciona sin conexión. Para compartir, enviar la carpeta completa.
 
@@ -16,10 +16,10 @@ Los opcionales de la consigna para los ejercicios 2 y 3 son conjuntos: se presen
 |---|---|---|
 | Portada | 1 | 1 min |
 | Ejercicio 1 | 2–26 | 17 min |
-| Ejercicio 2 | 27–42 | 13 min |
-| Ejercicio 3 | 43–61 | 15 min |
-| Cierre | 62 | 2 min |
-| Apéndice | 63–88 | solo para preguntas |
+| Ejercicio 2 | 27–43 | 14 min |
+| Ejercicio 3 | 44–65 | 17 min |
+| Cierre | 66 | 2 min |
+| Apéndice | 67–92 | solo para preguntas |
 
 ## Dónde se responde cada pregunta de la consigna
 
@@ -30,11 +30,13 @@ Los opcionales de la consigna para los ejercicios 2 y 3 son conjuntos: se presen
 | E1 generalización b (manejo de datos) | 13 |
 | E1 generalización c (mejor modelo y umbral) | 18 y 20 (recomendación para CompanyX) |
 | E1 opcionales: ReLU · features · calibración | 22 · 23–24 · 25–26 |
-| E2 a (cómo evaluar) | 28 y 42 |
-| E2 b (variantes) | 33–38 y 42 (incluye gradientes y L2) |
-| E3 a / b / c | 53 / 49 / 48, resumidas en 56 |
-| E2-E3 opcionales: ruido · interpretabilidad | 58 · 59–60 |
-| Extra: ensamble de redes (98,92 % en test) | 61 |
+| E2 a (cómo evaluar) | 28 y 43 |
+| E2 b (variantes) | 33–38, 40 (qué adoptamos) y 43 (incluye gradientes y L2) |
+| E3 protocolo (partición, selección, semillas, parada temprana) | 48 |
+| E3 a / b / c | 56 / 51 / 50, resumidas en 60 |
+| E3 modelo elegido · consultas al test | 55 · 57 |
+| E2-E3 opcionales: ruido · interpretabilidad | 62 · 63–64 |
+| Extra: ensamble de redes (98,92 % en test) | 65 |
 
 ## Criterios
 

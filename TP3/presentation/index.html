@@ -435,6 +435,24 @@
   </main>
 </section>
 
+<section>
+  <header><span>Ejercicio 2 · Modelo elegido</span></header>
+  <h2>De los experimentos al modelo final</h2>
+  <main>
+    <table>
+      <tbody>
+        <tr><td>η</td><td>0,1</td></tr>
+        <tr><td>Red</td><td>784-64-32-10</td></tr>
+        <tr><td>Optimizador</td><td>Momentum 0,9</td></tr>
+        <tr><td>Activación</td><td>Tanh</td></tr>
+        <tr><td>Épocas</td><td>76</td></tr>
+      </tbody>
+    </table>
+  </main>
+  <div class="take">85,90 % en test. La red 128-128 y L2 llegaron después.</div>
+  <aside class="notes">Todas las decisiones de E2 usan la misma validación (2 489 imágenes de digits.csv, estratificada, semilla 42); el test se abrió una sola vez, con el modelo ya fijado. La arquitectura se eligió con una semilla (42); el optimizador, con cinco. Cambio de criterio declarado: por accuracy media ganaba momentum 0,5 (+0,09 pp sobre 0,9, dentro del ruido); elegimos 0,9 porque llega antes al 95 % y varía menos entre semillas. Para el modelo final se reentrenó desde cero con las 12 449 imágenes de digits.csv durante 76 épocas (la mediana de las mejores épocas con momentum 0,9), sin parada temprana ni elección de época en test. El barrido de ancho (128-128) y L2 se hicieron después: no cambian el modelo de E2.<br>Fuentes: results/digits_final/RESULTADOS_FINALES.md, results/digits_seeds, results/digits_architectures</aside>
+</section>
+
 <section class="evidence">
   <header><span>Ejercicio 2 · Resultado en test · modelo final 784-64-32-10, tanh, momentum 0,9</span></header>
   <h2>85,90 % en test: siete de cada diez errores son ochos</h2>
@@ -516,6 +534,24 @@
   </main>
 </section>
 
+<section>
+  <header><span>Ejercicio 3 · Protocolo</span></header>
+  <h2>Elegimos en validación; el test es aparte</h2>
+  <main>
+    <table>
+      <tbody>
+        <tr><td>Entrenamiento</td><td>19 601</td></tr>
+        <tr><td>Validación</td><td>4 900</td></tr>
+        <tr><td>Test</td><td>2 497 (otro archivo)</td></tr>
+        <tr><td>Parada temprana</td><td>50 épocas sin mejorar</td></tr>
+        <tr><td>Selección</td><td>≥ 98 % → mayor F1 macro</td></tr>
+        <tr><td>Semillas</td><td>3 (softmax: 5)</td></tr>
+      </tbody>
+    </table>
+  </main>
+  <aside class="notes">La deduplicación evita que una misma imagen quede en entrenamiento y validación a la vez. La validación tiene ochos, a diferencia de E2. El balanceo repite imágenes de las clases escasas hasta igualarlas (25 700 filas por época); la augmentación se sortea de nuevo en cada época. Los primeros estudios de E3 (ablaciones con la red 64-32) usaron otra partición (semilla 42) y 150 épocas fijas; todos los que deciden el modelo final usan esta partición y esta parada temprana. Las consultas al test se detallan en la sección de resultados.<br>Fuentes: reports/digits_e3_final/entrenamiento/study_config.json, reports/digits_e3_final/entrenamiento/study_summary.json, experiments/digits/data.py</aside>
+</section>
+
 <section class="evidence">
   <header><span>Ejercicio 3 · Técnicas</span></header>
   <h2>Augmentación y balanceo, solo sobre entrenamiento</h2>
@@ -565,6 +601,23 @@
 </section>
 
 <section>
+  <header><span>Ejercicio 3 · Modelo elegido</span></header>
+  <h2>De los experimentos al modelo final</h2>
+  <main>
+    <table>
+      <tbody>
+        <tr><td>Datos</td><td>digits + more_digits, sin repetidas</td></tr>
+        <tr><td>Técnicas</td><td>Augmentación + balanceo</td></tr>
+        <tr><td>Red</td><td>784-128-128-10</td></tr>
+        <tr><td>Salida</td><td>Sigmoide + MSE</td></tr>
+      </tbody>
+    </table>
+  </main>
+  <div class="take">98,63 % ± 0,15 en test (3 semillas).</div>
+  <aside class="notes">Cada fila se decidió en validación con el protocolo anterior. Datos y técnicas se midieron con la red de E2 (64-32) para separar sus aportes; recién después se volvió a elegir arquitectura. De siete arquitecturas, seis superaron el 98 % de media en validación; entre ellas, 128-128 tuvo el mayor F1 macro (0,983) y también la mayor accuracy. Softmax y L2 se probaron con el modelo final ya fijado y evaluado: softmax gana 0,12 pp en validación, pero el modelo no se reemplazó; en test empata. L2 empeora la validación (98,63 % con λ = 10⁻⁴ contra 98,69 % sin L2).<br>Fuentes: reports/digits_e3_datos_vs_tecnicas/report.md, reports/digits_e3_architectures/architecture_summary.csv, reports/digits_e3_softmax_tuned/report.md, reports/digits_e3_l2</aside>
+</section>
+
+<section>
   <header><span>Ejercicio 3 · 3(a) Resultado</span></header>
   <h2>Las tres semillas superan el 98 % en test</h2>
   <main>
@@ -583,8 +636,28 @@
     </div>
   </main>
   <div class="take">Mejor: 98,80 % con la semilla 7, que también es la mejor en validación.</div>
-  <aside class="notes">Modelo final: 784-128-128-10, sigmoide + MSE, momentum 0,9. Reportamos todas las semillas, sin elegir por test. Se consultó el mismo test en varias etapas de E3; las decisiones registradas se basan en validación. Los números describen ese test, no garantizan 98 % en otra población.<br>Fuentes: reports/digits_e3_final/summary.json</aside>
+  <aside class="notes">Modelo final: 784-128-128-10, sigmoide + MSE, momentum 0,9. Reportamos todas las semillas, sin elegir por test. Cada consulta al test de E3 y su rol están en la diapositiva siguiente; las decisiones se tomaron en validación. Los números describen ese test, no garantizan 98 % en otra población.<br>Fuentes: reports/digits_e3_final/summary.json</aside>
 </section>
+
+<section>
+  <header><span>Ejercicio 3 · Uso del test</span></header>
+  <h2>Seis consultas al test; una es el resultado</h2>
+  <main>
+    <table>
+      <thead><tr><th>Consulta</th><th>Test</th><th>Rol</th></tr></thead>
+      <tbody>
+        <tr><td>Ablación de datos (64-32)</td><td>97,56 %</td><td>Intermedia</td></tr>
+        <tr><td>Ablación de salida (64-32)</td><td>98,32 %</td><td>Intermedia</td></tr>
+        <tr><td><strong>Modelo final</strong></td><td><strong>98,63 %</strong></td><td><strong>Resultado</strong></td></tr>
+        <tr><td>Ruido, σ = 0</td><td>98,80 %</td><td>Opcional</td></tr>
+        <tr><td>Softmax</td><td>98,57 %</td><td>Adicional</td></tr>
+        <tr><td>Ensamble</td><td>98,92 %</td><td>Extra</td></tr>
+      </tbody>
+    </table>
+  </main>
+  <aside class="notes">Mirar varias veces el mismo test lo vuelve un poco optimista aunque no se elija con él: por eso el número que defendemos es la media del modelo final (98,63 % ± 0,15) y no el máximo. Las dos primeras consultas usaron modelos intermedios (la red 64-32 de E2, con otra partición de validación) y quedaron registradas en sus reportes. La de ruido es parte del opcional y evalúa el modelo final con ruido agregado. La de softmax compara dos modelos ya entrenados, con el final ya fijado. La del ensamble es un extra posterior. Una evaluación independiente requeriría imágenes nuevas.<br>Fuentes: reports/digits_ablation/report.md, reports/digits_training_ablation/report.md, reports/digits_e3_final/summary.json, reports/digits_e3_noise/noise_summary.csv, reports/digits_e3_softmax_tuned_test/report.md, reports/digits_e3_ensemble/test.json</aside>
+</section>
+
 
 <section class="evidence">
   <header><span>Ejercicio 3 · Análisis del resultado</span></header>
