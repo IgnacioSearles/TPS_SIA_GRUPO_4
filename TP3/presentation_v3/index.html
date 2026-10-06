@@ -634,15 +634,20 @@
   <aside class="notes">σ es la intensidad del ruido gaussiano sobre píxeles en [0, 1]. Cinco realizaciones por nivel, sobre el mismo test. σ = 0 da 98,80 % y σ = 0,1 da 97,94 %. No se entrenó con ruido: incorporarlo sería una prueba futura. Los ejemplos visuales de cada nivel están en el apéndice.<br>Fuentes: reports/digits_e3_noise/noise_robustness.png</aside>
 </section>
 
-<section>
+<section class="evidence">
   <header><span>Ejercicio 3 · Opcional: interpretabilidad</span></header>
-  <h2>Un error visto por dentro: el modelo confunde un 0 con un 6</h2>
-  <main>
-    <div class="row-crop"><img src="assets/reports__digits_e3_interpretability__attribution_errors.png" alt="Imagen, gradiente y oclusión para el error 0 a 6"></div>
-    <p class="small"><strong>Gradiente:</strong> qué píxeles cambian más la ventaja del 6. <strong>Oclusión:</strong> tapamos parches de 4 × 4; rojo = taparlo reduce esa ventaja.</p>
-  </main>
-  <div class="take">Explica una predicción concreta; no prueba que la red "entienda" el dígito.</div>
-  <aside class="notes">Etiqueta real 0, predicción 6; comparamos el score del 6 frente al del 0. Se muestra la primera fila del reporte de errores. El mapa ayuda a explicar una predicción concreta; no prueba que la red comprenda la forma como una persona. Se analizaron 10 aciertos (apéndice) y 19 errores de validación seleccionados, no una muestra aleatoria.<br>Fuentes: reports/digits_e3_interpretability/attribution_errors.png; docs/ejercicio3_interpretabilidad.md</aside>
+  <h2>Cada dígito se reconoce por una zona distinta</h2>
+  <main><figure><img src="assets/reports__digits_e3_interpretability_maps__class_occlusion.png" alt="Zonas que más usa la red para cada dígito, sobre la imagen promedio"></figure></main>
+  <div class="take">Rojo: si tapamos esa zona, baja el puntaje del dígito correcto.</div>
+  <aside class="notes">Ejemplos para decir en voz alta: el 8 depende del cruce central; el 2, de la base. Cómo se hizo: sobre cada imagen de validación bien clasificada, deslizamos una ventana gris de 4 × 4 píxeles y medimos cuánto baja el puntaje de la salida correcta (antes de la sigmoide, porque la sigmoide satura cerca de 1). Promediamos por dígito y lo dibujamos sobre la imagen promedio de ese dígito. Lectura: el 0 usa el lado izquierdo del óvalo, el 1 el trazo, el 3 la punta central, el 4 el cruce de trazos, el 7 el palo diagonal, el 9 la parte alta del círculo. Modelo final de E3 (784-128-128-10, semilla 7, la elegida por validación), solo validación: el test no se usa. Muestra en qué se apoya este modelo, no prueba que "entienda" los dígitos como una persona.<br>Fuentes: reports/digits_e3_interpretability_maps; experiments/digits/interpretability_maps.py</aside>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 3 · Opcional: interpretabilidad</span></header>
+  <h2>La primera capa aprende detectores de trazos</h2>
+  <main><figure><img src="assets/reports__digits_e3_interpretability_maps__first_layer_weights.png" alt="Pesos de 24 neuronas de la primera capa como imágenes de 28 × 28"></figure></main>
+  <div class="take">Cada cuadro: los 784 pesos de una neurona. Rojo la activa, azul la inhibe.</div>
+  <aside class="notes">Cada neurona de la primera capa tiene un peso por píxel, así que sus pesos se pueden dibujar como una imagen de 28 × 28. Una franja roja junto a una azul responde a un trazo en esa posición y ángulo: es un detector de bordes. Las capas siguientes combinan estos trazos en partes de dígitos. Se muestran las 24 neuronas (de 128) cuya activación más varía entre imágenes de validación. Modelo final de E3, semilla 7.<br>Fuentes: reports/digits_e3_interpretability_maps/first_layer_weights.png</aside>
 </section>
 
 <!-- =====================================================================
@@ -727,6 +732,8 @@
 <section class="chart"><header><span>Apéndice · Ejercicio 3</span></header><h2>Qué imágenes sigue confundiendo el modelo</h2><main><figure><img src="assets/reports__digits_e3_final__test_errores.png" alt="Errores de test con mayor score"><figcaption>Errores de test con mayor score para la clase equivocada: una selección dirigida, no aleatoria.</figcaption></figure></main><aside class="notes">Un score alto no impide equivocarse: las diez sigmoides no son una distribución calibrada. No medimos desempeño humano.<br>Fuentes: reports/digits_e3_final/test_errores.png</aside></section>
 
 <section class="chart"><header><span>Apéndice · Ejercicio 3</span></header><h2>Niveles de ruido gaussiano</h2><main><figure><img src="assets/reports__digits_augmentation__noise_levels.png" alt="Ejemplos con distintos niveles de ruido"><figcaption>Cómo se ve cada σ sobre píxeles normalizados en [0, 1].</figcaption></figure></main><aside class="notes">Fuentes: reports/digits_augmentation/noise_levels.png</aside></section>
+
+<section class="chart"><header><span>Apéndice · Ejercicio 3</span></header><h2>Un error visto por dentro: el modelo confunde un 0 con un 6</h2><main><div class="row-crop"><img src="assets/reports__digits_e3_interpretability__attribution_errors.png" alt="Imagen, gradiente y oclusión para el error 0 a 6"></div><p class="small"><strong>Gradiente:</strong> qué píxeles cambian más la ventaja del 6. <strong>Oclusión:</strong> tapamos parches de 4 × 4; rojo = taparlo reduce esa ventaja.</p></main><aside class="notes">Etiqueta real 0, predicción 6; comparamos el score del 6 frente al del 0. Se muestra la primera fila del reporte de errores. Se analizaron 10 aciertos y 19 errores de validación seleccionados, no una muestra aleatoria.<br>Fuentes: reports/digits_e3_interpretability/attribution_errors.png; docs/ejercicio3_interpretabilidad.md</aside></section>
 
 <section class="chart"><header><span>Apéndice · Ejercicio 3</span></header><h2>En los aciertos, pocas regiones sostienen la decisión</h2><main><figure><img src="assets/reports__digits_e3_interpretability__attribution_correct__grilla.png" alt="Atribuciones para un acierto de cada dígito"><figcaption>Un acierto por dígito, de validación: imagen, gradiente y oclusión (rojo: tapar ese parche reduce el margen).</figcaption></figure></main><aside class="notes">Figura reorganizada en grilla, sin el texto lateral. Ilustra el comportamiento del modelo; no es evidencia causal.<br>Fuentes: reports/digits_e3_interpretability/attribution_correct.png</aside></section>
 

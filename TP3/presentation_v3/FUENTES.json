@@ -57,5 +57,7 @@
   "reports__presentation__ej2_learning_rates.png": "reports/presentation/ej2_learning_rates.png",
   "reports__presentation__ej2_optimizadores_curvas.png": "reports/presentation/ej2_optimizadores_curvas.png",
   "reports__presentation__ej3_softmax_validacion_vs_test.png": "reports/presentation/ej3_softmax_validacion_vs_test.png",
-  "reports__presentation__ej3_softmax_comparison.png": "reports/presentation/ej3_softmax_comparison.png"
+  "reports__presentation__ej3_softmax_comparison.png": "reports/presentation/ej3_softmax_comparison.png",
+  "reports__digits_e3_interpretability_maps__class_occlusion.png": "reports/digits_e3_interpretability_maps/class_occlusion.png",
+  "reports__digits_e3_interpretability_maps__first_layer_weights.png": "reports/digits_e3_interpretability_maps/first_layer_weights.png"
 }

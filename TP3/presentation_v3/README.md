@@ -1,6 +1,6 @@
 # TP3 — Presentación v3 (45 minutos)
 
-Versión corta de presentation_v2 para el tiempo de exposición: 60 diapositivas de relato (14 son separadores de sección, casi sin tiempo de exposición) y un apéndice de 25 gráficos para preguntas. presentation_v2 queda como versión extendida de referencia.
+Versión corta de presentation_v2 para el tiempo de exposición: 61 diapositivas de relato (14 son separadores de sección, casi sin tiempo de exposición) y un apéndice de 26 gráficos para preguntas. presentation_v2 queda como versión extendida de referencia.
 
 Abrir index.html. Flechas: avanzar. F: pantalla completa. S: notas del orador. Funciona sin conexión. Para compartir, enviar la carpeta completa.
 
@@ -17,9 +17,9 @@ Los opcionales de la consigna para los ejercicios 2 y 3 son conjuntos: se presen
 | Portada | 1 | 1 min |
 | Ejercicio 1 | 2–26 | 17 min |
 | Ejercicio 2 | 27–42 | 13 min |
-| Ejercicio 3 | 43–59 | 13 min |
-| Cierre | 60 | 2 min |
-| Apéndice | 61–86 | solo para preguntas |
+| Ejercicio 3 | 43–60 | 14 min |
+| Cierre | 61 | 2 min |
+| Apéndice | 62–88 | solo para preguntas |
 
 ## Dónde se responde cada pregunta de la consigna
 
@@ -33,7 +33,7 @@ Los opcionales de la consigna para los ejercicios 2 y 3 son conjuntos: se presen
 | E2 a (cómo evaluar) | 28 y 42 |
 | E2 b (variantes) | 33–38 y 42 (incluye gradientes y L2) |
 | E3 a / b / c | 53 / 49 / 48, resumidas en 56 |
-| E2-E3 opcionales: ruido · interpretabilidad | 58 · 59 |
+| E2-E3 opcionales: ruido · interpretabilidad | 58 · 59–60 |
 
 ## Qué cambió respecto de v2
 

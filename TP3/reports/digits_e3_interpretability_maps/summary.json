@@ -1,0 +1,49 @@
+{
+  "model": "reports/digits_e3_final/entrenamiento/architecture_00/seed_7",
+  "validation_samples": 4900,
+  "validation_accuracy": 0.9875510204081632,
+  "images_per_digit": [
+    555,
+    633,
+    549,
+    576,
+    550,
+    155,
+    564,
+    591,
+    112,
+    554
+  ],
+  "occlusion": {
+    "window": 4,
+    "stride": 2
+  },
+  "score": "output pre-activation (before sigmoid)",
+  "first_layer_neurons": [
+    105,
+    66,
+    85,
+    7,
+    34,
+    55,
+    107,
+    97,
+    115,
+    27,
+    109,
+    96,
+    88,
+    49,
+    3,
+    94,
+    99,
+    38,
+    78,
+    127,
+    91,
+    75,
+    83,
+    122
+  ],
+  "external_test_evaluated": false
+}
