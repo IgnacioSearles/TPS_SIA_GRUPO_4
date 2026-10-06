@@ -1,6 +1,6 @@
 # TP3 — Presentación v3 (45 minutos)
 
-Versión corta de presentation_v2 para el tiempo de exposición: 61 diapositivas de relato (14 son separadores de sección, casi sin tiempo de exposición) y un apéndice de 26 gráficos para preguntas. presentation_v2 queda como versión extendida de referencia.
+Versión corta de presentation_v2 para el tiempo de exposición: 61 diapositivas de relato (14 son separadores de sección, casi sin tiempo de exposición) y un apéndice de 25 gráficos para preguntas. presentation_v2 queda como versión extendida de referencia.
 
 Abrir index.html. Flechas: avanzar. F: pantalla completa. S: notas del orador. Funciona sin conexión. Para compartir, enviar la carpeta completa.
 
@@ -19,7 +19,7 @@ Los opcionales de la consigna para los ejercicios 2 y 3 son conjuntos: se presen
 | Ejercicio 2 | 27–42 | 13 min |
 | Ejercicio 3 | 43–60 | 14 min |
 | Cierre | 61 | 2 min |
-| Apéndice | 62–88 | solo para preguntas |
+| Apéndice | 62–87 | solo para preguntas |
 
 ## Dónde se responde cada pregunta de la consigna
 
@@ -40,7 +40,7 @@ Los opcionales de la consigna para los ejercicios 2 y 3 son conjuntos: se presen
 - Una diapositiva por idea: el gráfico y su conclusión juntos, en lugar de un gráfico seguido de una diapositiva de análisis.
 - El texto de análisis de v2 pasó a las notas del orador (S), con sus cautelas y fuentes.
 - Separadores de sección dentro de cada ejercicio, y conclusiones explícitas por ejercicio.
-- Los gráficos secundarios (curvas por corrida, inicialización, lote, ejemplos de error, niveles de ruido) pasaron al apéndice.
+- Los gráficos secundarios (curvas por corrida, inicialización, lote, ejemplos de error, ) pasaron al apéndice.
 - Dos figuras de assets/ son recortes o reorganizaciones de un gráfico original (sufijos __sesgo y __grilla); FUENTES.json apunta al original.
 
 ## Reglas para editar

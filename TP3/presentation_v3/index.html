@@ -629,9 +629,9 @@
 <section class="evidence">
   <header><span>Ejercicio 3 · Opcional: ruido</span></header>
   <h2>Tolera ruido leve; con σ = 0,2 cae a 86 %</h2>
-  <main><figure><img src="assets/reports__digits_e3_noise__noise_robustness.png" alt="Accuracy según el nivel de ruido gaussiano"></figure></main>
-  <div class="take">σ = 0,05: 98,73 % · σ = 0,2: 85,99 % · σ = 0,4: 47,73 %.</div>
-  <aside class="notes">σ es la intensidad del ruido gaussiano sobre píxeles en [0, 1]. Cinco realizaciones por nivel, sobre el mismo test. σ = 0 da 98,80 % y σ = 0,1 da 97,94 %. No se entrenó con ruido: incorporarlo sería una prueba futura. Los ejemplos visuales de cada nivel están en el apéndice.<br>Fuentes: reports/digits_e3_noise/noise_robustness.png</aside>
+  <main><figure><img src="assets/reports__digits_e3_noise__noise_examples_and_accuracy.png" alt="Ejemplos de dígitos con cada nivel de ruido y la accuracy correspondiente"></figure></main>
+  <div class="take">Con ruido fuerte todo se parece a un 8: con σ = 0,4 el recall del 1 cae a 0 %.</div>
+  <aside class="notes">σ es la intensidad del ruido gaussiano sobre píxeles en [0, 1]. Cinco realizaciones por nivel, sobre el mismo test. σ = 0 da 98,80 % y σ = 0,1 da 97,94 %. Arriba, un 1, un 7 y un 9 de digits.csv (no del test) con el mismo ruido del estudio: son los dígitos más afectados. Con σ = 0,4 el recall del 1 cae a 0 % y el del 7 a 11 %, mientras el 0 y el 8 siguen arriba del 95 %: el ruido llena la imagen de "tinta" y todo se parece a un 8 o un 0. No se entrenó con ruido: incorporarlo sería una prueba futura.<br>Fuentes: reports/digits_e3_noise/noise_summary.csv; experiments/digits/noise_figure.py</aside>
 </section>
 
 <section class="evidence">
@@ -730,8 +730,6 @@
 <section class="chart"><header><span>Apéndice · Ejercicio 3</span></header><h2>Softmax y Adam en las dos arquitecturas (validación)</h2><main><figure><img src="assets/reports__presentation__ej3_softmax_comparison.png" alt="Accuracy y F1 macro de validación para sigmoide, softmax y Adam en 64-32 y 128-128"><figcaption>3 semillas, media ± 1 DE. En 128-128, η reusado de la red chica (0,01); con η propio y 5 semillas, ver el slide de softmax.</figcaption></figure></main><aside class="notes">Fuentes: reports/digits_training_ablation/report.md, reports/digits_e3_softmax_best_arch/report.md</aside></section>
 
 <section class="chart"><header><span>Apéndice · Ejercicio 3</span></header><h2>Qué imágenes sigue confundiendo el modelo</h2><main><figure><img src="assets/reports__digits_e3_final__test_errores.png" alt="Errores de test con mayor score"><figcaption>Errores de test con mayor score para la clase equivocada: una selección dirigida, no aleatoria.</figcaption></figure></main><aside class="notes">Un score alto no impide equivocarse: las diez sigmoides no son una distribución calibrada. No medimos desempeño humano.<br>Fuentes: reports/digits_e3_final/test_errores.png</aside></section>
-
-<section class="chart"><header><span>Apéndice · Ejercicio 3</span></header><h2>Niveles de ruido gaussiano</h2><main><figure><img src="assets/reports__digits_augmentation__noise_levels.png" alt="Ejemplos con distintos niveles de ruido"><figcaption>Cómo se ve cada σ sobre píxeles normalizados en [0, 1].</figcaption></figure></main><aside class="notes">Fuentes: reports/digits_augmentation/noise_levels.png</aside></section>
 
 <section class="chart"><header><span>Apéndice · Ejercicio 3</span></header><h2>Un error visto por dentro: el modelo confunde un 0 con un 6</h2><main><div class="row-crop"><img src="assets/reports__digits_e3_interpretability__attribution_errors.png" alt="Imagen, gradiente y oclusión para el error 0 a 6"></div><p class="small"><strong>Gradiente:</strong> qué píxeles cambian más la ventaja del 6. <strong>Oclusión:</strong> tapamos parches de 4 × 4; rojo = taparlo reduce esa ventaja.</p></main><aside class="notes">Etiqueta real 0, predicción 6; comparamos el score del 6 frente al del 0. Se muestra la primera fila del reporte de errores. Se analizaron 10 aciertos y 19 errores de validación seleccionados, no una muestra aleatoria.<br>Fuentes: reports/digits_e3_interpretability/attribution_errors.png; docs/ejercicio3_interpretabilidad.md</aside></section>
 

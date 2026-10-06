@@ -59,5 +59,6 @@
   "reports__presentation__ej3_softmax_validacion_vs_test.png": "reports/presentation/ej3_softmax_validacion_vs_test.png",
   "reports__presentation__ej3_softmax_comparison.png": "reports/presentation/ej3_softmax_comparison.png",
   "reports__digits_e3_interpretability_maps__class_occlusion.png": "reports/digits_e3_interpretability_maps/class_occlusion.png",
-  "reports__digits_e3_interpretability_maps__first_layer_weights.png": "reports/digits_e3_interpretability_maps/first_layer_weights.png"
+  "reports__digits_e3_interpretability_maps__first_layer_weights.png": "reports/digits_e3_interpretability_maps/first_layer_weights.png",
+  "reports__digits_e3_noise__noise_examples_and_accuracy.png": "reports/digits_e3_noise/noise_examples_and_accuracy.png"
 }
