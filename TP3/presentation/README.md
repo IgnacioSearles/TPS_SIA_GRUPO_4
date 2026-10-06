@@ -1,6 +1,6 @@
 # TP3 — Presentación (45 minutos)
 
-Presentación para los 45 minutos de exposición: 63 diapositivas de relato (14 son separadores de sección, casi sin tiempo de exposición) y un apéndice de 25 gráficos para preguntas.
+Presentación para los 45 minutos de exposición: 62 diapositivas de relato (14 son separadores de sección, casi sin tiempo de exposición) y un apéndice de 25 gráficos para preguntas.
 
 Abrir index.html. Flechas: avanzar. F: pantalla completa. S: notas del orador. Funciona sin conexión. Para compartir, enviar la carpeta completa.
 
@@ -16,10 +16,10 @@ Los opcionales de la consigna para los ejercicios 2 y 3 son conjuntos: se presen
 |---|---|---|
 | Portada | 1 | 1 min |
 | Ejercicio 1 | 2–23 | 15 min |
-| Ejercicio 2 | 24–40 | 14 min |
-| Ejercicio 3 | 41–62 | 17 min |
-| Cierre | 63 | 2 min |
-| Apéndice | 64–89 | solo para preguntas |
+| Ejercicio 2 | 24–39 | 13 min |
+| Ejercicio 3 | 40–61 | 17 min |
+| Cierre | 62 | 2 min |
+| Apéndice | 63–88 | solo para preguntas |
 
 ## Dónde se responde cada pregunta de la consigna
 
@@ -30,13 +30,13 @@ Los opcionales de la consigna para los ejercicios 2 y 3 son conjuntos: se presen
 | E1 generalización b (manejo de datos) | sin diapositiva propia |
 | E1 generalización c (mejor modelo y umbral) | 13 y 17 (recomendación para CompanyX) |
 | E1 opcionales: ReLU · features · calibración | 19 · 20–21 · 22–23 |
-| E2 a (cómo evaluar) | 25 y 40 |
-| E2 b (variantes) | 30–35, 37 (qué adoptamos) y 40 (incluye gradientes y L2) |
-| E3 protocolo (partición, selección, semillas, parada temprana) | 45 |
-| E3 a / b / c | 53 / 48 / 47, resumidas en 57 |
-| E3 modelo elegido · consultas al test | 52 · 54 |
-| E2-E3 opcionales: ruido · interpretabilidad | 59 · 60–61 |
-| Extra: ensamble de redes (98,92 % en test) | 62 |
+| E2 a (cómo evaluar) | 25 |
+| E2 b (variantes) | 30–35 y 39 (incluye gradientes y L2) |
+| E3 protocolo (partición, selección, semillas, parada temprana) | 44 |
+| E3 a / b / c | 52 / 47 / 46, resumidas en 56 |
+| E3 modelo elegido · consultas al test | 51 · 53 |
+| E2-E3 opcionales: ruido · interpretabilidad | 58 · 59–60 |
+| Extra: ensamble de redes (98,92 % en test) | 61 |
 
 ## Criterios
 

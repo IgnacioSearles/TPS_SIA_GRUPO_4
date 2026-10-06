@@ -396,24 +396,6 @@
   </main>
 </section>
 
-<section>
-  <header><span>Ejercicio 2 · Modelo elegido</span></header>
-  <h2>De los experimentos al modelo final</h2>
-  <main>
-    <table>
-      <tbody>
-        <tr><td>η</td><td>0,1</td></tr>
-        <tr><td>Red</td><td>784-64-32-10</td></tr>
-        <tr><td>Optimizador</td><td>Momentum 0,9</td></tr>
-        <tr><td>Activación</td><td>Tanh</td></tr>
-        <tr><td>Épocas</td><td>76</td></tr>
-      </tbody>
-    </table>
-  </main>
-  <div class="take">85,90 % en test. La red 128-128 y L2 llegaron después.</div>
-  <aside class="notes">Todas las decisiones de E2 usan la misma validación (2 489 imágenes de digits.csv, estratificada, semilla 42); el test se abrió una sola vez, con el modelo ya fijado. La arquitectura se eligió con una semilla (42); el optimizador, con cinco. Cambio de criterio declarado: por accuracy media ganaba momentum 0,5 (+0,09 pp sobre 0,9, dentro del ruido); elegimos 0,9 porque llega antes al 95 % y varía menos entre semillas. Para el modelo final se reentrenó desde cero con las 12 449 imágenes de digits.csv durante 76 épocas (la mediana de las mejores épocas con momentum 0,9), sin parada temprana ni elección de época en test. El barrido de ancho (128-128) y L2 se hicieron después: no cambian el modelo de E2.<br>Fuentes: results/digits_final/RESULTADOS_FINALES.md, results/digits_seeds, results/digits_architectures</aside>
-</section>
-
 <section class="evidence">
   <header><span>Ejercicio 2 · Resultado en test · modelo final 784-64-32-10, tanh, momentum 0,9</span></header>
   <h2>85,90 % en test: siete de cada diez errores son ochos</h2>
@@ -436,18 +418,19 @@
 
 <section>
   <header><span>Ejercicio 2 · Conclusiones</span></header>
-  <h2>Los hiperparámetros mejoran el aprendizaje; los datos ponen el techo</h2>
+  <h2>Los hiperparámetros ayudan; los datos ponen el techo</h2>
   <main>
     <table>
-      <thead><tr><th>Pregunta</th><th>Respuesta</th></tr></thead>
       <tbody>
-        <tr><td>(a) ¿Cómo evaluamos?</td><td>Accuracy, F1 macro y matriz de confusión. Validación para elegir; test una vez.</td></tr>
-        <tr><td>(b) ¿Qué variantes?</td><td>Tasa η = 0,1 · red más ancha · momentum 0,9 · tanh · L2 (λ = 3·10⁻⁴).</td></tr>
-        <tr><td>Resultado</td><td>85,90 % en test; siete de cada diez errores son ochos.</td></tr>
+        <tr><td>Tasa η</td><td>0,1 converge en menos épocas</td></tr>
+        <tr><td>Momentum 0,9</td><td>Llega antes; misma accuracy</td></tr>
+        <tr><td>Ancho</td><td>Ayuda hasta 128 neuronas</td></tr>
+        <tr><td>L2</td><td>+0,7 puntos en validación</td></tr>
+        <tr><td>Datos</td><td>Sin ochos, el techo es 90,3 %</td></tr>
       </tbody>
     </table>
   </main>
-  <aside class="notes">Lo que sí mejoramos: la tasa y momentum reducen las épocas necesarias; una red más ancha mejora la validación; la matriz de confusión explica un resultado que la accuracy sola oculta. Lo que no resolvimos: ningún cambio de hiperparámetros compensa la ausencia del 8. Siguiente paso: datos nuevos y técnicas que los aprovechen.<br>Fuentes: results/digits_final; enunciado.md</aside>
+  <aside class="notes">Pregunta b: variamos tasa, ancho y profundidad, optimizador, activación y L2. La tasa y momentum reducen las épocas necesarias; ancho y L2 mejoran la validación, pero se probaron después de fijar el modelo de E2 (85,90 % en test). La matriz de confusión explica un resultado que la accuracy sola oculta. Lo que no resolvimos: ningún cambio de hiperparámetros compensa la ausencia del 8. Siguiente paso: datos nuevos y técnicas que los aprovechen.<br>Fuentes: results/digits_final; enunciado.md</aside>
 </section>
 
 <section class="divider">
