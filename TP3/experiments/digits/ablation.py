@@ -50,6 +50,7 @@ from experiments.digits.data import (
 )
 from nn.network import build_model, load_weights, save_weights
 from nn.registry import build
+from training.schedules import learning_rate_at
 from training.trainer import train
 
 BASE_FILE, EXTRA_FILE = DEFAULT_TRAINING_FILES
@@ -182,8 +183,11 @@ def train_variant(variant: Variant, config: dict[str, Any], seed: int) -> dict[s
     best_stop_accuracy, stale_epochs = -1.0, 0
     progress_every = int(config["training"].get("progress_every", 25))
     record_train_accuracy = config["training"].get("record_train_accuracy", True)
+    lr_schedule = config["training"].get("lr_schedule")
+    base_lr = optimizer.lr
 
     for epoch in range(1, config["training"]["epochs"] + 1):
+        optimizer.lr = learning_rate_at(lr_schedule, base_lr, epoch, config["training"]["epochs"])
         X_epoch = augment(variant.X_train, rng, **augmentation) if variant.augment else variant.X_train
         train(net, loss, optimizer, X_epoch, Y_train, epochs=1,
               batch_size=config["training"]["batch_size"], rng=rng, callbacks=[])
