@@ -127,52 +127,6 @@
   </main>
 </section>
 
-<section class="evidence side">
-  <header><span>Ejercicio 1 · Generalización</span></header>
-  <h2>Train, validación y test dan el mismo error</h2>
-  <main>
-    <figure><img src="assets/reports__fraud_probability__validation__fold_errors.png" alt="RMSE por fold y en test"></figure>
-    <div class="points">
-      <p><b>Desarrollo:</b> 6 000 filas, K-fold estratificado de 5.</p>
-      <p><b>Test:</b> 1 500 filas, evaluado una sola vez.</p>
-      <p><b>RMSE:</b> 0,1045 train · 0,1047 validación · 0,1052 test.</p>
-    </div>
-  </main>
-  <aside class="notes">Pregunta b: entrenamos en cuatro partes y validamos en la quinta, rotando. Estratificamos por deciles de p para que cada partición sea representativa: se busca un conjunto representativo, no el split que dé mejor número. Hiperparámetros y umbral se eligen solo con desarrollo. La comparación inicial sobre todas las filas fue el estudio de aprendizaje exigido. Evitar afirmar ausencia absoluta de sobreajuste.<br>Fuentes: reports/fraud_probability/validation/fold_errors.png</aside>
-</section>
-
-<section class="evidence">
-  <header><span>Ejercicio 1 · Diagnóstico</span></header>
-  <h2>TinyModel sigue a BigModel, con un sesgo en la zona media</h2>
-  <main><figure><img src="assets/reports__fraud_probability__validation__predicted_vs_target.png" alt="TinyModel contra BigModel en validación y test"></figure></main>
-  <div class="take">Error de aproximación: el límite de una sola neurona.</div>
-  <aside class="notes">La diagonal es imitación perfecta. TinyModel sobreestima probabilidades bajas y subestima parte de la zona entre 0,6 y 0,8. Que el error sea parecido en entrenamiento y validación no significa ajuste perfecto. El error por rango aparece de nuevo en el opcional de calibración.<br>Fuentes: reports/fraud_probability/validation/predicted_vs_target.png</aside>
-</section>
-
-<section>
-  <header><span>Ejercicio 1 · Métricas</span></header>
-  <h2>Cada pregunta tiene su métrica</h2>
-  <main>
-    <table>
-      <thead><tr><th>Pregunta</th><th>Métrica</th></tr></thead>
-      <tbody>
-        <tr><td>¿Qué tan bien imita a BigModel?</td><td>MAE, RMSE</td></tr>
-        <tr><td>¿Ordena los fraudes por encima de las legítimas?</td><td>ROC AUC, precisión promedio</td></tr>
-        <tr><td>¿Qué tan buena es la alarma con un umbral?</td><td>Precisión, recall, F1</td></tr>
-      </tbody>
-    </table>
-  </main>
-  <div class="take">Accuracy sola engaña: marcar todo como legítimo acierta 88,4 %.</div>
-  <aside class="notes">Pregunta a del estudio de generalización. MAE mide la magnitud media del error; RMSE pesa más los errores grandes. AUC y precisión-recall evalúan el orden de los puntajes; precisión, recall y F1 evalúan una decisión con umbral.</aside>
-</section>
-
-<section class="evidence">
-  <header><span>Ejercicio 1 · Ranking</span></header>
-  <h2>Como detector, ordena casi perfecto: AUC 0,992 en test</h2>
-  <main><figure><img src="assets/reports__fraud_probability__validation__roc_pr_curves.png" alt="Curvas ROC y precisión-recall"></figure></main>
-  <aside class="notes">El modelo ordena bien aunque la escala de sus probabilidades tenga sesgo. La curva PR aporta contexto frente al desbalance. La distribución de puntajes por clase está en el apéndice.<br>Fuentes: reports/fraud_probability/validation/roc_pr_curves.png</aside>
-</section>
-
 <section class="evidence">
   <header><span>Ejercicio 1 · Decisión</span></header>
   <h2>El umbral que maximiza F1 en validación es 0,888</h2>
@@ -198,6 +152,13 @@
     </div>
   </main>
   <aside class="notes">Pregunta c. En 1 500 muestras de test, con 0,888: 147 fraudes detectados, 23 perdidos y 19 falsas alarmas. El corte 0,85 detecta 6 fraudes más pero agrega 12 falsas alarmas. Mejor modelo para el cliente: perceptrón sigmoide de 7 parámetros entrenado con todo desarrollo, RMSE 0,1052 en test.<br>Fuentes: reports/fraud_probability/validation/confusion_matrices.png</aside>
+</section>
+
+<section class="evidence">
+  <header><span>Ejercicio 1 · Ranking</span></header>
+  <h2>Como detector, ordena casi perfecto: AUC 0,992 en test</h2>
+  <main><figure><img src="assets/reports__fraud_probability__validation__roc_pr_curves.png" alt="Curvas ROC y precisión-recall"></figure></main>
+  <aside class="notes">El modelo ordena bien aunque la escala de sus probabilidades tenga sesgo. La curva PR aporta contexto frente al desbalance. La distribución de puntajes por clase está en el apéndice.<br>Fuentes: reports/fraud_probability/validation/roc_pr_curves.png</aside>
 </section>
 
 <section class="section-divider">
