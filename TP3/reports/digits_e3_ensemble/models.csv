@@ -20,3 +20,8 @@ reports/digits_e3_l2/wd_0.0003/architecture_00/seed_7,sigmoid,0.980204081632653
 reports/digits_e3_l2/wd_0.001/architecture_00/seed_21,sigmoid,0.970204081632653
 reports/digits_e3_l2/wd_0.001/architecture_00/seed_42,sigmoid,0.9691836734693877
 reports/digits_e3_l2/wd_0.001/architecture_00/seed_7,sigmoid,0.9706122448979592
+reports/digits_e3_softmax_cosine/runs/row_01/seed_11,softmax,0.9871428571428571
+reports/digits_e3_softmax_cosine/runs/row_01/seed_2025,softmax,0.9879591836734694
+reports/digits_e3_softmax_cosine/runs/row_01/seed_21,softmax,0.9877551020408163
+reports/digits_e3_softmax_cosine/runs/row_01/seed_42,softmax,0.9883673469387755
+reports/digits_e3_softmax_cosine/runs/row_01/seed_7,softmax,0.9877551020408163

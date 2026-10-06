@@ -1,0 +1,22 @@
+{
+  "ensemble": "sigmoides + softmax",
+  "test_samples": 2497,
+  "test_accuracy": 0.9891870244293152,
+  "test_errors": 27,
+  "single_network_test_mean": 0.985816312908824,
+  "single_network_test_std": 0.001372372526695513,
+  "networks": [
+    "reports/digits_e3_final/entrenamiento/architecture_00/seed_21",
+    "reports/digits_e3_final/entrenamiento/architecture_00/seed_42",
+    "reports/digits_e3_final/entrenamiento/architecture_00/seed_7",
+    "reports/digits_e3_softmax_tuned/runs/row_00/seed_11",
+    "reports/digits_e3_softmax_tuned/runs/row_00/seed_2025",
+    "reports/digits_e3_softmax_tuned/runs/row_00/seed_21",
+    "reports/digits_e3_softmax_tuned/runs/row_00/seed_7",
+    "reports/digits_e3_softmax_tuned/runs/row_01/seed_11",
+    "reports/digits_e3_softmax_tuned/runs/row_01/seed_2025",
+    "reports/digits_e3_softmax_tuned/runs/row_01/seed_21",
+    "reports/digits_e3_softmax_tuned/runs/row_01/seed_42",
+    "reports/digits_e3_softmax_tuned/runs/row_01/seed_7"
+  ]
+}

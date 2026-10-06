@@ -1,4 +1,3 @@
 {
-  "validation_only": true,
-  "external_test_evaluated": false
+  "winner_on_validation": "sigmoides + softmax"
 }

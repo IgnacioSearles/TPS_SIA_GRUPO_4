@@ -69,3 +69,16 @@
 + imágenes desplazadas y rotadas seed=2025 epoch=30/150 val_accuracy=98.0612% val_macro_f1=0.9757
 + imágenes desplazadas y rotadas seed=2025 epoch=40/150 val_accuracy=98.0612% val_macro_f1=0.9761
 + imágenes desplazadas y rotadas seed=2025 epoch=50/150 val_accuracy=98.0612% val_macro_f1=0.9774
++ imágenes desplazadas y rotadas seed=2025 epoch=60/150 val_accuracy=98.3061% val_macro_f1=0.9796
++ imágenes desplazadas y rotadas seed=2025 epoch=70/150 val_accuracy=98.3673% val_macro_f1=0.9795
++ imágenes desplazadas y rotadas seed=2025 epoch=80/150 val_accuracy=98.5306% val_macro_f1=0.9813
++ imágenes desplazadas y rotadas seed=2025 epoch=90/150 val_accuracy=98.6122% val_macro_f1=0.9820
++ imágenes desplazadas y rotadas seed=2025 epoch=100/150 val_accuracy=98.5714% val_macro_f1=0.9822
++ imágenes desplazadas y rotadas seed=2025 epoch=110/150 val_accuracy=98.7143% val_macro_f1=0.9839
++ imágenes desplazadas y rotadas seed=2025 epoch=120/150 val_accuracy=98.5918% val_macro_f1=0.9817
++ imágenes desplazadas y rotadas seed=2025 epoch=130/150 val_accuracy=98.7347% val_macro_f1=0.9837
++ imágenes desplazadas y rotadas seed=2025 epoch=140/150 val_accuracy=98.7347% val_macro_f1=0.9839
++ imágenes desplazadas y rotadas seed=2025 epoch=150/150 val_accuracy=98.7551% val_macro_f1=0.9841
++ softmax y entropía cruzada              98.78 % ± 0.04
+
+Report: reports/digits_e3_softmax_cosine

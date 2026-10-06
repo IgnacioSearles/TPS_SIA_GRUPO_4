@@ -20,6 +20,7 @@ Run from TP3:
 import argparse
 import hashlib
 import json
+import sys
 from dataclasses import dataclass
 from glob import glob
 from pathlib import Path
@@ -166,6 +167,8 @@ def main() -> None:
     parser.add_argument("--evaluate-test", action="store_true",
                         help="score only the ensemble chosen on validation on the test file, once")
     args = parser.parse_args()
+    # Ensemble names contain "η"; the Windows console's default code page cannot print it.
+    sys.stdout.reconfigure(encoding="utf-8")
     config = deep_merge(DEFAULTS, read_json(args.config)) if args.config else DEFAULTS
     models, ensembles, members_by_ensemble = evaluate(config)
     winner = select_winner(ensembles)
@@ -173,17 +176,19 @@ def main() -> None:
     output.mkdir(parents=True, exist_ok=True)
     models.to_csv(output / "models.csv", index=False)
     ensembles.to_csv(output / "ensembles.csv", index=False)
-    summary = {"winner_on_validation": winner, "external_test_evaluated": args.evaluate_test}
-    if args.evaluate_test:
-        summary["test"] = evaluate_test(members_by_ensemble[winner], config["test_file"])
+    summary = {"winner_on_validation": winner}
     (output / "summary.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    if args.evaluate_test:
+        # Its own file, so a later validation-only run never erases the test result.
+        test = {"ensemble": winner, **evaluate_test(members_by_ensemble[winner], config["test_file"])}
+        (output / "test.json").write_text(json.dumps(test, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     with pd.option_context("display.width", 160, "display.float_format", "{:.4f}".format):
         print(models.to_string(index=False))
         print()
         print(ensembles.to_string(index=False))
     print(f"\nElegido en validación: {winner}")
     if args.evaluate_test:
-        print(json.dumps(summary["test"], indent=2, ensure_ascii=False))
+        print(json.dumps(test, indent=2, ensure_ascii=False))
 
 
 if __name__ == "__main__":

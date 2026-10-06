@@ -1,0 +1,2 @@
+step,output_activation,loss,optimizer,seeds,validation_accuracy_mean,validation_accuracy_std,macro_f1_mean,top_label_ece_mean,top_label_ece_std,mean_top_score_on_errors,error_fraction_top_score_ge_0_99,train_accuracy_mean,median_best_epoch
++ softmax y entropía cruzada,softmax,cross_entropy,"{'name': 'momentum', 'lr': 0.03, 'momentum': 0.9}",5,0.9877959183673468,0.00039572896795235816,0.9845343064158707,0.00427126146130055,0.0012065550384752057,0.786065917001457,0.06979992353765771,0.9979922178988326,114.0
