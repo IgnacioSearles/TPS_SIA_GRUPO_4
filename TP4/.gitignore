@@ -1,0 +1,14 @@
+/data/
+
+# Resultados regenerables derivados del catálogo local
+/reports/ejercicio1/*.csv
+/reports/ejercicio1/*.json
+/reports/ejercicio1/*.png
+__pycache__/
+
+# Entrenamientos y barridos regenerables
+/results/
+
+# Archivos locales del IDE y metadatos de Windows
+.idea/
+*:Zone.Identifier
