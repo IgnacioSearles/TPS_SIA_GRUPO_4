@@ -1,0 +1,17 @@
+{
+  "algorithm": "oja",
+  "model": {
+    "epochs": 150
+  },
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "grid": {
+    "model.learning_rate_start": [
+      0.001,
+      0.0003
+    ]
+  }
+}

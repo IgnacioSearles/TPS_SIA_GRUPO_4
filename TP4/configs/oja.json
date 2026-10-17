@@ -1,0 +1,7 @@
+{
+  "algorithm": "oja",
+  "model": {
+    "epochs": 1000,
+    "seed": 0
+  }
+}

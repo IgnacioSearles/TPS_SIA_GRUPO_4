@@ -1,0 +1,25 @@
+{
+  "algorithm": "kohonen",
+  "data": "data/creadores.csv",
+  "output": "results",
+  "model": {
+    "rows": 4,
+    "cols": 4,
+    "epochs": 60
+  },
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "grid": {
+    "model.topology": [
+      "rectangular",
+      "hexagonal"
+    ],
+    "model.learning_rate_start": [
+      0.1,
+      0.3
+    ]
+  }
+}

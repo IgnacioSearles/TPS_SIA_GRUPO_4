@@ -1,0 +1,17 @@
+{
+  "algorithm": "kohonen",
+  "data": "data/creadores.csv",
+  "output": "results",
+  "model": {
+    "rows": 5,
+    "cols": 5,
+    "epochs": 500,
+    "seed": 0,
+    "early_stopping": {
+      "enabled": true,
+      "min_delta": 0.0001,
+      "patience": 20,
+      "min_epochs": 30
+    }
+  }
+}

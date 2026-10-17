@@ -1,0 +1,11 @@
+{
+  "algorithm": "kohonen",
+  "data": "data/creadores.csv",
+  "output": "results",
+  "model": {
+    "rows": 5,
+    "cols": 5,
+    "epochs": 500,
+    "seed": 0
+  }
+}
