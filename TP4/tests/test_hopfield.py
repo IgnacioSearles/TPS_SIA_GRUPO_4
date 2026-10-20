@@ -32,6 +32,14 @@ class ApunteExampleTests(unittest.TestCase):
         result = self.network.recall(np.array([1, -1, -1, -1]))
         np.testing.assert_allclose(result.energies, [0, -3])
 
+    def test_energy_is_minus_sum_over_pairs_of_weight_times_states(self):
+        # H = −½·Σᵢⱼ wᵢⱼ SᵢSⱼ = −Σ_{j>i} wᵢⱼ SᵢSⱼ, con w₁₂ = w₃₄ = 0,5 y el resto −0,5.
+        # (1, 1, 1, 1): −(0,5 − 0,5 − 0,5 − 0,5 − 0,5 + 0,5) = 1.
+        # ξ₁ = (1, 1, −1, −1): los seis productos valen 0,5 → H = −3, igual que ξ₂.
+        self.assertAlmostEqual(self.network.energy(np.ones(4)), 1)
+        self.assertAlmostEqual(self.network.energy(XI_1), -3)
+        self.assertAlmostEqual(self.network.energy(XI_2), -3)
+
 
 ORTHOGONAL = np.array([[1, 1, 1, 1, -1, -1, -1, -1],
                        [1, 1, -1, -1, 1, 1, -1, -1]])
@@ -76,6 +84,23 @@ class SpuriousStateTests(unittest.TestCase):
         result = network.recall(mixture)
         self.assertEqual((result.stop_reason, result.iterations), ('stable', 0))
         self.assertEqual(outcome(network, mixture, 0), ('spurious', 2))
+
+
+class EnergyRiseTests(unittest.TestCase):
+    def test_apunte_example_never_raises_energy(self):
+        network = Hopfield(np.vstack([XI_1, XI_2]))
+        self.assertEqual(network.recall(np.array([1, -1, -1, -1])).energy_rises, 0)
+
+    def test_synchronous_update_can_raise_energy(self):
+        # Tres patrones ortogonales de 4 neuronas: w₁₂ = w₁₃ = w₂₄ = w₃₄ = ¼,
+        # w₁₄ = w₂₃ = −¼. Desde su estado mezcla (1, 1, 1, −1), con H = 0, el modo
+        # sincrónico cambia tres neuronas a la vez y llega a (1, −1, −1, 1), con
+        # H = 1,5; después oscila con (−1, 1, 1, −1), de igual energía.
+        network = Hopfield(np.array([[1, 1, 1, 1], [1, 1, -1, -1], [1, -1, 1, -1]]))
+        result = network.recall(np.array([1, 1, 1, -1]), mode='synchronous')
+        np.testing.assert_allclose(result.energies, [0, 1.5, 1.5, 1.5])
+        self.assertEqual(result.stop_reason, 'cycle')
+        self.assertEqual(result.energy_rises, 1)
 
 
 class ValidationTests(unittest.TestCase):
