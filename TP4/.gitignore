@@ -12,3 +12,6 @@ __pycache__/
 # Archivos locales del IDE y metadatos de Windows
 .idea/
 *:Zone.Identifier
+
+# Tickets y notas de trabajo locales
+/.scratch/
