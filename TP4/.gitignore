@@ -34,3 +34,6 @@ __pycache__/
 /tests/test_qr.py
 /tests/test_queries.py
 /tests/test_shared_modules.py
+/reports/ejercicio2/dos_redes/*.csv
+/reports/ejercicio2/dos_redes/*.png
+/presentation/ejercicio2_guia.md

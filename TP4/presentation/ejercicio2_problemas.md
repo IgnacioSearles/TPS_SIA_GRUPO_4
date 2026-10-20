@@ -8,7 +8,8 @@ Fuentes:
 - Controles: `reports/ejercicio2/controles/README.md` (salidas de `python3 analysis/hopfield_qr_controles.py`).
 - Variante: `reports/ejercicio2/variante/README.md` (salidas de `python3 analysis/hopfield_qr_variante.py`).
 
-Se usa sólo la actualización sincrónica del apunte. La asincrónica se implementó y se quitó porque el enunciado no la pide.
+Se usa sólo la actualización sincrónica del apunte.
+**Nombres en los gráficos:** cada QR aparece con la palabra en inglés que trae su URL: **food** = menú principal, **wine** = vinos, **beverages** = cócteles y otras bebidas, **dessert** = postres, **specials** = especiales del día. La asincrónica se implementó y se quitó porque el enunciado no la pide.
 
 Rutas de los gráficos relativas a `TP4/`.
 
@@ -200,6 +201,15 @@ Fuente: `reports/ejercicio2/mejoras/README.md`.
 
 - **Energía con la pseudoinversa:** los 5 QR quedan estables con la misma energía (−682,00) y la mezcla deja de ser estable (−607,89, más alta). Es lo que el apunte espera y Hebb no cumplía.
 - **Gráficos:** `mejoras/1_ruido.png`, `mejoras/2_esquina.png` (el mejor para el caso de uso), `mejoras/3_mancha.png`, `mejoras/4_ejemplo_esquina.png` (muy visual: la red reconstruye el cuadrado de posición).
+
+### Varias redes de Hebb, a fondo (`reports/ejercicio2/dos_redes/README.md`)
+
+**Mensaje:** repartiendo los QR en varias redes, cada QR queda estable y se recupera. La red se elige con una regla simple: la que devuelve un QR válido y, si hay varias, la más parecida a la consulta.
+
+- **Cómo se elige:** hasta p = 0,35, en el 80 % de los casos sólo una red devuelve un QR válido. En el 20 % restante (siempre food: la otra red devuelve wine) se elige el más parecido y sale bien. 0 errores (`3_diagnostico.png`).
+- **Una red contra dos** (`c1`–`c7`): las neuronas inestables pasan de 71–225 a 0; el estado espurio del 100 % pasa a 100 % correcto hasta p = 0,35; un QR sin ruido ya no se mueve (0 iteraciones); los QR son los pozos más hondos de cada red; el lector lee el 100 %.
+- **El reparto importa con ternas:** de 67 % a 85 % con mucho ruido; juntar food y wine es lo peor. **Con 2 + 2 + 1 (QR completos, sin sacar nada) cualquier reparto anda** (90 % a 92 %), porque un par siempre es estable.
+- **Límite:** con 5 redes de un QR cada una es exactamente comparar con los originales.
 
 ## Soluciones que quedan sin probar
 
