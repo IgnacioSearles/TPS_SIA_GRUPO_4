@@ -35,7 +35,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'reports' / 'ejercicio2' / 'variante'
 
 SUBSET_SIZE = 3  # QR guardados en el barrido de subconjuntos
-EXAMPLE_SUBSET = (0, 1, 2)  # menú principal, vinos y cócteles: incluye el par más parecido
+EXAMPLE_SUBSET = (0, 1, 2)  # food, wine y beverages: incluye el par más parecido
 EXAMPLE_NOISES = (.1, .25, .4)
 
 # Paleta categórica de referencia (dataviz): antes en el slot 1, después en el 2 y la

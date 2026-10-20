@@ -34,9 +34,12 @@ QRS = {
     'postres': 'dessert_menu_qr.png',
     'especiales': 'specials_menu_qr.png',
 }
+# En los gráficos cada QR se nombra con la palabra en inglés que trae su URL
+# (food = menú principal, wine = vinos, beverages = cócteles y otras bebidas,
+# dessert = postres, specials = especiales del día).
 TITLES = {
-    'menu_principal': 'menú principal', 'vinos': 'vinos', 'cocteles_y_bebidas': 'cócteles y otras bebidas',
-    'postres': 'postres', 'especiales': 'especiales del día',
+    'menu_principal': 'food', 'vinos': 'wine', 'cocteles_y_bebidas': 'beverages',
+    'postres': 'dessert', 'especiales': 'specials',
 }
 NOISE_LEVELS = np.round(np.arange(0, .51, .05), 2)
 SEEDS = range(20)
