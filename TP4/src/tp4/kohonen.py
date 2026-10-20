@@ -133,7 +133,8 @@ class Kohonen:
     def _step_parameters(self, epoch, step, sample_count):
         config = self.config
         update = (epoch - 1) * sample_count + step
-        progress = update / max(config.epochs * sample_count - 1, 1)
+        schedule_epochs = config.schedule_epochs or config.epochs
+        progress = min(update / max(schedule_epochs * sample_count - 1, 1), 1.0)
         learning_rate = schedule(
             config.learning_rate_start, config.learning_rate_end, progress, config.decay,
         )

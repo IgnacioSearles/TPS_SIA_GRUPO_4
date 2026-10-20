@@ -62,6 +62,7 @@ class KohonenConfig(TrainingConfig):
     radius_start: float | None = None
     radius_end: float = .5
     radius_decay: str = 'exponential'
+    schedule_epochs: int | None = None
 
     def __post_init__(self):
         super().__post_init__()
@@ -79,6 +80,10 @@ class KohonenConfig(TrainingConfig):
             self.radius_start = max(self.rows, self.cols) / 2
         positive('radius_start', self.radius_start)
         positive('radius_end', self.radius_end)
+        if self.schedule_epochs is not None:
+            positive_int('schedule_epochs', self.schedule_epochs)
+            if self.schedule_epochs > self.epochs:
+                raise ValueError('schedule_epochs no puede superar epochs')
         if self.radius_decay not in ('constant', 'linear', 'exponential'):
             raise ValueError('Decaimiento del radio desconocido')
 
