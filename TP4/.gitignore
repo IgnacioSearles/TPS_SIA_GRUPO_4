@@ -18,3 +18,11 @@ __pycache__/
 
 # Tickets y notas de trabajo locales
 /.scratch/
+/reports/ejercicio2/variante/*.csv
+/reports/ejercicio2/variante/*.png
+/reports/ejercicio2/controles/*.csv
+/reports/ejercicio2/controles/*.png
+/reports/ejercicio2/ortogonalidad/*.csv
+/reports/ejercicio2/ortogonalidad/*.png
+/reports/ejercicio2/mejoras/*.csv
+/reports/ejercicio2/mejoras/*.png

@@ -1,5 +1,7 @@
 # Spec — Ej. 2: recuperación de códigos QR deteriorados con Hopfield
 
+> **Cambio posterior (2026-10-20):** a pedido de Ivo se quitó el modo asincrónico (el enunciado no lo pide). La red, el análisis y el informe usan sólo la actualización sincrónica del apunte. Quedan sin efecto las historias 7, 9, 11, 30 y 36, la parte asincrónica de 13, 31–33, 71, 74–75, 78, 81 y de la sección de tests, y la nota sobre los dos modos de los antecedentes.
+
 Estado: lista para implementar (2026-10-20). Vocabulario: `GLOSSARY.md`. Decisión previa: ADR 0001 (sólo regla de Hebb).
 
 ## Problem Statement
@@ -104,8 +106,9 @@ Sobre esa red, un análisis reproducible de los QR que primero estudia la ortogo
 
 - Las letras de 5×5 de la sección 2.2: es una recomendación de la consigna y el grupo decidió no hacerla.
 - Cualquier regla de aprendizaje distinta de Hebb, incluida la pseudoinversa (ADR 0001).
+- Modo de actualización asincrónico (quitado después de implementarlo; ver la nota del principio).
 - Daño estructurado (esquina rota, rayas, manchas): sólo ruido aleatorio por módulo, que es lo que pide la consigna.
-- Quitar los módulos compartidos o almacenar subconjuntos de QR para mejorar la recuperación.
+- Quitar los módulos compartidos o almacenar subconjuntos de QR para mejorar la recuperación. *(Agregado después, a pedido de Ivo, como experimento aparte: `analysis/hopfield_qr_variante.py` y `reports/ejercicio2/variante/README.md`. El análisis principal no cambia.)*
 - Integración con la CLI, el runner de experimentos y los checkpoints del ejercicio 1.
 - Tests del análisis y del lector de QR.
 - Publicar en GitHub: la rama queda local hasta que Ivo la revise.

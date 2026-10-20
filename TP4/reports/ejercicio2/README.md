@@ -4,21 +4,20 @@ Vocabulario: [`GLOSSARY.md`](../../GLOSSARY.md). Decisión de diseño: [ADR 0001
 
 ## Resumen
 
-Una red de Hopfield con la regla de Hebb del apunte almacena los cinco QR de la Trattoria Aurora y recibe 1100 patrones de consulta (cada QR con niveles de ruido de 0 a 0,5), en modo sincrónico y en modo asincrónico. **Ninguna de las 2200 recuperaciones es una recuperación correcta**, ni siquiera con el QR original sin ruido: ningún QR es un estado estable, y todas las consultas caen en el estado mezcla sign(ξ₁ + … + ξ₅) o, sólo con p = 0,5, en su inverso. La causa no es la cantidad de patrones (5 frente a una capacidad de 0,15·N ≈ 205) sino que los cinco QR son casi iguales para la red: comparten 955 de sus 1369 módulos y su crosstalk es más del doble de la señal. Un lector de QR real decodifica el original pero ninguna de las 2200 salidas de la red. La sección [Limitaciones](#limitaciones) junta los números.
+Una red de Hopfield con la regla de Hebb del apunte almacena los cinco QR de la Trattoria Aurora y recibe 1100 patrones de consulta (cada QR con niveles de ruido de 0 a 0,5), con actualización sincrónica. **Ninguna de las 1100 recuperaciones es una recuperación correcta**, ni siquiera con el QR original sin ruido: ningún QR es un estado estable, y todas las consultas caen en el estado mezcla sign(ξ₁ + … + ξ₅) o, sólo con p = 0,5, en su inverso. La causa no es la cantidad de patrones (5 frente a una capacidad de 0,15·N ≈ 205) sino que los cinco QR son casi iguales para la red: comparten 955 de sus 1369 módulos y su crosstalk es más del doble de la señal. Un lector de QR real decodifica el original pero ninguna de las 1100 salidas de la red. La sección [Limitaciones](#limitaciones) junta los números.
 
 ## Reproducción
 
-Desde TP4: `python3 analysis/hopfield_qr.py`. Requiere las dependencias de `requirements.txt` (incluye Pillow y, para el lector de QR, `opencv-python`) y las cinco imágenes de `data/hopfield/`. Tarda unos 15 segundos (el modo asincrónico, que recorre las neuronas de a una, es el más lento). Genera en esta carpeta, fuera de git:
+Desde TP4: `python3 analysis/hopfield_qr.py`. Requiere las dependencias de `requirements.txt` (incluye Pillow y, para el lector de QR, `opencv-python`) y las cinco imágenes de `data/hopfield/`. Tarda unos 10 segundos. Genera en esta carpeta, fuera de git:
 
-- `resultados.csv`: una fila por recuperación, 1100 por modo de actualización (QR, nivel de ruido, semilla, modo de actualización, categoría, Hamming al patrón almacenado de origen, Hamming del patrón de consulta, iteraciones, motivo de parada, energía inicial y final, y un número de estado final común a los dos modos).
-- `categorias.csv` y `categorias.png`: cantidad de recuperaciones por categoría según el modo y el nivel de ruido.
+- `resultados.csv`: una fila por recuperación, 1100 en total (QR, nivel de ruido, semilla, categoría, Hamming al patrón almacenado de origen, Hamming del patrón de consulta, iteraciones, motivo de parada, energía inicial y final, y un número de estado final).
+- `categorias.csv` y `categorias.png`: cantidad de recuperaciones por categoría según el nivel de ruido.
 - `solapamientos.csv` y `solapamientos.png`: solapamientos entre los cinco QR y mapa de los módulos iguales en los cinco.
 - `crosstalk.csv` y `crosstalk.png`: crosstalk, neuronas inestables, estabilidad sin ruido y comparación con el estado mezcla para cada QR.
-- `ejemplos.png`: patrón almacenado, patrón de consulta y salida de cada modo para el QR del menú principal.
-- `comparacion_modos.csv` y `estados_finales_por_modo.csv`: resumen por modo y cruce, consulta por consulta, del estado final de cada modo.
-- `iteraciones.csv` y `iteraciones.png`: recuperaciones por cantidad de iteraciones, según el modo de actualización y el nivel de ruido.
+- `ejemplos.png`: patrón almacenado, patrón de consulta y salida de la red para el QR del menú principal.
+- `iteraciones.csv` y `iteraciones.png`: recuperaciones por cantidad de iteraciones, según el nivel de ruido.
 - `energia_ejemplos.png`: energía por iteración de consultas representativas del QR del menú principal.
-- `subidas_energia.csv`: por modo y nivel de ruido, cuántas recuperaciones tuvieron una subida de energía entre dos iteraciones (columna `energy_rises` de `resultados.csv`).
+- `subidas_energia.csv`: por nivel de ruido, cuántas recuperaciones tuvieron una subida de energía entre dos iteraciones (columna `energy_rises` de `resultados.csv`).
 - `lector_qr.csv`, `lector_qr_resumen.csv` y `lector_qr_umbral.csv`: experimento secundario con el lector de QR (ver su sección).
 
 ## Modelo
@@ -28,8 +27,7 @@ La red está implementada desde cero con NumPy (`src/tp4/hopfield.py`) y sigue e
 - **Patrones almacenados.** Los cinco QR de 37×37, en el orden menú principal, vinos, cócteles y otras bebidas, postres y especiales del día. Cada módulo es una neurona (N = 1369), negro = +1 y blanco = −1, leído fila por fila (`src/tp4/qr.py`). La carga falla si una imagen no es de 37×37 o no es binaria.
 - **Pesos.** Regla de Hebb: wᵢⱼ = (1/N)·Σ_μ ξᵢ^μ ξⱼ^μ para i ≠ j y wᵢᵢ = 0; en forma matricial, W = (1/N)·K·Kᵀ con la diagonal puesta en cero, donde K tiene los cinco patrones almacenados en columnas. Es simétrica y no cambia después de almacenar: la red no aprende nada más.
 - **Campo.** hᵢ = Σⱼ wᵢⱼ Sⱼ; la neurona i pasa a sign(hᵢ).
-- **Modo de actualización sincrónico.** S(t+1) = sign(W·S(t)), el algoritmo del apunte; una neurona con campo exactamente cero conserva su estado.
-- **Modo de actualización asincrónico.** Cada iteración recorre las N neuronas, de a una, en un orden aleatorio nuevo; cada neurona usa los estados ya actualizados en esa pasada y, con campo cero, conserva su estado. El orden sale de un generador local sembrado por recuperación, así que la misma semilla da la misma recuperación.
+- **Actualización sincrónica.** S(t+1) = sign(W·S(t)), el algoritmo del apunte: todas las neuronas se recalculan a la vez. Una neurona con campo exactamente cero conserva su estado.
 - **Iteración.** Un recálculo completo de las N neuronas (glosario). La cantidad de iteraciones de una recuperación cuenta **sólo los recálculos que cambiaron el estado**: el recálculo final que confirma un estado estable se hace pero no suma. Así, 0 iteraciones significa que el patrón de consulta ya era un estado estable, y el ejemplo del apunte (consulta (1, −1, −1, −1)) llega a ξ¹ en 1 iteración. Todas las cantidades de iteraciones de este informe (tablas, figuras y `resultados.csv`) se cuentan así.
 - **Motivo de parada.** Cada recálculo se evalúa en este orden: estado estable (no cambia nada), ciclo (vuelve a un estado ya visitado en esa recuperación; se compara con todos los visitados, no sólo con el anterior) o tope (100 iteraciones sin estabilizarse). Un estado estable nunca se informa como ciclo, y si el recálculo hecho al llegar al tope vuelve a un estado visitado, la recuperación es ciclo y no tope.
 - **Energía.** H = −½·Σᵢⱼ wᵢⱼ SᵢSⱼ = −½·SᵀWS (fórmula del apunte), registrada para el estado inicial y después de cada iteración.
@@ -99,21 +97,21 @@ y la neurona i queda **inestable** cuando hᵢ^ν tiene signo opuesto a ξᵢ^ν
 
 - **Ningún QR es un estado estable.** Presentado sin ruido, cada uno cambia en la primera iteración exactamente las neuronas inestables de la tabla y llega a un estado estable en 1 iteración.
 - **Ese estado es el estado mezcla sign(ξ₁ + … + ξ₅).** Los cinco QR sin ruido caen en él (5 de 5). El estado mezcla es estable: presentado como consulta, termina con 0 iteraciones. Con cinco patrones la suma nunca es cero, así que está bien definido.
-- **Es también adonde cae el barrido de ruido.** En modo sincrónico, 1051 de las 1100 salidas son iguales al estado mezcla y las 49 restantes (todas con p = 0,5) son su inverso; ninguna es otro estado. En modo asincrónico pasa lo mismo, con las mismas 1051 y 49 consultas (2102 y 98 de las 2200 salidas de los dos modos). En el resto del informe, **A = sign(ξ₁ + … + ξ₅)** es el estado mezcla y **−A** su inverso. Como el estado mezcla toma en cada módulo el valor de la mayoría de los cinco QR, es el patrón "promedio" de los menús: se parece más a los QR que coinciden con la mayoría (menú principal, 71 módulos distintos) y menos a los que se apartan de ella (cócteles y postres, 225).
+- **Es también adonde cae el barrido de ruido.** 1051 de las 1100 salidas son iguales al estado mezcla y las 49 restantes (todas con p = 0,5) son su inverso; ninguna es otro estado. En el resto del informe, **A = sign(ξ₁ + … + ξ₅)** es el estado mezcla y **−A** su inverso. Como el estado mezcla toma en cada módulo el valor de la mayoría de los cinco QR, es el patrón "promedio" de los menús: se parece más a los QR que coinciden con la mayoría (menú principal, 71 módulos distintos) y menos a los que se apartan de ella (cócteles y postres, 225).
 
-## Barrido en modo sincrónico
+## Barrido de ruido
 
 ### Categorías
 
-Las 1100 recuperaciones sincrónicas terminan en un **estado estable** (0 ciclos, 0 recuperaciones cortadas por el tope), y las 1100 son **estado espurio**. Ninguna es recuperación correcta, otro patrón almacenado ni patrón inverso, ni siquiera sin ruido (en modo asincrónico los conteos son idénticos; la figura muestra los dos modos):
+Las 1100 recuperaciones terminan en un **estado estable** (0 ciclos, 0 recuperaciones cortadas por el tope), y las 1100 son **estado espurio**. Ninguna es recuperación correcta, otro patrón almacenado ni patrón inverso, ni siquiera sin ruido:
 
 | p | Recuperación correcta | Otro patrón almacenado | Patrón inverso | Estado espurio | Ciclo | Tope |
 | --- | --- | --- | --- | --- | --- | --- |
 | 0 a 0,5 (cada nivel) | 0 | 0 | 0 | 100 | 0 | 0 |
 
-Sobre los 0 ciclos: con W simétrica, el modo sincrónico siempre termina en un estado estable o en un ciclo de dos estados (Goles y colaboradores, 1985; Bruck, 1990). Es un resultado de fuera del apunte, que no trata la convergencia del modo sincrónico. Acota lo que podía pasar (un ciclo sincrónico sólo puede ser de período 2, como el del test de 4 neuronas de la sección [Energía](#energía)), pero no garantiza que no haya ciclos: que ninguna recuperación sincrónica de los QR haya terminado en uno es una observación de este barrido. En modo asincrónico, en cambio, un ciclo es imposible: cada cambio de una neurona baja la energía estrictamente, así que la red no puede volver a un estado ya visitado y la comprobación de ciclo nunca se dispara (sección [Modo asincrónico](#modo-asincrónico-y-comparación-de-modos)).
+Sobre los 0 ciclos: con W simétrica, la actualización sincrónica siempre termina en un estado estable o en un ciclo de dos estados (Goles y colaboradores, 1985; Bruck, 1990). Es un resultado de fuera del apunte, que no trata la convergencia de la actualización sincrónica. Acota lo que podía pasar (un ciclo sincrónico sólo puede ser de período 2, como el del test de 4 neuronas de la sección [Energía](#energía)), pero no garantiza que no haya ciclos: que ninguna recuperación de los QR haya terminado en uno es una observación de este barrido.
 
-![Categorías según el nivel de ruido, por modo](categorias.png)
+![Categorías según el nivel de ruido](categorias.png)
 
 ### Adónde cae la red
 
@@ -135,11 +133,11 @@ Distancia de Hamming de cada estado al QR original (es la misma para todas las c
 | Postres | 225 | 1144 |
 | Especiales del día | 103 | 1266 |
 
-![Original, consulta y salida de cada modo](ejemplos.png)
+![Original, consulta y salida de la red](ejemplos.png)
 
 ### Iteraciones
 
-Cantidad de recuperaciones sincrónicas (de 100 por nivel) según las iteraciones que tardan en llegar al estado estable (la comparación con el modo asincrónico está en su sección):
+Cantidad de recuperaciones (de 100 por nivel) según las iteraciones que tardan en llegar al estado estable:
 
 | p | 0 | 0,05 | 0,1 | 0,15 | 0,2 | 0,25 | 0,3 | 0,35 | 0,4 | 0,45 | 0,5 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -175,74 +173,35 @@ Energía por iteración de la consulta con semilla 0 del QR del menú principal 
 
 ![Energía por iteración](energia_ejemplos.png)
 
-- **Las 2200 recuperaciones (1100 por modo) terminan con la misma energía, −2172,88**: la de A y la de −A, que es igual porque H(−s) = H(s).
+- **Las 1100 recuperaciones terminan con la misma energía, −2172,88**: la de A y la de −A, que es igual porque H(−s) = H(s).
 - **Esa energía es menor que la de cualquier QR original**: −2077,45 (menú principal), −2041,53 (vinos), −1789,71 (cócteles y otras bebidas), −1801,85 (postres) y −1982,47 (especiales del día). El apunte dice que los mínimos locales de H son los patrones almacenados; acá no lo son: como ningún QR es estado estable, alguna neurona tiene campo de signo contrario a su estado, y según la demostración del apunte invertir sólo esa neurona baja la energía. Por eso aun sin ruido (p = 0) la red se va del QR hacia A.
 - **Cuanto más ruido, más alta arranca la energía**: la energía media del patrón de consulta sube de −1938,60 con p = 0 a −696,45 con p = 0,2, −18,36 con p = 0,45 y −0,33 con p = 0,5 (`resultados.csv`, columna `energy_initial`). Con p = 0,5 la consulta es aleatoria y no se parece a ningún patrón almacenado, así que su energía queda cerca de 0.
 
-### Subidas de energía en modo sincrónico
+### Subidas de energía con actualización sincrónica
 
-La demostración del apunte de que H nunca sube supone que **cambia una neurona por vez**. En modo sincrónico cambian varias juntas y la cuenta tiene un término más. Si C es el conjunto de neuronas que cambian en una iteración y hᵢ = Σⱼ wᵢⱼ Sⱼ es el campo de la neurona i antes de la iteración:
+La demostración del apunte de que H nunca sube supone que **cambia una neurona por vez**. Con actualización sincrónica cambian varias juntas y la cuenta tiene un término más. Si C es el conjunto de neuronas que cambian en una iteración y hᵢ = Σⱼ wᵢⱼ Sⱼ es el campo de la neurona i antes de la iteración:
 
 ΔH = −2·Σ_{i∈C} |hᵢ| − 2·Σ_{i, j∈C, i≠j} wᵢⱼ SᵢSⱼ
 
-El primer término es la suma de lo que bajaría la energía si cada neurona cambiara sola (el caso del apunte) y siempre es negativo. El segundo depende de los pesos entre las neuronas que cambian a la vez y puede ser positivo, así que en modo sincrónico la energía puede subir. Un test lo muestra con tres patrones ortogonales de 4 neuronas: desde sign(ξ₁ + ξ₂ + ξ₃) = (1, 1, 1, −1), que con N = 4 no es estable, con H = 0, la red cambia tres neuronas a la vez y llega a (1, −1, −1, 1), con H = 1,5; después oscila entre ese estado y su opuesto (ciclo).
+El primer término es la suma de lo que bajaría la energía si cada neurona cambiara sola (el caso del apunte) y siempre es negativo. El segundo depende de los pesos entre las neuronas que cambian a la vez y puede ser positivo, así que con actualización sincrónica la energía puede subir. Un test lo muestra con tres patrones ortogonales de 4 neuronas: desde sign(ξ₁ + ξ₂ + ξ₃) = (1, 1, 1, −1), que con N = 4 no es estable, con H = 0, la red cambia tres neuronas a la vez y llega a (1, −1, −1, 1), con H = 1,5; después oscila entre ese estado y su opuesto (ciclo).
 
-En los QR no pasa: **0 de las 1100 recuperaciones sincrónicas tuvieron una subida de energía** entre dos iteraciones, en ningún nivel de ruido (`subidas_energia.csv`). La garantía del apunte no aplica al modo sincrónico, pero en este barrido la energía bajó en todas las iteraciones. En modo asincrónico la garantía sí aplica, y también hubo 0 subidas (sección siguiente).
-
-## Modo asincrónico y comparación de modos
-
-Las mismas 1100 consultas se pasan también por el modo asincrónico: en cada iteración las N = 1369 neuronas se recalculan de a una, en un orden aleatorio nuevo, usando los estados ya actualizados. El generador de órdenes de cada recuperación se siembra con (índice del QR, ruido en centésimos, semilla), así que cualquier fila de `resultados.csv` se puede rehacer. Mismo tope (100) y mismo criterio de estado estable: una pasada completa que no cambia ninguna neurona.
-
-### Por qué la energía no puede subir
-
-Cuando cambia sólo la neurona i, ΔH = −2·|hᵢ| (la demostración del apunte, con wᵢᵢ = 0): la neurona cambia sólo si su campo tiene signo contrario a su estado, así que cada cambio baja H estrictamente. Una iteración asincrónica es una sucesión de esos cambios, de modo que H nunca sube y la red tampoco puede volver a un estado ya visitado: en modo asincrónico no hay ciclos, y la comprobación de ciclo de la recuperación nunca se dispara. Los tests lo verifican: en una red sobrecargada de 40 neuronas con 12 patrones, donde el modo sincrónico sí sube la energía, el asincrónico la baja en cada iteración; y el caso de 4 neuronas que en modo sincrónico oscila (sección "Energía") termina en asincrónico en un estado estable en 1 iteración, con cualquier semilla.
-
-### Resultados
-
-| | Sincrónico | Asincrónico |
-| --- | --- | --- |
-| Estado espurio | 1100 | 1100 |
-| Recuperación correcta, otro patrón almacenado, patrón inverso | 0 | 0 |
-| Motivo de parada: estado estable / ciclo / tope | 1100 / 0 / 0 | 1100 / 0 / 0 |
-| Estados finales distintos | 2 (A y −A) | 2 (A y −A) |
-| Iteraciones: media / máximo | 1,34 / 3 | 1,24 / 2 |
-| Recuperaciones con alguna subida de energía | 0 | 0 |
-| Energía final | −2172,88 | −2172,88 |
-
-(`comparacion_modos.csv`.) **Consulta por consulta, los dos modos terminan en el mismo estado final en las 1100** (`estados_finales_por_modo.csv`): A para todas las consultas con p ≤ 0,45, y con p = 0,5 las mismas 51 van a A y las mismas 49 a −A en los dos modos.
-
-Iteraciones medias por nivel de ruido:
-
-| p | 0 | 0,05 | 0,1 | 0,15 | 0,2 | 0,25 | 0,3 | 0,35 | 0,4 | 0,45 | 0,5 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Sincrónico | 1 | 1,13 | 1,14 | 1,28 | 1,24 | 1,26 | 1,33 | 1,38 | 1,39 | 1,57 | 2,01 |
-| Asincrónico | 1 | 1,06 | 1,11 | 1,22 | 1,18 | 1,23 | 1,25 | 1,27 | 1,23 | 1,39 | 1,75 |
-
-Comparando cada consulta en los dos modos, el asincrónico usa una iteración menos en 105 de 1100, la misma cantidad en 994 y una más en 1 (p = 0,3). Las diferencias crecen con el ruido: 0 consultas con p = 0, 18 con p = 0,45 y 26 con p = 0,5.
-
-En las curvas de energía de ejemplo (menú principal, semilla 0, figura `energia_ejemplos.png`) los dos modos coinciden con p = 0 y p = 0,2. Con p = 0,45 la primera iteración asincrónica llega a −2169,57, contra −2130,78 en sincrónico, y con p = 0,5 a −2166,74 contra −2127,67; los dos terminan en −2172,88 en la segunda.
-
-### Interpretación
-
-- **El modo de actualización no cambia el resultado.** Los estados estables son los mismos en los dos modos (dependen sólo de que sign(W·s) = s), y en este barrido además cada consulta cae en el mismo: el estado espurio A, o su opuesto con p = 0,5. El colapso viene de los pesos, no de cómo se recalculan las neuronas.
-- **Lo que cambia es el camino.** Dentro de una pasada asincrónica, cada neurona ya ve las correcciones de las anteriores, así que la primera iteración deja a la red más cerca del estado final (en energía, −2169,57 contra −2130,78 en el ejemplo con p = 0,45) y a veces la segunda iteración ya no hace falta. Por eso el asincrónico tarda en promedio un poco menos, y la diferencia aparece donde la primera iteración sincrónica no alcanzaba: con más ruido.
-- **La garantía de energía se cumple en los dos modos, por razones distintas.** En asincrónico es un teorema (cada cambio baja H). En sincrónico no está garantizada, pero en estos QR no hubo ninguna subida: la red cae al mismo atractor en 1 a 3 iteraciones y nunca oscila.
+En los QR no pasa: **0 de las 1100 recuperaciones tuvieron una subida de energía** entre dos iteraciones, en ningún nivel de ruido (`subidas_energia.csv`). La garantía del apunte no aplica a la actualización sincrónica, pero en este barrido la energía bajó en todas las iteraciones.
 
 ## Experimento secundario: lector de QR
 
-¿La red de Hopfield ayuda a escanear un QR con ruido, o la corrección de errores del propio QR ya lo resolvía? Para responderlo, el análisis pasa por un lector real (`cv2.QRCodeDetector` de OpenCV, en `analysis/hopfield_qr_reader.py`) el QR original, el patrón de consulta y la salida de la red de cada recuperación, en los dos modos de actualización. Antes de leerlo, cada patrón se amplía a 8 píxeles por módulo y se le agrega un margen blanco de 4 módulos (la zona de silencio del estándar), así un fallo se debe al contenido y no al formato (`pattern_to_scan_image` en `src/tp4/qr.py`). Requiere `opencv-python` (está en `requirements.txt`).
+¿La red de Hopfield ayuda a escanear un QR con ruido, o la corrección de errores del propio QR ya lo resolvía? Para responderlo, el análisis pasa por un lector real (`cv2.QRCodeDetector` de OpenCV, en `analysis/hopfield_qr_reader.py`) el QR original, el patrón de consulta y la salida de la red de cada recuperación. Antes de leerlo, cada patrón se amplía a 8 píxeles por módulo y se le agrega un margen blanco de 4 módulos (la zona de silencio del estándar), así un fallo se debe al contenido y no al formato (`pattern_to_scan_image` en `src/tp4/qr.py`). Requiere `opencv-python` (está en `requirements.txt`).
 
 Por cada lectura se registra si el lector **ubica** el QR (encuentra los patrones localizadores), si lo **decodifica** y si el texto **coincide** con el del original. Salidas, fuera de git:
 
-- `lector_qr.csv`: una fila por recuperación (QR, nivel de ruido, semilla, modo de actualización y las tres columnas para la consulta y para la salida).
-- `lector_qr_resumen.csv`: los conteos según el modo y el nivel de ruido.
+- `lector_qr.csv`: una fila por recuperación (QR, nivel de ruido, semilla y las tres columnas para la consulta y para la salida).
+- `lector_qr_resumen.csv`: los conteos según el nivel de ruido.
 - `lector_qr_umbral.csv`: consultas con ruido menor a 0,05 (ver abajo).
 
 Los cinco originales se decodifican, cada uno con la URL de su menú. Los cinco tienen el mismo bloque de información de formato, que indica el nivel de corrección de errores **L**, el más bajo del estándar.
 
 ### Barrido de ruido
 
-Cantidad de lecturas (de 100 por nivel) en modo sincrónico. En modo asincrónico los conteos son idénticos, porque cada consulta termina en el mismo estado final en los dos modos (`lector_qr_resumen.csv`):
+Cantidad de lecturas (de 100 por nivel) (`lector_qr_resumen.csv`):
 
 | p | Original decodificado | Consulta ubicada | Consulta decodificada | Salida ubicada | Salida decodificada |
 | --- | --- | --- | --- | --- | --- |
@@ -258,7 +217,7 @@ Cantidad de lecturas (de 100 por nivel) en modo sincrónico. En modo asincrónic
 | 0,45 | 100 | 12 | 0 | 100 | 0 |
 | 0,5 | 100 | 11 | 0 | 100 | 0 |
 
-Toda consulta decodificada tiene el mismo texto que su original. Ninguna de las 2200 salidas (1100 por modo) se decodifica.
+Toda consulta decodificada tiene el mismo texto que su original. Ninguna de las 1100 salidas se decodifica.
 
 ### Umbral del lector
 
@@ -276,7 +235,7 @@ Como ya con p = 0,05 no se lee ninguna consulta, se agregan niveles más bajos s
 ### Interpretación
 
 - **Hopfield no ayuda al lector: lo empeora.** Con p = 0 el lector decodifica las 100 consultas (son el QR original) y ninguna de las 100 salidas. La red convierte un QR legible en uno ilegible. Con p ≥ 0,05 no se lee ni la consulta ni la salida, así que la red tampoco rescata nada.
-- **La salida se ubica pero no se decodifica.** Las salidas son el estado mezcla A y su inverso −A. Un módulo que vale lo mismo en los cinco QR queda igual en A (el signo de la suma de cinco valores iguales es ese valor), y los patrones localizadores son iguales en los cinco, así que A tiene los localizadores de un QR. El detector ubica el 100 % de las salidas, incluidas las 49 de cada modo que son −A, con los colores invertidos. Pero A difiere del original en 71 a 225 módulos según el QR (y −A en 1144 a 1298), demasiados para la corrección de errores.
+- **La salida se ubica pero no se decodifica.** Las salidas son el estado mezcla A y su inverso −A. Un módulo que vale lo mismo en los cinco QR queda igual en A (el signo de la suma de cinco valores iguales es ese valor), y los patrones localizadores son iguales en los cinco, así que A tiene los localizadores de un QR. El detector ubica el 100 % de las salidas, incluidas las 49 que son −A, con los colores invertidos. Pero A difiere del original en 71 a 225 módulos según el QR (y −A en 1144 a 1298), demasiados para la corrección de errores.
 - **La corrección de errores del QR sólo resuelve ruido muy bajo.** Con nivel L, el lector decodifica dos de cada tres consultas con unos 7 módulos invertidos (p = 0,005), menos de la mitad con unos 13 (p = 0,01) y ninguna desde unos 40 (p = 0,03). El barrido empieza en p = 0,05, unas 0,05 · 1369 ≈ 68 inversiones esperadas, ya fuera de lo que puede corregir.
 - **Una consulta ubicada con mucho ruido no es una lectura.** Para p ≥ 0,1, entre el 8 % y el 18 % de las consultas se ubican, pero ninguna se decodifica: con tantos módulos al azar, el detector a veces arma un candidato a QR que después no puede leer.
 
@@ -288,9 +247,9 @@ Cada limitación está respaldada por números de las salidas del análisis (el 
 
 ### 1. La red colapsa al estado mezcla: no recupera ningún QR
 
-- **0 de las 2200 recuperaciones son recuperación correcta** (1100 por modo de actualización); tampoco termina ninguna en otro patrón almacenado ni en un patrón inverso (`categorias.csv`, `comparacion_modos.csv`).
-- **Todas terminan en un estado espurio**: 2102 en el estado mezcla A = sign(ξ₁ + … + ξ₅) y 98 en su inverso −A, estas últimas todas con p = 0,5 (salida de `hopfield_qr.py`; `estados_finales_por_modo.csv`).
-- **Pasa aun sin ruido**: con p = 0 las 100 consultas de cada modo son los QR originales y las 100 terminan en A en 1 iteración, porque ninguno de los cinco QR es un estado estable (`crosstalk.csv`, columna `stable_without_noise`).
+- **0 de las 1100 recuperaciones son recuperación correcta**; tampoco termina ninguna en otro patrón almacenado ni en un patrón inverso (`categorias.csv`).
+- **Todas terminan en un estado espurio**: 1051 en el estado mezcla A = sign(ξ₁ + … + ξ₅) y 49 en su inverso −A, estas últimas todas con p = 0,5 (salida de `hopfield_qr.py`; `resultados.csv`, columna `final_state`).
+- **Pasa aun sin ruido**: con p = 0 las 100 consultas son los QR originales y las 100 terminan en A en 1 iteración, porque ninguno de los cinco QR es un estado estable (`crosstalk.csv`, columna `stable_without_noise`).
 - **La salida está lejos del original**: A difiere en 71 módulos del menú principal (5,2 %), en 91 de vinos, en 103 de especiales del día y en 225 de cócteles y otras bebidas y de postres (16,4 %) (`crosstalk.csv`, columna `hamming_to_mixture`).
 
 Para el restaurante, la red responde lo mismo sea cual sea el menú escaneado: no sirve ni siquiera para saber a cuál de los cinco pertenece un QR dañado. Desde p = 0,2 (273,1 módulos invertidos en promedio en la consulta, contra 71 a 225 de A; `resultados.csv`, columna `query_hamming`) la salida queda, en promedio, más cerca del original que la consulta; pero es acercarse a un patrón que no es ningún menú.
@@ -307,22 +266,22 @@ Para el restaurante, la red responde lo mismo sea cual sea el menú escaneado: n
 - Aun así, el crosstalk medio en módulo es de 2,06 a 2,21 según el QR, más del doble del término propio ±1, y deja entre 71 y 225 neuronas inestables por QR (`crosstalk.csv`).
 - La cota de capacidad supone patrones aleatorios, casi ortogonales; no dice nada de patrones con solapamientos altos. Para los QR, la limitación que importa es la ortogonalidad, no la cantidad.
 
-### 4. La energía no está garantizada en modo sincrónico
+### 4. La energía no está garantizada con actualización sincrónica
 
-- La demostración del apunte de que H nunca sube supone que **cambia una neurona por vez**. El algoritmo y el ejemplo del apunte usan el modo sincrónico, donde ΔH tiene un término más que puede ser positivo; un test lo muestra con 4 neuronas: la energía sube de 0 a 1,5 y la recuperación termina en un ciclo (sección [Energía](#energía)).
-- En los QR, **0 de las 1100 recuperaciones sincrónicas tuvieron una subida de energía** y 0 terminaron en ciclo (`subidas_energia.csv`, `categorias.csv`). Es una observación de este barrido, no una propiedad del modo sincrónico: con otros patrones puede no cumplirse. En modo asincrónico, en cambio, es un teorema, y también hubo 0 subidas.
+- La demostración del apunte de que H nunca sube supone que **cambia una neurona por vez**. El algoritmo y el ejemplo del apunte usan la actualización sincrónica, donde ΔH tiene un término más que puede ser positivo; un test lo muestra con 4 neuronas: la energía sube de 0 a 1,5 y la recuperación termina en un ciclo (sección [Energía](#energía)).
+- En los QR, **0 de las 1100 recuperaciones tuvieron una subida de energía** y 0 terminaron en ciclo (`subidas_energia.csv`, `categorias.csv`). Es una observación de este barrido, no una propiedad de la actualización sincrónica: con otros patrones puede no cumplirse.
 - El apunte afirma además que los mínimos locales de H son los patrones almacenados. Con estos QR no lo son: sus energías van de −2077,45 a −1789,71, por encima de la del estado mezcla, −2172,88 (salida de `hopfield_qr.py`).
 
 ### 5. El ruido aleatorio no es el daño real de un QR
 
 - El ruido del barrido invierte cada módulo de forma independiente, repartido por todo el código: con p = 0,05 ya son 68,5 módulos invertidos en promedio (`resultados.csv`, columna `query_hamming`), incluidos módulos de los patrones localizadores, y el lector ubica sólo 40 de las 100 consultas (`lector_qr_resumen.csv`).
 - El daño de un QR impreso (una mancha, un doblez, una esquina rota, un reflejo) suele concentrarse en una zona. La corrección de errores del QR agrupa los módulos en palabras de código y está pensada para ese tipo de daño; según el estándar, el nivel L corrige alrededor del 7 % de las palabras de código. Este análisis no mide daño estructurado (quedó fuera de alcance), así que no dice cómo se comportarían la red ni el lector ante una mancha.
-- El nivel de ruido más alto no es el "peor daño": con p = 0,5 la consulta es independiente del QR original, y por eso las consultas se reparten entre A (51) y −A (49) (`estados_finales_por_modo.csv`).
+- El nivel de ruido más alto no es el "peor daño": con p = 0,5 la consulta es independiente del QR original, y por eso las consultas se reparten entre A (51) y −A (49) (`resultados.csv`).
 
 ### 6. El lector de QR no se beneficia de la red
 
-- Los cinco originales se decodifican; **ninguna de las 2200 salidas de la red se decodifica**, aunque el detector las ubica todas (`lector_qr_resumen.csv`).
-- **La red empeora lo que ya se leía**: con p = 0 el lector decodifica las 100 consultas y ninguna de las 100 salidas, en cada modo.
+- Los cinco originales se decodifican; **ninguna de las 1100 salidas de la red se decodifica**, aunque el detector las ubica todas (`lector_qr_resumen.csv`).
+- **La red empeora lo que ya se leía**: con p = 0 el lector decodifica las 100 consultas y ninguna de las 100 salidas.
 - **La corrección de errores del propio QR alcanza sólo para muy poco ruido aleatorio**: decodifica 66 de 100 consultas con p = 0,005 (7,4 módulos invertidos en promedio), 1 de 100 con p = 0,02 (28,3) y ninguna desde p = 0,03 (40,5) (`lector_qr_umbral.csv`). El barrido de la consigna empieza en p = 0,05, ya fuera de ese rango, así que en ningún nivel la red podía rescatar una lectura que el lector no lograba solo.
 
 ### 7. Alcance de las conclusiones
@@ -332,4 +291,4 @@ Para el restaurante, la red responde lo mismo sea cual sea el menú escaneado: n
 
 ## Conclusión
 
-Con estos cinco QR y la regla de Hebb, la red de Hopfield no funciona como memoria asociativa: ningún QR es un estado estable, así que, haya o no ruido y en cualquiera de los dos modos de actualización, la red devuelve siempre el estado mezcla (o su inverso, cuando la consulta ya es aleatoria). El problema no es la cantidad de patrones sino su parecido: los QR de un mismo restaurante comparten casi el 70 % de sus módulos, y el crosstalk que eso genera supera a la señal de cada patrón. Para el restaurante, la red no ayuda a escanear un menú dañado: la corrección de errores del propio QR resuelve unos pocos módulos invertidos, y más allá de eso ni el lector ni la red recuperan el menú.
+Con estos cinco QR y la regla de Hebb, la red de Hopfield no funciona como memoria asociativa: ningún QR es un estado estable, así que, haya o no ruido, la red devuelve siempre el estado mezcla (o su inverso, cuando la consulta ya es aleatoria). El problema no es la cantidad de patrones sino su parecido: los QR de un mismo restaurante comparten casi el 70 % de sus módulos, y el crosstalk que eso genera supera a la señal de cada patrón. Para el restaurante, la red no ayuda a escanear un menú dañado: la corrección de errores del propio QR resuelve unos pocos módulos invertidos, y más allá de eso ni el lector ni la red recuperan el menú.

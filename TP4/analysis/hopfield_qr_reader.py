@@ -51,8 +51,8 @@ def _columns(prefix, reading, original):
 
 
 def read_all(names, patterns, queries, results, finals):
-    """Lee original, consulta y salida de cada recuperación de `results`, en todos
-    los modos que tenga la tabla. `finals[i]` es el estado final de la fila i."""
+    """Lee original, consulta y salida de cada recuperación de `results`.
+    `finals[i]` es el estado final de la fila i."""
     reader = Reader()
     originals = {name: reader.read(pattern).text for name, pattern in zip(names, patterns)}
     query_of = {(names[q.origin], round(float(q.noise), 2), q.seed): q.pattern for q in queries}
@@ -61,7 +61,7 @@ def read_all(names, patterns, queries, results, finals):
         original = originals[record.qr]
         query = reader.read(query_of[record.qr, round(float(record.noise), 2), record.seed])
         output = reader.read(final)
-        rows.append({'qr': record.qr, 'noise': record.noise, 'seed': record.seed, 'mode': record.mode,
+        rows.append({'qr': record.qr, 'noise': record.noise, 'seed': record.seed,
                      'original_decoded': original is not None,
                      **_columns('query', query, original), **_columns('output', output, original),
                      'output_text': output.text})
@@ -69,11 +69,11 @@ def read_all(names, patterns, queries, results, finals):
 
 
 def summarize(readings):
-    """Cantidad de lecturas exitosas por modo y nivel de ruido."""
+    """Cantidad de lecturas exitosas por nivel de ruido."""
     columns = ['original_decoded', 'query_found', 'query_decoded', 'query_matches',
                'output_found', 'output_decoded', 'output_matches']
-    summary = readings.groupby(['mode', 'noise'])[columns].sum()
-    summary.insert(0, 'recalls', readings.groupby(['mode', 'noise']).size())
+    summary = readings.groupby('noise')[columns].sum()
+    summary.insert(0, 'recalls', readings.groupby('noise').size())
     return summary
 
 

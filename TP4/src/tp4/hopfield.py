@@ -1,4 +1,5 @@
-"""Red de Hopfield con la regla de Hebb del apunte (Unidad 9).
+"""Red de Hopfield con la regla de Hebb del apunte (Unidad 9) y, como comparación, la
+regla de la pseudoinversa (no está en el apunte).
 
 Recibe patrones de ±1 como matrices NumPy; no sabe de archivos, imágenes ni gráficos.
 """
@@ -8,7 +9,7 @@ from typing import Literal
 import numpy as np
 
 StopReason = Literal['stable', 'cycle', 'max_iterations']
-UpdateMode = Literal['synchronous', 'asynchronous']
+LearningRule = Literal['hebb', 'pseudoinverse']
 
 
 @dataclass(frozen=True)
@@ -31,8 +32,8 @@ class Recall:
     def energy_rises(self) -> int:
         """Iteraciones en las que la energía subió respecto de la anterior.
 
-        La demostración del apunte (H nunca sube) supone un cambio por vez; en
-        modo sincrónico cambian varias neuronas juntas y H puede subir. La
+        La demostración del apunte (H nunca sube) supone un cambio por vez; la
+        actualización sincrónica cambia varias neuronas juntas y H puede subir. La
         tolerancia descarta diferencias de redondeo entre energías iguales.
         """
         return int(np.sum(np.diff(self.energies) > 1e-9))
@@ -46,11 +47,22 @@ def bipolar(x, ndim):
 
 
 class Hopfield:
-    def __init__(self, patterns):
-        """Almacena los patrones (p × N) con Hebb: W = (1/N)·Σ ξξᵀ, diagonal cero."""
+    def __init__(self, patterns, rule: LearningRule = 'hebb'):
+        """Almacena los patrones (p × N), con diagonal cero en las dos reglas.
+
+        Hebb: W = (1/N)·Σ ξξᵀ. Pseudoinversa: W = Ξᵀ(ΞΞᵀ)⁻¹Ξ, con Ξ de p × N, que
+        proyecta sobre el espacio de los patrones: deja estable a cada uno aunque
+        estén correlacionados, y con patrones ortogonales (ΞΞᵀ = N·I) es igual a Hebb.
+        """
         self.patterns_ = bipolar(patterns, 2)
         neurons = self.patterns_.shape[1]
-        self.weights_ = self.patterns_.T @ self.patterns_ / neurons
+        if rule == 'hebb':
+            self.weights_ = self.patterns_.T @ self.patterns_ / neurons
+        elif rule == 'pseudoinverse':
+            gram = self.patterns_ @ self.patterns_.T
+            self.weights_ = self.patterns_.T @ np.linalg.pinv(gram) @ self.patterns_
+        else:
+            raise ValueError(f'Regla de aprendizaje desconocida: {rule}')
         np.fill_diagonal(self.weights_, 0)
 
     def overlaps(self):
@@ -70,23 +82,20 @@ class Hopfield:
         """H = −½·Σᵢⱼ wᵢⱼ Sᵢ Sⱼ."""
         return float(-.5 * state @ self.weights_ @ state)
 
-    def recall(self, query, mode: UpdateMode = 'synchronous', max_iterations=100, seed=0,
-               return_states=False) -> Recall:
-        """Itera desde el patrón de consulta hasta un estado estable, un ciclo o el tope.
+    def recall(self, query, max_iterations=100, return_states=False) -> Recall:
+        """Itera sincrónicamente desde el patrón de consulta hasta un estado estable,
+        un ciclo o el tope.
 
         Cada paso se clasifica en ese orden: si no cambia el estado es estable; si
         vuelve a un estado ya visitado es ciclo, también cuando llega en el paso
         que se calcula ya en el tope (ese paso no se aplica: la red no pasa de
         `max_iterations`); si no, recién ahí el tope corta la recuperación.
 
-        `seed` siembra el generador local de los órdenes del modo asincrónico (acepta
-        lo mismo que `np.random.default_rng`); el modo sincrónico no la usa.
         `return_states` agrega al resultado la secuencia de estados.
         """
         state = bipolar(query, 1)
         if len(state) != len(self.weights_):
             raise ValueError('El patrón de consulta no tiene N elementos')
-        step = self._updater(mode, seed)
         visited = {state.tobytes()}
         states, energies = [state], [self.energy(state)]
 
@@ -95,7 +104,7 @@ class Hopfield:
                           tuple(states) if return_states else None)
 
         while True:
-            new_state = step(state)
+            new_state = self._synchronous(state)
             if np.array_equal(new_state, state):
                 return result('stable')
             revisits = new_state.tobytes() in visited
@@ -108,26 +117,7 @@ class Hopfield:
                 return result('cycle')
             visited.add(state.tobytes())
 
-    def _updater(self, mode, seed):
-        """Devuelve la función que hace una iteración en el modo pedido."""
-        if mode == 'synchronous':
-            return self._synchronous
-        if mode == 'asynchronous':
-            rng = np.random.default_rng(seed)
-            return lambda state: self._asynchronous(state, rng)
-        raise ValueError(f'Modo de actualización desconocido: {mode}')
-
     def _synchronous(self, state):
         """S(t+1) = sign(W·S(t)); con campo cero la neurona conserva su estado."""
         fields = self.weights_ @ state
         return np.where(fields > 0, 1., np.where(fields < 0, -1., state))
-
-    def _asynchronous(self, state, rng):
-        """Una pasada por las N neuronas en un orden aleatorio nuevo: cada neurona
-        usa los estados ya actualizados en esta pasada. Campo cero → conserva."""
-        state = state.copy()
-        for i in rng.permutation(len(state)):
-            field = self.weights_[i] @ state
-            if field:
-                state[i] = 1. if field > 0 else -1.
-        return state

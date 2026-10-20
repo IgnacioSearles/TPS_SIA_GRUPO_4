@@ -104,11 +104,11 @@ class EnergyRiseTests(unittest.TestCase):
         self.assertEqual(network.recall(np.array([1, -1, -1, -1])).energy_rises, 0)
 
     def test_synchronous_update_can_raise_energy(self):
-        # Desde el estado mezcla de THREE_OF_FOUR, con H = 0, el modo sincrónico
+        # Desde el estado mezcla de THREE_OF_FOUR, con H = 0, la actualización sincrónica
         # cambia tres neuronas a la vez y llega a (1, −1, −1, 1), con H = 1,5;
         # después oscila con (−1, 1, 1, −1), de igual energía.
         network = Hopfield(THREE_OF_FOUR)
-        result = network.recall(ENTERS_CYCLE, mode='synchronous')
+        result = network.recall(ENTERS_CYCLE)
         np.testing.assert_allclose(result.energies, [0, 1.5, 1.5, 1.5])
         self.assertEqual(result.stop_reason, 'cycle')
         self.assertEqual(result.energy_rises, 1)
@@ -121,8 +121,6 @@ class ValidationTests(unittest.TestCase):
         network = Hopfield(ORTHOGONAL)
         with self.assertRaises(ValueError):
             network.recall(np.ones(5))
-        with self.assertRaises(ValueError):
-            network.recall(ORTHOGONAL[0], mode='unknown')
 
 
 class ZeroFieldTests(unittest.TestCase):
@@ -142,7 +140,7 @@ class StopReasonTests(unittest.TestCase):
         self.network = Hopfield(np.array([[1, -1]]))
 
     def test_synchronous_oscillation_stops_as_cycle(self):
-        result = self.network.recall(np.array([1, 1]), mode='synchronous')
+        result = self.network.recall(np.array([1, 1]))
         self.assertEqual(result.stop_reason, 'cycle')
         self.assertEqual(result.iterations, 2)
         np.testing.assert_array_equal(result.state, [1, 1])
@@ -187,45 +185,34 @@ class LimitTests(unittest.TestCase):
         self.assertEqual((result.stop_reason, result.iterations), ('stable', 1))
 
 
-class AsynchronousTests(unittest.TestCase):
-    def test_synchronous_cycle_ends_stable_in_asynchronous_mode(self):
-        # El caso de EnergyRiseTests: en modo sincrónico (1, 1, 1, −1) oscila. En
-        # asincrónico, la primera de las neuronas 2, 3 o 4 que cambia (las tres tienen
-        # campo −¼·S) lleva la red a un patrón almacenado o a su inverso, que es estable.
-        network = Hopfield(THREE_OF_FOUR)
-        stored = np.vstack([THREE_OF_FOUR, -THREE_OF_FOUR])
-        for seed in range(10):
-            result = network.recall(ENTERS_CYCLE, mode='asynchronous', seed=seed)
-            self.assertEqual((result.stop_reason, result.iterations), ('stable', 1))
-            self.assertTrue((stored == result.state).all(axis=1).any(), result.state)
+class PseudoinverseTests(unittest.TestCase):
+    def test_equals_hebb_for_orthogonal_patterns(self):
+        # Con patrones ortogonales, ΞΞᵀ = N·I y la pseudoinversa se reduce a Hebb.
+        hebb = Hopfield(ORTHOGONAL)
+        pseudoinverse = Hopfield(ORTHOGONAL, rule='pseudoinverse')
+        np.testing.assert_allclose(pseudoinverse.weights_, hebb.weights_)
 
-    def test_energy_never_rises_in_asynchronous_mode(self):
-        # Red sobrecargada (12 patrones al azar en 40 neuronas) y consultas al azar:
-        # muchas neuronas cambian y en modo sincrónico la energía sí sube a veces.
-        rng = np.random.default_rng(7)
-        network = Hopfield(rng.choice([-1, 1], size=(12, 40)))
-        queries = rng.choice([-1, 1], size=(30, 40))
-        synchronous_rises = sum(network.recall(q, mode='synchronous').energy_rises for q in queries)
-        self.assertGreater(synchronous_rises, 0)
-        for seed, query in enumerate(queries):
-            result = network.recall(query, mode='asynchronous', seed=seed)
-            self.assertEqual(result.stop_reason, 'stable')
-            self.assertTrue(np.all(np.diff(result.energies) < 0), result.energies)
-            self.assertEqual(result.energy_rises, 0)
+    def test_weights_are_symmetric_with_zero_diagonal(self):
+        network = Hopfield(THREE_OF_FOUR, rule='pseudoinverse')
+        np.testing.assert_allclose(network.weights_, network.weights_.T)
+        np.testing.assert_allclose(np.diag(network.weights_), 0)
 
-    def test_same_seed_gives_same_recall(self):
-        # Con ξ = (1, −1), desde (1, 1) gana la neurona que se recalcula primero:
-        # la red llega a ξ o a −ξ según el orden, que depende sólo de la semilla.
-        network = Hopfield(np.array([[1, -1]]))
-        finals = set()
-        for seed in range(10):
-            a = network.recall(np.array([1, 1]), mode='asynchronous', seed=seed)
-            b = network.recall(np.array([1, 1]), mode='asynchronous', seed=seed)
-            np.testing.assert_array_equal(a.state, b.state)
-            self.assertEqual((a.iterations, a.energies, a.stop_reason),
-                             (b.iterations, b.energies, b.stop_reason))
-            finals.add(tuple(a.state))
-        self.assertEqual(finals, {(1, -1), (-1, 1)})
+    def test_stores_correlated_patterns_that_hebb_cannot(self):
+        # Cinco patrones de 100 neuronas que comparten 70 módulos, como los QR:
+        # con Hebb ninguno es estable; con la pseudoinversa, los cinco.
+        rng = np.random.default_rng(0)
+        patterns = rng.choice([-1., 1.], size=(5, 100))
+        patterns[:, :70] = patterns[0, :70]
+        hebb = Hopfield(patterns)
+        pseudoinverse = Hopfield(patterns, rule='pseudoinverse')
+        self.assertFalse(any(hebb.recall(p).iterations == 0 for p in patterns))
+        for pattern in patterns:
+            result = pseudoinverse.recall(pattern)
+            self.assertEqual((result.stop_reason, result.iterations), ('stable', 0))
+
+    def test_rejects_unknown_rule(self):
+        with self.assertRaises(ValueError):
+            Hopfield(ORTHOGONAL, rule='unknown')
 
 
 class OrthogonalityTests(unittest.TestCase):

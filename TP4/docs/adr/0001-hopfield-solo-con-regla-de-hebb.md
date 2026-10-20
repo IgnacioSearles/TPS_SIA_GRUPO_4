@@ -11,3 +11,7 @@ Con la regla de Hebb del apunte, ninguno de los 5 QR es un estado estable, ni si
 ## Consequences
 
 El análisis de ruido de los QR no muestra una tasa de recuperación correcta: muestra adónde y en cuántas iteraciones cae la red. Los números salen de una medición en sesión (2026-10-20) sobre `data/hopfield/*.png`.
+
+## Addendum (2026-10-20)
+
+A pedido de Ivo, la pseudoinversa se agregó a la red (`Hopfield(patterns, rule='pseudoinverse')`) **sólo como experimento de comparación** (`analysis/hopfield_qr_mejoras.py`). El análisis y el informe principales siguen con Hebb, y el informe de mejoras aclara que esa regla no está en el apunte.

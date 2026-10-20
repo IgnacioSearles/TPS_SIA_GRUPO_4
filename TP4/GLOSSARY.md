@@ -32,17 +32,21 @@ _Avoid_: similitud, correlación
 La parte del campo de una neurona que aportan los patrones almacenados distintos del consultado; es cero cuando los patrones son ortogonales.
 _Avoid_: interferencia, ruido cruzado
 
+**Regla de la pseudoinversa**:
+Otra forma de calcular W, W = Ξᵀ(ΞΞᵀ)⁻¹Ξ, que deja estable a cada patrón almacenado aunque estén correlacionados; con patrones ortogonales coincide con Hebb. No está en el apunte: se usa sólo como comparación.
+_Avoid_: regla de proyección, inversa
+
 **Capacidad**:
 La cantidad máxima de patrones que la red puede almacenar y recuperar; según el apunte, p ≤ 0,15·N.
 
 ### Dinámica
 
 **Modo de actualización**:
-La regla con la que se recalculan los estados: sincrónico (todas las neuronas a la vez, como en el apunte) o asincrónico (una neurona por vez, en orden aleatorio). Es una propiedad de la recuperación, no de la red: la misma red puede usar cualquiera de los dos.
+La regla con la que se recalculan los estados. Se usa sólo la sincrónica del apunte: todas las neuronas a la vez, S(t+1) = sign(W·S(t)). (La asincrónica, una neurona por vez en orden aleatorio, se implementó y después se quitó porque el enunciado no la pide.)
 _Avoid_: red sincrónica, red asincrónica
 
 **Iteración**:
-Un recálculo completo de las N neuronas: una aplicación de sign(W·S) en modo sincrónico, o una pasada por todas las neuronas en modo asincrónico.
+Un recálculo completo de las N neuronas: una aplicación de sign(W·S).
 _Avoid_: paso, época
 
 **Energía**:
