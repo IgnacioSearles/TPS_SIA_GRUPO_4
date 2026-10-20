@@ -162,7 +162,6 @@ class AsynchronousTests(unittest.TestCase):
             self.assertEqual((result.stop_reason, result.iterations), ('stable', 1))
             self.assertTrue((stored == result.state).all(axis=1).any(), result.state)
 
-
     def test_energy_never_rises_in_asynchronous_mode(self):
         # Red sobrecargada (12 patrones al azar en 40 neuronas) y consultas al azar:
         # muchas neuronas cambian y en modo sincrónico la energía sí sube a veces.
@@ -177,7 +176,6 @@ class AsynchronousTests(unittest.TestCase):
             self.assertTrue(np.all(np.diff(result.energies) < 0), result.energies)
             self.assertEqual(result.energy_rises, 0)
 
-
     def test_same_seed_gives_same_recall(self):
         # Con ξ = (1, −1), desde (1, 1) gana la neurona que se recalcula primero:
         # la red llega a ξ o a −ξ según el orden, que depende sólo de la semilla.
@@ -191,6 +189,27 @@ class AsynchronousTests(unittest.TestCase):
                              (b.iterations, b.energies, b.stop_reason))
             finals.add(tuple(a.state))
         self.assertEqual(finals, {(1, -1), (-1, 1)})
+
+
+class OrthogonalityTests(unittest.TestCase):
+    def test_overlaps_of_apunte_example(self):
+        # ξ₂ = −ξ₁: solapamiento −1 entre ellos y 1 consigo mismos.
+        network = Hopfield(np.vstack([XI_1, XI_2]))
+        np.testing.assert_allclose(network.overlaps(), [[1, -1], [-1, 1]])
+
+    def test_crosstalk_is_zero_with_orthogonal_patterns(self):
+        network = Hopfield(ORTHOGONAL)
+        np.testing.assert_allclose(network.overlaps(), np.eye(2))
+        for index in range(len(ORTHOGONAL)):
+            np.testing.assert_allclose(network.crosstalk(index), np.zeros(8))
+
+    def test_crosstalk_of_correlated_patterns(self):
+        # ξ₁ = (1, 1, 1, 1) y ξ₂ = (1, 1, 1, −1) coinciden en 3 de 4: m¹² = (3 − 1)/4 = 0,5.
+        # C¹ = m²¹·ξ² = (0,5; 0,5; 0,5; −0,5): en la neurona 4 el crosstalk se opone a ξ¹.
+        network = Hopfield(np.array([[1, 1, 1, 1], [1, 1, 1, -1]]))
+        np.testing.assert_allclose(network.overlaps(), [[1, .5], [.5, 1]])
+        np.testing.assert_allclose(network.crosstalk(0), [.5, .5, .5, -.5])
+        np.testing.assert_allclose(network.crosstalk(1), [.5, .5, .5, .5])
 
 
 if __name__ == '__main__':

@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from analysis import hopfield_qr_reader
 from src.tp4.hopfield import Hopfield
 from src.tp4.qr import load_qr, pattern_to_image
 from src.tp4.recall_outcome import classify
@@ -180,6 +181,130 @@ def plot_examples(patterns, queries, results, finals, path, origin=0, noises=(.0
     _save(fig, path)
 
 
+# --- Ortogonalidad y colapso (antes de recuperar) ---------------------------
+
+CAPACITY_FRACTION = .15  # capacidad del apunte: p_max ≈ 0,15·N
+SEQUENTIAL = ['#cde2fb', '#86b6ef', '#3987e5', '#1c5cab', '#0d366b']  # azul, claro → oscuro
+UNSTABLE_COLOR = '#eb6834'
+
+
+def mixture_state(patterns):
+    """Estado mezcla sign(ξ₁ + … + ξ₅); con un número impar de patrones no hay ceros."""
+    return np.sign(patterns.sum(axis=0))
+
+
+def orthogonality(network):
+    """Solapamientos, módulos compartidos y crosstalk de cada QR sin ruido.
+
+    Una neurona es inestable cuando el crosstalk tiene signo opuesto a ξᵢ^ν y lo
+    supera en módulo (ξᵢ^ν·Cᵢ^ν < −1), porque hᵢ^ν = ξᵢ^ν + Cᵢ^ν. Se contrasta con
+    lo que hace la red: las neuronas que cambian en la primera iteración.
+    """
+    patterns = network.patterns_
+    names = list(QRS)
+    overlaps = pd.DataFrame(network.overlaps(), index=names, columns=names)
+    shared = (patterns == patterns[0]).all(axis=0)
+    mixture = mixture_state(patterns)
+    rows, unstable = [], []
+    for index, pattern in enumerate(patterns):
+        crosstalk = network.crosstalk(index)
+        aligned = pattern * crosstalk
+        first = network.recall(pattern, max_iterations=1)
+        final = network.recall(pattern, max_iterations=MAX_ITERATIONS)
+        unstable.append(aligned < -1)
+        rows.append({
+            'qr': names[index],
+            'max_overlap_with_other': np.delete(overlaps.iloc[index].to_numpy(), index).max(),
+            'mean_abs_crosstalk': np.abs(crosstalk).mean(),
+            'max_abs_crosstalk': np.abs(crosstalk).max(),
+            'crosstalk_on_shared': aligned[shared].mean(),
+            'opposing_neurons': int(np.sum(aligned < 0)),
+            'unstable_neurons': int(np.sum(aligned < -1)),
+            'unstable_on_shared': int(np.sum((aligned < -1) & shared)),
+            'changed_first_iteration': int(np.sum(first.state != pattern)),
+            'stable_without_noise': final.iterations == 0 and final.stop_reason == 'stable',
+            'iterations_without_noise': final.iterations,
+            'falls_into_mixture': bool(np.array_equal(final.state, mixture)),
+            'hamming_to_mixture': int(np.sum(pattern != mixture)),
+        })
+    return overlaps, shared, pd.DataFrame(rows), np.array(unstable)
+
+
+def report_orthogonality(network, overlaps, shared, table):
+    neurons = network.patterns_.shape[1]
+    capacity = CAPACITY_FRACTION * neurons
+    off_diagonal = overlaps.to_numpy()[~np.eye(len(overlaps), dtype=bool)]
+    mixture = mixture_state(network.patterns_)
+    check = network.recall(mixture, max_iterations=MAX_ITERATIONS)
+    print('Solapamientos entre los QR (m^μν):')
+    print(overlaps.round(3).to_string())
+    print(f'Solapamiento fuera de la diagonal: mín {off_diagonal.min():.3f}, máx {off_diagonal.max():.3f}')
+    print(f'Módulos iguales en los cinco QR: {shared.sum()} de {neurons} '
+          f'({shared.mean():.1%}; {np.sum(shared & (network.patterns_[0] == 1))} negros)')
+    print(f'Patrones almacenados: {len(overlaps)}; capacidad 0,15·N = {capacity:.1f}')
+    print(f'Estado mezcla sign(ξ₁ + … + ξ₅): {check.stop_reason}, {check.iterations} iteraciones')
+    print(table.round(3).to_string(index=False))
+
+
+def check_mixture(network, finals):
+    """Cuántas salidas del barrido son el estado mezcla o su inverso."""
+    mixture = mixture_state(network.patterns_)
+    is_mixture = (finals == mixture).all(axis=1)
+    is_inverse = (finals == -mixture).all(axis=1)
+    print(f'Salidas iguales al estado mezcla: {is_mixture.sum()}; a su inverso: {is_inverse.sum()}; '
+          f'a otro estado: {np.sum(~is_mixture & ~is_inverse)} (de {len(finals)})')
+
+
+def plot_overlaps(overlaps, shared, path):
+    names = list(overlaps.index)
+    cmap = matplotlib.colors.LinearSegmentedColormap.from_list('azul', SEQUENTIAL)
+    fig, (left, right) = plt.subplots(1, 2, figsize=(10.5, 4.6), gridspec_kw={'width_ratios': [1.25, 1]})
+    image = left.imshow(overlaps.to_numpy(), cmap=cmap, vmin=.5, vmax=1)
+    for (i, j), value in np.ndenumerate(overlaps.to_numpy()):
+        left.text(j, i, f'{value:.3f}'.replace('.', ','), ha='center', va='center', fontsize=9,
+                  color='white' if value > .8 else '#1f1f1f')
+    labels = [TITLES[name] for name in names]
+    left.set_xticks(range(len(names)), labels, rotation=35, ha='right', fontsize=8)
+    left.set_yticks(range(len(names)), labels, fontsize=8)
+    left.set_title(r'Solapamiento $m^{\mu\nu}$ entre los QR', fontsize=10)
+    fig.colorbar(image, ax=left, fraction=.046, pad=.04)
+    right.imshow(np.where(shared, 1, 0).reshape(37, 37), cmap=matplotlib.colors.ListedColormap(['#f0efec', '#2a78d6']),
+                 vmin=0, vmax=1, interpolation='nearest')
+    right.set_title(f'Módulos iguales en los cinco QR: {shared.sum()} de {shared.size}\n'
+                    '(azul: igual en los cinco; gris: difiere en alguno)', fontsize=10)
+    right.axis('off')
+    _save(fig, path)
+
+
+def plot_unstable(network, table, unstable, path):
+    names = list(QRS)
+    panels = [(f'{TITLES[name]}\n{row.unstable_neurons} neuronas inestables', pattern, mask)
+              for name, row, pattern, mask in zip(names, table.itertuples(), network.patterns_, unstable)]
+    panels.append(('Estado mezcla\nsign(ξ₁ + … + ξ₅)', mixture_state(network.patterns_), None))
+    fig, axes = plt.subplots(2, 3, figsize=(9, 7.4))
+    for ax, (title, pattern, mask) in zip(axes.ravel(), panels):
+        image = np.asarray(pattern_to_image(pattern), dtype=float) / 255
+        rgb = np.dstack([.35 + .55 * image] * 3)  # QR atenuado para que resalten las neuronas inestables
+        if mask is not None:
+            rgb[mask.reshape(37, 37)] = matplotlib.colors.to_rgb(UNSTABLE_COLOR)
+        else:
+            rgb = np.dstack([image] * 3)
+        ax.imshow(rgb, interpolation='nearest')
+        ax.set_title(title, fontsize=9)
+        ax.axis('off')
+    fig.suptitle('Neuronas donde el crosstalk se opone a ξᵢ y lo supera (en naranja)', fontsize=10)
+    _save(fig, path)
+
+
+def analyze_orthogonality(network):
+    overlaps, shared, table, unstable = orthogonality(network)
+    overlaps.to_csv(OUT / 'solapamientos.csv')
+    table.to_csv(OUT / 'crosstalk.csv', index=False)
+    plot_overlaps(overlaps, shared, OUT / 'solapamientos.png')
+    plot_unstable(network, table, unstable, OUT / 'crosstalk.png')
+    report_orthogonality(network, overlaps, shared, table)
+
+
 # --- Iteraciones y energía -------------------------------------------------------
 # Las funciones de esta sección separan todo por la columna `mode` de la tabla de
 # resultados, así un barrido con los dos modos de actualización se compara solo.
@@ -328,6 +453,7 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     patterns = load_patterns()
     network = Hopfield(patterns)
+    analyze_orthogonality(network)
     queries = make_queries(patterns)
 
     # Los dos modos reciben exactamente los mismos patrones de consulta.
@@ -345,12 +471,16 @@ def main():
         print(f'{len(rows)} recuperaciones en modo {MODE_LABELS[mode]}')
         print(rows.stop_reason.value_counts().to_string())
     describe_final_states(results, finals)
+    check_mixture(network, finals)
     print(counts.to_string())
     print(results.groupby(['mode', 'noise'])[['hamming', 'iterations']]
           .agg(['min', 'median', 'max']).to_string())
 
     analyze_iterations_and_energy(network, queries, results)
     compare_modes(results)
+
+    # Experimento secundario: lee original, consulta y salida de cada modo de la tabla.
+    hopfield_qr_reader.run(list(QRS), patterns, queries, results, finals, noisy_query, OUT)
 
 
 if __name__ == '__main__':

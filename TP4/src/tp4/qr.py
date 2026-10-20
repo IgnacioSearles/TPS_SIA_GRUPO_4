@@ -29,3 +29,10 @@ def load_qr(path: str | Path) -> np.ndarray:
 def pattern_to_image(pattern) -> Image.Image:
     grid = np.asarray(pattern).reshape(SIDE, SIDE)
     return Image.fromarray(np.where(grid > 0, BLACK, WHITE).astype(np.uint8))
+
+
+def pattern_to_scan_image(pattern, scale=8, margin=4) -> Image.Image:
+    """Imagen para un lector de QR: cada módulo ocupa `scale`×`scale` píxeles y se
+    agrega alrededor un margen blanco de `margin` módulos (la zona de silencio)."""
+    pixels = np.kron(np.asarray(pattern_to_image(pattern)), np.ones((scale, scale), dtype=np.uint8))
+    return Image.fromarray(np.pad(pixels, margin * scale, constant_values=WHITE))

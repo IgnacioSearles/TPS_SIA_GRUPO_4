@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 from PIL import Image
 
-from src.tp4.qr import load_qr, pattern_from_image, pattern_to_image
+from src.tp4.qr import load_qr, pattern_from_image, pattern_to_image, pattern_to_scan_image
 
 QR_DIR = Path(__file__).resolve().parents[1] / 'data' / 'hopfield'
 QR_FILES = sorted(QR_DIR.glob('*_qr.png'))
@@ -45,6 +45,19 @@ class InvalidImageTests(unittest.TestCase):
         pixels[0, 0] = 128
         with self.assertRaisesRegex(ValueError, 'binaria'):
             pattern_from_image(Image.fromarray(pixels))
+
+
+class ScanImageTests(unittest.TestCase):
+    def test_enlarges_each_module_and_adds_a_white_margin(self):
+        # Sólo el módulo (0, 0) es negro: con 3 píxeles por módulo y 2 módulos de
+        # margen, la imagen es de (37 + 2·2)·3 = 123 píxeles de lado y el único
+        # bloque negro ocupa los píxeles 6 a 8 en las dos direcciones.
+        pattern = -np.ones(37 * 37)
+        pattern[0] = 1
+        pixels = np.asarray(pattern_to_scan_image(pattern, scale=3, margin=2))
+        expected = np.full((123, 123), 255, dtype=np.uint8)
+        expected[6:9, 6:9] = 0
+        np.testing.assert_array_equal(pixels, expected)
 
 
 if __name__ == '__main__':
