@@ -149,5 +149,26 @@ class StopReasonTests(unittest.TestCase):
                          ('max_iterations', 1))
 
 
+class OrthogonalityTests(unittest.TestCase):
+    def test_overlaps_of_apunte_example(self):
+        # ξ₂ = −ξ₁: solapamiento −1 entre ellos y 1 consigo mismos.
+        network = Hopfield(np.vstack([XI_1, XI_2]))
+        np.testing.assert_allclose(network.overlaps(), [[1, -1], [-1, 1]])
+
+    def test_crosstalk_is_zero_with_orthogonal_patterns(self):
+        network = Hopfield(ORTHOGONAL)
+        np.testing.assert_allclose(network.overlaps(), np.eye(2))
+        for index in range(len(ORTHOGONAL)):
+            np.testing.assert_allclose(network.crosstalk(index), np.zeros(8))
+
+    def test_crosstalk_of_correlated_patterns(self):
+        # ξ₁ = (1, 1, 1, 1) y ξ₂ = (1, 1, 1, −1) coinciden en 3 de 4: m¹² = (3 − 1)/4 = 0,5.
+        # C¹ = m²¹·ξ² = (0,5; 0,5; 0,5; −0,5): en la neurona 4 el crosstalk se opone a ξ¹.
+        network = Hopfield(np.array([[1, 1, 1, 1], [1, 1, 1, -1]]))
+        np.testing.assert_allclose(network.overlaps(), [[1, .5], [.5, 1]])
+        np.testing.assert_allclose(network.crosstalk(0), [.5, .5, .5, -.5])
+        np.testing.assert_allclose(network.crosstalk(1), [.5, .5, .5, .5])
+
+
 if __name__ == '__main__':
     unittest.main()

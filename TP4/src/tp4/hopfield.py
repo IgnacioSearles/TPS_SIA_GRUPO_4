@@ -50,6 +50,19 @@ class Hopfield:
         self.weights_ = self.patterns_.T @ self.patterns_ / neurons
         np.fill_diagonal(self.weights_, 0)
 
+    def overlaps(self):
+        """Matriz p × p de solapamientos: m^μν = (1/N)·Σⱼ ξⱼ^μ ξⱼ^ν."""
+        return self.patterns_ @ self.patterns_.T / self.patterns_.shape[1]
+
+    def crosstalk(self, index):
+        """Término de crosstalk del apunte para el patrón almacenado `index` (ν), por neurona.
+
+        Cᵢ^ν = (1/N)·Σⱼ Σ_{μ≠ν} ξᵢ^μ ξⱼ^μ ξⱼ^ν = Σ_{μ≠ν} m^μν ξᵢ^μ, de modo que el
+        desarrollo del apunte queda hᵢ^ν = ξᵢ^ν + Cᵢ^ν.
+        """
+        others = np.delete(np.arange(len(self.patterns_)), index)
+        return self.overlaps()[others, index] @ self.patterns_[others]
+
     def energy(self, state):
         """H = −½·Σᵢⱼ wᵢⱼ Sᵢ Sⱼ."""
         return float(-.5 * state @ self.weights_ @ state)
