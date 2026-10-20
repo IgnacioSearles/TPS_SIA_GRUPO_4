@@ -122,7 +122,7 @@ Fuente: `reports/ejercicio2/ortogonalidad/README.md`.
 **Mensaje:** los QR no son los mínimos de energía; la mezcla tiene menos energía que todos.
 
 - Energía de cada QR: de −2077,45 a −1789,71. Energía del estado mezcla: **−2172,88**, más baja que la de todos. La red baja de energía y por eso termina ahí.
-- Con actualización sincrónica (todas las neuronas a la vez) la energía puede subir (un test con 4 neuronas va de 0 a 1,5). En los QR no subió nunca, pero eso es lo que se observó en este barrido, no una garantía.
+- Con actualización sincrónica (todas las neuronas a la vez) la energía puede subir (un ejemplo con 4 neuronas va de 0 a 1,5). En los QR no subió nunca, pero eso es lo que se observó en este barrido, no una garantía.
 
 **Gráfico:** `reports/ejercicio2/energia_ejemplos.png`
 

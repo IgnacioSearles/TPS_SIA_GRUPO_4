@@ -428,7 +428,7 @@ En cada figura, el panel izquierdo es la fracción que devuelve el QR exacto y e
 ## 5. Preguntas que puede hacer el docente
 
 **¿No será que la red está mal implementada?**
-No. Con 5 patrones al azar del mismo tamaño recupera el 100 % (control 1), y los tests verifican el ejemplo del apunte.
+No. Con 5 patrones al azar del mismo tamaño recupera el 100 % (control 1), y la red reproduce el ejemplo del apunte (mismos pesos y misma energía).
 
 **Si la capacidad es 0,15·N ≈ 205, ¿por qué no entran 5?**
 Porque esa cota supone patrones casi ortogonales. Los QR comparten el 70 % de los módulos. Medido: la red guarda unos 100 patrones al azar, pero sólo 2 QR.

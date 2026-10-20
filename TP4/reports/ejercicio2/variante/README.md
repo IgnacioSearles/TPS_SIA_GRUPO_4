@@ -5,7 +5,7 @@ Experimentos del ejercicio 2 que comparan **antes** y **después**:
 - **Antes:** la red de Hopfield guarda los QR completos, 37×37 = 1369 módulos (lo que mide el [informe principal](../README.md)).
 - **Después:** se sacan los **955 módulos que valen lo mismo en los cinco QR** y la red guarda sólo los **414 que difieren**. Al terminar, los 955 se reponen con su valor conocido (`src/tp4/shared_modules.py`).
 
-La regla de aprendizaje es la misma en los dos casos: Hebb, `W = (1/N)·Σ ξξᵀ` con diagonal cero ([ADR 0001](../../../docs/adr/0001-hopfield-solo-con-regla-de-hebb.md)). Lo único que cambia es qué módulos ve la red.
+La regla de aprendizaje es la misma en los dos casos: Hebb, `W = (1/N)·Σ ξξᵀ` con diagonal cero. Lo único que cambia es qué módulos ve la red.
 
 **Por qué se probó:** en el informe principal la red no recupera ningún QR, porque los cinco se parecen demasiado (solapamiento de 0,58 a 0,86). Casi el 70 % de ese parecido viene de módulos idénticos en los cinco, que no sirven para distinguir uno de otro. La idea es sacarlos y ver si alcanza.
 

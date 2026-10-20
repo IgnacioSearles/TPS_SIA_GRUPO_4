@@ -1,6 +1,6 @@
 # Ejercicio 2: recuperación de códigos QR con Hopfield
 
-Vocabulario: [`GLOSSARY.md`](../../GLOSSARY.md). Decisión de diseño: [ADR 0001](../../docs/adr/0001-hopfield-solo-con-regla-de-hebb.md) (sólo regla de Hebb).
+La red usa sólo la regla de Hebb del apunte. Otras alternativas (pseudoinversa, dos redes, sacar los módulos compartidos) se comparan aparte, en [`mejoras/`](mejoras/README.md) y [`variante/`](variante/README.md).
 
 ## Resumen
 
@@ -28,7 +28,7 @@ La red está implementada desde cero con NumPy (`src/tp4/hopfield.py`) y sigue e
 - **Pesos.** Regla de Hebb: wᵢⱼ = (1/N)·Σ_μ ξᵢ^μ ξⱼ^μ para i ≠ j y wᵢᵢ = 0; en forma matricial, W = (1/N)·K·Kᵀ con la diagonal puesta en cero, donde K tiene los cinco patrones almacenados en columnas. Es simétrica y no cambia después de almacenar: la red no aprende nada más.
 - **Campo.** hᵢ = Σⱼ wᵢⱼ Sⱼ; la neurona i pasa a sign(hᵢ).
 - **Actualización sincrónica.** S(t+1) = sign(W·S(t)), el algoritmo del apunte: todas las neuronas se recalculan a la vez. Una neurona con campo exactamente cero conserva su estado.
-- **Iteración.** Un recálculo completo de las N neuronas (glosario). La cantidad de iteraciones de una recuperación cuenta **sólo los recálculos que cambiaron el estado**: el recálculo final que confirma un estado estable se hace pero no suma. Así, 0 iteraciones significa que el patrón de consulta ya era un estado estable, y el ejemplo del apunte (consulta (1, −1, −1, −1)) llega a ξ¹ en 1 iteración. Todas las cantidades de iteraciones de este informe (tablas, figuras y `resultados.csv`) se cuentan así.
+- **Iteración.** Un recálculo completo de las N neuronas. La cantidad de iteraciones de una recuperación cuenta **sólo los recálculos que cambiaron el estado**: el recálculo final que confirma un estado estable se hace pero no suma. Así, 0 iteraciones significa que el patrón de consulta ya era un estado estable, y el ejemplo del apunte (consulta (1, −1, −1, −1)) llega a ξ¹ en 1 iteración. Todas las cantidades de iteraciones de este informe (tablas, figuras y `resultados.csv`) se cuentan así.
 - **Motivo de parada.** Cada recálculo se evalúa en este orden: estado estable (no cambia nada), ciclo (vuelve a un estado ya visitado en esa recuperación; se compara con todos los visitados, no sólo con el anterior) o tope (100 iteraciones sin estabilizarse). Un estado estable nunca se informa como ciclo, y si el recálculo hecho al llegar al tope vuelve a un estado visitado, la recuperación es ciclo y no tope.
 - **Energía.** H = −½·Σᵢⱼ wᵢⱼ SᵢSⱼ = −½·SᵀWS (fórmula del apunte), registrada para el estado inicial y después de cada iteración.
 
@@ -109,7 +109,7 @@ Las 1100 recuperaciones terminan en un **estado estable** (0 ciclos, 0 recuperac
 | --- | --- | --- | --- | --- | --- | --- |
 | 0 a 0,5 (cada nivel) | 0 | 0 | 0 | 100 | 0 | 0 |
 
-Sobre los 0 ciclos: con W simétrica, la actualización sincrónica siempre termina en un estado estable o en un ciclo de dos estados (Goles y colaboradores, 1985; Bruck, 1990). Es un resultado de fuera del apunte, que no trata la convergencia de la actualización sincrónica. Acota lo que podía pasar (un ciclo sincrónico sólo puede ser de período 2, como el del test de 4 neuronas de la sección [Energía](#energía)), pero no garantiza que no haya ciclos: que ninguna recuperación de los QR haya terminado en uno es una observación de este barrido.
+Sobre los 0 ciclos: con W simétrica, la actualización sincrónica siempre termina en un estado estable o en un ciclo de dos estados (Goles y colaboradores, 1985; Bruck, 1990). Es un resultado de fuera del apunte, que no trata la convergencia de la actualización sincrónica. Acota lo que podía pasar (un ciclo sincrónico sólo puede ser de período 2, como el del ejemplo de 4 neuronas de la sección [Energía](#energía)), pero no garantiza que no haya ciclos: que ninguna recuperación de los QR haya terminado en uno es una observación de este barrido.
 
 ![Categorías según el nivel de ruido](categorias.png)
 
@@ -158,7 +158,7 @@ La media pasa de 1 iteración con p = 0 a 1,57 con p = 0,45 y 2,01 con p = 0,5; 
 
 ## Energía
 
-La energía de un estado S es H = −½·Σᵢⱼ wᵢⱼ SᵢSⱼ = −½·sᵀWs (fórmula del apunte; un test la verifica en el ejemplo del apunte: H(ξ¹) = H(ξ²) = −3). Se registra para el patrón de consulta y después de cada iteración.
+La energía de un estado S es H = −½·Σᵢⱼ wᵢⱼ SᵢSⱼ = −½·sᵀWs (fórmula del apunte; verificada en el ejemplo del apunte: H(ξ¹) = H(ξ²) = −3). Se registra para el patrón de consulta y después de cada iteración.
 
 ### Curvas de ejemplo
 
@@ -183,7 +183,7 @@ La demostración del apunte de que H nunca sube supone que **cambia una neurona 
 
 ΔH = −2·Σ_{i∈C} |hᵢ| − 2·Σ_{i, j∈C, i≠j} wᵢⱼ SᵢSⱼ
 
-El primer término es la suma de lo que bajaría la energía si cada neurona cambiara sola (el caso del apunte) y siempre es negativo. El segundo depende de los pesos entre las neuronas que cambian a la vez y puede ser positivo, así que con actualización sincrónica la energía puede subir. Un test lo muestra con tres patrones ortogonales de 4 neuronas: desde sign(ξ₁ + ξ₂ + ξ₃) = (1, 1, 1, −1), que con N = 4 no es estable, con H = 0, la red cambia tres neuronas a la vez y llega a (1, −1, −1, 1), con H = 1,5; después oscila entre ese estado y su opuesto (ciclo).
+El primer término es la suma de lo que bajaría la energía si cada neurona cambiara sola (el caso del apunte) y siempre es negativo. El segundo depende de los pesos entre las neuronas que cambian a la vez y puede ser positivo, así que con actualización sincrónica la energía puede subir. Un ejemplo chico lo muestra con tres patrones ortogonales de 4 neuronas: desde sign(ξ₁ + ξ₂ + ξ₃) = (1, 1, 1, −1), que con N = 4 no es estable, con H = 0, la red cambia tres neuronas a la vez y llega a (1, −1, −1, 1), con H = 1,5; después oscila entre ese estado y su opuesto (ciclo).
 
 En los QR no pasa: **0 de las 1100 recuperaciones tuvieron una subida de energía** entre dos iteraciones, en ningún nivel de ruido (`subidas_energia.csv`). La garantía del apunte no aplica a la actualización sincrónica, pero en este barrido la energía bajó en todas las iteraciones.
 
@@ -268,7 +268,7 @@ Para el restaurante, la red responde lo mismo sea cual sea el menú escaneado: n
 
 ### 4. La energía no está garantizada con actualización sincrónica
 
-- La demostración del apunte de que H nunca sube supone que **cambia una neurona por vez**. El algoritmo y el ejemplo del apunte usan la actualización sincrónica, donde ΔH tiene un término más que puede ser positivo; un test lo muestra con 4 neuronas: la energía sube de 0 a 1,5 y la recuperación termina en un ciclo (sección [Energía](#energía)).
+- La demostración del apunte de que H nunca sube supone que **cambia una neurona por vez**. El algoritmo y el ejemplo del apunte usan la actualización sincrónica, donde ΔH tiene un término más que puede ser positivo; un ejemplo con 4 neuronas lo muestra: la energía sube de 0 a 1,5 y la recuperación termina en un ciclo (sección [Energía](#energía)).
 - En los QR, **0 de las 1100 recuperaciones tuvieron una subida de energía** y 0 terminaron en ciclo (`subidas_energia.csv`, `categorias.csv`). Es una observación de este barrido, no una propiedad de la actualización sincrónica: con otros patrones puede no cumplirse.
 - El apunte afirma además que los mínimos locales de H son los patrones almacenados. Con estos QR no lo son: sus energías van de −2077,45 a −1789,71, por encima de la del estado mezcla, −2172,88 (salida de `hopfield_qr.py`).
 
@@ -286,7 +286,7 @@ Para el restaurante, la red responde lo mismo sea cual sea el menú escaneado: n
 
 ### 7. Alcance de las conclusiones
 
-- Los resultados valen para la regla de Hebb del apunte, la única implementada ([ADR 0001](../../docs/adr/0001-hopfield-solo-con-regla-de-hebb.md)). Otras reglas, como la pseudoinversa, o almacenar menos QR quedaron fuera de alcance y no se miden en este análisis.
+- Los resultados de este informe valen para la regla de Hebb del apunte. La pseudoinversa, guardar menos QR o repartirlos en dos redes se comparan aparte, en [`mejoras/`](mejoras/README.md) y [`variante/`](variante/README.md).
 - El lector es `cv2.QRCodeDetector` de OpenCV; otro lector (por ejemplo, la cámara de un teléfono) puede tener otro umbral. Tampoco se midió.
 
 ## Conclusión

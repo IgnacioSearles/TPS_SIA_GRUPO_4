@@ -26,3 +26,11 @@ __pycache__/
 /reports/ejercicio2/ortogonalidad/*.png
 /reports/ejercicio2/mejoras/*.csv
 /reports/ejercicio2/mejoras/*.png
+# Ejercicio 2: documentos de diseño y tests propios, sólo locales
+/GLOSSARY.md
+/docs/specs/
+/docs/adr/
+/tests/test_hopfield.py
+/tests/test_qr.py
+/tests/test_queries.py
+/tests/test_shared_modules.py

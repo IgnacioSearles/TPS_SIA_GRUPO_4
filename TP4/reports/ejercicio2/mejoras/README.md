@@ -2,7 +2,7 @@
 
 El [informe principal](../README.md) muestra que, con la regla de Hebb, la red no recupera ningún QR. Acá se prueban dos formas de mejorarla y un daño más parecido al del enunciado ("una de sus esquinas está rota").
 
-**La regla de la pseudoinversa no está en el apunte.** Se agrega como comparación, a pedido de Ivo. El resultado principal del ejercicio sigue siendo el de Hebb ([ADR 0001](../../../docs/adr/0001-hopfield-solo-con-regla-de-hebb.md)).
+**La regla de la pseudoinversa no está en el apunte.** Se agrega como comparación, a pedido de Ivo. El resultado principal del ejercicio sigue siendo el de Hebb.
 
 ## Los métodos
 
@@ -11,7 +11,7 @@ Cada método recibe un QR dañado y devuelve un QR completo:
 | Método | Qué hace |
 |---|---|
 | **Hebb, 5 QR completos** | La red del informe principal: W = (1/N)·Σ ξξᵀ |
-| **Pseudoinversa, 5 QR completos** | W = Ξᵀ(ΞΞᵀ)⁻¹Ξ. En vez de sumar los patrones, calcula W para que cada QR guardado sea **exactamente estable**, aunque se parezcan. Con patrones ortogonales da lo mismo que Hebb (lo verifica un test) |
+| **Pseudoinversa, 5 QR completos** | W = Ξᵀ(ΞΞᵀ)⁻¹Ξ. En vez de sumar los patrones, calcula W para que cada QR guardado sea **exactamente estable**, aunque se parezcan. Con patrones ortogonales da lo mismo que Hebb (verificado con un ejemplo chico) |
 | **Pseudoinversa sin módulos compartidos** | Lo mismo, pero sólo con los 414 módulos que difieren; los otros 955 se reponen al final |
 | **Dos redes de Hebb sin compartidos** | Los 5 QR repartidos en dos redes: {menú principal, cócteles, postres} y {vinos, especiales}. Es el reparto que separa a menú y vinos y deja los solapamientos más bajos dentro de cada red. La consulta pasa por las dos; se queda con la salida que sea un QR guardado (si las dos lo son, la más cercana a la consulta) |
 | **Sin red: QR original más cercano** | No es Hopfield: compara el QR dañado con los 5 originales y devuelve el más parecido. Sirve de techo: es lo mejor que se puede hacer sabiendo los 5 originales |
