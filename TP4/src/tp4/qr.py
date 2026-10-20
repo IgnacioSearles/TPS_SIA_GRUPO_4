@@ -14,7 +14,7 @@ BLACK, WHITE = 0, 255
 def pattern_from_image(image: Image.Image) -> np.ndarray:
     pixels = np.asarray(image.convert('L'))
     if pixels.shape != (SIDE, SIDE):
-        raise ValueError(f'Se esperaba un QR de 37×37 módulos y la imagen es de '
+        raise ValueError(f'Se esperaba un QR de {SIDE}×{SIDE} módulos y la imagen es de '
                          f'{pixels.shape[1]}×{pixels.shape[0]}')
     if not np.isin(pixels, (BLACK, WHITE)).all():
         raise ValueError('La imagen no es binaria: sólo se admiten píxeles negros (0) y blancos (255)')

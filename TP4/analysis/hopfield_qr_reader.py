@@ -11,9 +11,8 @@ import numpy as np
 import pandas as pd
 
 from src.tp4.qr import pattern_to_scan_image
+from src.tp4.queries import noisy_query
 
-SCALE = 8  # píxeles por módulo
-MARGIN = 4  # módulos de margen blanco: la zona de silencio del estándar QR
 # Niveles de ruido por debajo del primero del barrido (0,05), para ubicar dónde deja
 # de leer el lector por sí solo. Sólo consultas: no pasan por la red.
 FINE_NOISE_LEVELS = (.005, .01, .015, .02, .03, .04)
@@ -28,7 +27,9 @@ class Reading(NamedTuple):
 
 
 class Reader:
-    """Lector de QR con memoria: un mismo patrón se lee una sola vez."""
+    """Lector de QR con memoria: un mismo patrón se lee una sola vez. Cada patrón
+    pasa por `pattern_to_scan_image` con sus valores por defecto: 8 píxeles por
+    módulo y 4 módulos de margen blanco (la zona de silencio del estándar QR)."""
 
     def __init__(self):
         self._detector = cv2.QRCodeDetector()
@@ -37,7 +38,7 @@ class Reader:
     def read(self, pattern) -> Reading:
         key = np.asarray(pattern, dtype=np.int8).tobytes()
         if key not in self._cache:
-            image = np.asarray(pattern_to_scan_image(pattern, SCALE, MARGIN))
+            image = np.asarray(pattern_to_scan_image(pattern))
             text, points, _ = self._detector.detectAndDecode(image)
             self._cache[key] = Reading(points is not None, text or None)
         return self._cache[key]
@@ -54,8 +55,7 @@ def read_all(names, patterns, queries, results, finals):
     los modos que tenga la tabla. `finals[i]` es el estado final de la fila i."""
     reader = Reader()
     originals = {name: reader.read(pattern).text for name, pattern in zip(names, patterns)}
-    query_of = {(names[origin], round(float(noise), 2), seed): query
-                for origin, noise, seed, query in queries}
+    query_of = {(names[q.origin], round(float(q.noise), 2), q.seed): q.pattern for q in queries}
     rows = []
     for record, final in zip(results.itertuples(index=False), finals):
         original = originals[record.qr]
@@ -77,7 +77,7 @@ def summarize(readings):
     return summary
 
 
-def reader_threshold(names, patterns, noisy_query):
+def reader_threshold(names, patterns):
     """Lee consultas con poco ruido. El generador de cada una se siembra con
     (índice del QR, 100 + índice del nivel fino, semilla), distinto del barrido."""
     reader = Reader()
@@ -97,7 +97,7 @@ def reader_threshold(names, patterns, noisy_query):
         query_matches=('query_matches', 'sum'))
 
 
-def run(names, patterns, queries, results, finals, noisy_query, out):
+def run(names, patterns, queries, results, finals, out):
     originals, readings = read_all(names, patterns, queries, results, finals)
     readings.to_csv(out / 'lector_qr.csv', index=False)
     summary = summarize(readings)
@@ -107,7 +107,7 @@ def run(names, patterns, queries, results, finals, noisy_query, out):
     for name, text in originals.items():
         print(f'  original {name}: {text!r}')
     print(summary.to_string())
-    threshold = reader_threshold(names, patterns, noisy_query)
+    threshold = reader_threshold(names, patterns)
     threshold.to_csv(out / 'lector_qr_umbral.csv')
     print(threshold.to_string())
     decoded = readings[readings.output_decoded]

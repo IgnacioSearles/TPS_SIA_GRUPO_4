@@ -14,10 +14,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from typing import NamedTuple, get_args
+
 from analysis import hopfield_qr_reader
 from src.tp4.hopfield import Hopfield
-from src.tp4.qr import load_qr, pattern_to_image
-from src.tp4.recall_outcome import classify
+from src.tp4.qr import SIDE, load_qr, pattern_to_image
+from src.tp4.queries import make_queries
+from src.tp4.recall_outcome import Category, classify
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / 'data' / 'hopfield'
@@ -35,11 +38,25 @@ TITLES = {
     'menu_principal': 'menú principal', 'vinos': 'vinos', 'cocteles_y_bebidas': 'cócteles y otras bebidas',
     'postres': 'postres', 'especiales': 'especiales del día',
 }
-NOISE_LEVELS =np.round(np.arange(0, .51, .05), 2)
+NOISE_LEVELS = np.round(np.arange(0, .51, .05), 2)
 SEEDS = range(20)
+RECALLS_PER_LEVEL = len(SEEDS) * len(QRS)  # recuperaciones por modo y nivel de ruido
 MAX_ITERATIONS = 100
+CAPACITY_FRACTION = .15  # capacidad del apunte: p_max ≈ 0,15·N
 
-CATEGORIES = ['correct', 'other_pattern', 'inverse', 'spurious', 'cycle', 'max_iterations']
+
+class ModeStyle(NamedTuple):
+    label: str
+    color: str
+
+
+# Los dos modos de actualización reciben las mismas consultas; las funciones de
+# análisis separan todo por la columna `mode` de la tabla de resultados.
+MODES = ('synchronous', 'asynchronous')
+MODE_STYLES = {'synchronous': ModeStyle('sincrónico', '#2a78d6'),
+               'asynchronous': ModeStyle('asincrónico', '#eb6834')}
+
+CATEGORIES = list(get_args(Category))
 LABELS = {
     'correct': 'Recuperación correcta', 'other_pattern': 'Otro patrón almacenado',
     'inverse': 'Patrón inverso', 'spurious': 'Estado espurio',
@@ -47,31 +64,13 @@ LABELS = {
 }
 # Paleta categórica de referencia (dataviz), en orden fijo por categoría.
 COLORS = dict(zip(CATEGORIES, ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300']))
+SEQUENTIAL = ['#cde2fb', '#86b6ef', '#3987e5', '#1c5cab', '#0d366b']  # azul, claro → oscuro
+UNSTABLE_COLOR = '#eb6834'
+ENERGY_EXAMPLE_NOISES = (0, .2, .45, .5)
 
 
 def load_patterns():
     return np.vstack([load_qr(DATA / name) for name in QRS.values()])
-
-
-def noisy_query(pattern, noise, rng):
-    """Invierte cada módulo, de forma independiente, con probabilidad `noise`."""
-    flips = rng.random(len(pattern)) < noise
-    return np.where(flips, -pattern, pattern)
-
-
-def make_queries(patterns):
-    """Los 5 × 11 × 20 patrones de consulta, generados una sola vez.
-
-    La semilla del generador es (índice del QR, índice del nivel de ruido, semilla),
-    así cada consulta se puede rehacer a partir de su fila en la tabla.
-    """
-    queries = []
-    for origin, pattern in enumerate(patterns):
-        for level, noise in enumerate(NOISE_LEVELS):
-            for seed in SEEDS:
-                rng = np.random.default_rng((origin, level, seed))
-                queries.append((origin, noise, seed, noisy_query(pattern, noise, rng)))
-    return queries
 
 
 def order_seed(origin, noise, seed):
@@ -80,17 +79,26 @@ def order_seed(origin, noise, seed):
     return origin, int(round(noise * 100)), seed
 
 
+def find_query(queries, origin, noise, seed):
+    return next(q for q in queries if q.origin == origin and np.isclose(q.noise, noise) and q.seed == seed)
+
+
+def recall_query(network, query, mode):
+    """Recupera un patrón de consulta con el tope y la semilla de orden del barrido."""
+    return network.recall(query.pattern, mode=mode, max_iterations=MAX_ITERATIONS,
+                          seed=order_seed(query.origin, query.noise, query.seed))
+
+
 def sweep(network, queries, mode):
     rows, finals = [], []
     names = list(QRS)
-    for origin, noise, seed, query in queries:
-        result = network.recall(query, mode=mode, max_iterations=MAX_ITERATIONS,
-                                seed=order_seed(origin, noise, seed))
-        outcome = classify(result.state, result.stop_reason, network.patterns_, origin)
+    for query in queries:
+        result = recall_query(network, query, mode)
+        outcome = classify(result.state, result.stop_reason, network.patterns_, query.origin)
         rows.append({
-            'qr': names[origin], 'noise': noise, 'seed': seed, 'mode': mode,
+            'qr': names[query.origin], 'noise': query.noise, 'seed': query.seed, 'mode': mode,
             'category': outcome.category, 'hamming': outcome.hamming,
-            'query_hamming': int(np.sum(query != network.patterns_[origin])),
+            'query_hamming': int(np.sum(query.pattern != network.patterns_[query.origin])),
             'iterations': result.iterations, 'stop_reason': result.stop_reason,
             'energy_initial': result.energies[0], 'energy_final': result.energies[-1],
             'energy_rises': result.energy_rises,
@@ -140,9 +148,9 @@ def plot_categories(counts, path):
                    edgecolor='white', linewidth=2, label=LABELS[category])
             bottom += values
         ax.set_xticks(x, [_decimal(p) for p in fractions.index], fontsize=8)
-        ax.set(xlabel='Nivel de ruido p', title=f'Modo {MODE_LABELS.get(mode, mode)}', ylim=(0, 1))
+        ax.set(xlabel='Nivel de ruido p', title=f'Modo {MODE_STYLES[mode].label}', ylim=(0, 1))
         ax.spines[['top', 'right']].set_visible(False)
-    axes[0, 0].set_ylabel('Fracción de las 100 recuperaciones')
+    axes[0, 0].set_ylabel(f'Fracción de las {RECALLS_PER_LEVEL} recuperaciones')
     handles, labels = axes[0, 0].get_legend_handles_labels()
     present = counts.columns[counts.sum() > 0]
     keep = [i for i, c in enumerate(CATEGORIES) if c in present]
@@ -153,40 +161,35 @@ def plot_categories(counts, path):
 
 
 def plot_examples(patterns, queries, results, finals, path, origin=0, noises=(.05, .2, .4, .5), seed=0):
-    """Patrón almacenado, patrón de consulta y la salida de cada modo, por nivel de ruido."""
-    names = list(QRS)
+    """Patrón almacenado, patrón de consulta y la salida de cada modo, por nivel de ruido.
+
+    `finals[i]` es el estado final de la fila con índice i de `results`."""
+    name = list(QRS)[origin]
     modes = list(results['mode'].unique())
     fig, axes = plt.subplots(len(noises), 2 + len(modes), figsize=(2.6 * (2 + len(modes)), 2.8 * len(noises)))
     for row, noise in zip(axes, noises):
-        index = next(i for i, (o, p, s, _) in enumerate(queries)
-                     if o == origin and np.isclose(p, noise) and s == seed)
-        query_hamming = int(np.sum(queries[index][3] != patterns[origin]))
+        query = find_query(queries, origin, noise, seed).pattern
+        query_hamming = int(np.sum(query != patterns[origin]))
         panels = [
             ('Patrón almacenado', patterns[origin]),
-            (f'Patrón de consulta\np = {_decimal(noise)} · Hamming {query_hamming}', queries[index][3]),
+            (f'Patrón de consulta\np = {_decimal(noise)} · Hamming {query_hamming}', query),
         ]
-        for k, mode in enumerate(modes):
-            # Las filas de cada modo siguen el orden de `queries`.
-            position = k * len(queries) + index
-            record = results.iloc[position]
-            assert record['mode'] == mode
-            panels.append((f'Salida {MODE_LABELS.get(mode, mode)}: {LABELS[record.category].lower()}\n'
+        for mode in modes:
+            match = results[(results.qr == name) & np.isclose(results.noise, noise)
+                            & (results.seed == seed) & (results['mode'] == mode)]
+            (index, record), = match.iterrows()
+            panels.append((f'Salida {MODE_STYLES[mode].label}: {LABELS[record.category].lower()}\n'
                            f'Hamming {record.hamming} · {record.iterations} '
-                           f'{"iteración" if record.iterations == 1 else "iteraciones"}', finals[position]))
+                           f'{"iteración" if record.iterations == 1 else "iteraciones"}', finals[index]))
         for ax, (title, pattern) in zip(row, panels):
             ax.imshow(pattern_to_image(pattern), cmap='gray', vmin=0, vmax=255, interpolation='nearest')
             ax.set_title(title, fontsize=8)
             ax.axis('off')
-    fig.suptitle(f'QR {TITLES[names[origin]]}: original, consulta y salida de cada modo (semilla {seed})')
+    fig.suptitle(f'QR {TITLES[name]}: original, consulta y salida de cada modo (semilla {seed})')
     _save(fig, path)
 
 
 # --- Ortogonalidad y colapso (antes de recuperar) ---------------------------
-
-CAPACITY_FRACTION = .15  # capacidad del apunte: p_max ≈ 0,15·N
-SEQUENTIAL = ['#cde2fb', '#86b6ef', '#3987e5', '#1c5cab', '#0d366b']  # azul, claro → oscuro
-UNSTABLE_COLOR = '#eb6834'
-
 
 def mixture_state(patterns):
     """Estado mezcla sign(ξ₁ + … + ξ₅); con un número impar de patrones no hay ceros."""
@@ -196,11 +199,13 @@ def mixture_state(patterns):
 def orthogonality(network):
     """Solapamientos, módulos compartidos y crosstalk de cada QR sin ruido.
 
-    Una neurona es inestable cuando el crosstalk tiene signo opuesto a ξᵢ^ν y lo
-    supera en módulo (ξᵢ^ν·Cᵢ^ν < −1), porque hᵢ^ν = ξᵢ^ν + Cᵢ^ν. Se contrasta con
-    lo que hace la red: las neuronas que cambian en la primera iteración.
+    Con diagonal cero, el campo de la neurona i ante el QR ν es
+    hᵢ^ν = ξᵢ^ν·(1 − p/N) + Cᵢ^ν (Hebb pondría p/N en la diagonal y la red la
+    anula), y la neurona es inestable cuando hᵢ^ν tiene signo opuesto a ξᵢ^ν. Se
+    verifica que son exactamente las neuronas que cambian en la primera iteración.
     """
     patterns = network.patterns_
+    stored, neurons = patterns.shape
     names = list(QRS)
     overlaps = pd.DataFrame(network.overlaps(), index=names, columns=names)
     shared = (patterns == patterns[0]).all(axis=0)
@@ -209,9 +214,12 @@ def orthogonality(network):
     for index, pattern in enumerate(patterns):
         crosstalk = network.crosstalk(index)
         aligned = pattern * crosstalk
-        first = network.recall(pattern, max_iterations=1)
-        final = network.recall(pattern, max_iterations=MAX_ITERATIONS)
-        unstable.append(aligned < -1)
+        field = pattern * (1 - stored / neurons) + crosstalk
+        is_unstable = pattern * field < 0
+        final = network.recall(pattern, max_iterations=MAX_ITERATIONS, return_states=True)
+        changed = final.states[min(1, final.iterations)] != pattern
+        assert np.array_equal(is_unstable, changed), f'{names[index]}: inestables ≠ cambian en la 1.ª iteración'
+        unstable.append(is_unstable)
         rows.append({
             'qr': names[index],
             'max_overlap_with_other': np.delete(overlaps.iloc[index].to_numpy(), index).max(),
@@ -219,9 +227,9 @@ def orthogonality(network):
             'max_abs_crosstalk': np.abs(crosstalk).max(),
             'crosstalk_on_shared': aligned[shared].mean(),
             'opposing_neurons': int(np.sum(aligned < 0)),
-            'unstable_neurons': int(np.sum(aligned < -1)),
-            'unstable_on_shared': int(np.sum((aligned < -1) & shared)),
-            'changed_first_iteration': int(np.sum(first.state != pattern)),
+            'unstable_neurons': int(is_unstable.sum()),
+            'unstable_on_shared': int(np.sum(is_unstable & shared)),
+            'changed_first_iteration': int(changed.sum()),
             'stable_without_noise': final.iterations == 0 and final.stop_reason == 'stable',
             'iterations_without_noise': final.iterations,
             'falls_into_mixture': bool(np.array_equal(final.state, mixture)),
@@ -268,7 +276,7 @@ def plot_overlaps(overlaps, shared, path):
     left.set_yticks(range(len(names)), labels, fontsize=8)
     left.set_title(r'Solapamiento $m^{\mu\nu}$ entre los QR', fontsize=10)
     fig.colorbar(image, ax=left, fraction=.046, pad=.04)
-    right.imshow(np.where(shared, 1, 0).reshape(37, 37), cmap=matplotlib.colors.ListedColormap(['#f0efec', '#2a78d6']),
+    right.imshow(np.where(shared, 1, 0).reshape(SIDE, SIDE), cmap=matplotlib.colors.ListedColormap(['#f0efec', '#2a78d6']),
                  vmin=0, vmax=1, interpolation='nearest')
     right.set_title(f'Módulos iguales en los cinco QR: {shared.sum()} de {shared.size}\n'
                     '(azul: igual en los cinco; gris: difiere en alguno)', fontsize=10)
@@ -286,13 +294,13 @@ def plot_unstable(network, table, unstable, path):
         image = np.asarray(pattern_to_image(pattern), dtype=float) / 255
         rgb = np.dstack([.35 + .55 * image] * 3)  # QR atenuado para que resalten las neuronas inestables
         if mask is not None:
-            rgb[mask.reshape(37, 37)] = matplotlib.colors.to_rgb(UNSTABLE_COLOR)
+            rgb[mask.reshape(SIDE, SIDE)] = matplotlib.colors.to_rgb(UNSTABLE_COLOR)
         else:
             rgb = np.dstack([image] * 3)
         ax.imshow(rgb, interpolation='nearest')
         ax.set_title(title, fontsize=9)
         ax.axis('off')
-    fig.suptitle('Neuronas donde el crosstalk se opone a ξᵢ y lo supera (en naranja)', fontsize=10)
+    fig.suptitle('Neuronas inestables: el campo hᵢ tiene signo opuesto a ξᵢ (en naranja)', fontsize=10)
     _save(fig, path)
 
 
@@ -306,13 +314,6 @@ def analyze_orthogonality(network):
 
 
 # --- Iteraciones y energía -------------------------------------------------------
-# Las funciones de esta sección separan todo por la columna `mode` de la tabla de
-# resultados, así un barrido con los dos modos de actualización se compara solo.
-
-MODE_LABELS = {'synchronous': 'sincrónico', 'asynchronous': 'asincrónico'}
-MODE_COLORS = {'synchronous': '#2a78d6', 'asynchronous': '#eb6834'}
-ENERGY_EXAMPLE_NOISES = (0, .2, .45, .5)
-
 
 def _decimal(value):
     return f'{value:g}'.replace('.', ',')
@@ -323,12 +324,11 @@ def iteration_counts(results):
     return pd.crosstab([results['mode'], results.noise], results.iterations)
 
 
-def energy_rise_counts(results):
-    """Por (modo, nivel de ruido): recuperaciones con al menos una subida de energía
-    entre dos iteraciones, y subidas en total."""
-    grouped = results.assign(rose=results.energy_rises > 0).groupby(['mode', 'noise'])
-    return grouped.agg(recuperaciones=('rose', 'size'), con_subida=('rose', 'sum'),
-                       subidas=('energy_rises', 'sum'))
+def energy_rises(grouped):
+    """Por grupo de la tabla de resultados: recuperaciones, cuántas tuvieron al menos
+    una subida de energía entre dos iteraciones, y subidas en total."""
+    return grouped.energy_rises.agg(recuperaciones='size', con_subida=lambda r: int((r > 0).sum()),
+                                    subidas='sum')
 
 
 def plot_iterations(results, path):
@@ -336,14 +336,15 @@ def plot_iterations(results, path):
     fig, ax = plt.subplots(figsize=(7.5, 4))
     for mode, rows in results.groupby('mode', sort=False):
         stats = rows.groupby('noise').iterations.agg(['mean', 'min', 'max'])
-        color = MODE_COLORS.get(mode, '#555555')
-        ax.fill_between(stats.index, stats['min'], stats['max'], color=color, alpha=.15, linewidth=0)
-        ax.plot(stats.index, stats['mean'], color=color, linewidth=2, marker='o', markersize=5,
-                label=f'Modo {MODE_LABELS.get(mode, mode)}: media (banda: mín.–máx.)')
+        style = MODE_STYLES[mode]
+        ax.fill_between(stats.index, stats['min'], stats['max'], color=style.color, alpha=.15, linewidth=0)
+        ax.plot(stats.index, stats['mean'], color=style.color, linewidth=2, marker='o', markersize=5,
+                label=f'Modo {style.label}: media (banda: mín.–máx.)')
     ax.set_xticks(NOISE_LEVELS, [_decimal(p) for p in NOISE_LEVELS])
     ax.yaxis.set_major_locator(matplotlib.ticker.MaxNLocator(integer=True))
     ax.set(xlabel='Nivel de ruido p', ylabel='Iteraciones hasta detenerse',
-           title='Iteraciones según el nivel de ruido (20 semillas × 5 QR por nivel)', ylim=(0, None))
+           title=f'Iteraciones según el nivel de ruido ({len(SEEDS)} semillas × {len(QRS)} QR por nivel)',
+           ylim=(0, None))
     ax.grid(axis='y', color='#dddddd', linewidth=.8)
     ax.set_axisbelow(True)
     ax.spines[['top', 'right']].set_visible(False)
@@ -360,12 +361,11 @@ def plot_energy_examples(network, queries, results, path, origin=0, seed=0):
     fig, axes = plt.subplots(1, len(ENERGY_EXAMPLE_NOISES), figsize=(3 * len(ENERGY_EXAMPLE_NOISES), 3.6),
                              sharey=True)
     for ax, noise in zip(axes, ENERGY_EXAMPLE_NOISES):
-        query = next(q for o, p, s, q in queries if o == origin and np.isclose(p, noise) and s == seed)
+        query = find_query(queries, origin, noise, seed)
         for mode in results['mode'].unique():
-            energies = network.recall(query, mode=mode, max_iterations=MAX_ITERATIONS,
-                                      seed=order_seed(origin, noise, seed)).energies
-            ax.plot(range(len(energies)), energies, color=MODE_COLORS.get(mode, '#555555'),
-                    linewidth=2, marker='o', markersize=6, label=f'Modo {MODE_LABELS.get(mode, mode)}')
+            energies = recall_query(network, query, mode).energies
+            ax.plot(range(len(energies)), energies, color=MODE_STYLES[mode].color,
+                    linewidth=2, marker='o', markersize=6, label=f'Modo {MODE_STYLES[mode].label}')
         ax.axhline(reference, color='#888888', linewidth=1, linestyle='--', label='H del QR original')
         ax.set_title(f'p = {_decimal(noise)}', fontsize=10)
         ax.set_xlabel('Iteración')
@@ -382,7 +382,7 @@ def plot_energy_examples(network, queries, results, path, origin=0, seed=0):
 def analyze_iterations_and_energy(network, queries, results):
     counts = iteration_counts(results)
     counts.to_csv(OUT / 'iteraciones.csv')
-    rises = energy_rise_counts(results)
+    rises = energy_rises(results.groupby(['mode', 'noise']))
     rises.to_csv(OUT / 'subidas_energia.csv')
     plot_iterations(results, OUT / 'iteraciones.png')
     plot_energy_examples(network, queries, results, OUT / 'energia_ejemplos.png')
@@ -391,9 +391,9 @@ def analyze_iterations_and_energy(network, queries, results):
     print(counts.to_string())
     print('Subidas de energía entre iteraciones:')
     print(rises.to_string())
-    for mode, rows in results.groupby('mode', sort=False):
-        print(f'  modo {MODE_LABELS.get(mode, mode)}: {int((rows.energy_rises > 0).sum())} de '
-              f'{len(rows)} recuperaciones con alguna subida')
+    for mode, row in energy_rises(results.groupby('mode', sort=False)).iterrows():
+        print(f'  modo {MODE_STYLES[mode].label}: {row.con_subida} de '
+              f'{row.recuperaciones} recuperaciones con alguna subida')
     final = results.groupby('mode').energy_final.agg(['min', 'max'])
     print('Energía final (mín., máx.) por modo:')
     print(final.to_string())
@@ -403,9 +403,6 @@ def analyze_iterations_and_energy(network, queries, results):
 
 # --- Comparación de modos ------------------------------------------------------
 
-MODES = ('synchronous', 'asynchronous')
-
-
 def mode_summary(results):
     """Una fila por modo: categorías, motivos de parada, iteraciones y energía."""
     grouped = results.groupby('mode', sort=False)
@@ -413,7 +410,7 @@ def mode_summary(results):
         pd.crosstab(results['mode'], results.category).reindex(columns=CATEGORIES, fill_value=0),
         pd.crosstab(results['mode'], results.stop_reason).add_prefix('parada_'),
         grouped.iterations.agg(iteraciones_media='mean', iteraciones_max='max'),
-        grouped.energy_rises.agg(con_subida=lambda r: int((r > 0).sum()), subidas='sum'),
+        energy_rises(grouped)[['con_subida', 'subidas']],
         grouped.energy_final.agg(energia_final_min='min', energia_final_max='max'),
         grouped.final_state.nunique().rename('estados_finales'),
     ], axis=1)
@@ -454,7 +451,7 @@ def main():
     patterns = load_patterns()
     network = Hopfield(patterns)
     analyze_orthogonality(network)
-    queries = make_queries(patterns)
+    queries = make_queries(patterns, NOISE_LEVELS, SEEDS)
 
     # Los dos modos reciben exactamente los mismos patrones de consulta.
     sweeps = [sweep(network, queries, mode) for mode in MODES]
@@ -468,7 +465,7 @@ def main():
     plot_examples(patterns, queries, results, finals, OUT / 'ejemplos.png')
 
     for mode, rows in results.groupby('mode', sort=False):
-        print(f'{len(rows)} recuperaciones en modo {MODE_LABELS[mode]}')
+        print(f'{len(rows)} recuperaciones en modo {MODE_STYLES[mode].label}')
         print(rows.stop_reason.value_counts().to_string())
     describe_final_states(results, finals)
     check_mixture(network, finals)
@@ -480,7 +477,7 @@ def main():
     compare_modes(results)
 
     # Experimento secundario: lee original, consulta y salida de cada modo de la tabla.
-    hopfield_qr_reader.run(list(QRS), patterns, queries, results, finals, noisy_query, OUT)
+    hopfield_qr_reader.run(list(QRS), patterns, queries, results, finals, OUT)
 
 
 if __name__ == '__main__':
