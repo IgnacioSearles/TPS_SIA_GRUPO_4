@@ -8,7 +8,7 @@ from typing import Literal
 import numpy as np
 
 StopReason = Literal['stable', 'cycle', 'max_iterations']
-UpdateMode = Literal['synchronous']
+UpdateMode = Literal['synchronous', 'asynchronous']
 
 
 @dataclass(frozen=True)
@@ -54,12 +54,16 @@ class Hopfield:
         """H = −½·Σᵢⱼ wᵢⱼ Sᵢ Sⱼ."""
         return float(-.5 * state @ self.weights_ @ state)
 
-    def recall(self, query, mode: UpdateMode = 'synchronous', max_iterations=100) -> Recall:
-        """Itera desde el patrón de consulta hasta un estado estable, un ciclo o el tope."""
+    def recall(self, query, mode: UpdateMode = 'synchronous', max_iterations=100, seed=0) -> Recall:
+        """Itera desde el patrón de consulta hasta un estado estable, un ciclo o el tope.
+
+        `seed` siembra el generador local de los órdenes del modo asincrónico (acepta
+        lo mismo que `np.random.default_rng`); el modo sincrónico no la usa.
+        """
         state = bipolar(query, 1)
         if len(state) != len(self.weights_):
             raise ValueError('El patrón de consulta no tiene N elementos')
-        step = self._update(mode)
+        step = self._update(mode, seed)
         visited = {state.tobytes()}
         energies = [self.energy(state)]
         while True:
@@ -74,12 +78,25 @@ class Hopfield:
                 return Recall(state, len(energies) - 1, tuple(energies), 'cycle')
             visited.add(state.tobytes())
 
-    def _update(self, mode):
+    def _update(self, mode, seed):
         if mode == 'synchronous':
             return self._synchronous
+        if mode == 'asynchronous':
+            rng = np.random.default_rng(seed)
+            return lambda state: self._asynchronous(state, rng)
         raise ValueError(f'Modo de actualización desconocido: {mode}')
 
     def _synchronous(self, state):
         """S(t+1) = sign(W·S(t)); con campo cero la neurona conserva su estado."""
         fields = self.weights_ @ state
         return np.where(fields > 0, 1., np.where(fields < 0, -1., state))
+
+    def _asynchronous(self, state, rng):
+        """Una pasada por las N neuronas en un orden aleatorio nuevo: cada neurona
+        usa los estados ya actualizados en esta pasada. Campo cero → conserva."""
+        state = state.copy()
+        for i in rng.permutation(len(state)):
+            field = self.weights_[i] @ state
+            if field:
+                state[i] = 1. if field > 0 else -1.
+        return state

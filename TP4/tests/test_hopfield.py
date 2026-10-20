@@ -149,5 +149,49 @@ class StopReasonTests(unittest.TestCase):
                          ('max_iterations', 1))
 
 
+class AsynchronousTests(unittest.TestCase):
+    def test_synchronous_cycle_ends_stable_in_asynchronous_mode(self):
+        # El caso de EnergyRiseTests: en modo sincrónico (1, 1, 1, −1) oscila. En
+        # asincrónico, la primera de las neuronas 2, 3 o 4 que cambia (las tres tienen
+        # campo −¼·S) lleva la red a un patrón almacenado o a su inverso, que es estable.
+        patterns = np.array([[1, 1, 1, 1], [1, 1, -1, -1], [1, -1, 1, -1]])
+        network = Hopfield(patterns)
+        stored = np.vstack([patterns, -patterns])
+        for seed in range(10):
+            result = network.recall(np.array([1, 1, 1, -1]), mode='asynchronous', seed=seed)
+            self.assertEqual((result.stop_reason, result.iterations), ('stable', 1))
+            self.assertTrue((stored == result.state).all(axis=1).any(), result.state)
+
+
+    def test_energy_never_rises_in_asynchronous_mode(self):
+        # Red sobrecargada (12 patrones al azar en 40 neuronas) y consultas al azar:
+        # muchas neuronas cambian y en modo sincrónico la energía sí sube a veces.
+        rng = np.random.default_rng(7)
+        network = Hopfield(rng.choice([-1, 1], size=(12, 40)))
+        queries = rng.choice([-1, 1], size=(30, 40))
+        synchronous_rises = sum(network.recall(q, mode='synchronous').energy_rises for q in queries)
+        self.assertGreater(synchronous_rises, 0)
+        for seed, query in enumerate(queries):
+            result = network.recall(query, mode='asynchronous', seed=seed)
+            self.assertEqual(result.stop_reason, 'stable')
+            self.assertTrue(np.all(np.diff(result.energies) < 0), result.energies)
+            self.assertEqual(result.energy_rises, 0)
+
+
+    def test_same_seed_gives_same_recall(self):
+        # Con ξ = (1, −1), desde (1, 1) gana la neurona que se recalcula primero:
+        # la red llega a ξ o a −ξ según el orden, que depende sólo de la semilla.
+        network = Hopfield(np.array([[1, -1]]))
+        finals = set()
+        for seed in range(10):
+            a = network.recall(np.array([1, 1]), mode='asynchronous', seed=seed)
+            b = network.recall(np.array([1, 1]), mode='asynchronous', seed=seed)
+            np.testing.assert_array_equal(a.state, b.state)
+            self.assertEqual((a.iterations, a.energies, a.stop_reason),
+                             (b.iterations, b.energies, b.stop_reason))
+            finals.add(tuple(a.state))
+        self.assertEqual(finals, {(1, -1), (-1, 1)})
+
+
 if __name__ == '__main__':
     unittest.main()

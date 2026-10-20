@@ -4,11 +4,12 @@ Vocabulario: [`GLOSSARY.md`](../../GLOSSARY.md). Decisión de diseño: [ADR 0001
 
 ## Reproducción
 
-Desde TP4: `python3 analysis/hopfield_qr.py`. Requiere las dependencias de `requirements.txt` (incluye Pillow) y las cinco imágenes de `data/hopfield/`. Tarda unos segundos. Genera en esta carpeta, fuera de git:
+Desde TP4: `python3 analysis/hopfield_qr.py`. Requiere las dependencias de `requirements.txt` (incluye Pillow) y las cinco imágenes de `data/hopfield/`. Tarda unos segundos (el modo asincrónico, que recorre las neuronas de a una, es el más lento). Genera en esta carpeta, fuera de git:
 
-- `resultados.csv`: una fila por recuperación (QR, nivel de ruido, semilla, modo de actualización, categoría, Hamming al patrón almacenado de origen, Hamming del patrón de consulta, iteraciones, motivo de parada, energía inicial y final, y un número de estado final).
-- `categorias_sincronico.csv` y `categorias_sincronico.png`: cantidad de recuperaciones por categoría según el nivel de ruido.
-- `ejemplos_sincronico.png`: patrón almacenado, patrón de consulta y salida de la red para el QR del menú principal.
+- `resultados.csv`: una fila por recuperación, 1100 por modo de actualización (QR, nivel de ruido, semilla, modo de actualización, categoría, Hamming al patrón almacenado de origen, Hamming del patrón de consulta, iteraciones, motivo de parada, energía inicial y final, y un número de estado final común a los dos modos).
+- `categorias.csv` y `categorias.png`: cantidad de recuperaciones por categoría según el modo y el nivel de ruido.
+- `ejemplos.png`: patrón almacenado, patrón de consulta y salida de cada modo para el QR del menú principal.
+- `comparacion_modos.csv` y `estados_finales_por_modo.csv`: resumen por modo y cruce, consulta por consulta, del estado final de cada modo.
 - `iteraciones.csv` y `iteraciones.png`: recuperaciones por cantidad de iteraciones, según el modo de actualización y el nivel de ruido.
 - `energia_ejemplos.png`: energía por iteración de consultas representativas del QR del menú principal.
 - `subidas_energia.csv`: por modo y nivel de ruido, cuántas recuperaciones tuvieron una subida de energía entre dos iteraciones (columna `energy_rises` de `resultados.csv`).
@@ -20,6 +21,7 @@ La red está implementada desde cero con NumPy (`src/tp4/hopfield.py`) y sigue e
 - **Patrones almacenados.** Los cinco QR de 37×37, en el orden menú principal, vinos, cócteles y otras bebidas, postres y especiales del día. Cada módulo es una neurona (N = 1369), negro = +1 y blanco = −1, leído fila por fila (`src/tp4/qr.py`). La carga falla si una imagen no es de 37×37 o no es binaria.
 - **Pesos.** Regla de Hebb: W = (1/N)·Σ_μ ξ^μ (ξ^μ)ᵀ, con diagonal cero. Es simétrica y no cambia después de almacenar.
 - **Modo de actualización sincrónico.** S(t+1) = sign(W·S(t)); una neurona con campo exactamente cero conserva su estado.
+- **Modo de actualización asincrónico.** Cada iteración recorre las N neuronas, de a una, en un orden aleatorio nuevo; cada neurona usa los estados ya actualizados en esa pasada y, con campo cero, conserva su estado. El orden sale de un generador local sembrado por recuperación, así que la misma semilla da la misma recuperación.
 - **Iteración.** Un recálculo completo de las N neuronas. Se cuentan sólo las iteraciones que cambian el estado: el recálculo que confirma un estado estable no suma. Así, el ejemplo del apunte (consulta (1, −1, −1, −1)) llega a ξ¹ en 1 iteración.
 - **Motivo de parada.** Estado estable (el recálculo no cambia nada), ciclo (se vuelve a un estado ya visitado) o tope (100 iteraciones sin estabilizarse).
 - **Energía.** H = −½·sᵀWs, registrada para el estado inicial y después de cada iteración.
@@ -40,7 +42,7 @@ Las 1100 recuperaciones terminan en un **estado estable** (0 ciclos, 0 recuperac
 | --- | --- | --- | --- | --- | --- | --- |
 | 0 a 0,5 (cada nivel) | 0 | 0 | 0 | 100 | 0 | 0 |
 
-![Categorías según el nivel de ruido](categorias_sincronico.png)
+![Categorías según el nivel de ruido, por modo](categorias.png)
 
 ### Adónde cae la red
 
@@ -62,11 +64,11 @@ Distancia de Hamming de cada estado al QR original (es la misma para todas las c
 | Postres | 225 | 1144 |
 | Especiales del día | 103 | 1266 |
 
-![Original, consulta y salida](ejemplos_sincronico.png)
+![Original, consulta y salida de cada modo](ejemplos.png)
 
 ### Iteraciones
 
-Cantidad de recuperaciones (de 100 por nivel) según las iteraciones que tardan en llegar al estado estable:
+Cantidad de recuperaciones sincrónicas (de 100 por nivel) según las iteraciones que tardan en llegar al estado estable (la comparación con el modo asincrónico está en su sección):
 
 | p | 0 | 0,05 | 0,1 | 0,15 | 0,2 | 0,25 | 0,3 | 0,35 | 0,4 | 0,45 | 0,5 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -116,4 +118,43 @@ La demostración del apunte de que H nunca sube supone que **cambia una neurona 
 
 El primer término es la suma de lo que bajaría la energía si cada neurona cambiara sola (el caso del apunte) y siempre es negativo. El segundo depende de los pesos entre las neuronas que cambian a la vez y puede ser positivo, así que en modo sincrónico la energía puede subir. Un test lo muestra con tres patrones ortogonales de 4 neuronas: desde su estado mezcla (1, 1, 1, −1), con H = 0, la red cambia tres neuronas a la vez y llega a (1, −1, −1, 1), con H = 1,5; después oscila entre ese estado y su opuesto (ciclo).
 
-En los QR no pasa: **0 de las 1100 recuperaciones sincrónicas tuvieron una subida de energía** entre dos iteraciones, en ningún nivel de ruido (`subidas_energia.csv`). La garantía del apunte no aplica al modo sincrónico, pero en este barrido la energía bajó en todas las iteraciones.
+En los QR no pasa: **0 de las 1100 recuperaciones sincrónicas tuvieron una subida de energía** entre dos iteraciones, en ningún nivel de ruido (`subidas_energia.csv`). La garantía del apunte no aplica al modo sincrónico, pero en este barrido la energía bajó en todas las iteraciones. En modo asincrónico la garantía sí aplica, y también hubo 0 subidas (sección siguiente).
+
+## Modo asincrónico y comparación de modos
+
+Las mismas 1100 consultas se pasan también por el modo asincrónico: en cada iteración las N = 1369 neuronas se recalculan de a una, en un orden aleatorio nuevo, usando los estados ya actualizados. El generador de órdenes de cada recuperación se siembra con (índice del QR, ruido en centésimos, semilla), así que cualquier fila de `resultados.csv` se puede rehacer. Mismo tope (100) y mismo criterio de estado estable: una pasada completa que no cambia ninguna neurona.
+
+### Por qué la energía no puede subir
+
+Cuando cambia sólo la neurona i, ΔH = −2·|hᵢ| (la demostración del apunte, con wᵢᵢ = 0): la neurona cambia sólo si su campo tiene signo contrario a su estado, así que cada cambio baja H estrictamente. Una iteración asincrónica es una sucesión de esos cambios, de modo que H nunca sube y la red tampoco puede volver a un estado ya visitado: en modo asincrónico no hay ciclos. Los tests lo verifican: en una red sobrecargada de 40 neuronas con 12 patrones, donde el modo sincrónico sí sube la energía, el asincrónico la baja en cada iteración; y el caso de 4 neuronas que en modo sincrónico oscila (sección "Energía") termina en asincrónico en un estado estable en 1 iteración, con cualquier semilla.
+
+### Resultados
+
+| | Sincrónico | Asincrónico |
+| --- | --- | --- |
+| Estado espurio | 1100 | 1100 |
+| Recuperación correcta, otro patrón almacenado, patrón inverso | 0 | 0 |
+| Motivo de parada: estado estable / ciclo / tope | 1100 / 0 / 0 | 1100 / 0 / 0 |
+| Estados finales distintos | 2 (A y −A) | 2 (A y −A) |
+| Iteraciones: media / máximo | 1,34 / 3 | 1,24 / 2 |
+| Recuperaciones con alguna subida de energía | 0 | 0 |
+| Energía final | −2172,88 | −2172,88 |
+
+(`comparacion_modos.csv`.) **Consulta por consulta, los dos modos terminan en el mismo estado final en las 1100** (`estados_finales_por_modo.csv`): A para todas las consultas con p ≤ 0,45, y con p = 0,5 las mismas 51 van a A y las mismas 49 a −A en los dos modos.
+
+Iteraciones medias por nivel de ruido:
+
+| p | 0 | 0,05 | 0,1 | 0,15 | 0,2 | 0,25 | 0,3 | 0,35 | 0,4 | 0,45 | 0,5 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Sincrónico | 1 | 1,13 | 1,14 | 1,28 | 1,24 | 1,26 | 1,33 | 1,38 | 1,39 | 1,57 | 2,01 |
+| Asincrónico | 1 | 1,06 | 1,11 | 1,22 | 1,18 | 1,23 | 1,25 | 1,27 | 1,23 | 1,39 | 1,75 |
+
+Comparando cada consulta en los dos modos, el asincrónico usa una iteración menos en 105 de 1100, la misma cantidad en 994 y una más en 1 (p = 0,3). Las diferencias crecen con el ruido: 0 consultas con p = 0, 18 con p = 0,45 y 26 con p = 0,5.
+
+En las curvas de energía de ejemplo (menú principal, semilla 0, figura `energia_ejemplos.png`) los dos modos coinciden con p = 0 y p = 0,2. Con p = 0,45 la primera iteración asincrónica llega a −2169,57, contra −2130,78 en sincrónico, y con p = 0,5 a −2166,74 contra −2127,67; los dos terminan en −2172,88 en la segunda.
+
+### Interpretación
+
+- **El modo de actualización no cambia el resultado.** Los estados estables son los mismos en los dos modos (dependen sólo de que sign(W·s) = s), y en este barrido además cada consulta cae en el mismo: el estado espurio A, o su opuesto con p = 0,5. El colapso viene de los pesos, no de cómo se recalculan las neuronas.
+- **Lo que cambia es el camino.** Dentro de una pasada asincrónica, cada neurona ya ve las correcciones de las anteriores, así que la primera iteración deja a la red más cerca del estado final (en energía, −2169,57 contra −2130,78 en el ejemplo con p = 0,45) y a veces la segunda iteración ya no hace falta. Por eso el asincrónico tarda en promedio un poco menos, y la diferencia aparece donde la primera iteración sincrónica no alcanzaba: con más ruido.
+- **La garantía de energía se cumple en los dos modos, por razones distintas.** En asincrónico es un teorema (cada cambio baja H). En sincrónico no está garantizada, pero en estos QR no hubo ninguna subida: la red cae al mismo atractor en 1 a 3 iteraciones y nunca oscila.
