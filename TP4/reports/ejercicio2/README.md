@@ -79,3 +79,57 @@ Cantidad de recuperaciones (de 100 por nivel) según las iteraciones que tardan 
 - **Con p = 0,5 la consulta ya no tiene información del original.** Cada módulo se invierte con probabilidad 1/2, así que la consulta es independiente del QR y se reparte casi a la mitad entre A (51) y su opuesto B (49). B es el inverso de un estado espurio, no de un patrón almacenado, así que también se clasifica como estado espurio.
 
 Queda para la sección de ortogonalidad identificar A: la medición previa de la spec indica que es el estado mezcla sign(ξ₁ + … + ξ₅), pero este análisis todavía no lo verifica. Esa sección también va a explicar el colapso con el solapamiento y el crosstalk entre los QR.
+
+## Experimento secundario: lector de QR
+
+¿La red de Hopfield ayuda a escanear un QR con ruido, o la corrección de errores del propio QR ya lo resolvía? Para responderlo, el análisis pasa por un lector real (`cv2.QRCodeDetector` de OpenCV, en `analysis/hopfield_qr_reader.py`) el QR original, el patrón de consulta y la salida de la red de cada recuperación, en todos los modos de actualización que tenga la tabla de resultados. Antes de leerlo, cada patrón se amplía a 8 píxeles por módulo y se le agrega un margen blanco de 4 módulos (la zona de silencio del estándar), así un fallo se debe al contenido y no al formato (`pattern_to_scan_image` en `src/tp4/qr.py`). Requiere `opencv-python` (está en `requirements.txt`).
+
+Por cada lectura se registra si el lector **ubica** el QR (encuentra los patrones localizadores), si lo **decodifica** y si el texto **coincide** con el del original. Salidas, fuera de git:
+
+- `lector_qr.csv`: una fila por recuperación (QR, nivel de ruido, semilla, modo de actualización y las tres columnas para la consulta y para la salida).
+- `lector_qr_resumen.csv`: los conteos según el modo y el nivel de ruido.
+- `lector_qr_umbral.csv`: consultas con ruido menor a 0,05 (ver abajo).
+
+Los cinco originales se decodifican, cada uno con la URL de su menú. Los cinco tienen el mismo bloque de información de formato, que indica el nivel de corrección de errores **L**, el más bajo del estándar.
+
+### Barrido de ruido
+
+Cantidad de lecturas (de 100 por nivel) en modo sincrónico:
+
+| p | Original decodificado | Consulta ubicada | Consulta decodificada | Salida ubicada | Salida decodificada |
+| --- | --- | --- | --- | --- | --- |
+| 0 | 100 | 100 | 100 | 100 | 0 |
+| 0,05 | 100 | 40 | 0 | 100 | 0 |
+| 0,1 | 100 | 18 | 0 | 100 | 0 |
+| 0,15 | 100 | 10 | 0 | 100 | 0 |
+| 0,2 | 100 | 14 | 0 | 100 | 0 |
+| 0,25 | 100 | 8 | 0 | 100 | 0 |
+| 0,3 | 100 | 13 | 0 | 100 | 0 |
+| 0,35 | 100 | 12 | 0 | 100 | 0 |
+| 0,4 | 100 | 15 | 0 | 100 | 0 |
+| 0,45 | 100 | 12 | 0 | 100 | 0 |
+| 0,5 | 100 | 11 | 0 | 100 | 0 |
+
+Toda consulta decodificada tiene el mismo texto que su original. Ninguna de las 1100 salidas se decodifica.
+
+### Umbral del lector
+
+Como ya con p = 0,05 no se lee ninguna consulta, se agregan niveles más bajos sólo para el lector (estas consultas no pasan por la red): p ∈ {0,005; 0,01; 0,015; 0,02; 0,03; 0,04}, 20 semillas por QR y por nivel. El generador se siembra con (índice del QR, 100 + índice del nivel, semilla), para no repetir consultas del barrido.
+
+| p | Módulos invertidos (media) | Consulta ubicada | Consulta decodificada |
+| --- | --- | --- | --- |
+| 0,005 | 7,4 | 88 | 66 |
+| 0,01 | 13,4 | 74 | 38 |
+| 0,015 | 20,3 | 76 | 17 |
+| 0,02 | 28,3 | 70 | 1 |
+| 0,03 | 40,5 | 60 | 0 |
+| 0,04 | 55,2 | 45 | 0 |
+
+### Interpretación
+
+- **Hopfield no ayuda al lector: lo empeora.** Con p = 0 el lector decodifica las 100 consultas (son el QR original) y ninguna de las 100 salidas. La red convierte un QR legible en uno ilegible. Con p ≥ 0,05 no se lee ni la consulta ni la salida, así que la red tampoco rescata nada.
+- **La salida se ubica pero no se decodifica.** Las salidas son los estados A y B = −A del barrido. En una comprobación hecha en sesión, A coincide con el estado mezcla sign(ξ₁ + … + ξ₅) que anticipa la spec. Entonces un módulo que vale lo mismo en los cinco QR queda igual en A (el signo de la suma de cinco valores iguales es ese valor), y los patrones localizadores son iguales en los cinco. Por eso el lector encuentra un QR en el 100 % de las salidas. Pero A difiere del original en 71 a 225 módulos según el QR, demasiados para la corrección de errores.
+- **La corrección de errores del QR sólo resuelve ruido muy bajo.** Con nivel L, el lector decodifica dos de cada tres consultas con unos 7 módulos invertidos (p = 0,005), menos de la mitad con unos 13 (p = 0,01) y ninguna desde unos 40 (p = 0,03). El barrido empieza en p = 0,05, unas 0,05 · 1369 ≈ 68 inversiones esperadas, ya fuera de lo que puede corregir.
+- **Una consulta ubicada con mucho ruido no es una lectura.** Para p ≥ 0,1, entre el 8 % y el 18 % de las consultas se ubican, pero ninguna se decodifica: con tantos módulos al azar, el detector a veces arma un candidato a QR que después no puede leer.
+
+Conclusión: ni la red ni el lector resuelven el ruido del barrido. La corrección de errores del QR alcanza para unos pocos módulos, y la red de Hopfield, con estos cinco QR, devuelve siempre un estado que ningún lector puede decodificar.

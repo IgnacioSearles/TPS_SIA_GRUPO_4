@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from analysis import hopfield_qr_reader
 from src.tp4.hopfield import Hopfield
 from src.tp4.qr import load_qr, pattern_to_image
 from src.tp4.recall_outcome import classify
@@ -181,6 +182,9 @@ def main():
     describe_final_states(results, finals)
     print(counts.to_string())
     print(results.groupby('noise')[['hamming', 'iterations']].agg(['min', 'median', 'max']).to_string())
+
+    # Experimento secundario: lee original, consulta y salida de cada modo de la tabla.
+    hopfield_qr_reader.run(list(QRS), patterns, queries, results, finals, noisy_query, OUT)
 
 
 if __name__ == '__main__':
