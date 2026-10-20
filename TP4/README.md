@@ -9,6 +9,7 @@ Desde la raíz `TP4`, con Python 3.10 o posterior:
 ```bash
 python3 -m pip install -r requirements.txt
 python3 analysis/eda_pca.py
+python3 analysis/hopfield_qr.py
 python3 main.py train --config configs/kohonen.json
 python3 main.py train --config configs/kohonen_hexagonal.json
 python3 main.py train --config configs/oja.json

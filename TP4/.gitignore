@@ -4,6 +4,9 @@
 /reports/ejercicio1/*.csv
 /reports/ejercicio1/*.json
 /reports/ejercicio1/*.png
+/reports/ejercicio2/*.csv
+/reports/ejercicio2/*.json
+/reports/ejercicio2/*.png
 __pycache__/
 
 # Entrenamientos y barridos regenerables
@@ -12,3 +15,14 @@ __pycache__/
 # Archivos locales del IDE y metadatos de Windows
 .idea/
 *:Zone.Identifier
+
+# Tickets y notas de trabajo locales
+/.scratch/
+/reports/ejercicio2/variante/*.csv
+/reports/ejercicio2/variante/*.png
+/reports/ejercicio2/controles/*.csv
+/reports/ejercicio2/controles/*.png
+/reports/ejercicio2/ortogonalidad/*.csv
+/reports/ejercicio2/ortogonalidad/*.png
+/reports/ejercicio2/mejoras/*.csv
+/reports/ejercicio2/mejoras/*.png
