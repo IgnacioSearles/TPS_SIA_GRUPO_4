@@ -1,0 +1,75 @@
+{
+  "algorithm": "kohonen",
+  "data": "data/creadores.csv",
+  "output": "results/kohonen_suite_1000/08_reference_stability",
+  "model": {
+    "rows": 4,
+    "cols": 4,
+    "epochs": 1000,
+    "shuffle": true,
+    "learning_rate_start": 0.3,
+    "learning_rate_end": 0.01,
+    "decay": "exponential",
+    "radius_start": null,
+    "radius_end": 0.5,
+    "radius_decay": "exponential",
+    "neighborhood": "gaussian",
+    "initialization": "samples",
+    "early_stopping": {
+      "enabled": false
+    },
+    "schedule_epochs": 500
+  },
+  "preprocessing": {
+    "exclude": [
+      "price_ars",
+      "organic_posts_pct",
+      "total_engagement_per_1000",
+      "estimated_argentina_reach"
+    ],
+    "log_columns": [],
+    "pca_components": null
+  },
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ],
+  "grid": {
+    "model.topology": [
+      "rectangular",
+      "hexagonal"
+    ]
+  },
+  "cases": [
+    {
+      "model.rows": 3,
+      "model.cols": 3
+    },
+    {
+      "model.rows": 4,
+      "model.cols": 4
+    },
+    {
+      "model.rows": 5,
+      "model.cols": 5
+    }
+  ]
+}

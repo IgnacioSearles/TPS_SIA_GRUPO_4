@@ -1,0 +1,111 @@
+{
+  "algorithm": "kohonen",
+  "data": "data/creadores.csv",
+  "output": "results/kohonen_suite/01_geometry",
+  "model": {
+    "rows": 4,
+    "cols": 4,
+    "epochs": 500,
+    "shuffle": true,
+    "learning_rate_start": 0.3,
+    "learning_rate_end": 0.01,
+    "decay": "exponential",
+    "radius_start": null,
+    "radius_end": 0.5,
+    "radius_decay": "exponential",
+    "neighborhood": "gaussian",
+    "initialization": "samples",
+    "early_stopping": {
+      "enabled": false
+    }
+  },
+  "preprocessing": {
+    "exclude": [
+      "price_ars",
+      "organic_posts_pct",
+      "total_engagement_per_1000",
+      "estimated_argentina_reach"
+    ],
+    "log_columns": [],
+    "pca_components": null
+  },
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "grid": {
+    "model.topology": [
+      "rectangular",
+      "hexagonal"
+    ],
+    "model.initialization": [
+      "samples",
+      "uniform"
+    ]
+  },
+  "cases": [
+    {
+      "model.rows": 2,
+      "model.cols": 2
+    },
+    {
+      "model.rows": 3,
+      "model.cols": 3
+    },
+    {
+      "model.rows": 4,
+      "model.cols": 4
+    },
+    {
+      "model.rows": 5,
+      "model.cols": 5
+    },
+    {
+      "model.rows": 6,
+      "model.cols": 6
+    },
+    {
+      "model.rows": 7,
+      "model.cols": 7
+    },
+    {
+      "model.rows": 8,
+      "model.cols": 8
+    },
+    {
+      "model.rows": 2,
+      "model.cols": 6
+    },
+    {
+      "model.rows": 6,
+      "model.cols": 2
+    },
+    {
+      "model.rows": 3,
+      "model.cols": 4
+    },
+    {
+      "model.rows": 4,
+      "model.cols": 3
+    },
+    {
+      "model.rows": 2,
+      "model.cols": 8
+    },
+    {
+      "model.rows": 8,
+      "model.cols": 2
+    },
+    {
+      "model.rows": 4,
+      "model.cols": 6
+    },
+    {
+      "model.rows": 6,
+      "model.cols": 4
+    }
+  ]
+}

@@ -1,0 +1,196 @@
+{
+  "algorithm": "kohonen",
+  "data": "data/creadores.csv",
+  "output": "results/kohonen_suite/03_neighborhood",
+  "model": {
+    "rows": 4,
+    "cols": 4,
+    "epochs": 500,
+    "shuffle": true,
+    "learning_rate_start": 0.3,
+    "learning_rate_end": 0.01,
+    "decay": "exponential",
+    "radius_start": null,
+    "radius_end": 0.5,
+    "radius_decay": "exponential",
+    "neighborhood": "gaussian",
+    "initialization": "samples",
+    "early_stopping": {
+      "enabled": false
+    }
+  },
+  "preprocessing": {
+    "exclude": [
+      "price_ars",
+      "organic_posts_pct",
+      "total_engagement_per_1000",
+      "estimated_argentina_reach"
+    ],
+    "log_columns": [],
+    "pca_components": null
+  },
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "grid": {
+    "model.topology": [
+      "rectangular",
+      "hexagonal"
+    ],
+    "model.neighborhood": [
+      "gaussian",
+      "uniform"
+    ]
+  },
+  "cases": [
+    {
+      "model.radius_start": 0.5,
+      "model.radius_end": 0.5,
+      "model.radius_decay": "constant"
+    },
+    {
+      "model.radius_start": 1.0,
+      "model.radius_end": 1.0,
+      "model.radius_decay": "constant"
+    },
+    {
+      "model.radius_start": 2.0,
+      "model.radius_end": 2.0,
+      "model.radius_decay": "constant"
+    },
+    {
+      "model.radius_start": 4.0,
+      "model.radius_end": 4.0,
+      "model.radius_decay": "constant"
+    },
+    {
+      "model.radius_start": 8.0,
+      "model.radius_end": 8.0,
+      "model.radius_decay": "constant"
+    },
+    {
+      "model.radius_start": 0.5,
+      "model.radius_end": 0.1,
+      "model.radius_decay": "linear"
+    },
+    {
+      "model.radius_start": 0.5,
+      "model.radius_end": 0.1,
+      "model.radius_decay": "exponential"
+    },
+    {
+      "model.radius_start": 1.0,
+      "model.radius_end": 0.1,
+      "model.radius_decay": "linear"
+    },
+    {
+      "model.radius_start": 1.0,
+      "model.radius_end": 0.1,
+      "model.radius_decay": "exponential"
+    },
+    {
+      "model.radius_start": 1.0,
+      "model.radius_end": 0.5,
+      "model.radius_decay": "linear"
+    },
+    {
+      "model.radius_start": 1.0,
+      "model.radius_end": 0.5,
+      "model.radius_decay": "exponential"
+    },
+    {
+      "model.radius_start": 2.0,
+      "model.radius_end": 0.1,
+      "model.radius_decay": "linear"
+    },
+    {
+      "model.radius_start": 2.0,
+      "model.radius_end": 0.1,
+      "model.radius_decay": "exponential"
+    },
+    {
+      "model.radius_start": 2.0,
+      "model.radius_end": 0.5,
+      "model.radius_decay": "linear"
+    },
+    {
+      "model.radius_start": 2.0,
+      "model.radius_end": 0.5,
+      "model.radius_decay": "exponential"
+    },
+    {
+      "model.radius_start": 2.0,
+      "model.radius_end": 1.0,
+      "model.radius_decay": "linear"
+    },
+    {
+      "model.radius_start": 2.0,
+      "model.radius_end": 1.0,
+      "model.radius_decay": "exponential"
+    },
+    {
+      "model.radius_start": 4.0,
+      "model.radius_end": 0.1,
+      "model.radius_decay": "linear"
+    },
+    {
+      "model.radius_start": 4.0,
+      "model.radius_end": 0.1,
+      "model.radius_decay": "exponential"
+    },
+    {
+      "model.radius_start": 4.0,
+      "model.radius_end": 0.5,
+      "model.radius_decay": "linear"
+    },
+    {
+      "model.radius_start": 4.0,
+      "model.radius_end": 0.5,
+      "model.radius_decay": "exponential"
+    },
+    {
+      "model.radius_start": 4.0,
+      "model.radius_end": 1.0,
+      "model.radius_decay": "linear"
+    },
+    {
+      "model.radius_start": 4.0,
+      "model.radius_end": 1.0,
+      "model.radius_decay": "exponential"
+    },
+    {
+      "model.radius_start": 8.0,
+      "model.radius_end": 0.1,
+      "model.radius_decay": "linear"
+    },
+    {
+      "model.radius_start": 8.0,
+      "model.radius_end": 0.1,
+      "model.radius_decay": "exponential"
+    },
+    {
+      "model.radius_start": 8.0,
+      "model.radius_end": 0.5,
+      "model.radius_decay": "linear"
+    },
+    {
+      "model.radius_start": 8.0,
+      "model.radius_end": 0.5,
+      "model.radius_decay": "exponential"
+    },
+    {
+      "model.radius_start": 8.0,
+      "model.radius_end": 1.0,
+      "model.radius_decay": "linear"
+    },
+    {
+      "model.radius_start": 8.0,
+      "model.radius_end": 1.0,
+      "model.radius_decay": "exponential"
+    }
+  ]
+}
