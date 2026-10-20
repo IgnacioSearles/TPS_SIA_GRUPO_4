@@ -4,8 +4,8 @@ Métodos que reciben un QR dañado (completo, 1369 módulos) y devuelven uno com
 - Hebb con los cinco QR (el informe principal).
 - Pseudoinversa con los cinco QR (no está en el apunte; como comparación).
 - Pseudoinversa sin módulos compartidos.
-- Dos redes de Hebb sin módulos compartidos: los cinco QR repartidos en una terna y
-  un par; la consulta pasa por las dos y se elige la salida.
+- Dos redes de Hebb sin módulos compartidos (`SplitHopfield`): los cinco QR repartidos
+  en una terna y un par; la consulta pasa por las dos y se elige la salida.
 - Vecino más cercano (sin red): el QR original a menor distancia de Hamming.
 
 Daños: ruido aleatorio (el del barrido principal), esquina rota (un bloque de una
@@ -34,6 +34,7 @@ from src.tp4.hopfield import Hopfield
 from src.tp4.qr import SIDE, pattern_to_image
 from src.tp4.queries import make_queries
 from src.tp4.shared_modules import SharedModules
+from src.tp4.split_hopfield import SplitHopfield
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'reports' / 'ejercicio2' / 'mejoras'
@@ -72,24 +73,10 @@ def best_partition(patterns, shared):
     return min(options, key=lambda option: max(worst(option[0]), worst(option[1])))
 
 
-def two_networks(patterns, shared, groups):
-    """La consulta pasa por una red de Hebb (sin compartidos) por grupo. Se queda con
-    las salidas que son un QR guardado en su red y, entre ellas (o entre todas si no
-    hay ninguna), con la más cercana a la consulta."""
-    networks = [(patterns[list(group)], _stripped_network(patterns[list(group)], shared, 'hebb'))
-                for group in groups]
-
-    def recover(query):
-        outputs = [(recall(query), stored) for stored, recall in networks]
-        stored_outputs = [out for out, stored in outputs if (stored == out).all(axis=1).any()]
-        candidates = stored_outputs or [out for out, _ in outputs]
-        return min(candidates, key=lambda out: np.sum(out != query))
-    return recover
-
-
 def methods(patterns, shared, groups):
     hebb = Hopfield(patterns)
     pseudoinverse = Hopfield(patterns, rule='pseudoinverse')
+    split = SplitHopfield(patterns, groups, shared)
     return {
         'hebb': Method('Hebb, 5 QR completos', '#2a78d6', '-',
                        lambda q: hebb.recall(q, max_iterations=MAX_ITERATIONS).state),
@@ -98,7 +85,7 @@ def methods(patterns, shared, groups):
         'pseudoinversa_sin_compartidos': Method('Pseudoinversa, sin módulos compartidos', '#1baf7a', '-',
                                                 _stripped_network(patterns, shared, 'pseudoinverse')),
         'dos_redes': Method('Dos redes de Hebb sin compartidos', '#eda100', '-',
-                            two_networks(patterns, shared, groups)),
+                            lambda q: split.recall(q, max_iterations=MAX_ITERATIONS).state),
         'vecino': Method('Sin red: QR original más cercano', MUTED, '--',
                          lambda q: patterns[np.argmin(np.sum(patterns != q, axis=1))]),
     }
