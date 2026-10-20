@@ -1,5 +1,9 @@
 # Ejercicio 1: EDA y PCA inicial
 
+## Actualización: barrido de geometría completado
+
+El [análisis de 300 corridas de Kohonen](geometria_kohonen/README.md) agrega evidencia de geometría, topología, inicialización y duración: 60 configuraciones con cinco semillas, tablas agregadas y una figura listas para versionar. Hay candidatos para seguir comparando; todavía no es una elección global de hiperparámetros ni de representación. La interpretación de campañas de este documento corresponde al modelo exploratorio 5×5 de 500 épocas, y deberá revisarse al seleccionar el modelo final.
+
 ## Reproducción
 
 Desde TP4: `python3 analysis/eda_pca.py`. Requiere las dependencias de `requirements.txt` y `data/creadores.csv`. El PCA usa la implementación compartida de `src.tp4.pca`, mediante SVD de NumPy, sin scikit-learn. Las validaciones, representaciones, tablas y gráficos están separados en módulos de `analysis`. Genera tablas y gráficos en esta carpeta. Las pruebas verifican ortogonalidad, reconstrucción completa, autovalores y coherencia con el preprocesamiento. Esta etapa no implementa todavía Kohonen ni Oja.
@@ -145,3 +149,7 @@ Promedios del top 3 de cada criterio:
 - **Nuevos creadores:** se proyectan con `Preprocessor.transform` y `predict` sobre el modelo existente. Si son muchos o de perfiles nuevos, hay que reentrenar.
 - **Nuevas variables:** cambia la dimensión de entrada: hay que rehacer preprocesamiento, PCA, SOM y Oja, y revisar el tamaño de grilla.
 - **Actualización mensual:** cambian medias y desvíos; reentrenar puede rotar las componentes y mover creadores de neurona. Conviene conservar el preprocesamiento del mes de referencia para comparar y documentar cada reentrenamiento.
+
+## Bitácora de experimentos
+
+La [bitácora](bitacora/README.md) conserva la cronología, las decisiones sobre duración y los límites de las conclusiones. El [inventario CSV](bitacora/experimentos.csv) registra el estado de cada ejecución al corte; el barrido de representaciones sigue en curso.

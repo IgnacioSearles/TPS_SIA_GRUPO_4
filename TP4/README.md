@@ -133,6 +133,7 @@ Una época es una pasada completa por los datos. Se registra también la cantida
 | `radius_start` | null | Se resuelve como mitad del mayor lado |
 | `radius_end` | 0.5 | Radio final positivo |
 | `radius_decay` | exponential | `constant`, `linear`, `exponential` |
+| `schedule_epochs` | null | Duración del decaimiento; por defecto usa `epochs`. Si se fija un valor menor, mantiene los valores del extremo durante el resto del entrenamiento |
 
 La inicialización `samples` toma muestras sin reemplazo si hay suficientes creadores; de lo contrario, con reemplazo. `uniform` toma valores dentro del rango observado de cada variable.
 
@@ -239,3 +240,20 @@ Se genera `learning_curves.png` con tres paneles por modelo. Las curvas pueden o
 ## Alcance
 
 Esta base sirve para entrenar y comparar implementaciones; falta realizar el estudio de hiperparámetros y la interpretación comercial final. El PCA inicial y sus decisiones se explican en [el informe](reports/ejercicio1/README.md). Los ejemplos cortos verifican funcionamiento, no convergencia definitiva ni superioridad de una topología.
+
+## Batería amplia de Kohonen
+
+Hay 2.600 corridas exploratorias preparadas en `configs/kohonen_suite/`, más ocho de prueba rápida. Cubren geometría, topología, aprendizaje, vecindad, representaciones, duración, early stopping, orden y combinaciones conjuntas. No se ejecutan automáticamente.
+
+```bash
+python3 -m experiments.kohonen_suite
+python3 main.py experiment --config configs/kohonen_suite/00_smoke.json
+python3 main.py experiment --config configs/kohonen_suite/01_geometry.json
+python3 -m analysis.kohonen_experiments
+```
+
+El [protocolo de experimentos](docs/experimentos_kohonen.md) detalla presupuesto, casos acoplados, métricas, reanudación y confirmación con semillas nuevas. El comparador agrega ocupación, estabilidad ARI y cohesión en un espacio común; no ordena globalmente errores de distintas representaciones.
+
+## Bitácora y evidencia publicada
+
+La [bitácora del ejercicio 1](reports/ejercicio1/bitacora/README.md) registra experimentos ejecutados, decisiones y pendientes. Incluye un inventario CSV de estados y enlaza los resultados agregados de las 300 corridas de geometría; los datos y checkpoints permanecen en `results/`, fuera de Git.

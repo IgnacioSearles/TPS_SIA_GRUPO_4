@@ -1,0 +1,14 @@
+snapshot_utc,experiment,algorithm,operation,status,planned,finished,failed,pending
+2026-10-20T17:32:09+00:00,results/20261017T230423-zfje3pmj,kohonen,experiment,legacy_finished,12,12,0,0
+2026-10-20T17:32:09+00:00,results/20261017T230424-pxnmzeiy,oja,experiment,legacy_finished,6,6,0,0
+2026-10-20T17:32:09+00:00,results/20261017T231252-t366b9f0,kohonen,experiment,legacy_finished,2,2,0,0
+2026-10-20T17:32:09+00:00,results/20261017T231255-iiwkut3d,oja,experiment,legacy_finished,1,1,0,0
+2026-10-20T17:32:09+00:00,results/20261017T231706-b5vjbepr,kohonen,experiment,legacy_finished,2,2,0,0
+2026-10-20T17:32:09+00:00,results/20261017T231708-a15fj2tc,oja,experiment,legacy_finished,1,1,0,0
+2026-10-20T17:32:09+00:00,results/kohonen_continuation/1000/20261018T235225-teu_0wor,kohonen,continue_kohonen,completed,23,23,0,0
+2026-10-20T17:32:09+00:00,results/kohonen_geometry_1000,kohonen,recover_kohonen,completed,300,300,0,0
+2026-10-20T17:32:09+00:00,results/kohonen_suite/00_smoke/20261018T232315-__blokwh,kohonen,experiment,completed,8,8,0,0
+2026-10-20T17:32:09+00:00,results/kohonen_suite/01_geometry/20261018T234439-d4fxy0cr,kohonen,experiment,paused,300,23,0,277
+2026-10-20T17:32:09+00:00,results/kohonen_suite_1000/04_representation/20261020T172725-g41co17s,kohonen,experiment,running,360,8,0,352
+2026-10-20T17:32:09+00:00,results/resume_smoke_kohonen/20261017T233153-kricaio3,kohonen,experiment,completed,2,2,0,0
+2026-10-20T17:32:09+00:00,results/resume_smoke_oja/20261017T233144-8u9xvdw8,oja,experiment,completed,2,2,0,0
