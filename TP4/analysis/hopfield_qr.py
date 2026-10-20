@@ -85,6 +85,7 @@ def sweep(network, queries, mode):
             'query_hamming': int(np.sum(query != network.patterns_[origin])),
             'iterations': result.iterations, 'stop_reason': result.stop_reason,
             'energy_initial': result.energies[0], 'energy_final': result.energies[-1],
+            'energy_rises': result.energy_rises,
         })
         finals.append(result.state)
     return pd.DataFrame(rows), np.array(finals)
@@ -278,6 +279,101 @@ def analyze_orthogonality(network):
     report_orthogonality(network, overlaps, shared, table)
 
 
+# --- Iteraciones y energía -------------------------------------------------------
+# Las funciones de esta sección separan todo por la columna `mode` de la tabla de
+# resultados, así un barrido con los dos modos de actualización se compara solo.
+
+MODE_LABELS = {'synchronous': 'sincrónico', 'asynchronous': 'asincrónico'}
+MODE_COLORS = {'synchronous': '#2a78d6', 'asynchronous': '#eb6834'}
+ENERGY_EXAMPLE_NOISES = (0, .2, .45, .5)
+
+
+def _decimal(value):
+    return f'{value:g}'.replace('.', ',')
+
+
+def iteration_counts(results):
+    """Recuperaciones por (modo, nivel de ruido) según la cantidad de iteraciones."""
+    return pd.crosstab([results['mode'], results.noise], results.iterations)
+
+
+def energy_rise_counts(results):
+    """Por (modo, nivel de ruido): recuperaciones con al menos una subida de energía
+    entre dos iteraciones, y subidas en total."""
+    grouped = results.assign(rose=results.energy_rises > 0).groupby(['mode', 'noise'])
+    return grouped.agg(recuperaciones=('rose', 'size'), con_subida=('rose', 'sum'),
+                       subidas=('energy_rises', 'sum'))
+
+
+def plot_iterations(results, path):
+    """Iteraciones medias según el nivel de ruido, con el rango mín.–máx., por modo."""
+    fig, ax = plt.subplots(figsize=(7.5, 4))
+    for mode, rows in results.groupby('mode', sort=False):
+        stats = rows.groupby('noise').iterations.agg(['mean', 'min', 'max'])
+        color = MODE_COLORS.get(mode, '#555555')
+        ax.fill_between(stats.index, stats['min'], stats['max'], color=color, alpha=.15, linewidth=0)
+        ax.plot(stats.index, stats['mean'], color=color, linewidth=2, marker='o', markersize=5,
+                label=f'Modo {MODE_LABELS.get(mode, mode)}: media (banda: mín.–máx.)')
+    ax.set_xticks(NOISE_LEVELS, [_decimal(p) for p in NOISE_LEVELS])
+    ax.yaxis.set_major_locator(matplotlib.ticker.MaxNLocator(integer=True))
+    ax.set(xlabel='Nivel de ruido p', ylabel='Iteraciones hasta detenerse',
+           title='Iteraciones según el nivel de ruido (20 semillas × 5 QR por nivel)', ylim=(0, None))
+    ax.grid(axis='y', color='#dddddd', linewidth=.8)
+    ax.set_axisbelow(True)
+    ax.spines[['top', 'right']].set_visible(False)
+    ax.legend(loc='upper left', frameon=False)
+    _save(fig, path)
+
+
+def plot_energy_examples(network, queries, results, path, origin=0, seed=0):
+    """Energía por iteración de una consulta del QR `origin` en cada nivel de
+    ENERGY_EXAMPLE_NOISES, una curva por modo, con la energía del QR original como
+    referencia. Las recuperaciones se rehacen con la misma consulta y semilla."""
+    names = list(QRS)
+    reference = network.energy(network.patterns_[origin])
+    fig, axes = plt.subplots(1, len(ENERGY_EXAMPLE_NOISES), figsize=(3 * len(ENERGY_EXAMPLE_NOISES), 3.6),
+                             sharey=True)
+    for ax, noise in zip(axes, ENERGY_EXAMPLE_NOISES):
+        query = next(q for o, p, s, q in queries if o == origin and np.isclose(p, noise) and s == seed)
+        for mode in results['mode'].unique():
+            energies = network.recall(query, mode=mode, max_iterations=MAX_ITERATIONS).energies
+            ax.plot(range(len(energies)), energies, color=MODE_COLORS.get(mode, '#555555'),
+                    linewidth=2, marker='o', markersize=6, label=f'Modo {MODE_LABELS.get(mode, mode)}')
+        ax.axhline(reference, color='#888888', linewidth=1, linestyle='--', label='H del QR original')
+        ax.set_title(f'p = {_decimal(noise)}', fontsize=10)
+        ax.set_xlabel('Iteración')
+        ax.xaxis.set_major_locator(matplotlib.ticker.MaxNLocator(integer=True))
+        ax.grid(axis='y', color='#dddddd', linewidth=.8)
+        ax.set_axisbelow(True)
+        ax.spines[['top', 'right']].set_visible(False)
+    axes[0].set_ylabel('Energía H')
+    axes[0].legend(loc='upper right', frameon=False, fontsize=8)
+    fig.suptitle(f'Energía por iteración: QR {TITLES[names[origin]]}, semilla {seed}')
+    _save(fig, path)
+
+
+def analyze_iterations_and_energy(network, queries, results):
+    counts = iteration_counts(results)
+    counts.to_csv(OUT / 'iteraciones.csv')
+    rises = energy_rise_counts(results)
+    rises.to_csv(OUT / 'subidas_energia.csv')
+    plot_iterations(results, OUT / 'iteraciones.png')
+    plot_energy_examples(network, queries, results, OUT / 'energia_ejemplos.png')
+
+    print('Iteraciones por nivel de ruido:')
+    print(counts.to_string())
+    print('Subidas de energía entre iteraciones:')
+    print(rises.to_string())
+    for mode, rows in results.groupby('mode', sort=False):
+        print(f'  modo {MODE_LABELS.get(mode, mode)}: {int((rows.energy_rises > 0).sum())} de '
+              f'{len(rows)} recuperaciones con alguna subida')
+    final = results.groupby('mode').energy_final.agg(['min', 'max'])
+    print('Energía final (mín., máx.) por modo:')
+    print(final.to_string())
+    print('Energía de cada QR original:',
+          [round(network.energy(pattern), 2) for pattern in network.patterns_])
+
+
 def _save(fig, path):
     try:
         fig.tight_layout()
@@ -307,6 +403,8 @@ def main():
     check_mixture(network, finals)
     print(counts.to_string())
     print(results.groupby('noise')[['hamming', 'iterations']].agg(['min', 'median', 'max']).to_string())
+
+    analyze_iterations_and_energy(network, queries, results)
 
 
 if __name__ == '__main__':

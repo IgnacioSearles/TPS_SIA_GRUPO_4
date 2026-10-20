@@ -24,6 +24,16 @@ class Recall:
     energies: tuple[float, ...]
     stop_reason: StopReason
 
+    @property
+    def energy_rises(self) -> int:
+        """Iteraciones en las que la energía subió respecto de la anterior.
+
+        La demostración del apunte (H nunca sube) supone un cambio por vez; en
+        modo sincrónico cambian varias neuronas juntas y H puede subir. La
+        tolerancia descarta diferencias de redondeo entre energías iguales.
+        """
+        return int(np.sum(np.diff(self.energies) > 1e-9))
+
 
 def bipolar(x, ndim):
     x = np.asarray(x, dtype=float)
