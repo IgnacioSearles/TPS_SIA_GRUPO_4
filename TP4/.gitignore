@@ -6,7 +6,6 @@
 /reports/ejercicio1/*.png
 /reports/ejercicio2/*.csv
 /reports/ejercicio2/*.json
-/reports/ejercicio2/*.png
 __pycache__/
 
 # Entrenamientos y barridos regenerables
@@ -19,13 +18,9 @@ __pycache__/
 # Tickets y notas de trabajo locales
 /.scratch/
 /reports/ejercicio2/variante/*.csv
-/reports/ejercicio2/variante/*.png
 /reports/ejercicio2/controles/*.csv
-/reports/ejercicio2/controles/*.png
 /reports/ejercicio2/ortogonalidad/*.csv
-/reports/ejercicio2/ortogonalidad/*.png
 /reports/ejercicio2/mejoras/*.csv
-/reports/ejercicio2/mejoras/*.png
 # Ejercicio 2: documentos de diseño y tests propios, sólo locales
 /GLOSSARY.md
 /docs/specs/
@@ -35,5 +30,4 @@ __pycache__/
 /tests/test_queries.py
 /tests/test_shared_modules.py
 /reports/ejercicio2/dos_redes/*.csv
-/reports/ejercicio2/dos_redes/*.png
 /presentation/ejercicio2_guia.md
