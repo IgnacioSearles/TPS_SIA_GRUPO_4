@@ -30,8 +30,8 @@ La red está implementada desde cero con NumPy (`src/tp4/hopfield.py`) y sigue e
 - **Campo.** hᵢ = Σⱼ wᵢⱼ Sⱼ; la neurona i pasa a sign(hᵢ).
 - **Modo de actualización sincrónico.** S(t+1) = sign(W·S(t)), el algoritmo del apunte; una neurona con campo exactamente cero conserva su estado.
 - **Modo de actualización asincrónico.** Cada iteración recorre las N neuronas, de a una, en un orden aleatorio nuevo; cada neurona usa los estados ya actualizados en esa pasada y, con campo cero, conserva su estado. El orden sale de un generador local sembrado por recuperación, así que la misma semilla da la misma recuperación.
-- **Iteración.** Un recálculo completo de las N neuronas. Se cuentan sólo las iteraciones que cambian el estado: el recálculo que confirma un estado estable no suma. Así, el ejemplo del apunte (consulta (1, −1, −1, −1)) llega a ξ¹ en 1 iteración.
-- **Motivo de parada.** Estado estable (el recálculo no cambia nada), ciclo (se vuelve a un estado ya visitado) o tope (100 iteraciones sin estabilizarse).
+- **Iteración.** Un recálculo completo de las N neuronas (glosario). La cantidad de iteraciones de una recuperación cuenta **sólo los recálculos que cambiaron el estado**: el recálculo final que confirma un estado estable se hace pero no suma. Así, 0 iteraciones significa que el patrón de consulta ya era un estado estable, y el ejemplo del apunte (consulta (1, −1, −1, −1)) llega a ξ¹ en 1 iteración. Todas las cantidades de iteraciones de este informe (tablas, figuras y `resultados.csv`) se cuentan así.
+- **Motivo de parada.** Cada recálculo se evalúa en este orden: estado estable (no cambia nada), ciclo (vuelve a un estado ya visitado en esa recuperación; se compara con todos los visitados, no sólo con el anterior) o tope (100 iteraciones sin estabilizarse). Un estado estable nunca se informa como ciclo, y si el recálculo hecho al llegar al tope vuelve a un estado visitado, la recuperación es ciclo y no tope.
 - **Energía.** H = −½·Σᵢⱼ wᵢⱼ SᵢSⱼ = −½·SᵀWS (fórmula del apunte), registrada para el estado inicial y después de cada iteración.
 
 La clasificación es independiente de la recuperación (`src/tp4/recall_outcome.py`) y se hace respecto del patrón almacenado del que salió la consulta. Un estado estable es **recuperación correcta** (Hamming 0 al original), **otro patrón almacenado**, **patrón inverso** (−ξ de cualquier patrón almacenado) o **estado espurio** (cualquier otro). Una recuperación que termina por ciclo o tope se informa con su motivo de parada, porque sólo un estado estable puede ser un estado espurio.
@@ -74,7 +74,11 @@ El segundo término es ξᵢ^ν y no (1/N)·ξᵢ^ν como figura en el apunte, p
 
 Cᵢ^ν = (1/N)·Σⱼ Σ_{μ≠ν} ξᵢ^μ ξⱼ^μ ξⱼ^ν = Σ_{μ≠ν} m^μν·ξᵢ^μ
 
-Con patrones ortogonales Cᵢ^ν = 0 y cada patrón almacenado es estable. Si no, la neurona i queda **inestable** cuando el crosstalk tiene signo opuesto a ξᵢ^ν y lo supera en módulo, es decir, cuando ξᵢ^ν·Cᵢ^ν < −1. (La red usa diagonal cero, que resta (5/N)·ξᵢ^ν ≈ 0,004·ξᵢ^ν al campo; ninguna neurona de los QR cae en ese margen, y la cuenta coincide con lo que hace la red, como muestra la tabla.)
+Con patrones ortogonales Cᵢ^ν = 0 y cada patrón almacenado es estable. La red, además, usa diagonal cero: la suma de Hebb pondría p/N en wᵢᵢ y la red lo anula, así que el campo real es
+
+hᵢ^ν = ξᵢ^ν·(1 − p/N) + Cᵢ^ν, con p = 5 patrones almacenados,
+
+y la neurona i queda **inestable** cuando hᵢ^ν tiene signo opuesto a ξᵢ^ν (ξᵢ^ν·hᵢ^ν < 0): el crosstalk se opone a ξᵢ^ν y supera en módulo a 1 − 5/N. El análisis calcula las neuronas inestables con ese campo y verifica que son exactamente las que cambian en la primera iteración sincrónica (si no coincidieran, el script se detiene); por eso las dos últimas columnas de la tabla son iguales.
 
 | QR | \|Cᵢ\| medio | Crosstalk en los módulos compartidos | Neuronas con crosstalk opuesto | Neuronas inestables | Neuronas que cambian en la 1.ª iteración |
 | --- | --- | --- | --- | --- | --- |
@@ -106,6 +110,8 @@ Las 1100 recuperaciones sincrónicas terminan en un **estado estable** (0 ciclos
 | p | Recuperación correcta | Otro patrón almacenado | Patrón inverso | Estado espurio | Ciclo | Tope |
 | --- | --- | --- | --- | --- | --- | --- |
 | 0 a 0,5 (cada nivel) | 0 | 0 | 0 | 100 | 0 | 0 |
+
+Sobre los 0 ciclos: con W simétrica, el modo sincrónico siempre termina en un estado estable o en un ciclo de dos estados (Goles y colaboradores, 1985; Bruck, 1990). Es un resultado de fuera del apunte, que no trata la convergencia del modo sincrónico. Acota lo que podía pasar (un ciclo sincrónico sólo puede ser de período 2, como el del test de 4 neuronas de la sección [Energía](#energía)), pero no garantiza que no haya ciclos: que ninguna recuperación sincrónica de los QR haya terminado en uno es una observación de este barrido. En modo asincrónico, en cambio, un ciclo es imposible: cada cambio de una neurona baja la energía estrictamente, así que la red no puede volver a un estado ya visitado y la comprobación de ciclo nunca se dispara (sección [Modo asincrónico](#modo-asincrónico-y-comparación-de-modos)).
 
 ![Categorías según el nivel de ruido, por modo](categorias.png)
 
@@ -189,7 +195,7 @@ Las mismas 1100 consultas se pasan también por el modo asincrónico: en cada it
 
 ### Por qué la energía no puede subir
 
-Cuando cambia sólo la neurona i, ΔH = −2·|hᵢ| (la demostración del apunte, con wᵢᵢ = 0): la neurona cambia sólo si su campo tiene signo contrario a su estado, así que cada cambio baja H estrictamente. Una iteración asincrónica es una sucesión de esos cambios, de modo que H nunca sube y la red tampoco puede volver a un estado ya visitado: en modo asincrónico no hay ciclos. Los tests lo verifican: en una red sobrecargada de 40 neuronas con 12 patrones, donde el modo sincrónico sí sube la energía, el asincrónico la baja en cada iteración; y el caso de 4 neuronas que en modo sincrónico oscila (sección "Energía") termina en asincrónico en un estado estable en 1 iteración, con cualquier semilla.
+Cuando cambia sólo la neurona i, ΔH = −2·|hᵢ| (la demostración del apunte, con wᵢᵢ = 0): la neurona cambia sólo si su campo tiene signo contrario a su estado, así que cada cambio baja H estrictamente. Una iteración asincrónica es una sucesión de esos cambios, de modo que H nunca sube y la red tampoco puede volver a un estado ya visitado: en modo asincrónico no hay ciclos, y la comprobación de ciclo de la recuperación nunca se dispara. Los tests lo verifican: en una red sobrecargada de 40 neuronas con 12 patrones, donde el modo sincrónico sí sube la energía, el asincrónico la baja en cada iteración; y el caso de 4 neuronas que en modo sincrónico oscila (sección "Energía") termina en asincrónico en un estado estable en 1 iteración, con cualquier semilla.
 
 ### Resultados
 
