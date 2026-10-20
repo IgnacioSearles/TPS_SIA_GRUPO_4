@@ -17,12 +17,15 @@ class Recall:
 
     `iterations` cuenta las iteraciones que cambiaron el estado: el recálculo que
     confirma un estado estable no suma. `energies` tiene la energía del estado
-    inicial seguida de la de cada iteración (largo `iterations + 1`).
+    inicial seguida de la de cada iteración (largo `iterations + 1`). `states`, sólo
+    si se pidió, tiene el patrón de consulta seguido del estado tras cada iteración
+    (mismo largo que `energies`); si no, es None.
     """
     state: np.ndarray
     iterations: int
     energies: tuple[float, ...]
     stop_reason: StopReason
+    states: tuple[np.ndarray, ...] | None = None
 
     @property
     def energy_rises(self) -> int:
@@ -67,31 +70,46 @@ class Hopfield:
         """H = −½·Σᵢⱼ wᵢⱼ Sᵢ Sⱼ."""
         return float(-.5 * state @ self.weights_ @ state)
 
-    def recall(self, query, mode: UpdateMode = 'synchronous', max_iterations=100, seed=0) -> Recall:
+    def recall(self, query, mode: UpdateMode = 'synchronous', max_iterations=100, seed=0,
+               return_states=False) -> Recall:
         """Itera desde el patrón de consulta hasta un estado estable, un ciclo o el tope.
+
+        Cada paso se clasifica en ese orden: si no cambia el estado es estable; si
+        vuelve a un estado ya visitado es ciclo, también cuando llega en el paso
+        que se calcula ya en el tope (ese paso no se aplica: la red no pasa de
+        `max_iterations`); si no, recién ahí el tope corta la recuperación.
 
         `seed` siembra el generador local de los órdenes del modo asincrónico (acepta
         lo mismo que `np.random.default_rng`); el modo sincrónico no la usa.
+        `return_states` agrega al resultado la secuencia de estados.
         """
         state = bipolar(query, 1)
         if len(state) != len(self.weights_):
             raise ValueError('El patrón de consulta no tiene N elementos')
-        step = self._update(mode, seed)
+        step = self._updater(mode, seed)
         visited = {state.tobytes()}
-        energies = [self.energy(state)]
+        states, energies = [state], [self.energy(state)]
+
+        def result(stop_reason: StopReason) -> Recall:
+            return Recall(states[-1], len(states) - 1, tuple(energies), stop_reason,
+                          tuple(states) if return_states else None)
+
         while True:
             new_state = step(state)
             if np.array_equal(new_state, state):
-                return Recall(state, len(energies) - 1, tuple(energies), 'stable')
-            if len(energies) - 1 == max_iterations:
-                return Recall(state, max_iterations, tuple(energies), 'max_iterations')
+                return result('stable')
+            revisits = new_state.tobytes() in visited
+            if len(states) - 1 == max_iterations:
+                return result('cycle' if revisits else 'max_iterations')
             state = new_state
+            states.append(state)
             energies.append(self.energy(state))
-            if state.tobytes() in visited:
-                return Recall(state, len(energies) - 1, tuple(energies), 'cycle')
+            if revisits:
+                return result('cycle')
             visited.add(state.tobytes())
 
-    def _update(self, mode, seed):
+    def _updater(self, mode, seed):
+        """Devuelve la función que hace una iteración en el modo pedido."""
         if mode == 'synchronous':
             return self._synchronous
         if mode == 'asynchronous':

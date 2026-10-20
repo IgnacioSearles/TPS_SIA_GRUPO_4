@@ -32,6 +32,12 @@ class ApunteExampleTests(unittest.TestCase):
         result = self.network.recall(np.array([1, -1, -1, -1]))
         np.testing.assert_allclose(result.energies, [0, -3])
 
+    def test_sequence_of_states_only_when_asked(self):
+        query = np.array([1, -1, -1, -1])
+        self.assertIsNone(self.network.recall(query).states)
+        states = self.network.recall(query, return_states=True).states
+        np.testing.assert_array_equal(states, [query, XI_1])
+
     def test_energy_is_minus_sum_over_pairs_of_weight_times_states(self):
         # H = −½·Σᵢⱼ wᵢⱼ SᵢSⱼ = −Σ_{j>i} wᵢⱼ SᵢSⱼ, con w₁₂ = w₃₄ = 0,5 y el resto −0,5.
         # (1, 1, 1, 1): −(0,5 − 0,5 − 0,5 − 0,5 − 0,5 + 0,5) = 1.
@@ -43,6 +49,12 @@ class ApunteExampleTests(unittest.TestCase):
 
 ORTHOGONAL = np.array([[1, 1, 1, 1, -1, -1, -1, -1],
                        [1, 1, -1, -1, 1, 1, -1, -1]])
+
+# Tres patrones ortogonales de 4 neuronas: w₁₂ = w₁₃ = w₂₄ = w₃₄ = ¼, w₁₄ = w₂₃ = −¼.
+# Desde ENTERS_CYCLE = q = sign(ξ₁ + ξ₂ + ξ₃), el modo sincrónico recorre
+# q → a = (1, −1, −1, 1) → b = (−1, 1, 1, −1) → a: entra a un ciclo de período 2.
+THREE_OF_FOUR = np.array([[1, 1, 1, 1], [1, 1, -1, -1], [1, -1, 1, -1]])
+ENTERS_CYCLE = np.array([1, 1, 1, -1])
 
 
 def outcome(network, query, origin, **options):
@@ -92,12 +104,11 @@ class EnergyRiseTests(unittest.TestCase):
         self.assertEqual(network.recall(np.array([1, -1, -1, -1])).energy_rises, 0)
 
     def test_synchronous_update_can_raise_energy(self):
-        # Tres patrones ortogonales de 4 neuronas: w₁₂ = w₁₃ = w₂₄ = w₃₄ = ¼,
-        # w₁₄ = w₂₃ = −¼. Desde su estado mezcla (1, 1, 1, −1), con H = 0, el modo
-        # sincrónico cambia tres neuronas a la vez y llega a (1, −1, −1, 1), con
-        # H = 1,5; después oscila con (−1, 1, 1, −1), de igual energía.
-        network = Hopfield(np.array([[1, 1, 1, 1], [1, 1, -1, -1], [1, -1, 1, -1]]))
-        result = network.recall(np.array([1, 1, 1, -1]), mode='synchronous')
+        # Desde el estado mezcla de THREE_OF_FOUR, con H = 0, el modo sincrónico
+        # cambia tres neuronas a la vez y llega a (1, −1, −1, 1), con H = 1,5;
+        # después oscila con (−1, 1, 1, −1), de igual energía.
+        network = Hopfield(THREE_OF_FOUR)
+        result = network.recall(ENTERS_CYCLE, mode='synchronous')
         np.testing.assert_allclose(result.energies, [0, 1.5, 1.5, 1.5])
         self.assertEqual(result.stop_reason, 'cycle')
         self.assertEqual(result.energy_rises, 1)
@@ -136,17 +147,44 @@ class StopReasonTests(unittest.TestCase):
         self.assertEqual(result.iterations, 2)
         np.testing.assert_array_equal(result.state, [1, 1])
 
-    def test_query_not_stable_after_the_limit_stops_at_limit(self):
-        result = self.network.recall(np.array([1, 1]), max_iterations=1)
-        self.assertEqual(result.stop_reason, 'max_iterations')
-        self.assertEqual(result.iterations, 1)
-        np.testing.assert_array_equal(result.state, [-1, -1])
-
     def test_unstable_endings_are_reported_by_stop_reason(self):
         # (1, 1) está a Hamming 1 de ξ = (1, −1); (−1, −1) también.
         self.assertEqual(outcome(self.network, np.array([1, 1]), 0), ('cycle', 1))
-        self.assertEqual(outcome(self.network, np.array([1, 1]), 0, max_iterations=1),
-                         ('max_iterations', 1))
+        # La consulta del caso de abajo se mueve a (1, −1, −1, 1), a Hamming 2 de ξ₁.
+        network = Hopfield(THREE_OF_FOUR)
+        self.assertEqual(outcome(network, ENTERS_CYCLE, 0, max_iterations=1), ('max_iterations', 2))
+
+    def test_fixed_point_is_stable_not_a_cycle(self):
+        # Un estado estable también "vuelve" a sí mismo: debe informarse como
+        # estado estable, nunca como ciclo de período 1, con cualquier tope.
+        network = Hopfield(ORTHOGONAL)
+        for limit in (0, 1, 100):
+            result = network.recall(ORTHOGONAL[0], max_iterations=limit)
+            self.assertEqual((result.stop_reason, result.iterations), ('stable', 0))
+
+
+class LimitTests(unittest.TestCase):
+    def setUp(self):
+        self.network = Hopfield(THREE_OF_FOUR)
+
+    def test_query_not_stable_after_the_limit_stops_at_limit(self):
+        # Tras 1 iteración la red está en a y el paso siguiente la lleva a b, nuevo.
+        result = self.network.recall(ENTERS_CYCLE, max_iterations=1)
+        self.assertEqual((result.stop_reason, result.iterations), ('max_iterations', 1))
+        np.testing.assert_array_equal(result.state, [1, -1, -1, 1])
+
+    def test_returning_to_a_visited_state_at_the_limit_is_a_cycle(self):
+        # Tras 2 iteraciones la red está en b y el paso siguiente vuelve a a: es un
+        # ciclo, no un corte por tope. La red no pasa del tope: se queda en b.
+        result = self.network.recall(ENTERS_CYCLE, max_iterations=2)
+        self.assertEqual((result.stop_reason, result.iterations), ('cycle', 2))
+        np.testing.assert_array_equal(result.state, [-1, 1, 1, -1])
+
+    def test_stable_state_at_the_limit_is_stable(self):
+        # El ejemplo del apunte llega a ξ₁ en 1 iteración: con tope 1 es estado estable.
+        network = Hopfield(np.vstack([XI_1, XI_2]))
+        result = network.recall(np.array([1, -1, -1, -1]), max_iterations=1)
+        self.assertEqual((result.stop_reason, result.iterations), ('stable', 1))
 
 
 class AsynchronousTests(unittest.TestCase):
@@ -154,11 +192,10 @@ class AsynchronousTests(unittest.TestCase):
         # El caso de EnergyRiseTests: en modo sincrónico (1, 1, 1, −1) oscila. En
         # asincrónico, la primera de las neuronas 2, 3 o 4 que cambia (las tres tienen
         # campo −¼·S) lleva la red a un patrón almacenado o a su inverso, que es estable.
-        patterns = np.array([[1, 1, 1, 1], [1, 1, -1, -1], [1, -1, 1, -1]])
-        network = Hopfield(patterns)
-        stored = np.vstack([patterns, -patterns])
+        network = Hopfield(THREE_OF_FOUR)
+        stored = np.vstack([THREE_OF_FOUR, -THREE_OF_FOUR])
         for seed in range(10):
-            result = network.recall(np.array([1, 1, 1, -1]), mode='asynchronous', seed=seed)
+            result = network.recall(ENTERS_CYCLE, mode='asynchronous', seed=seed)
             self.assertEqual((result.stop_reason, result.iterations), ('stable', 1))
             self.assertTrue((stored == result.state).all(axis=1).any(), result.state)
 
