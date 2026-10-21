@@ -1,9 +1,10 @@
 /data/
 
+enunciado.md
+
 # Resultados regenerables derivados del catálogo local
 /reports/ejercicio1/*.csv
 /reports/ejercicio1/*.json
-/reports/ejercicio1/*.png
 /reports/ejercicio2/*.csv
 /reports/ejercicio2/*.json
 __pycache__/
