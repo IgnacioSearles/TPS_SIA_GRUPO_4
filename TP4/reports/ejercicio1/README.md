@@ -16,6 +16,71 @@ Las escalas son muy diferentes: seguidores van de 9.604 a 775.589; precios de US
 
 El criterio de 1,5 IQR señala 11 observaciones en maquillaje y 11 en arte. No se eliminan: son porcentajes válidos y la especialización es justamente información útil para los clientes. También señala cinco alcances argentinos estimados, tres engagements totales y un valor en likes, comentarios y compartidos. Son señales para inspección, no evidencia de errores. No se recortan ni se borran creadores. Ver `atipicos.csv`, `descriptivos.csv` y `distribuciones.png`.
 
+![Escalas originales y estandarizadas](escalas.png)
+
+Sin escalar, seguidores, impresiones, alcance y reproducciones concentran el **99,996% de la varianza total** de las 27 variables seleccionadas (seguidores solo, 65%); el desvío de seguidores es 148.000 veces el de comentarios. Una distancia euclídea en unidades originales sería, en la práctica, una distancia por tamaño. Estandarizadas, todas quedan en el mismo rango (izquierda frente a derecha). Después de estandarizar quedan fuera de los bigotes los especialistas de maquillaje y arte, que se explican en la sección siguiente, y valores aislados de likes, comentarios y compartidos.
+
+## Exploración orientada al caso de uso
+
+Las tablas están en `temas_medianas.csv`, `temas_especializacion.csv`, `bloques_variables.csv` y `seguidores_relaciones.csv`.
+
+### Temas: cada creador tiene uno principal
+
+![Composición temática](temas_composicion.png)
+
+Por tema principal hay 15 creadores de fútbol, 13 de perros, 11 de maquillaje y 11 de arte. **Ninguno es mixto**: el tema principal ocupa entre 39,6% y 82,2% de las publicaciones (mediana 66,9%), y el segundo nunca supera el 25,1%. Por eso las distribuciones de cada tema son bimodales: un grupo de especialistas (≈60–80%) y el resto (≈5–20%). Los "atípicos" IQR de maquillaje y arte son esos especialistas: hay solo 11, frente a 39 no especialistas, y caen fuera de los bigotes. El nombre de usuario no es una guía confiable: `@vidaperruna` y `@makeupconsejos` publican mayormente fútbol, y `@estiloydetalle`, perros.
+
+![Perfil por tema](temas_perfiles.png)
+
+| Mediana por tema principal | Fútbol | Maquillaje | Perros | Arte |
+| --- | ---: | ---: | ---: | ---: |
+| Seguidores | 198.136 | 383.128 | 44.870 | 229.175 |
+| Precio USD | 1.457 | 1.622 | 256 | 1.264 |
+| USD por 1.000 cuentas AR | 55,7 | 43,8 | 38,6 | 41,6 |
+| Audiencia argentina | 41,6% | 41,1% | 66,4% | 46,4% |
+| Alcance a no seguidores | 67,2% | 56,0% | 49,5% | 54,3% |
+| Tutoriales | 23,7% | 15,9% | 41,1% | 27,4% |
+| Guardados / 1.000 | 12,6 | 11,1 | 19,0 | 11,3 |
+| Visitas al perfil / 1.000 | 14,9 | 15,6 | 20,2 | 16,8 |
+| Tiempo de visualización (s) | 21,3 | 22,7 | 30,4 | 20,8 |
+
+- **Perros** es el tema más distinto: creadores chicos y baratos, con más audiencia argentina, más tutoriales, guardados, visitas y tiempo de visualización. Es favorable para los refugios, cuyo objetivo es local.
+- **Maquillaje** reúne los creadores más grandes y los que menos tutoriales publican.
+- **Fútbol** tiene el mayor alcance a no seguidores y el mayor costo por cuenta argentina alcanzada: el descubrimiento ocurre en buena parte fuera de Argentina.
+- Las cajas se superponen mucho y cada grupo tiene entre 11 y 15 creadores: las medianas describen tendencias, no grupos separables. Dentro de cada tema hay creadores chicos y grandes (fútbol va de 16 mil a 745 mil seguidores), así que el tema no reemplaza al resto de las variables.
+
+### Bloques de variables
+
+![Correlaciones por bloques](correlaciones_bloques.png)
+
+La matriz de correlaciones se ordenó con un agrupamiento jerárquico de enlace promedio y distancia **1 − r con signo**, cortando donde la correlación media dentro del bloque baja de 0,3. Se usa el signo a propósito: con 1 − |r| alcance y profundidad quedarían juntos por ser opuestos.
+
+| Bloque | Variables | r media interna | Contenido |
+| --- | ---: | ---: | --- |
+| Visibilidad / formato viral | 12 | 0,71 | Seguidores, alcance, impresiones, reproducciones, precio, video, short, tendencias, likes, compartidos, alcance a no seguidores, entretenimiento |
+| Profundidad | 9 | 0,47 | Texto, guardados, comentarios, visitas, tiempo de visualización, tutoriales, reseñas, exhibición, perros |
+| Fútbol y publicidad | 2 | 0,38 | `topic_football_pct`, `sponsored_posts_pct` |
+| Variables sueltas | 1 c/u | — | Audiencia argentina, arte, maquillaje, publicaciones mensuales |
+
+Los dos bloques grandes son **opuestos**: las 108 correlaciones entre ellos son todas negativas, de −0,14 a −0,86, con media −0,57: 21 de las 27 variables describen un mismo eje, de grande y viral a chico y elaborado. Eso explica que PC1 retenga casi la mitad de la varianza. Las variables que más importan para elegir por cliente (tema y audiencia argentina) casi no correlacionan con ese eje ni entre sí.
+
+**Implicancia para Kohonen.** Con z-score, cada variable aporta lo mismo a la distancia euclídea. El bloque de visibilidad aporta 12 coordenadas de información muy parecida, y la audiencia argentina, una sola. El mapa tenderá a organizarse primero por tamaño y profundidad, y a separar poco por tema y geografía. No es un error, pero hay que tenerlo en cuenta al leer la grilla. Si interesa que el tema pese más, las alternativas son la representación de 24 variables preparada en la batería (`04_representation`) o pesos por bloque. La selección actual no se cambia: es una decisión que se evalúa con el SOM, no con el EDA.
+
+### Seguidores frente al objetivo de las campañas
+
+![Relaciones con seguidores](seguidores_relaciones.png)
+
+| Seguidores frente a | Pearson | Spearman |
+| --- | ---: | ---: |
+| Precio USD | +0,82 | +0,91 |
+| USD por 1.000 cuentas AR | −0,02 | −0,05 |
+| Audiencia argentina | −0,00 | −0,15 |
+| Alcance a no seguidores | +0,50 | +0,59 |
+| Tutoriales | −0,60 | −0,68 |
+| Guardados / 1.000 | −0,74 | −0,79 |
+
+Spearman, que usa rangos y no se ve afectado por la asimetría de seguidores, confirma cada relación y a veces la refuerza. Los seguidores predicen el **precio** pero no el **costo por cuenta argentina alcanzada** ni la **proporción de audiencia argentina**: un creador grande es más caro en total sin ser más eficiente para llegar a Argentina. A más seguidores, más descubrimiento y menos contenido profundo. Esto adelanta, con datos crudos, la respuesta sobre "seleccionar solo por seguidores" de la sección de campañas.
+
 ## Selección de variables
 
 Se excluyen `creator_id` y `name` de la matriz numérica; permanecen para identificar resultados. De las 31 variables numéricas se conservan **27**:
@@ -66,7 +131,7 @@ Para refugios conviene explorar afinidad con perros, audiencia argentina y visit
 
 No se seleccionan ganadores de campaña en esta etapa. El próximo paso es entrenar y comparar SOM con estas representaciones, contrastar las regiones con las componentes e interpretar perfiles y costos. Con solo 50 registros y 27 variables, conviene evaluar estabilidad frente a semillas y cambios de muestra antes de dar por firmes los grupos. Los ejes dependen del catálogo: una actualización mensual puede rotarlos; para comparar meses hay que conservar el preprocesamiento/modelo de referencia o documentar el reajuste.
 
-Los CSV, JSON y PNG generados contienen información derivada de los datos y se excluyen de Git junto con el CSV original. Este informe y el script sí pueden versionarse.
+Los CSV y JSON generados contienen información derivada de los datos y se excluyen de Git junto con el CSV original. Los PNG se versionan para que el informe muestre los gráficos; se regeneran con el mismo script.
 
 ## Kohonen: perfiles por región y matriz U
 

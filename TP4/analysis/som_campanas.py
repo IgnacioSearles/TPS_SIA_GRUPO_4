@@ -10,6 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import numpy as np
 import pandas as pd
 
+from analysis.eda import TOPICS, cost_per_thousand_argentine_reach, main_topic
 from src.tp4.config import KohonenConfig
 from src.tp4.kohonen import Kohonen
 from src.tp4.plotting import plot_grid
@@ -22,7 +23,6 @@ OUT = ROOT / 'reports' / 'ejercicio1'
 PREPROCESSING = PreprocessingConfig()
 MODEL = KohonenConfig(rows=5, cols=5, epochs=500, seed=0)
 
-TOPICS = ['football', 'makeup', 'dogs', 'art']
 CAMPAIGN_COLUMNS = ['name', 'neuron', 'followers', 'price_usd', 'cpm_arg', 'non_follower_reach_pct',
                     'content_tutorial_pct', 'saves_per_1000', 'argentina_audience_pct']
 # Criterios de selección: (columna, mayor es mejor)
@@ -36,9 +36,8 @@ CRITERIA = {
 
 def campaign_metrics(frame):
     frame = frame.copy()
-    # USD por cada 1000 cuentas alcanzadas en Argentina
-    frame['cpm_arg'] = frame.price_usd / frame.estimated_argentina_reach * 1000
-    frame['main_topic'] = frame[[f'topic_{t}_pct' for t in TOPICS]].idxmax(axis=1).str[6:-4]
+    frame['cpm_arg'] = cost_per_thousand_argentine_reach(frame)
+    frame['main_topic'] = main_topic(frame)
     return frame
 
 

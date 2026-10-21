@@ -8,10 +8,18 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import pandas as pd
 
-from analysis.eda import ExploratoryTables, QualityReport, exploratory_tables, quality_report, validate_catalog
-from analysis.plots import plot_biplot, plot_correlations, plot_distributions, plot_variance
-from analysis.reporting import export_exploration, export_representation, print_summary
+from analysis.eda import (
+    FOLLOWER_RELATION_TARGETS, TOPIC_PROFILE_COLUMNS, ExploratoryTables, QualityReport, TopicTables,
+    VariableBlocks, exploratory_tables, follower_relations, quality_report, topic_tables, validate_catalog,
+    variable_blocks,
+)
+from analysis.plots import (
+    plot_biplot, plot_correlations, plot_distributions, plot_follower_relations, plot_scale_comparison,
+    plot_topic_composition, plot_topic_profiles, plot_variable_blocks, plot_variance,
+)
+from analysis.reporting import export_exploration, export_representation, export_use_case, print_summary
 from analysis.representation import PCAAnalysis, analyze_pca, analyze_variants
+from src.tp4.preprocessing import Preprocessor
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'reports' / 'ejercicio1'
@@ -22,6 +30,9 @@ class CatalogAnalysis:
     quality: QualityReport
     exploration: ExploratoryTables
     variants: list[PCAAnalysis]
+    topics: TopicTables
+    blocks: VariableBlocks
+    relations: pd.DataFrame
 
     @property
     def selected(self) -> PCAAnalysis:
@@ -44,7 +55,14 @@ def analyze_catalog(frame: pd.DataFrame) -> CatalogAnalysis:
         quality=quality_report(frame, numeric),
         exploration=exploratory_tables(numeric),
         variants=analyze_variants(frame, numeric),
+        topics=topic_tables(frame),
+        blocks=variable_blocks(numeric[_selected_columns(frame)]),
+        relations=follower_relations(frame, FOLLOWER_RELATION_TARGETS),
     )
+
+
+def _selected_columns(frame):
+    return list(Preprocessor().fit(frame).columns_)
 
 
 def export_analysis(output, frame, analysis: CatalogAnalysis):
@@ -55,6 +73,13 @@ def export_analysis(output, frame, analysis: CatalogAnalysis):
     plot_biplot(frame, analysis.selected, output)
     plot_correlations(analysis.exploration.correlations, output)
     plot_distributions(frame.select_dtypes(include='number'), output)
+    export_use_case(output, analysis.topics, analysis.blocks, analysis.relations)
+    selected = analysis.selected
+    plot_scale_comparison(frame[selected.columns], selected.standardized, output)
+    plot_variable_blocks(analysis.blocks, output)
+    plot_topic_composition(frame, analysis.topics, output)
+    plot_topic_profiles(frame, TOPIC_PROFILE_COLUMNS, output)
+    plot_follower_relations(frame, analysis.relations, output)
 
 
 def run(output=OUT) -> CatalogAnalysis:

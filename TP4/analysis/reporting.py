@@ -5,7 +5,7 @@ import json
 import pandas as pd
 
 from src.tp4.export import write_json
-from .eda import ExploratoryTables, QualityReport
+from .eda import ExploratoryTables, QualityReport, TopicTables, VariableBlocks
 from .representation import PCAAnalysis
 
 
@@ -14,6 +14,13 @@ def export_exploration(output, quality: QualityReport, tables: ExploratoryTables
     tables.descriptive.to_csv(output / 'descriptivos.csv')
     tables.outliers.to_csv(output / 'atipicos.csv')
     tables.high_correlations.to_csv(output / 'correlaciones_altas.csv', index=False)
+
+
+def export_use_case(output, topics: TopicTables, blocks: VariableBlocks, relations: pd.DataFrame):
+    topics.medians.to_csv(output / 'temas_medianas.csv')
+    topics.specialization.to_csv(output / 'temas_especializacion.csv', index=False)
+    blocks.summary().to_csv(output / 'bloques_variables.csv', index=False)
+    relations.to_csv(output / 'seguidores_relaciones.csv')
 
 
 def loadings_table(analysis: PCAAnalysis):
