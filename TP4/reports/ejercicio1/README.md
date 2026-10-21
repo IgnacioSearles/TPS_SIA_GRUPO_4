@@ -3,8 +3,8 @@
 | Parte | Documento |
 | --- | --- |
 | 1.1 EDA y PCA | Este documento |
-| 1.2 Kohonen: hiperparámetros | [Geometría](geometria_kohonen/README.md) (300 corridas) y [representación](representacion_kohonen/README.md) (360 corridas). Tasa y radio en ejecución |
-| 1.2 Kohonen: interpretación | [Regiones, matriz U y campañas](som/README.md) |
+| 1.2 Kohonen: hiperparámetros | [Geometría](geometria_kohonen/README.md) (300 corridas), [representación](representacion_kohonen/README.md) (360) y [tasa y radio](aprendizaje_vecindad_kohonen/README.md) (840) |
+| 1.2 Kohonen: interpretación | [Regiones, matriz U y campañas](som/README.md); [comparación con entradas PCA](som_pca/README.md) |
 | 1.3 Índice de Oja | [Índice](oja/README.md) |
 | 1.4 Decisiones | [Campañas](#campañas) en este documento |
 
@@ -129,6 +129,17 @@ Los números siguientes son **correlaciones variable-componente**, no coeficient
 
 ![Biplot](biplot.png)
 
+**PC3 en el biplot.** PC1–PC3 retienen 65,9 % de la varianza. Los mismos ejes del biplot, con PC3:
+
+![Biplots con PC3](biplot_pc3.png)
+
+- **PC1–PC3 (izquierda)**: PC3 es casi perpendicular a PC1. Publicidad y fútbol apuntan hacia arriba; perros, publicaciones por mes y compartidos, hacia abajo. Los creadores de fútbol con más publicidad (`@manosalaobra`, `@pasionalbirroja`, `@tacticavisual`, `@golconmate`) quedan arriba, en ambos extremos de PC1: grandes y chicos.
+- **PC2–PC3 (derecha)**: sin el eje de tamaño, los cuatro temas ocupan zonas propias. Fútbol y publicidad quedan arriba; arte y exhibición, a la derecha; perros y audiencia argentina, abajo a la izquierda. Las variables de PC1 quedan cortas en este plano y no se rotulan. Es la estructura temática que el biplot PC1–PC2 superpone.
+
+![Biplot 3D](pca_3d.png)
+
+El **biplot 3D** junta las tres componentes. Para el mismo dibujo en rotación, ver la [animación](pca_3d.gif). Solo se rotulan las flechas con correlación de al menos 0,6 en el espacio PC1–PC3, y las que apuntan en casi la misma dirección comparten etiqueta. Para leer variables concretas son más claros los dos planos de arriba. Aun con PC3, tres componentes retienen dos tercios de la varianza: entrenar Kohonen con 3 componentes cuadruplica el error topográfico y pierde los temas ([comparación](som_pca/README.md)).
+
 En el biplot los puntos son scores divididos por el desvío de cada componente, y las flechas son correlaciones multiplicadas por dos para legibilidad. Es un biplot de correlación con escala visual explícita: no interpretar la distancia punto-flecha como cantidad original ni usar distancias del dibujo como distancias de entrenamiento. El color indica el tema con porcentaje máximo, solo como ayuda descriptiva; no son clusters descubiertos. Las flechas se proyectan sobre dos ejes que representan únicamente el 58,89% de la varianza.
 
 ## Implicancias para las campañas y límites
@@ -229,4 +240,4 @@ Promedios del top 3 de cada criterio:
 
 ## Bitácora de experimentos
 
-La [bitácora](bitacora/README.md) conserva la cronología, las decisiones sobre duración y los límites de las conclusiones. El [inventario CSV](bitacora/experimentos.csv) registra el estado de cada ejecución al corte; los barridos de tasa de aprendizaje y radio están en ejecución.
+La [bitácora](bitacora/README.md) conserva la cronología, las decisiones sobre duración y los límites de las conclusiones. El [inventario CSV](bitacora/experimentos.csv) registra el estado de cada ejecución al corte; los barridos de tasa de aprendizaje y radio están completos.

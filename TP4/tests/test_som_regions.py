@@ -4,6 +4,7 @@ import unittest
 import numpy as np
 
 from analysis.som_campanas import _order_by_median
+from analysis.som_pca_comparison import aligned_to_reference
 from analysis.som_regions import co_assignment, contiguous_ward, membership_firmness
 from src.tp4.geometry import Grid
 
@@ -45,6 +46,13 @@ class OrderingTests(unittest.TestCase):
         winners = np.array([0, 0, 1, 2])
         followers = np.array([500.0, 700.0, 10.0, 90.0])
         self.assertEqual(list(_order_by_median(neuron_labels, winners, followers)), [2, 0, 1])
+
+
+class AlignmentTests(unittest.TestCase):
+    def test_each_region_takes_the_reference_label_it_overlaps_most(self):
+        regions = np.array(['R1', 'R1', 'R1', 'R2', 'R2'])
+        reference = np.array(['R4', 'R4', 'R5', 'R5', 'R5'])
+        self.assertEqual(list(aligned_to_reference(regions, reference)), ['R4', 'R4', 'R4', 'R5', 'R5'])
 
 
 if __name__ == '__main__':

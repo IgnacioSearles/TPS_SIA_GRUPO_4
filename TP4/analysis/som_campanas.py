@@ -63,7 +63,7 @@ def prepare(frame):
     pca = compute_pca(x)
     profiled = frame.assign(
         cpm_arg=cost_per_thousand_argentine_reach(frame), main_topic=main_topic(frame),
-        pc1=pca.scores[:, 0], pc2=pca.scores[:, 1])
+        pc1=pca.scores[:, 0], pc2=pca.scores[:, 1], pc3=pca.scores[:, 2])
     profiled['main_topic_share'] = [row[f'topic_{row.main_topic}_pct'] for _, row in profiled.iterrows()]
     return x, preprocessor, profiled
 
@@ -235,10 +235,11 @@ def run(output=OUT, data=ROOT / 'data' / 'creadores.csv'):
     replacements.to_csv(output / 'reemplazos.csv', index=False, float_format='%.4g')
     edges.to_csv(output / 'fronteras.csv', index=False, float_format='%.3f')
 
-    from .som_plots import plot_component_planes, plot_map, plot_regions_on_pca
+    from .som_plots import plot_component_planes, plot_map, plot_regions_3d, plot_regions_on_pca
     plot_map(catalog, frame.main_topic.to_numpy(), output)
     plot_component_planes(catalog.som.grid, neuron_planes(catalog, preprocessor), output)
     plot_regions_on_pca(frame, output)
+    plot_regions_3d(frame, output)
     _print(metrics, counts, profiles, options, summary)
     return frame
 

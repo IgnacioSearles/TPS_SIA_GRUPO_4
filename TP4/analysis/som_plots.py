@@ -93,3 +93,41 @@ def plot_regions_on_pca(frame, output):
     ax.set(xlabel='PC1 (− visibilidad · + profundidad)', ylabel='PC2 (+ arte y exhibición · − audiencia argentina y perros)',
            title='Regiones del SOM sobre el plano de PCA')
     _save(fig, output / 'regiones_pca.png')
+
+
+def plot_region_agreement(reference, partitions, output):
+    """Creadores compartidos entre las regiones de 27 variables (filas) y las de cada representación (columnas)."""
+    import pandas as pd
+    columns = 2
+    rows = int(np.ceil(len(partitions) / columns))
+    fig, axes = plt.subplots(rows, columns, figsize=(9, 4.2 * rows), squeeze=False)
+    for ax in axes.flat[len(partitions):]:
+        ax.set_visible(False)
+    for ax, (label, regions) in zip(axes.flat, partitions.items()):
+        table = pd.crosstab(pd.Series(reference, name='27 variables'), pd.Series(regions, name=label))
+        ax.imshow(table.to_numpy(), cmap='Blues')
+        for (row, column), value in np.ndenumerate(table.to_numpy()):
+            if value:
+                ax.text(column, row, value, ha='center', va='center', fontsize=8)
+        ax.set_xticks(range(table.shape[1]), table.columns, fontsize=8)
+        ax.set_yticks(range(table.shape[0]), table.index, fontsize=8)
+        ax.set(title=label, xlabel=f'Región ({label})', ylabel='Región (27 variables)')
+    fig.suptitle('Creadores en común con las regiones de 27 variables\n'
+                 '(cada modelo numera R1–R5 por mediana de seguidores)')
+    _save(fig, output / 'coincidencias.png')
+
+
+def plot_regions_3d(frame, output):
+    """PC1–PC3 coloreado por región del SOM: muestra qué separa el mapa más allá del plano del biplot."""
+    from .plots import scatter_3d
+    regions = sorted(frame.region.unique())
+    colors = frame.region.map({region: REGION_COLORS[index] for index, region in enumerate(regions)}).to_numpy()
+    fig = plt.figure(figsize=(15, 6.5))
+    for position, (elevation, azimuth) in enumerate([(20, -60), (15, 30)], start=1):
+        ax = fig.add_subplot(1, 2, position, projection='3d')
+        scatter_3d(ax, frame[['pc1', 'pc2', 'pc3']].to_numpy(), colors, ['PC1', 'PC2', 'PC3'])
+        ax.view_init(elevation, azimuth)
+    handles = [plt.Line2D([], [], marker='o', ls='', color=REGION_COLORS[index]) for index in range(len(regions))]
+    fig.axes[0].legend(handles, regions, title='Región SOM', loc='upper left')
+    fig.suptitle('Regiones del SOM en PC1–PC3: dos vistas')
+    _save(fig, output / 'regiones_pca_3d.png')

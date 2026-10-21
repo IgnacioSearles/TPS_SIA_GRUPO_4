@@ -12,7 +12,7 @@ El informe anterior usaba 5×5 y quedaban 2 creadores por neurona en promedio: 1
 - **Representación** ([análisis](../representacion_kohonen/README.md)): en 4×4, las 27 variables separan tema (pureza 0,77) y audiencia argentina (η² 0,42) por encima del azar (0,55 y 0,30).
 - **Regiones**: como se ve abajo, las regiones de 4×4 se reproducen entre semillas (ARI 0,79) y las de 5×5 no (0,53).
 
-Tasa y radio quedan en los valores del protocolo de los barridos. Sus barridos específicos (`02_learning`, `03_neighborhood`) están en ejecución; esta sección se revisa cuando terminen.
+- **Tasa y radio** ([análisis](../aprendizaje_vecindad_kohonen/README.md), 840 corridas en 4×4): en rectangular, 0,3 → 0,01 y radio gaussiano 2 → 0,5 tienen TE 0,07. Solo la tasa 0,6 lo iguala (0,06) con QE menor a 3; los demás TE más bajos cuestan un QE de 3,2 o más. Las configuraciones con menor QE pierden la topología o la estabilidad. Una tasa inicial de 0,6 da exactamente las mismas regiones.
 
 ## Regiones
 
@@ -66,6 +66,12 @@ Las regiones separan **tamaño, estilo y tema**, pero **no geografía ni costo**
 - **PC1 ordena las regiones de izquierda a derecha**: R5 (PC1 medio −4,9), R4 (−1,3), R3 (−0,7), R2 (+2,5) y R1 (+4,7). La diagonal del mapa es el eje visibilidad–profundidad de PC1 y del índice de Oja.
 - **PC2 separa R3 (+2,3, arte y exhibición) de R1 (−1,3, perros y audiencia argentina)**, igual que en el biplot.
 - **El SOM separa lo que PC1–PC2 superponen.** R4 y R5 están juntas en el biplot, pero el mapa las distingue por tamaño, precio y tema: R4 es entretenimiento mediano, sobre todo de maquillaje, y R5 reúne a los más grandes. R2 y R1 están cerca en PC1, pero el mapa separa a los creadores de perros de los de fútbol y arte, que usan PC3–PC4. El SOM usa las 27 variables, no solo el 58,9 % de varianza del plano.
+
+![Regiones en PC1–PC3](regiones_pca_3d.png)
+
+En 3D se ve la separación que el plano no muestra: R2 (nicho con 47 % de publicidad) queda arriba en PC3, el eje de publicidad y fútbol, y R1 (perros) abajo, aunque ambas están cerca en PC1–PC2.
+
+Entrenar el mapa directamente sobre las componentes no mejora estas regiones. Con 10 componentes se obtienen las mismas regiones y campañas; con 2, 3 o 6 se pierden los temas o cambian los grupos ([comparación](../som_pca/README.md)).
 
 ## Matriz U
 

@@ -14,7 +14,7 @@ from analysis.eda import (
     variable_blocks,
 )
 from analysis.plots import (
-    plot_biplot, plot_correlations, plot_distributions, plot_follower_relations, plot_scale_comparison,
+    plot_biplot, plot_biplot_pc3, plot_correlations, plot_pca_3d, plot_distributions, plot_follower_relations, plot_scale_comparison,
     plot_topic_composition, plot_topic_profiles, plot_variable_blocks, plot_variance,
 )
 from analysis.reporting import export_exploration, export_representation, export_use_case, print_summary
@@ -71,6 +71,8 @@ def export_analysis(output, frame, analysis: CatalogAnalysis):
     analysis.comparisons().to_csv(output / 'comparacion_pca.csv', index=False)
     plot_variance(analysis.selected, output)
     plot_biplot(frame, analysis.selected, output)
+    plot_biplot_pc3(frame, analysis.selected, output)
+    plot_pca_3d(frame, analysis.selected, output)
     plot_correlations(analysis.exploration.correlations, output)
     plot_distributions(frame.select_dtypes(include='number'), output)
     export_use_case(output, analysis.topics, analysis.blocks, analysis.relations)

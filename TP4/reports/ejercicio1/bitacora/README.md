@@ -13,10 +13,21 @@ Actualización: **21/10/2026**. Esta bitácora registra qué probamos, qué evid
 | Continuación de esas 23 a 1.000 | 23/23 completas | Primera revisión de duración, limitada a mapas pequeños |
 | Geometría a 1.000 épocas | **300/300 completas, sin fallos** | Comparaciones de capacidad, forma, topología, inicialización y estabilidad |
 | Representaciones a 1.000 épocas | **360/360 completas, sin fallos** | Se mantienen 27 variables estandarizadas, sin log ni PCA |
-| Aprendizaje y radio (4×4) | En ejecución: 260 y 580 corridas | Pendiente |
+| Aprendizaje y radio (4×4) | **840/840 completas, sin fallos** | Se confirman tasa 0,3 → 0,01 y radio gaussiano 2 → 0,5 |
 | Modelo de interpretación 4×4 y regiones | 5 semillas | 5 regiones estables (ARI 0,79); selección para campañas |
 | Oja | 4 tasas × 5 semillas | η = 0,001; el índice es PC1 |
 | Resto de etapas | Configuradas; sin ejecución registrada | Duración, early stopping, orden e interacciones pendientes |
+
+## 21/10 — Tasa de aprendizaje y radio
+
+840 corridas en 4×4: 260 de tasa y 580 de radio y vecindad, con ambas topologías y 5 semillas. El radio final es lo que más mueve las métricas:
+- con 0,1, el QE baja pero el TE sube a 0,21–0,52, porque el mapa pierde la topología;
+- con 1, el QE sube a 3,3;
+- con radios constantes grandes, quedan hasta 75 % de neuronas vacías.
+
+Las tasas constantes altas no convergen (con 0,6, TE 0,30). **Decisión: se confirman 0,3 → 0,01 y radio gaussiano 2 → 0,5.** La alternativa 0,6 → 0,01 da las mismas 5 regiones. Detalle en [tasa y radio](../aprendizaje_vecindad_kohonen/README.md).
+
+También se entrenó el mapa sobre 2, 3, 6 y 10 componentes principales. PCA 10 reproduce las regiones (ARI 0,91) y las 12 selecciones de campaña; con menos componentes se pierden los temas o cambian los grupos. Detalle en la [comparación con PCA](../som_pca/README.md).
 
 ## 21/10 — Modelo de interpretación, regiones y Oja
 
@@ -76,7 +87,7 @@ La interpretación completa, cifras por configuración y límites están en el [
 
 ### Qué sigue abierto
 
-Falta cerrar aprendizaje y radio con los barridos en ejecución y, si cambian los valores, regenerar la interpretación del 4×4. Para hablar de ventas o adopciones haría falta evidencia comercial externa.
+Para hablar de ventas o adopciones haría falta evidencia comercial externa.
 
 ## Resultados resumidos publicados
 
