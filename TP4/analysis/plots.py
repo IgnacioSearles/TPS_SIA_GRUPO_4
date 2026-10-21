@@ -205,9 +205,17 @@ def _coincident_groups(tips, distance=ARROW_LABEL_MERGE_DISTANCE):
     return groups
 
 
+def _show_correlations(ax, correlations):
+    """Mapa de calor sin la diagonal: la correlación de una variable consigo misma es 1 y no informa nada."""
+    off_diagonal = np.ma.masked_where(np.eye(len(correlations), dtype=bool), correlations.to_numpy())
+    cmap = plt.get_cmap('coolwarm').copy()
+    cmap.set_bad('white')
+    return ax.imshow(off_diagonal, vmin=-1, vmax=1, cmap=cmap)
+
+
 def plot_correlations(correlations, output):
     fig, ax = plt.subplots(figsize=(13, 11))
-    image = ax.imshow(correlations, vmin=-1, vmax=1, cmap='coolwarm')
+    image = _show_correlations(ax, correlations)
     indices = range(len(correlations))
     ax.set_xticks(indices, correlations.columns, rotation=90, fontsize=6)
     ax.set_yticks(indices, correlations.columns, fontsize=6)
@@ -218,8 +226,10 @@ def plot_correlations(correlations, output):
 def plot_variable_blocks(blocks: VariableBlocks, output):
     correlations = blocks.ordered_correlations
     fig, ax = plt.subplots(figsize=(13, 11))
-    image = ax.imshow(correlations, vmin=-1, vmax=1, cmap='coolwarm')
+    image = _show_correlations(ax, correlations)
     for (row, column), value in np.ndenumerate(correlations.to_numpy()):
+        if row == column:
+            continue
         ax.text(column, row, f'{value:.1f}'.replace('0.', '.'), ha='center', va='center', fontsize=5)
     start = 0
     for size in blocks.membership.value_counts(sort=False).loc[blocks.membership.unique()]:
