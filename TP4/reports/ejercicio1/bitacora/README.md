@@ -1,6 +1,6 @@
 # Bitácora de experimentos — ejercicio 1
 
-Actualización: **20/10/2026**. Esta bitácora registra qué probamos, qué evidencia tenemos y qué decisiones siguen abiertas. Los resultados son sobre 50 creadores; las semillas cambian inicialización y orden de entrenamiento, no constituyen nuevas muestras del catálogo.
+Actualización: **21/10/2026**. Esta bitácora registra qué probamos, qué evidencia tenemos y qué decisiones siguen abiertas. Los resultados son sobre 50 creadores; las semillas cambian inicialización y orden de entrenamiento, no constituyen nuevas muestras del catálogo.
 
 ## Estado de la evidencia
 
@@ -13,7 +13,18 @@ Actualización: **20/10/2026**. Esta bitácora registra qué probamos, qué evid
 | Continuación de esas 23 a 1.000 | 23/23 completas | Primera revisión de duración, limitada a mapas pequeños |
 | Geometría a 1.000 épocas | **300/300 completas, sin fallos** | Comparaciones de capacidad, forma, topología, inicialización y estabilidad |
 | Representaciones a 1.000 épocas | **360/360 completas, sin fallos** | Se mantienen 27 variables estandarizadas, sin log ni PCA |
-| Resto de etapas | Configuradas; sin ejecución registrada | Aprendizaje, radios, duración, early stopping, orden e interacciones pendientes |
+| Aprendizaje y radio (4×4) | En ejecución: 260 y 580 corridas | Pendiente |
+| Modelo de interpretación 4×4 y regiones | 5 semillas | 5 regiones estables (ARI 0,79); selección para campañas |
+| Oja | 4 tasas × 5 semillas | η = 0,001; el índice es PC1 |
+| Resto de etapas | Configuradas; sin ejecución registrada | Duración, early stopping, orden e interacciones pendientes |
+
+## 21/10 — Modelo de interpretación, regiones y Oja
+
+El 5×5 exploratorio dejaba 2 creadores por neurona, con 10 neuronas de un solo creador. Se pasa a **4×4 rectangular**, el candidato compacto de geometría, que no deja neuronas vacías. Las neuronas se agrupan en 5 regiones con Ward restringido a vecinas. Se eligieron 5 regiones comparando de 2 a 8: con 5, la pureza de tema es 0,66 (al azar, 0,41), el ARI entre semillas 0,79 y ninguna región tiene menos de 6–7 creadores. Con 5×5, el ARI de las regiones es 0,53.
+
+Las regiones separan tamaño, estilo y tema, pero no audiencia argentina ni costo. Por eso la selección para campañas tiene dos pasos: región según el objetivo y, dentro de ella, costo por cuenta argentina. Detalle en [Kohonen: regiones y campañas](../som/README.md).
+
+Oja: con η₀ = 0,05 diverge en 2 de 5 semillas; con 0,001 converge en menos de 15 épocas a PC1 (1 − 2·10⁻¹⁰). El índice reproduce PC1 y no sirve como selección automática. Detalle en el [índice de Oja](../oja/README.md).
 
 ## 20/10 — Representaciones
 
@@ -65,7 +76,7 @@ La interpretación completa, cifras por configuración y límites están en el [
 
 ### Qué sigue abierto
 
-Después corresponde controlar aprendizaje y radios, confirmar candidatos con semillas nuevas e interpretar perfiles y matriz U. El análisis de campañas previo usaba 5×5 rectangular, 500 épocas y semilla 0: es exploratorio y debe regenerarse para el modelo elegido. Faltan la interpretación final de Oja y evidencia comercial externa para hablar de ventas o adopciones.
+Falta cerrar aprendizaje y radio con los barridos en ejecución y, si cambian los valores, regenerar la interpretación del 4×4. Para hablar de ventas o adopciones haría falta evidencia comercial externa.
 
 ## Resultados resumidos publicados
 

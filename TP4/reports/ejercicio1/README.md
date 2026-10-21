@@ -1,12 +1,16 @@
-# Ejercicio 1: EDA y PCA inicial
+# Ejercicio 1: campañas de marketing
 
-## Actualización: barrido de geometría completado
-
-El [análisis de 300 corridas de Kohonen](geometria_kohonen/README.md) agrega evidencia de geometría, topología, inicialización y duración: 60 configuraciones con cinco semillas, tablas agregadas y una figura listas para versionar. Hay candidatos para seguir comparando; todavía no es una elección global de hiperparámetros ni de representación. La interpretación de campañas de este documento corresponde al modelo exploratorio 5×5 de 500 épocas, y deberá revisarse al seleccionar el modelo final.
+| Parte | Documento |
+| --- | --- |
+| 1.1 EDA y PCA | Este documento |
+| 1.2 Kohonen: hiperparámetros | [Geometría](geometria_kohonen/README.md) (300 corridas) y [representación](representacion_kohonen/README.md) (360 corridas). Tasa y radio en ejecución |
+| 1.2 Kohonen: interpretación | [Regiones, matriz U y campañas](som/README.md) |
+| 1.3 Índice de Oja | [Índice](oja/README.md) |
+| 1.4 Decisiones | [Campañas](#campañas) en este documento |
 
 ## Reproducción
 
-Desde TP4: `python3 analysis/eda_pca.py`. Requiere las dependencias de `requirements.txt` y `data/creadores.csv`. El PCA usa la implementación compartida de `src.tp4.pca`, mediante SVD de NumPy, sin scikit-learn. Las validaciones, representaciones, tablas y gráficos están separados en módulos de `analysis`. Genera tablas y gráficos en esta carpeta. Las pruebas verifican ortogonalidad, reconstrucción completa, autovalores y coherencia con el preprocesamiento. Esta etapa no implementa todavía Kohonen ni Oja.
+Desde TP4: `python3 analysis/eda_pca.py`. Requiere las dependencias de `requirements.txt` y `data/creadores.csv`. El PCA usa la implementación compartida de `src.tp4.pca`, mediante SVD de NumPy, sin scikit-learn. Las validaciones, representaciones, tablas y gráficos están separados en módulos de `analysis`. Genera tablas y gráficos en esta carpeta. Las pruebas verifican ortogonalidad, reconstrucción completa, autovalores y coherencia con el preprocesamiento. Kohonen y Oja tienen sus propios scripts, indicados en cada documento.
 
 ## Calidad y exploración
 
@@ -131,35 +135,39 @@ En el biplot los puntos son scores divididos por el desvío de cada componente, 
 
 Para refugios conviene explorar afinidad con perros, audiencia argentina y visitas al perfil/comentarios, junto al costo. Para fútbol hay perfiles con alcance y descubrimiento y otros más educativos: depende del objetivo y presupuesto; PC3 y PC4 aportan información temática. Para belleza y materiales de arte se debe revisar afinidad temática y reseñas/tutoriales/exhibición, además de volumen y precio. **No elegir automáticamente por PC1 ni por seguidores.** Tener más guardados o visitas tampoco demuestra conversiones: el catálogo no contiene ventas, consultas ni adopciones atribuibles.
 
-No se seleccionan ganadores de campaña en esta etapa. El próximo paso es entrenar y comparar SOM con estas representaciones, contrastar las regiones con las componentes e interpretar perfiles y costos. Con solo 50 registros y 27 variables, conviene evaluar estabilidad frente a semillas y cambios de muestra antes de dar por firmes los grupos. Los ejes dependen del catálogo: una actualización mensual puede rotarlos; para comparar meses hay que conservar el preprocesamiento/modelo de referencia o documentar el reajuste.
+Con solo 50 registros y 27 variables, conviene evaluar estabilidad frente a semillas y cambios de muestra antes de dar por firmes los grupos. Los ejes dependen del catálogo: una actualización mensual puede rotarlos; para comparar meses hay que conservar el preprocesamiento/modelo de referencia o documentar el reajuste.
 
 Los CSV y JSON generados contienen información derivada de los datos y se excluyen de Git junto con el CSV original. Los PNG se versionan para que el informe muestre los gráficos; se regeneran con el mismo script.
 
-## Kohonen: perfiles por región y matriz U
+## Kohonen
 
-Desde TP4: `python3 analysis/som_campanas.py`. Usa el preprocesamiento por defecto (27 variables, z-score, sin log) y la misma configuración de `configs/kohonen.json` (5×5 rectangular, 500 épocas, semilla 0): QE = 2,545, TE = 0,06. Genera `som_perfiles.csv` (ocupación, temas, medianas y variables más altas/bajas del prototipo de cada neurona), `som_fronteras.csv`, `som_matriz_u.png` y `som_ocupacion.png`. **Los hiperparámetros todavía no son los finales**: al fijarlos hay que volver a correr y revisar este texto.
+El detalle está en [regiones, matriz U y campañas](som/README.md). El modelo es **4×4 rectangular**, sin neuronas vacías. El 5×5 exploratorio dejaba 2 creadores por neurona, 10 neuronas con uno solo y 2 vacías: describía casos, no perfiles. Las 16 neuronas se agrupan en **5 regiones conexas** con Ward sobre los prototipos. Las regiones se reproducen entre semillas (ARI 0,79; con 5×5, 0,53):
 
-![Matriz U](som_matriz_u.png)
+| Región | Creadores | Perfil |
+| --- | ---: | --- |
+| R1 | 9 | Perros, comunidad y tutoriales: 33 mil seguidores, USD 189, 49 % de tutoriales |
+| R2 | 13 | Nicho de fútbol y arte con reseñas, tutoriales y 47 % de publicidad |
+| R3 | 7 | Arte: exhibición y tendencias, tamaño medio |
+| R4 | 9 | Entretenimiento mediano, sobre todo maquillaje |
+| R5 | 12 | Entretenimiento masivo: 478 mil seguidores, USD 4.235, 74 % de alcance a no seguidores; mezcla los cuatro temas |
 
-| Región | Neuronas | Perfil |
-| --- | --- | --- |
-| Arriba a la derecha | 0,2 – 0,4; 1,3; 1,4 | Creadores chicos (medianas de 17 mil a 57 mil seguidores, USD 85–330). Textos largos, guardados y visitas al perfil altos; poco video, short y tendencias. Mayormente perros; algo de fútbol y maquillaje. |
-| Abajo a la izquierda | 3,0; 3,1; 4,0; 4,1 | Creadores grandes y caros (medianas de 350 mil a 620 mil seguidores, USD 2.900–4.700). Alcance, impresiones y views altos, entretenimiento y tendencias; pocos comentarios, guardados y texto. En 4,0 conviven los cuatro temas: el tamaño pesa más que la temática. |
-| Abajo a la derecha | 3,3 – 4,4 | Arte y exhibición de productos/resultados, tamaño medio. |
-| Arriba a la izquierda | 0,0; 1,0 | Maquillaje de tamaño medio-grande, tutoriales y compartidos. |
+- **Organización.** La diagonal del mapa reproduce PC1, de R5 a R1, y la separación entre arte y perros reproduce PC2. El mapa además separa lo que el biplot superpone (R4 frente a R5, y perros frente a fútbol y arte en R1–R2).
+- **Qué separan las regiones.** Tamaño (η² = 0,71), descubrimiento y tutoriales (0,47–0,48) y tema (pureza 0,66 frente a 0,41 al azar). Audiencia argentina y costo por cuenta argentina no se separan (η² ≤ 0,08, igual que al azar).
+- **Matriz U.** Va de 2,44 a 3,32. Las fronteras más altas coinciden con bordes de región: de reseñas a entretenimiento (R2 → R4) y de arte a fútbol masivo (R3 → R5). Una distancia alta entre vecinas indica que esos creadores, aunque queden contiguos en el mapa, no son intercambiables.
 
-La diagonal de la grilla, desde abajo a la izquierda (grandes, formato breve) hacia arriba a la derecha (chicos, contenido elaborado), reproduce PC1. La separación entre arte/exhibición (abajo a la derecha) y perros (arriba) se corresponde con PC2. Los temas que el biplot no separa (fútbol frente a maquillaje, PC3–PC4) aparecen en neuronas distintas dentro de un mismo nivel de tamaño.
+## Índice de Oja
 
-**Matriz U.** Cada celda es la distancia media entre el prototipo de la neurona y los de sus vecinas inmediatas. Un valor alto indica que, al cruzar esa neurona, los perfiles cambian mucho: es una frontera entre grupos. Un valor bajo indica una zona homogénea. Los valores van de 2,0 a 3,0, así que no hay bordes muy marcados: los grupos se superponen, algo esperable con 50 creadores. Las zonas más homogéneas son la esquina de creadores chicos (0,3; 2,4; 3,4 ≈ 2,0–2,1). Las fronteras más altas son:
+El detalle está en [el análisis del índice](oja/README.md). La regla de Oja con η = 0,001 converge a PC1 en menos de 15 épocas: coseno 1 − 2·10⁻¹⁰ y el mismo orden de los 50 creadores que la proyección sobre PC1. η = 0,05 diverge en 2 de 5 semillas.
 
-- 4,1 → 4,2 (3,70): de grandes generalistas a arte (`topic_art_pct` +1,8; alcance −1,0).
-- 1,1 → 1,2 (3,37): de entretenimiento a reseñas y exhibición.
-- 0,0 → 0,1 (3,07): de maquillaje a perros.
-- 2,2 (U = 3,0) está en el centro, rodeada de perfiles distintos. Las neuronas 1,2 y 3,2 no tienen creadores: son prototipos intermedios entre grupos, también una señal de frontera.
+El índice mide **visibilidad / formato breve frente a profundidad**. Correlaciona −0,92 con seguidores y +0,84 con guardados, pero casi nada con audiencia argentina (+0,16) o con costo por cuenta argentina (+0,04). **Elegir automáticamente al mayor no es correcto**:
+
+- su signo es arbitrario, y con el signo opuesto reproduce la selección por seguidores;
+- no contiene el tema: los cinco primeros son de perros;
+- en cada tema, el creador más barato por cuenta argentina queda entre los puestos 44 y 49.
 
 ## Campañas
 
-`analysis/som_campanas.py` también genera `campanas.csv`: para cada tema, los tres mejores creadores según cada criterio, con su neurona. Supuestos propios de esta sección, que hay que explicitar:
+`python3 -m analysis.som_campanas` también genera `som/criterios.csv`: para cada tema, los tres mejores creadores según cada criterio de un solo indicador, con su región del SOM. Supuestos propios de esta sección, que hay que explicitar:
 
 - Un creador es candidato para un tema si es su tema principal, el de mayor porcentaje de publicaciones (fútbol 15, perros 13, maquillaje 11, arte 11). Todos tienen un tema dominante claro: el principal ocupa entre 39,6 % y 82 % (mediana 67 %).
 - **Costo por alcance argentino** (`cpm_arg`): USD por cada 1.000 cuentas alcanzadas en Argentina = precio / alcance argentino estimado × 1.000. Aquí sí se usa `estimated_argentina_reach`: no entra al modelo, pero es la métrica directa del objetivo de la agencia.
@@ -189,7 +197,7 @@ Promedios del top 3 de cada criterio:
 
 **Fútbol: ¿alcance masivo, descubrimiento o profundidad?** Para vender ropa de entrenamiento en Argentina conviene priorizar **alcance argentino a bajo costo con descubrimiento**: frente al top por seguidores, cuesta la mitad por cuenta argentina alcanzada (19,0 frente a 39,3), tiene más audiencia argentina (78 % frente a 58 %) e igual alcance a no seguidores, por un precio 30 % menor. Dos de los tres creadores son los mismos (`@golconmate` y `@tribunacreativa`): la diferencia es cambiar `@futbolsinvueltas`, tercero en seguidores pero con 27 % de audiencia argentina y USD 79,2 por cada 1.000 cuentas argentinas, por `@futbolcononda` (89 % argentina, USD 18,3). Los creadores de profundidad publican 45 % de tutoriales y son muy baratos (USD 201 en promedio), pero 59 % de su audiencia está fuera de Argentina y cada cuenta argentina cuesta casi el triple (54,0 frente a 19,0). Sirven como complemento educativo, no como base.
 
-**Refugios de perros.** El objetivo son consultas y adopciones, que son locales: la audiencia argentina pesa más que el tamaño. El criterio de costo elige creadores con 90 % de audiencia argentina y 44 % de tutoriales, a la mitad del precio del top por seguidores. Dos de ellos (`@huellasyconsejos` y `@consejoscaninos`, USD 75 cada uno) están en la neurona 0,4, la región de creadores chicos con visitas al perfil y comentarios altos, coherente con generar consultas. El tercero, `@crearenreels`, es grande (551 mil seguidores) y también encabeza el top por seguidores: ahí ambos criterios coinciden. Perros es el tema donde mejor van juntas profundidad y audiencia local: el top de profundidad (62 % de tutoriales) tiene 83 % de audiencia argentina, y los tres están en la neurona 0,4. `@huellasyconsejos` aparece en ambos criterios.
+**Refugios de perros.** El objetivo son consultas y adopciones, que son locales: la audiencia argentina pesa más que el tamaño. El criterio de costo elige creadores con 90 % de audiencia argentina y 44 % de tutoriales, a la mitad del precio del top por seguidores. Dos de ellos (`@huellasyconsejos` y `@consejoscaninos`, USD 75 cada uno) están en R1, la región de comunidad con visitas al perfil y comentarios altos, coherente con generar consultas. El tercero, `@crearenreels`, es grande (551 mil seguidores) y también encabeza el top por seguidores: ahí ambos criterios coinciden. Perros es el tema donde mejor van juntas profundidad y audiencia local: el top de profundidad (62 % de tutoriales) tiene 83 % de audiencia argentina, y los tres están en R1. `@huellasyconsejos` aparece en ambos criterios.
 
 **Maquillaje y arte.** En ambos, el criterio de costo baja el precio por cuenta argentina (24,6 frente a 46,3; 30,2 frente a 41,3) y sube la audiencia argentina. En maquillaje, `@brochasymates` aparece en el top de costo y en el de profundidad (45 % de tutoriales, 88 % de audiencia argentina, USD 24,9 por cada 1.000 cuentas argentinas): equilibra los dos objetivos. En arte, el top de profundidad tiene el costo por cuenta argentina más alto del tema (67,6), por `@creatividadaldia` (20 % de audiencia argentina).
 
@@ -210,6 +218,8 @@ Promedios del top 3 de cada criterio:
 
 **Seleccionar solo por seguidores.** Ventaja: es simple, no requiere modelo y da volumen y descubrimiento (correlación de seguidores con alcance a no seguidores: +0,50). Desventajas: los seguidores no predicen el costo por cuenta argentina alcanzada (−0,02) ni el engagement (+0,14), y correlacionan negativamente con tutoriales (−0,60) y guardados (−0,74). En los cuatro temas el top por seguidores es el más caro y no el de mayor audiencia argentina. La selección por perfil requiere más análisis y supuestos (métrica de costo, definición de profundidad), y ninguna de las dos mide ventas ni adopciones reales.
 
+**Selección con el SOM.** Como el mapa separa estilo y tema pero no geografía ni costo, se usa en dos pasos. Primero, la región cuyo perfil coincide con el objetivo: R1 para refugios, R4–R5 para fútbol y maquillaje, R3 para arte. Después, dentro de la región, el menor costo por cuenta argentina. Frente al top por seguidores, baja ese costo en los cuatro temas (fútbol 24,0 frente a 39,3; perros 26,4 frente a 41,9; maquillaje 24,6 frente a 46,3; arte 35,2 frente a 41,3). En perros consigue 53 % de tutoriales y 83 % de audiencia argentina por USD 113 por publicación, contra USD 2.331 del top por seguidores. El detalle, la comparación con el índice de Oja y los reemplazos sugeridos por el mapa están en [Kohonen: uso para las campañas](som/README.md#uso-para-las-campañas).
+
 **Mantenimiento.**
 
 - **Nueva campaña:** no hace falta reentrenar. Se definen tema y objetivo, se filtra y ordena con las métricas, y la grilla indica qué región y qué creadores parecidos mirar.
@@ -219,4 +229,4 @@ Promedios del top 3 de cada criterio:
 
 ## Bitácora de experimentos
 
-La [bitácora](bitacora/README.md) conserva la cronología, las decisiones sobre duración y los límites de las conclusiones. El [inventario CSV](bitacora/experimentos.csv) registra el estado de cada ejecución al corte; el barrido de representaciones sigue en curso.
+La [bitácora](bitacora/README.md) conserva la cronología, las decisiones sobre duración y los límites de las conclusiones. El [inventario CSV](bitacora/experimentos.csv) registra el estado de cada ejecución al corte; los barridos de tasa de aprendizaje y radio están en ejecución.
