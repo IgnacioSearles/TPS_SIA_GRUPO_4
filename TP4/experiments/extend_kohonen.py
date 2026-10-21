@@ -57,7 +57,7 @@ def validate_origin(directory, config, cache):
 def prepare_extension(source, target_epochs, output_root):
     source = Path(source).resolve()
     original_plan, origins = completed_runs(source)
-    output = create_output_directory(output_root)
+    output = create_output_directory(output_root, f'extension_{target_epochs}')
     configs, provenance, cache = [], [], {}
     for index, (directory, original) in enumerate(origins):
         checkpoint, preprocessing = validate_origin(directory, original, cache)

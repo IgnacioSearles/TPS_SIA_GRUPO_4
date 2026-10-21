@@ -1,6 +1,7 @@
 """Entrada para entrenar, experimentar y reanudar ejecuciones."""
 import argparse
 import json
+from pathlib import Path
 
 from experiments.runner import resume, run
 
@@ -28,7 +29,8 @@ def main():
     else:
         with open(args.config) as stream:
             config = json.load(stream)
-        output = run(config, experiment=args.command == 'experiment', dry_run=args.dry_run)
+        output = run(config, experiment=args.command == 'experiment', dry_run=args.dry_run,
+                     name=Path(args.config).stem)
     if not args.dry_run:
         manifest = json.loads((output / 'experiment.json').read_text())
         if manifest['status'] == 'paused':

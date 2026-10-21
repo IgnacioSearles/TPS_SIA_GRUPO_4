@@ -1,8 +1,8 @@
 """Coordina entrenamiento, aislamiento de fallos y persistencia de resultados."""
 from dataclasses import asdict
-from datetime import datetime, timezone
+from datetime import datetime
+from itertools import count
 from pathlib import Path
-from tempfile import mkdtemp
 import traceback
 import json
 
@@ -80,11 +80,20 @@ def execute(config, output, control=None) -> ExecutionResult:
     return ExecutionResult(resolved, metrics)
 
 
-def create_output_directory(root):
+def create_output_directory(root, name):
+    """Crea root/<name>_<fecha>_<hora> en hora local; agrega _2, _3... si ya existe."""
+    if not name or any(separator in name for separator in '/\\'):
+        raise ValueError(f'Nombre de experimento inválido: {name!r}')
     root = Path(root)
     root.mkdir(parents=True, exist_ok=True)
-    stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S')
-    return Path(mkdtemp(prefix=stamp + '-', dir=root))
+    base = f'{name}_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}'
+    for attempt in count(1):
+        directory = root / (base if attempt == 1 else f'{base}_{attempt}')
+        try:
+            directory.mkdir()
+            return directory
+        except FileExistsError:
+            continue
 
 
 def execute_record(candidate, output, index, control=None) -> RunRecord:
@@ -160,12 +169,13 @@ def _drive(output, plan, retry_failed=False):
     return output
 
 
-def run(config, experiment=False, dry_run=False):
+def run(config, experiment=False, dry_run=False, name=None):
+    """name identifica el directorio de resultados; por defecto, el algoritmo."""
     configs = expand(config) if experiment else [resolve(config)]
     print(f'Corridas: {len(configs)}', flush=True)
     if dry_run:
         return configs
-    output = create_output_directory(config.get('output', 'results'))
+    output = create_output_directory(config.get('output', 'results'), name or config['algorithm'])
     plan = create_plan(config, configs, output)
     return _drive(output, plan)
 
