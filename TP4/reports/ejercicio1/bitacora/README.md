@@ -12,8 +12,12 @@ Actualización: **20/10/2026**. Esta bitácora registra qué probamos, qué evid
 | Geometría a 500 épocas | Plan original pausado tras 23/300 | Antecedente reutilizado en la continuación |
 | Continuación de esas 23 a 1.000 | 23/23 completas | Primera revisión de duración, limitada a mapas pequeños |
 | Geometría a 1.000 épocas | **300/300 completas, sin fallos** | Comparaciones de capacidad, forma, topología, inicialización y estabilidad |
-| Representaciones a 1.000 épocas | En ejecución; ver corte exacto en CSV | Todavía no hay conclusiones del barrido completo |
+| Representaciones a 1.000 épocas | **360/360 completas, sin fallos** | Se mantienen 27 variables estandarizadas, sin log ni PCA |
 | Resto de etapas | Configuradas; sin ejecución registrada | Aprendizaje, radios, duración, early stopping, orden e interacciones pendientes |
+
+## 20/10 — Representaciones
+
+360 corridas (12 representaciones × 3×3, 4×4 y 5×5 × 2 topologías × 5 semillas) con el protocolo de 1.000 épocas. Como el error de cuantización no se compara entre espacios distintos, se midió qué separa cada mapa frente a variables fijas: pureza de tema principal y η² de tamaño, audiencia argentina y tutoriales, contra una referencia al azar con la misma ocupación. **Decisión: mantener 27 variables estandarizadas.** Con 31 se pierde pureza de tema (−0,10); con 24 o log se pierde separación por audiencia argentina en 5×5; PCA 2 duplica el error topográfico; PCA 25 coincide exactamente con 27, como debía. Detalle en el [informe de representaciones](../representacion_kohonen/README.md).
 
 El [inventario CSV](experimentos.csv) contiene 13 directorios de experimentos y su estado al instante indicado en `snapshot_utc`. Es una fotografía, no un monitor. `finished` cuenta intentos finalizados y `failed` identifica los fallidos; `legacy_finished` identifica manifiestos antiguos sin campo de estado. No aparecen etapas que todavía no tienen manifiesto.
 
@@ -60,8 +64,6 @@ La heurística compara dos ventanas finales de 50 épocas: cambio absoluto de QE
 La interpretación completa, cifras por configuración y límites están en el [informe de geometría](../geometria_kohonen/README.md). Las comparaciones entre semillas describen sensibilidad del entrenamiento; no prueban generalización a nuevos creadores. Los diez pares de ARI comparten semillas y no son diez ensayos independientes.
 
 ### Qué sigue abierto
-
-El barrido de representaciones ya está ejecutándose con 1.000 épocas y decaimiento de 500. No vamos a comparar directamente QE de espacios con distintas variables o dimensiones. Las alternativas incluyen selección estandarizada, transformaciones logarítmicas y PCA; deben evaluarse también por ocupación, estabilidad e interpretación.
 
 Después corresponde controlar aprendizaje y radios, confirmar candidatos con semillas nuevas e interpretar perfiles y matriz U. El análisis de campañas previo usaba 5×5 rectangular, 500 épocas y semilla 0: es exploratorio y debe regenerarse para el modelo elegido. Faltan la interpretación final de Oja y evidencia comercial externa para hablar de ventas o adopciones.
 
