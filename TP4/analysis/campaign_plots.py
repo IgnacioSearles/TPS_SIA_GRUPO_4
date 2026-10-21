@@ -1,35 +1,108 @@
-"""Gráficos de las decisiones de campaña: reciben el catálogo con regiones y las selecciones ya calculadas."""
+"""Gráficos de las decisiones de campaña: reciben el catálogo con regiones y las selecciones ya calculadas.
+
+Cada gráfico muestra un resultado de los métodos (PCA, Oja, Kohonen) sobre el que se apoya una decisión.
+"""
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 from matplotlib.ticker import LogLocator, ScalarFormatter
 import numpy as np
-import pandas as pd
-from scipy.stats import spearmanr
 
 from .eda import TOPICS
-from .plots import TOPIC_COLORS, TOPIC_LABELS, _save, _topic_legend
+from .plots import TOPIC_COLORS, TOPIC_LABELS, _save
+from .som_plots import REGION_COLORS, _cells
 
 COST_LABEL = 'USD por 1.000 cuentas argentinas'
 FOLLOWERS_COLOR, CHOSEN_COLOR, OTHER_COLOR = 'C1', 'C0', 'lightgray'
-CRITERION_LABELS = {'followers': 'Seguidores', 'descubrimiento': 'Descubrimiento',
-                    'profundidad': 'Profundidad', 'som': 'Elegido'}
-FOOTBALL_METRICS = {'cpm_arg': COST_LABEL, 'argentina_audience_pct': 'Audiencia argentina (%)',
-                    'non_follower_reach_pct': 'Alcance a no seguidores (%)', 'content_tutorial_pct': 'Tutoriales (%)'}
+# Variables del caso de uso que se dibujan como flechas en el plano PC1–PC2.
+BIPLOT_VARIABLES = {
+    'followers': 'Seguidores', 'non_follower_reach_pct': 'Alcance a no seguidores',
+    'content_tutorial_pct': 'Tutoriales', 'saves_per_1000': 'Guardados',
+    'argentina_audience_pct': 'Audiencia argentina', 'topic_art_pct': 'Arte', 'topic_dogs_pct': 'Perros',
+}
+# Tops de un solo indicador sobre el eje de Oja: marcador, color, etiqueta y altura sobre la fila del tema.
+OJA_REFERENCES = {'followers': ('s', FOLLOWERS_COLOR, 'Top 3 por seguidores', .2),
+                  'descubrimiento': ('D', 'C2', 'Top 3 por alcance a no seguidores', .32),
+                  'profundidad': ('^', 'C4', 'Top 3 por tutoriales', .2)}
 
 
-def plot_problem(frame, output):
-    """Seguidores frente a costo por cuenta argentina y frente a tutoriales."""
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
-    colors = frame.main_topic.map(TOPIC_COLORS)
-    for ax, column, label in ((axes[0], 'cpm_arg', COST_LABEL), (axes[1], 'content_tutorial_pct', 'Tutoriales (%)')):
-        ax.scatter(frame.followers, frame[column], c=colors, s=30)
-        ax.set_xscale('log')
-        rho = spearmanr(frame.followers, frame[column]).statistic
-        ax.set(xlabel='Seguidores', ylabel=label, title=f'ρ de Spearman = {_decimal(rho, "+.2f")}')
-    _plain_log_y(axes[0])
-    _topic_legend(axes[1])
-    _save(fig, output / '1_problema.png')
+def plot_pca_axes(frame, pca, columns, chosen, output):
+    """Plano PC1–PC2 con las flechas del caso de uso y los creadores elegidos."""
+    scale = np.sqrt(pca.eigenvalues[:2])
+    points = pca.scores[:, :2] / scale
+    fig, ax = plt.subplots(figsize=(10, 8))
+    ax.scatter(*points.T, c=frame.main_topic.map(TOPIC_COLORS), s=30)
+    is_chosen = frame.name.isin(chosen.name).to_numpy()
+    ax.scatter(*points[is_chosen].T, s=200, facecolors='none', edgecolors='black', lw=1.5)
+    loadings = pca.correlation_loadings[:, :2] * 2
+    for column, label in BIPLOT_VARIABLES.items():
+        tip = loadings[columns.index(column)]
+        ax.annotate('', tip, (0, 0), arrowprops={'arrowstyle': '->', 'color': 'dimgray', 'lw': 1.5})
+        ax.text(*(tip * 1.08), label, ha='left' if tip[0] >= 0 else 'right', va='center')
+    ax.axhline(0, color='black', lw=.4)
+    ax.axvline(0, color='black', lw=.4)
+    ratio = pca.explained_variance_ratio
+    ax.set(xlabel=f'PC1 ({ratio[0]:.0%}): ← visibilidad · profundidad →',
+           ylabel=f'PC2 ({ratio[1]:.0%}): ← audiencia argentina · arte y exhibición →')
+    ax.margins(x=.3)  # lugar para las etiquetas de las flechas
+    handles = [plt.Line2D([], [], marker='o', ls='', color=TOPIC_COLORS[topic], label=TOPIC_LABELS[topic])
+               for topic in TOPICS]
+    handles.append(plt.Line2D([], [], marker='o', ls='', mfc='none', mec='black', ms=12, label='Elegidos'))
+    ax.legend(handles=handles, loc='lower left')
+    _save(fig, output / '1_ejes_pca.png')
+
+
+def plot_oja_axis(frame, criteria, chosen, output):
+    """Índice de Oja por tema: dónde caen los tops de cada criterio y los elegidos sobre el eje alcance–profundidad."""
+    fig, ax = plt.subplots(figsize=(11, 5))
+    rows = {topic: len(TOPICS) - position for position, topic in enumerate(TOPICS)}
+    for topic, row in rows.items():
+        members = frame[frame.main_topic == topic]
+        ax.scatter(members.pc1, np.full(len(members), row), color=TOPIC_COLORS[topic], s=35, alpha=.6)
+    index = frame.set_index('name').pc1
+    for criterion, (marker, color, label, offset) in OJA_REFERENCES.items():
+        top = criteria[criteria.criterion == criterion]
+        ax.scatter(index[top.name], top.topic.map(rows) + offset, marker=marker, color=color, s=45, label=label)
+    ax.scatter(index[chosen.name], chosen.topic.map(rows), s=200, facecolors='none', edgecolors='black', lw=1.5,
+               label='Elegidos')
+    ax.axvline(0, color='black', lw=.4)
+    ax.set_yticks(list(rows.values()), [TOPIC_LABELS[topic] for topic in rows])
+    ax.set(xlabel='Índice de Oja (= PC1): ← visibilidad · profundidad →', ylim=(.4, len(TOPICS) + .8))
+    ax.legend(loc='upper center', ncol=4, bbox_to_anchor=(.5, 1.13), frameon=False)
+    _save(fig, output / '2_indice_oja.png')
+
+
+def plot_map_targets(catalog, ar_plane, chosen, target_regions, output):
+    """Izquierda: regiones del mapa con la región de cada cliente y sus elegidos. Derecha: plano de audiencia argentina."""
+    grid = catalog.som.grid
+    fig, axes = plt.subplots(1, 2, figsize=(15, 6.5))
+    regions = _cells(axes[0], grid, catalog.neuron_regions, ListedColormap(REGION_COLORS[:len(catalog.region_names)]),
+                     edgecolors='white', linewidths=2)
+    regions.set_alpha(.35)
+    neurons = chosen.neuron.to_numpy()
+    for position, ((column, row), label) in enumerate(zip(grid.positions, catalog.neuron_regions)):
+        cell = '{},{}'.format(*grid.indices[position])
+        names = '\n'.join(chosen.name[neurons == cell])
+        axes[0].text(column, row - .32, catalog.region_names[label], ha='center', va='center', weight='bold')
+        axes[0].text(column, row + .08, names, ha='center', va='center', fontsize=7)
+    axes[0].set_title('Regiones y elegidos\n' + _client_targets(target_regions))
+
+    plane = _cells(axes[1], grid, ar_plane, 'viridis')
+    fig.colorbar(plane, ax=axes[1], shrink=.8, label='Audiencia argentina del prototipo (%)')
+    for position, ((column, row), label) in enumerate(zip(grid.positions, catalog.neuron_regions)):
+        axes[1].text(column, row, f'{catalog.region_names[label]}\n{ar_plane[position]:.0f} %', ha='center',
+                     va='center', fontsize=9, bbox={'facecolor': 'white', 'alpha': .7, 'edgecolor': 'none', 'pad': 1})
+    axes[1].set_title('Plano de audiencia argentina')
+    _save(fig, output / '3_mapa_clientes.png')
+
+
+def _client_targets(target_regions):
+    """'Perros → R1 · Fútbol y Maquillaje → R4 + R5': agrupa clientes con las mismas regiones."""
+    groups = {}
+    for topic, regions in target_regions.items():
+        groups.setdefault(' + '.join(regions), []).append(TOPIC_LABELS[topic])
+    return ' · '.join(f'{" y ".join(topics)} → {regions}' for regions, topics in groups.items())
 
 
 def plot_region_separation(separation, random_baseline, output):
@@ -43,7 +116,7 @@ def plot_region_separation(separation, random_baseline, output):
     for position, value in enumerate(ordered):
         ax.text(value + .01, position, _decimal(value, '.2f'), va='center')
     ax.set(xlabel='η² por región', xlim=(0, 1))
-    _save(fig, output / '2_separacion.png')
+    _save(fig, output / '4_separacion.png')
 
 
 def plot_candidates(frame, selections, target_regions, output):
@@ -71,7 +144,7 @@ def plot_candidates(frame, selections, target_regions, output):
                plt.Line2D([], [], marker='s', ls='', mfc='none', mec=FOLLOWERS_COLOR, ms=12, label='Top 3 por seguidores'),
                plt.Line2D([], [], marker='o', ls='', mfc='none', mec='black', ms=12, label='Elegidos')]
     fig.legend(handles=handles, loc='upper center', ncol=4, frameon=False)
-    _save(fig, output / '3_candidatos.png', rect=(0, 0, 1, .96))
+    _save(fig, output / '5_candidatos.png', rect=(0, 0, 1, .96))
 
 
 def _ring(ax, creators, color, marker, label):
@@ -100,24 +173,6 @@ def _decimal(value, spec):
     return format(value, spec).replace('-', '−').replace('.', ',')
 
 
-def plot_football_criteria(criteria, selections, output):
-    """Fútbol: promedio del top 3 con cada criterio de un solo indicador frente a la selección propuesta."""
-    football = criteria[criteria.topic == 'football']
-    chosen = selections[(selections.topic == 'football') & (selections.strategy == 'som')].assign(criterion='som')
-    means = pd.concat([football, chosen]).groupby('criterion')[list(FOOTBALL_METRICS)].mean() \
-        .reindex(list(CRITERION_LABELS)[::-1])
-    labels = [CRITERION_LABELS[criterion] for criterion in means.index]
-    colors = [CHOSEN_COLOR if criterion == 'som' else OTHER_COLOR for criterion in means.index]
-    fig, axes = plt.subplots(1, 4, figsize=(16, 3.8), sharey=True)
-    for ax, (column, title) in zip(axes, FOOTBALL_METRICS.items()):
-        ax.barh(labels, means[column], color=colors)
-        for position, value in enumerate(means[column]):
-            ax.text(value, position, f' {value:.0f}', va='center')
-        ax.set(title=title)
-        ax.set_xlim(0, means[column].max() * 1.25)
-    _save(fig, output / '4_futbol_criterios.png')
-
-
 def plot_against_followers(selections, output):
     """Por tema: top 3 por seguidores frente a la selección propuesta, en costo, audiencia y gasto."""
     picks = selections[selections.strategy.isin(['seguidores', 'som'])]
@@ -137,12 +192,4 @@ def plot_against_followers(selections, output):
     for position, (before, after) in enumerate(zip(table['cpm_arg', 'seguidores'], table['cpm_arg', 'som'])):
         axes[0].text(position + width / 2, after, _decimal(after / before - 1, '+.0%'), ha='center', va='bottom')
     fig.legend(*axes[0].get_legend_handles_labels(), loc='upper center', ncol=2, frameon=False)
-    _save(fig, output / '5_frente_a_seguidores.png', rect=(0, 0, 1, .92))
-
-
-def plot_campaigns(frame, criteria, selections, separation, random_baseline, target_regions, output):
-    plot_problem(frame, output)
-    plot_region_separation(separation, random_baseline, output)
-    plot_candidates(frame, selections, target_regions, output)
-    plot_football_criteria(criteria, selections, output)
-    plot_against_followers(selections, output)
+    _save(fig, output / '6_frente_a_seguidores.png', rect=(0, 0, 1, .92))

@@ -256,12 +256,22 @@ def run(output=OUT, campaign_output=CAMPAIGN_OUT, data=ROOT / 'data' / 'creadore
     plot_regions_on_pca(frame, output)
     plot_regions_3d(frame, output)
 
-    from .campaign_plots import plot_campaigns
-    campaign_output = Path(campaign_output)
-    campaign_output.mkdir(parents=True, exist_ok=True)
-    plot_campaigns(frame, criteria, selections, *region_separation(frame), TARGET_REGIONS, campaign_output)
+    _plot_campaigns(frame, x, preprocessor, catalog, criteria, selections, Path(campaign_output))
     _print(metrics, counts, profiles, options, summary)
     return frame
+
+
+def _plot_campaigns(frame, x, preprocessor, catalog, criteria, selections, output):
+    from . import campaign_plots as plots
+    output.mkdir(parents=True, exist_ok=True)
+    chosen = selections[selections.strategy == 'som']
+    plots.plot_pca_axes(frame, compute_pca(x), preprocessor.columns_, chosen, output)
+    plots.plot_oja_axis(frame, criteria, chosen, output)
+    ar_plane = neuron_planes(catalog, preprocessor)['argentina_audience_pct']
+    plots.plot_map_targets(catalog, ar_plane, chosen, TARGET_REGIONS, output)
+    plots.plot_region_separation(*region_separation(frame), output)
+    plots.plot_candidates(frame, selections, TARGET_REGIONS, output)
+    plots.plot_against_followers(selections, output)
 
 
 def _print(metrics, counts, profiles, options, summary):
