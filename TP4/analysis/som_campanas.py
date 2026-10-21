@@ -13,11 +13,12 @@ from src.tp4.kohonen import Kohonen
 from src.tp4.pca import compute_pca
 from src.tp4.preprocessing import Preprocessor
 from .eda import TOPICS, cost_per_thousand_argentine_reach, main_topic
-from .representation_summary import topic_purity
+from .representation_summary import eta_squared, topic_purity
 from .som_regions import contiguous_ward, mean_pairwise_ari, membership_firmness
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'reports' / 'ejercicio1' / 'som'
+CAMPAIGN_OUT = ROOT / 'reports' / 'ejercicio1' / 'campanas'
 
 # Mismo protocolo que los barridos de configs/kohonen_suite_1000: 1.000 épocas, decaimiento en las primeras 500.
 MODEL = KohonenConfig(rows=4, cols=4, epochs=1000, schedule_epochs=500, seed=0)
@@ -126,6 +127,19 @@ def region_profiles(frame):
     ], axis=1)
 
 
+def region_separation(frame):
+    """η² de cada variable del caso de uso por región, y el valor esperado si las regiones fueran al azar."""
+    values = {
+        'log(seguidores)': np.log(frame.followers), 'Alcance a no seguidores': frame.non_follower_reach_pct,
+        'Tutoriales': frame.content_tutorial_pct, 'Publicidad': frame.sponsored_posts_pct,
+        'Audiencia argentina': frame.argentina_audience_pct, 'log(USD / 1.000 AR)': np.log(frame.cpm_arg),
+    }
+    separation = pd.Series({name: eta_squared(frame.region, column) for name, column in values.items()})
+    # Con k grupos al azar entre n creadores, E[η²] = (k − 1) / (n − 1).
+    random_baseline = (frame.region.nunique() - 1) / (len(frame) - 1)
+    return separation, random_baseline
+
+
 def topic_region_options(frame):
     """Qué tipos de creador hay para cada cliente: candidatos de su tema, separados por región."""
     grouped = frame.groupby(['main_topic', 'region'])
@@ -207,7 +221,7 @@ def frontiers(columns, som, top=5):
     return pd.DataFrame(rows)
 
 
-def run(output=OUT, data=ROOT / 'data' / 'creadores.csv'):
+def run(output=OUT, campaign_output=CAMPAIGN_OUT, data=ROOT / 'data' / 'creadores.csv'):
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     x, preprocessor, frame = prepare(pd.read_csv(data))
@@ -230,7 +244,8 @@ def run(output=OUT, data=ROOT / 'data' / 'creadores.csv'):
     profiles.to_csv(output / 'regiones.csv', float_format='%.4g')
     options.to_csv(output / 'opciones_por_tema.csv', float_format='%.4g')
     selections.to_csv(output / 'selecciones.csv', index=False, float_format='%.4g')
-    criterion_selections(frame).to_csv(output / 'criterios.csv', index=False, float_format='%.4g')
+    criteria = criterion_selections(frame)
+    criteria.to_csv(output / 'criterios.csv', index=False, float_format='%.4g')
     summary.to_csv(output / 'estrategias.csv', float_format='%.4g')
     replacements.to_csv(output / 'reemplazos.csv', index=False, float_format='%.4g')
     edges.to_csv(output / 'fronteras.csv', index=False, float_format='%.3f')
@@ -240,6 +255,11 @@ def run(output=OUT, data=ROOT / 'data' / 'creadores.csv'):
     plot_component_planes(catalog.som.grid, neuron_planes(catalog, preprocessor), output)
     plot_regions_on_pca(frame, output)
     plot_regions_3d(frame, output)
+
+    from .campaign_plots import plot_campaigns
+    campaign_output = Path(campaign_output)
+    campaign_output.mkdir(parents=True, exist_ok=True)
+    plot_campaigns(frame, criteria, selections, *region_separation(frame), TARGET_REGIONS, campaign_output)
     _print(metrics, counts, profiles, options, summary)
     return frame
 

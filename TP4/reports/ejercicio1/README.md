@@ -6,7 +6,7 @@
 | 1.2 Kohonen: hiperparámetros | [Geometría](geometria_kohonen/README.md) (300 corridas), [representación](representacion_kohonen/README.md) (360) y [tasa y radio](aprendizaje_vecindad_kohonen/README.md) (840) |
 | 1.2 Kohonen: interpretación | [Regiones, matriz U y campañas](som/README.md); [comparación con entradas PCA](som_pca/README.md) |
 | 1.3 Índice de Oja | [Índice](oja/README.md) |
-| 1.4 Decisiones | [Campañas](#campañas) en este documento |
+| 1.4 Decisiones | [Decisiones para las campañas](campanas/README.md); análisis por criterio en [Campañas](#campañas) |
 
 ## Reproducción
 

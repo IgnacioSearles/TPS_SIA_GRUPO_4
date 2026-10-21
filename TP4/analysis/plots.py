@@ -20,9 +20,10 @@ MIN_LABELED_LOADING_3D = .6
 LOG_SCALE_COLUMNS = {'followers', 'price_usd'}
 
 
-def _save(fig, path, dpi=160):
+def _save(fig, path, dpi=160, rect=(0, 0, 1, 1)):
+    """rect reserva lugar fuera de los ejes, por ejemplo para una leyenda de toda la figura arriba."""
     try:
-        fig.tight_layout()
+        fig.tight_layout(rect=rect)
         fig.savefig(path, dpi=dpi)
     finally:
         plt.close(fig)
