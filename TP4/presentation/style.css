@@ -102,8 +102,9 @@ body { background: #fff; color: var(--ink); }
 .reveal .cards > div { background: var(--card); border-radius: 10px; padding: 22px 22px; height: 470px; border-top: 8px solid; }
 .reveal .cards img { display: block; width: 190px; height: 190px; margin: 4px auto 14px; max-width: none; max-height: none; }
 .reveal .cards h3 { font-size: 34px; margin: 0 0 10px; }
-.reveal .cards .goal { font-size: 26px; font-weight: 700; margin-bottom: 12px; }
 .reveal .cards p { font-size: 24px; color: var(--muted); }
+.reveal .cards .want { font-size: 24px; margin-bottom: 4px; }
+.reveal .cards .goal { font-size: 26px; font-weight: 700; color: var(--ink); line-height: 1.2; margin-bottom: 8px; }
 /* Topic colors: the same ones as in the figures (matplotlib C0–C3). */
 .reveal .cards .football { border-color: #1f77b4; }
 .reveal .cards .makeup { border-color: #ff7f0e; }
