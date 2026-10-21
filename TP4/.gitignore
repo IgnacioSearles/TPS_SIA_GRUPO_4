@@ -31,6 +31,7 @@ __pycache__/
 /tests/test_queries.py
 /tests/test_shared_modules.py
 /reports/ejercicio2/dos_redes/*.csv
+/reports/ejercicio2/zonas/*.csv
 /presentation/ejercicio2_guia.md
 /reports/ejercicio1/oja/*.csv
 /reports/ejercicio1/oja/*.json

@@ -1,6 +1,6 @@
 # Ejercicio 2: recuperación de códigos QR con Hopfield
 
-La red usa sólo la regla de Hebb del apunte. Otras alternativas (pseudoinversa, dos redes, sacar los módulos compartidos) se comparan aparte, en [`mejoras/`](mejoras/README.md) y [`variante/`](variante/README.md).
+La red usa sólo la regla de Hebb del apunte. Otras alternativas (pseudoinversa, dos redes, sacar los módulos compartidos, una red por zona del QR) se comparan aparte, en [`mejoras/`](mejoras/README.md), [`variante/`](variante/README.md), [`dos_redes/`](dos_redes/README.md) y [`zonas/`](zonas/README.md).
 
 ## Resumen
 
@@ -286,7 +286,7 @@ Para el restaurante, la red responde lo mismo sea cual sea el menú escaneado: n
 
 ### 7. Alcance de las conclusiones
 
-- Los resultados de este informe valen para la regla de Hebb del apunte. La pseudoinversa, guardar menos QR o repartirlos en dos redes se comparan aparte, en [`mejoras/`](mejoras/README.md) y [`variante/`](variante/README.md).
+- Los resultados de este informe valen para la regla de Hebb del apunte. La pseudoinversa, guardar menos QR, repartirlos en dos redes o usar una red por zona de la imagen se comparan aparte, en [`mejoras/`](mejoras/README.md), [`variante/`](variante/README.md), [`dos_redes/`](dos_redes/README.md) y [`zonas/`](zonas/README.md).
 - El lector es `cv2.QRCodeDetector` de OpenCV; otro lector (por ejemplo, la cámara de un teléfono) puede tener otro umbral. Tampoco se midió.
 
 ## Conclusión
