@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TP4 · Aprendizaje no supervisado · Grupo 4</title>
+<link rel="stylesheet" href="vendor/reveal/reset.css">
+<link rel="stylesheet" href="vendor/reveal/reveal.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+<!-- ===================================================================== Apertura -->
+
+<section class="cover">
+  <p class="kicker">Sistemas de Inteligencia Artificial · TP4 · Grupo 4</p>
+  <h1>Elegir creadores<br>y recordar QR</h1>
+  <p class="authors">Ignacio Searles · Ivo Vilamowski · Agustín Galán<br>Nicolás Koron · Toribio Viton Sconza</p>
+  <aside class="notes">Dos problemas con aprendizaje no supervisado. En el primero usamos PCA, Kohonen y Oja para elegir creadores de contenido. En el segundo, una red de Hopfield para recuperar QR dañados. Al final hay un apéndice con los gráficos de respaldo.</aside>
+</section>
+
+<!-- ===================================================================== Ejercicio 1 -->
+
+<section class="divider">
+  <p class="number">1</p>
+  <h2>Campañas de marketing</h2>
+  <p class="lead">La agencia elige creadores por seguidores y las campañas no rinden. ¿Qué otra cosa dicen los datos?</p>
+  <aside class="notes">Cuatro clientes: refugios de perros, ropa de fútbol, belleza y materiales de arte. Todos quieren llegar a un público en Argentina con el contenido adecuado.</aside>
+</section>
+
+<section class="section">
+  <h2>Exploración y PCA</h2>
+  <p class="roadmap"><span class="current">Exploración y PCA</span> · Kohonen · Oja · Campañas</p>
+</section>
+
+<section>
+  <h2>31 variables, pero 4 son cuentas de otras</h2>
+  <div class="eqs">
+    <p><b>precio en pesos</b> = 1.500 × precio en USD</p>
+    <p><b>publicaciones orgánicas</b> = 100 − patrocinadas</p>
+    <p><b>engagement total</b> = likes + comentarios + guardados + compartidos</p>
+    <p><b>alcance argentino</b> = alcance × % de audiencia argentina</p>
+  </div>
+  <p class="take">Las sacamos para no contar dos veces lo mismo. Quedan <em>27</em>, para 50 creadores.</p>
+  <aside class="notes">El catálogo tiene 50 creadores y 31 variables numéricas, sin faltantes, duplicados ni valores imposibles. Estas cuatro se calculan exactamente a partir de otras: dejarlas les daba peso doble en las distancias. El alcance argentino no entra al modelo, pero lo usamos al final para medir el costo de cada campaña.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Cada creador tiene un tema principal</h2>
+  <figure><img src="assets/reports__presentacion__e1_temas.png" alt="Composición temática de cada creador"></figure>
+  <p class="take">15 de fútbol, 13 de perros, 11 de maquillaje y 11 de arte. Ninguno es mixto.</p>
+  <aside class="notes">Cada columna es un creador. El tema principal ocupa entre el 40 % y el 82 % de sus publicaciones, y el segundo nunca pasa del 25 %. Por eso los "atípicos" de maquillaje y arte que marca el criterio de IQR son los especialistas: no los sacamos, son la información que buscamos. Ojo con los nombres: @vidaperruna y @makeupconsejos publican sobre todo fútbol.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Perros es el tema más distinto</h2>
+  <figure><img src="assets/reports__presentacion__e1_perfiles.png" alt="Seguidores, audiencia argentina y tutoriales por tema"></figure>
+  <p class="take">Creadores chicos, con público local y muchos tutoriales: lo que necesita un refugio.</p>
+  <aside class="notes">Medianas de perros: 45 mil seguidores (fútbol 198 mil, maquillaje 383 mil), 66 % de audiencia argentina (los demás 41–46 %) y 41 % de tutoriales (16–27 %). Las cajas se superponen mucho y cada tema tiene creadores chicos y grandes: el tema solo no alcanza para elegir.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Sin escalar, los seguidores lo deciden todo</h2>
+  <figure><img src="assets/reports__presentacion__e1_escala.png" alt="Parte de la varianza total por variable, sin escalar y estandarizada"></figure>
+  <p class="take">Estandarizamos (z-score): cada variable pesa lo mismo en las distancias.</p>
+  <aside class="notes">Sin escalar, cuatro variables de tamaño se llevan el 99,996 % de la varianza: una distancia en unidades originales sería, en la práctica, una distancia por tamaño, y tanto PCA como Kohonen usan distancias. Estandarizadas, cada una de las 27 aporta 1/27. Las medias y desvíos se guardan para transformar creadores nuevos con la misma referencia.</aside>
+</section>
+
+<section class="side">
+  <h2>Casi todo el catálogo es un solo eje</h2>
+  <main>
+    <figure><img src="assets/reports__presentacion__e1_bloques.png" alt="Matriz de correlaciones con dos bloques opuestos"></figure>
+    <div class="points">
+      <p><em>21 de 27</em> variables caen en dos bloques</p>
+      <p>Rojo adentro de cada bloque, <em>azul entre ellos</em>: son opuestos</p>
+      <p class="muted">Tema y audiencia argentina quedan sueltos</p>
+    </div>
+  </main>
+  <aside class="notes">Ordenamos la matriz con un agrupamiento jerárquico. Las 108 correlaciones entre los dos bloques son negativas, de −0,14 a −0,86. Lo más importante para los clientes, el tema y dónde está la audiencia, casi no correlaciona con ese eje. Esto anticipa lo que va a encontrar PCA.</aside>
+</section>
+
+<section class="side wide">
+  <h2>Qué significan PC1 y PC2</h2>
+  <main>
+    <figure><img src="assets/reports__presentacion__e1_biplot.png" alt="Biplot PC1-PC2 con las variables principales"></figure>
+    <div class="points">
+      <p><em>PC1 (50 %)</em><br>visibilidad ← → profundidad</p>
+      <p><em>PC2 (9 %)</em><br>audiencia argentina, perros ← → arte, exhibición</p>
+      <p class="muted">Seguidores y audiencia argentina son casi perpendiculares</p>
+    </div>
+  </main>
+  <aside class="notes">Las flechas son correlaciones de cada variable con las componentes. A la izquierda de PC1: seguidores −0,87, alcance −0,91, alcance a no seguidores −0,74. A la derecha: tutoriales +0,73, guardados +0,84, texto largo +0,94. PC2 mezcla geografía y contenido: arte +0,63 y exhibición +0,66 contra audiencia argentina −0,57. PC3 (7 %) es publicidad y fútbol; está en el apéndice.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Los seguidores predicen el precio, no dónde está la audiencia</h2>
+  <figure><img src="assets/reports__presentacion__e1_seguidores.png" alt="Seguidores frente a precio y frente a audiencia argentina"></figure>
+  <p class="take">Elegir por seguidores asegura tamaño, no llegar al público de los clientes.</p>
+  <aside class="notes">Cada punto es un creador. A más seguidores, más caro: r = 0,82. Pero con la audiencia argentina no hay ninguna relación: hay creadores enormes con 25 % de público argentino y chicos con 90 %. Tampoco predicen el costo por cuenta argentina alcanzada (r = −0,02). Por eso las campañas de la agencia tienen visibilidad pero no llegan a quien compra.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>10 componentes guardan el 90 %, pero no reducimos</h2>
+  <figure><img src="assets/reports__presentacion__e1_varianza.png" alt="Varianza acumulada por componente"></figure>
+  <p class="take">Kohonen con 10 componentes da las mismas regiones. Con las 27 variables, el mapa se lee directo.</p>
+  <aside class="notes">PC1 y PC2 guardan el 58,9 %: sirven para mirar, no para entrenar. Con 10 componentes (91,5 %) el mapa da las mismas regiones y campañas, así que reducir no cambia nada y nos haría perder la lectura en variables originales (los planos del mapa). Con 2, 3 o 6 componentes se pierden los temas. No usamos whitening: igualaría componentes débiles con las fuertes.</aside>
+</section>
+
+<section class="section">
+  <h2>Kohonen</h2>
+  <p class="roadmap">Exploración y PCA · <span class="current">Kohonen</span> · Oja · Campañas</p>
+</section>
+
+<section class="figure has-take">
+  <h2>4×4: con 50 creadores, un mapa más grande se vacía</h2>
+  <figure><img src="assets/reports__presentacion__e1_ocupacion.png" alt="Creadores por neurona en 4×4 y 5×5"></figure>
+  <p class="take">4×4 además repite los mismos grupos entre semillas: ARI 0,83–0,91, contra 0,67–0,74 en 5×5.</p>
+  <aside class="notes">Probamos 1.500 configuraciones: tamaño y forma, topología, inicialización, tasa de aprendizaje y radio. Un mapa más grande siempre baja el error de cuantización, pero con 50 creadores cada neurona termina describiendo a una persona y no a un perfil. Modelo final: rectangular, inicialización con muestras, vecindad gaussiana, tasa de 0,3 a 0,01 y radio de 2 a 0,5, con decaimiento exponencial, 1.000 épocas. QE 2,78, error topográfico 0,06. Las configuraciones con menor QE no tienen vecindad efectiva: agrupan sin formar un mapa. Los barridos están en el apéndice.</aside>
+</section>
+
+<section class="side">
+  <h2>Las fronteras de la matriz U son cambios de perfil</h2>
+  <main>
+    <figure><div class="half left"><img src="assets/reports__ejercicio1__som__mapa.png" alt="Matriz U del mapa"></div></figure>
+    <div class="points">
+      <p>Oscuro: perfiles parecidos</p>
+      <p>Amarillo: cambio brusco, como de perros a maquillaje arriba</p>
+      <p>Distancia alta entre vecinas: <em>no son reemplazables</em></p>
+    </div>
+  </main>
+  <aside class="notes">La U va de 2,44 a 3,32: hay fronteras pero no huecos, esperable con perfiles que cambian de a poco. Las fronteras más altas son bordes de región: de reseñas a entretenimiento (R2 a R4) y de arte a fútbol masivo (R3 a R5). Las regiones se reproducen entre semillas (ARI 0,79).</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Las regiones: juntamos neuronas vecinas parecidas</h2>
+  <figure><img src="assets/reports__presentacion__e1_regiones_union.png" alt="Unión de neuronas vecinas de 16 a 5 regiones"></figure>
+  <p class="take">En cada paso se unen las dos zonas <em>vecinas</em> con prototipos más parecidos. Paramos en 5.</p>
+  <aside class="notes">16 neuronas para 50 creadores son demasiadas para leer perfiles, así que agrupamos sus prototipos: es la forma habitual de interpretar un mapa de Kohonen en dos niveles. Usamos clustering jerárquico de Ward: arranca con cada neurona sola y en cada paso une el par que menos aumenta la varianza dentro de los grupos. La única restricción es que solo se unen zonas vecinas en la grilla, para que cada región sea un área continua del mapa y se pueda leer sobre la matriz U. Las regiones se numeran R1 a R5 de menos a más seguidores.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Con 5 regiones aparecen los temas, sin regiones diminutas</h2>
+  <figure><img src="assets/reports__presentacion__e1_regiones_cantidad.png" alt="Pureza de tema y tamaño de la región más chica según la cantidad de regiones"></figure>
+  <p class="take">Con más de 5, los temas casi no mejoran y quedan regiones de 1 a 4 creadores.</p>
+  <aside class="notes">Medias de 5 semillas. Pureza: qué parte de los creadores de cada región comparte el tema más común de esa región; con regiones al azar del mismo tamaño daría 0,41. Las 5 regiones se reproducen entre semillas (ARI 0,79) y cada creador sigue junto a sus compañeros de región en el 88–100 % de las semillas.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>En diagonal, el mapa va de visibilidad a profundidad</h2>
+  <figure><img src="assets/reports__presentacion__e1_planos_eje.png" alt="Planos de seguidores, alcance a no seguidores, tutoriales y guardados"></figure>
+  <p class="take">Amarillo = valor alto. Seguidores crece hacia abajo a la derecha; tutoriales, hacia arriba a la izquierda.</p>
+  <aside class="notes">Cada cuadrado es una neurona, pintada con el valor de su prototipo en esa variable, en unidades originales. Las líneas negras son los bordes de las cinco regiones. Es el mismo eje que PC1, ahora sobre el mapa.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Y cada tema ocupa su propio rincón</h2>
+  <figure><img src="assets/reports__presentacion__e1_planos_temas.png" alt="Planos de fútbol, maquillaje, perros y arte"></figure>
+  <p class="take">Perros arriba a la izquierda, maquillaje a la derecha, arte abajo, fútbol en el centro.</p>
+  <aside class="notes">El tema es solo 4 de las 27 variables, y aun así el mapa lo separa. Con esto cada región ya tiene un perfil que se puede nombrar.</aside>
+</section>
+
+<section class="side wide">
+  <h2>Las regiones recorren PC1 de punta a punta</h2>
+  <main>
+    <figure><img src="assets/reports__ejercicio1__som__regiones_pca.png" alt="Regiones del mapa sobre el plano PC1-PC2"></figure>
+    <div class="points">
+      <p><em>R5</em> masivos a la izquierda, <em>R1</em> perros de comunidad a la derecha</p>
+      <p>El mapa separa lo que el biplot superpone, como R4 y R5</p>
+    </div>
+  </main>
+  <aside class="notes">PC1 medio por región: R5 −4,9, R4 −1,3, R3 −0,7, R2 +2,5, R1 +4,7. La diagonal del mapa es el eje visibilidad–profundidad. PC2 separa R3 (arte, +2,3) de R1 (perros y audiencia argentina). R4 y R5 están juntas en el plano, pero el mapa usa las 27 variables y las separa por tamaño, precio y tema.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Sin pedírselo, el mapa separa los temas</h2>
+  <figure><img src="assets/reports__ejercicio1__campanas__4_regiones_temas.png" alt="Tema por neurona y por región"></figure>
+  <p class="take">Pureza de tema 0,66, contra 0,40 con regiones al azar.</p>
+  <aside class="notes">El tema es solo 4 de las 27 variables de entrada. R1 son 9 de 9 creadores de perros y R3, 6 de 7 de arte. R4 y R5 mezclan temas: ahí el mapa agrupa primero por tamaño y formato. V de Cramér 0,64 contra 0,28 al azar.</aside>
+</section>
+
+<section class="side">
+  <h2>Lo que el mapa no separa: la audiencia argentina</h2>
+  <main>
+    <figure><div class="half"><img src="assets/reports__ejercicio1__campanas__3_mapa_clientes.png" alt="Plano de audiencia argentina del mapa"></div></figure>
+    <div class="points">
+      <p>Alta solo en dos esquinas</p>
+      <p>η² = <em>0,08</em>, lo mismo que al azar</p>
+      <p>El mapa elige el <em>tipo</em> de creador, no los nombres</p>
+    </div>
+  </main>
+  <aside class="notes">η² es la parte de la varianza de una variable que explica la región. Tamaño 0,71, descubrimiento y tutoriales alrededor de 0,47. Audiencia argentina 0,08 y costo por cuenta argentina 0,02: nivel de azar. Dentro de cada región hay creadores con 25 % y con 90 % de audiencia argentina. Esto define cómo vamos a elegir.</aside>
+</section>
+
+<section class="section">
+  <h2>Índice de Oja</h2>
+  <p class="roadmap">Exploración y PCA · Kohonen · <span class="current">Oja</span> · Campañas</p>
+</section>
+
+<section class="figure has-take">
+  <h2>La regla de Oja encuentra PC1</h2>
+  <figure><img src="assets/reports__ejercicio1__oja__convergencia.png" alt="Convergencia de Oja hacia PC1 por tasa"></figure>
+  <p class="take">Con η = 0,001, mismo eje y mismo orden de los 50 creadores que PC1.</p>
+  <aside class="notes">El eje vertical es cuánto le falta al vector de pesos para ser paralelo a PC1. Con 0,001 termina en 1 − 2·10⁻¹⁰. Con 0,05, dos de cinco semillas divergen. El índice es la proyección sobre ese vector: mide visibilidad contra profundidad.</aside>
+</section>
+
+<section class="figure below">
+  <h2>¿Elegimos al de mayor índice? No</h2>
+  <figure><img src="assets/reports__ejercicio1__campanas__2_indice_oja.png" alt="Índice de Oja por tema con los distintos top 3"></figure>
+  <div class="below-points">
+    <p>El mayor es el más profundo, y el signo es arbitrario</p>
+    <p>No sabe de temas: los 5 primeros son de perros</p>
+    <p>Sirve para decidir <em>hacia qué punta</em> ir</p>
+  </div>
+  <aside class="notes">Con el signo opuesto, el índice reproduce la selección por seguidores. En cada tema, el creador más barato por cuenta argentina queda entre los puestos 44 y 49 de 50. En el gráfico se ve que el top por seguidores y el top por descubrimiento quedan a la izquierda, y el de tutoriales a la derecha: el índice ubica, no elige.</aside>
+</section>
+
+<section class="section">
+  <h2>Decisiones para las campañas</h2>
+  <p class="roadmap">Exploración y PCA · Kohonen · Oja · <span class="current">Campañas</span></p>
+</section>
+
+<section>
+  <h2>Cómo elegimos</h2>
+  <div class="steps">
+    <div><p class="n">1</p><div><p class="what">El mapa elige el tipo de creador</p><p class="how">la región cuyo perfil y lugar en PC1 coinciden con el objetivo</p></div></div>
+    <div><p class="n">2</p><div><p class="what">El costo elige los nombres</p><p class="how">dentro de la región, menos USD por cada 1.000 cuentas argentinas</p></div></div>
+  </div>
+  <aside class="notes">Supuestos, que la consigna permite: el público de los cuatro clientes está en Argentina, y un creador es candidato si su tema principal es el del cliente. El catálogo no tiene ventas ni adopciones, así que optimizamos llegar al público adecuado con el contenido adecuado, no conversiones. El paso 2 existe porque el mapa no separa audiencia ni costo.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Masivo y descubrimiento están en la misma punta de PC1</h2>
+  <figure><img src="assets/reports__presentacion__e1_masivo_descubrimiento.png" alt="Seguidores y alcance a no seguidores de los creadores de fútbol según PC1"></figure>
+  <p class="take">Los de fútbol con más seguidores son también los que más llegan a quien no los sigue.</p>
+  <aside class="notes">Solo los 15 creadores de fútbol. Seguidores (en escala logarítmica) contra PC1: r = −0,92. Alcance a no seguidores contra PC1: r = −0,67. Las dos estrategias apuntan a la zona de visibilidad, a la izquierda, así que la decisión real es entre esa punta y la profundidad. En R4 y R5, entre el 58 % y el 74 % del alcance llega a no seguidores.</aside>
+</section>
+
+<section class="figure below">
+  <h2>Fútbol: ¿alcance masivo, descubrimiento o profundidad?</h2>
+  <figure><img src="assets/reports__presentacion__e1_futbol.png" alt="Creadores de fútbol sobre PC1 y su audiencia argentina"></figure>
+  <div class="below-points">
+    <p><em>Descubrimiento</em>, con audiencia argentina</p>
+    <p>Los elegidos son la punta visible <em>y</em> argentina</p>
+    <p class="muted">La profundidad es barata, pero su público está afuera</p>
+  </div>
+  <aside class="notes">PCA responde que no son tres opciones independientes: elegir una es elegir una punta de PC1, y nadie es alto en las dos. Para vender ropa hay que mostrarla a gente que todavía no sigue al creador: R4 y R5, con 58–74 % de alcance a no seguidores. El top por descubrimiento puro es el más caro por argentino porque su alcance se va del país; los elegidos tienen 75 % de audiencia argentina. Los de profundidad sirven como complemento, por ejemplo para explicar cómo usar la prenda.</aside>
+</section>
+
+<section>
+  <h2>Una región para cada cliente</h2>
+  <div class="cards">
+    <div class="football"><h3>Fútbol</h3><img src="assets/reports__presentacion__e1_mapa_football.png" alt="Regiones elegidas para fútbol"><p class="goal">R4 + R5 · descubrimiento</p><p>mostrar la prenda a quien no sigue al creador</p></div>
+    <div class="makeup"><h3>Maquillaje</h3><img src="assets/reports__presentacion__e1_mapa_makeup.png" alt="Regiones elegidas para maquillaje"><p class="goal">R4 + R5 · visibilidad local</p><p>la neurona con más audiencia argentina</p></div>
+    <div class="dogs"><h3>Perros</h3><img src="assets/reports__presentacion__e1_mapa_dogs.png" alt="Regiones elegidas para perros"><p class="goal">R1 · comunidad</p><p>profundidad y la neurona más argentina del mapa</p></div>
+    <div class="art"><h3>Arte</h3><img src="assets/reports__presentacion__e1_mapa_art.png" alt="Regiones elegidas para arte"><p class="goal">R3 · exhibición</p><p>el material en uso; el caso más débil</p></div>
+  </div>
+  <aside class="notes">Fútbol: golconmate, tribunacreativa, lookdecancha. Maquillaje: maquillajereal, brochasymates, mateconideas; brochasymates suma 45 % de tutoriales, y en belleza mostrar cómo se aplica es parte de la venta. Perros: huellasyconsejos, consejoscaninos, guiadehuellas; el objetivo son consultas y adopciones, que son locales y requieren confianza. Arte: rinconcreativo, colorenmovimiento, artequeinspira. Arte es el más débil y PCA dice por qué: R3 está en la punta de PC2 opuesta a la audiencia argentina.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Llegar a cada argentino cuesta entre 15 % y 47 % menos</h2>
+  <figure><img src="assets/reports__presentacion__e1_costo.png" alt="Costo por 1.000 cuentas argentinas, seguidores contra elegidos"></figure>
+  <p class="take">Comparado con contratar a los tres de más seguidores de cada tema.</p>
+  <aside class="notes">Por seguidores siempre aparece algún creador grande con audiencia extranjera: futbolsinvueltas (27 % argentina), brillourbano (30 %), patitascontentas (24 %). La audiencia argentina sube en tres de los cuatro temas; en arte queda igual (56 % frente a 58 %).</aside>
+</section>
+
+<section>
+  <h2>Refugios: tres creadores chicos le ganan a tres famosos</h2>
+  <div class="numbers">
+    <div><p class="value">USD 339</p><p class="label">tres publicaciones con el mapa, 83 % de audiencia argentina</p></div>
+    <div><p class="value warm">USD 6.993</p><p class="label">tres publicaciones con los de más seguidores</p></div>
+  </div>
+  <aside class="notes">Es el ejemplo más claro de por qué elegir por seguidores falla. Para perros el objetivo pide profundidad y público local, y R1 tiene las dos cosas: 49 % de tutoriales y la neurona con 69 % de audiencia argentina. Por seguidores se termina en la otra punta de PC1: índice de Oja −2,4 contra +5,4 de los elegidos.</aside>
+</section>
+
+<section>
+  <h2>¿Seguidores o mapa?</h2>
+  <div class="versus">
+    <div><h3>Seguidores</h3><p class="plus">simple, sin modelo</p><p class="plus">asegura volumen</p><p class="minus">no sabe dónde está la audiencia</p><p class="minus">siempre la punta de visibilidad</p></div>
+    <div class="chosen"><h3>Mapa + costo</h3><p class="plus">el tipo de creador sigue al objetivo</p><p class="plus">más barato por argentino</p><p class="plus">reemplazos del mismo tipo</p><p class="minus">supuestos y un modelo que mantener</p></div>
+  </div>
+  <aside class="notes">Reemplazos: si un elegido no está disponible, el mapa propone creadores del mismo tema en su neurona o en las vecinas. El mapa garantiza parecido de perfil, no de costo, así que el paso 2 se repite sobre los reemplazos. Con 50 creadores, algunas regiones tienen pocos candidatos por tema.</aside>
+</section>
+
+<section>
+  <h2>¿Qué pasa cuando algo cambia?</h2>
+  <div class="steps">
+    <div><p class="n">→</p><div><p class="what">Nueva campaña</p><p class="how">no se reentrena: región y costo</p></div></div>
+    <div><p class="n">→</p><div><p class="what">Nuevos creadores</p><p class="how">se ubican en la neurona más cercana; si son muchos, se reentrena</p></div></div>
+    <div><p class="n">→</p><div><p class="what">Nuevas variables o un mes nuevo</p><p class="how">se rehace todo y se compara con el modelo anterior</p></div></div>
+  </div>
+  <aside class="notes">Nuevos creadores: se transforman con las medias y desvíos guardados y se proyectan sin reentrenar. Si su error de cuantización es mayor que el del catálogo, no se parecen a ningún prototipo. Un rubro nuevo (por ejemplo cocina) es una variable nueva. Con datos nuevos cada mes cambian medias y desvíos, las componentes pueden rotar y los creadores moverse de neurona: hay que guardar el preprocesamiento de referencia y revisar qué región corresponde a cada cliente.</aside>
+</section>
+
+<section class="statement">
+  <h2>En resumen</h2>
+  <ol>
+    <li>Los creadores varían sobre todo en un eje: <em>visibilidad o profundidad</em></li>
+    <li>El mapa encuentra tipos de creador y temas, pero no dónde está la audiencia</li>
+    <li>Mapa + costo: el tipo de creador correcto, y <em>más barato</em> por argentino</li>
+  </ol>
+</section>
+
+<!-- ===================================================================== Ejercicio 2 -->
+
+<section class="divider">
+  <p class="number">2</p>
+  <h2>Memoria asociativa</h2>
+  <p class="lead">Cinco QR gastados en la Trattoria Aurora. ¿Puede una red de Hopfield recuperarlos?</p>
+  <aside class="notes">Cada QR es una matriz de 37×37, o sea 1.369 neuronas. Guardamos los cinco con la regla de Hebb y actualización sincrónica, como en el apunte. Las consultas son los QR con ruido: de 0 a 50 % de módulos invertidos, 20 semillas por nivel y por QR, 1.100 consultas en total.</aside>
+</section>
+
+<section class="section">
+  <h2>Qué pasó</h2>
+  <p class="roadmap"><span class="current">Qué pasó</span> · Por qué · Qué probamos</p>
+</section>
+
+<section class="figure has-take">
+  <h2>Le pasamos cualquier QR y devuelve siempre lo mismo</h2>
+  <figure><img src="assets/reports__presentacion__e2_consultas_y_salidas.png" alt="Cinco consultas con ruido y cinco salidas iguales"></figure>
+  <p class="take"><em>0 de 1.100</em> consultas recuperadas. Ni siquiera sin ruido.</p>
+  <aside class="notes">Arriba, una consulta de cada QR con 10 % de ruido. Abajo, lo que devuelve la red: la misma imagen las cinco veces. Es el estado mezcla: en cada módulo, el color de la mayoría de los cinco QR. 1.051 consultas terminan ahí y las otras 49, en su inverso, todas con 50 % de ruido. Un QR perfecto, sin ruido, también cae a la mezcla en una iteración: ninguno de los cinco es estable.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>La red baja de energía, pero hacia la mezcla</h2>
+  <figure><img src="assets/reports__presentacion__e2_energia.png" alt="Energía por iteración para cuatro niveles de ruido"></figure>
+  <p class="take">La mezcla tiene menos energía que cualquier QR. Llega en 1 o 2 iteraciones.</p>
+  <aside class="notes">La línea gris es la energía del QR original, el menú principal. La mezcla está en −2.173; los QR, entre −2.077 y −1.790. La red hace lo que promete, bajar la energía, pero el mínimo no es un QR. Con actualización sincrónica la energía podría subir; en este barrido no subió nunca, pero eso es lo observado, no una garantía.</aside>
+</section>
+
+<section>
+  <h2>Y además arruina QR que se podían leer</h2>
+  <div class="numbers">
+    <div><p class="value">100 %</p><p class="label">de las consultas sin ruido las lee un lector de QR</p></div>
+    <div><p class="value warm">0 %</p><p class="label">de las salidas de la red</p></div>
+  </div>
+  <aside class="notes">Usamos el lector de OpenCV. Lee los cinco originales y ninguna de las 1.100 salidas. La corrección de errores del QR, nivel L, aguanta muy poco ruido al azar: el lector solo lee 66 % con 0,5 % de ruido y nada desde 3 %.</aside>
+</section>
+
+<section class="section">
+  <h2>Por qué</h2>
+  <p class="roadmap">Qué pasó · <span class="current">Por qué</span> · Qué probamos</p>
+</section>
+
+<section class="figure has-take">
+  <h2>¿Está mal la red? Con patrones al azar anda perfecto</h2>
+  <figure><img src="assets/reports__presentacion__e2_azar_vs_qr.png" alt="Recuperación de patrones al azar contra QR"></figure>
+  <p class="take">Misma red, mismo tamaño. Solo cambian los patrones.</p>
+  <aside class="notes">Cinco patrones al azar de 1.369 módulos se recuperan el 100 % de las veces hasta con 40 % de ruido. Con los QR, nunca. Esto descarta un error de implementación.</aside>
+</section>
+
+<section>
+  <h2>Tampoco es cantidad</h2>
+  <div class="numbers">
+    <div><p class="value">5</p><p class="label">QR guardados</p></div>
+    <div><p class="value">≈ 205</p><p class="label">capacidad del apunte, 0,15·N</p></div>
+  </div>
+  <p class="take">Medido: entran unos 100 patrones al azar, pero solo 2 QR.</p>
+  <aside class="notes">Usamos el 2,4 % de la capacidad teórica. Pero esa cota supone patrones al azar, casi ortogonales. Con 100 patrones al azar la red acierta el 94 % con 10 % de ruido. Con QR entran de a dos.</aside>
+</section>
+
+<section class="side">
+  <h2>Los cinco QR son casi el mismo QR</h2>
+  <main>
+    <figure><img src="assets/reports__presentacion__e2_compartidos.png" alt="Módulos iguales en los cinco QR"></figure>
+    <div class="points">
+      <p><em>70 %</em> de los módulos son iguales en los cinco</p>
+      <p>Solapamiento entre pares de 0,58 a 0,86; al azar, 0,03</p>
+      <p class="muted">La interferencia de los otros QR le gana a la señal propia, 2,1 a 1</p>
+    </div>
+  </main>
+  <aside class="notes">Solapamiento: 1 es idéntico, 0 es ortogonal (la mitad de módulos iguales). Menú principal y vinos coinciden en el 93 % de los módulos. El campo de cada neurona es su señal (1) más el crosstalk de los otros patrones, y acá el crosstalk vale entre 2,06 y 2,21. Por eso todo cae a la mezcla.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Con más de 25 % compartido, la red se corta de golpe</h2>
+  <figure><img src="assets/reports__presentacion__e2_fraccion_compartida.png" alt="Recuperación según la fracción de módulos compartidos"></figure>
+  <p class="take">Los QR comparten el 70 %. Con k patrones, el límite es 1/(k − 1).</p>
+  <aside class="notes">Generamos cinco patrones al azar que comparten una fracción de sus módulos. Hasta 20 % se recupera todo; con 28 %, nada, ni sin ruido. Por qué 25 %: en un módulo propio donde los otros cuatro valen lo contrario, la señal es 1 y la interferencia, 4 por la fracción compartida. Es coherente con los QR: con 2 patrones el límite es 100 % y entran de a dos; con 3 es 50 % y ya fallan.</aside>
+</section>
+
+<section>
+  <h2>El parecido viene de cómo se arma un QR</h2>
+  <p class="url">https://github.com/eugepineiro/sia-tips/blob/feature/tp4-images/TPs/TP4/<b>food</b>_menu.png</p>
+  <div class="points">
+    <p>Las cinco URL comparten los primeros <em>72 caracteres</em></p>
+    <p>Esquinas, línea de sincronismo y formato son fijos en todo QR</p>
+  </div>
+  <aside class="notes">Solo cambia la palabra: food, wine, beverages, dessert, specials. El QR escribe los datos desde la esquina inferior derecha, así que el prefijo común queda en la mitad derecha: 410 de los 414 módulos que difieren están en las columnas 1 a 19. Cualquier conjunto de QR de un mismo sitio web va a tener este problema.</aside>
+</section>
+
+<section class="section">
+  <h2>Qué probamos</h2>
+  <p class="roadmap">Qué pasó · Por qué · <span class="current">Qué probamos</span></p>
+</section>
+
+<section class="figure has-take">
+  <h2>Sacar lo común ayuda: de 2 QR a 3</h2>
+  <figure><img src="assets/reports__presentacion__e2_subconjuntos.png" alt="Subconjuntos de QR estables antes y después de sacar los compartidos"></figure>
+  <p class="take">Con los cinco sigue fallando: lo que queda también se parece.</p>
+  <aside class="notes">La red trabaja solo con los 414 módulos que difieren y al final reponemos los 955 comunes. Con tres QR guardados recupera el 95,7 % con 25 % de ruido. Cuidado al medir: reponer los comunes ya borra el ruido que cayó ahí sin que la red haga nada; por eso comparamos contra esa reposición sin red (103,5 módulos mal contra 2,1 de la red). Con cinco no alcanza: menú y vinos siguen pareciéndose (0,54) porque sus nombres tienen el mismo largo y el resto de la URL cae en los mismos módulos.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Cortar la imagen en zonas tampoco alcanza</h2>
+  <figure><img src="assets/reports__ejercicio2__zonas__2_mapa_zonas.png" alt="QR estables por zona"></figure>
+  <p class="take">Achicar la zona no achica el parecido: a lo sumo 1 o 2 zonas guardan los cinco.</p>
+  <aside class="notes">Una red por zona, cada una con los cinco QR recortados. En la franja donde están las diferencias, ninguna zona de 10×10 deja estable a ningún QR. Ninguna salida completa es un QR guardado. Con zonas de 10×10 el lector llega a decodificar el 40 % sin ruido, pero solo menú y vinos, y gracias a la corrección de errores del propio QR, no a la red.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Repartir los QR en dos redes sí funciona</h2>
+  <figure><img src="assets/reports__presentacion__e2_metodos.png" alt="Recuperación con una red y con dos redes"></figure>
+  <p class="take"><em>100 %</em> hasta 35 % de ruido, sin salir de Hebb.</p>
+  <aside class="notes">Una red guarda menú, cócteles y postres; la otra, vinos y especiales; las dos sin los módulos comunes. La consulta pasa por las dos y elegimos la salida que es un QR válido; si hay dos, la más parecida a la consulta. Cero elecciones equivocadas. La pseudoinversa, que no está en el apunte, también recupera los cinco: los deja con la misma energía y la mezcla deja de ser estable. Límite: con cinco redes de un QR cada una, esto es comparar con los originales.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Con la esquina rota del enunciado, reconstruye el QR</h2>
+  <figure><img src="assets/reports__presentacion__e2_esquina.png" alt="QR con una esquina rota: una red contra dos redes"></figure>
+  <p class="take">En rojo, lo que cada salida tiene mal. Dos redes recuperan esquinas de hasta 17×17.</p>
+  <aside class="notes">El bloque roto es de 11×11 módulos en blanco y se lleva un cuadrado de posición. Dos redes lo reconstruyen y el lector lee la URL. 17×17 es el 21 % del QR. El lector solo lee la consulta rota únicamente en la esquina que no tiene cuadrado de posición, y hasta 9×9.</aside>
+</section>
+
+<section>
+  <h2>Límites del caso de uso</h2>
+  <div class="steps">
+    <div><p class="n">→</p><div><p class="what">Hebb necesita patrones distintos</p><p class="how">y los QR de un mismo sitio no lo son</p></div></div>
+    <div><p class="n">→</p><div><p class="what">El ruido al azar no es el daño real</p><p class="how">un QR se rompe, se mancha o se dobla por zonas</p></div></div>
+    <div><p class="n">→</p><div><p class="what">La red tiene que conocer todos los QR</p><p class="how">con pocos QR, compararlos con los originales es más simple</p></div></div>
+  </div>
+  <aside class="notes">Lo que se podría hacer sin cambiar la red: generar cada QR con una máscara distinta, para que los datos se vean casi al azar entre QR, o usar más corrección de errores (nivel H, 30 %, en vez de L, 7 %), que ayuda al lector solo. No los probamos.</aside>
+</section>
+
+<section class="statement">
+  <h2>El problema no es la red ni la cantidad.<br>Es que los QR se parecen.</h2>
+  <p class="sub">Con patrones distintos, Hebb funciona. Con QR del mismo restaurante hay que separarlos o repartirlos.</p>
+</section>
+
+<!-- ===================================================================== Apéndice -->
+
+<section class="divider">
+  <p class="number">+</p>
+  <h2>Apéndice</h2>
+  <p class="lead">Gráficos de respaldo para preguntas.</p>
+</section>
+
+<section class="figure"><h2>Escalas originales y estandarizadas</h2><figure><img src="assets/reports__ejercicio1__escalas.png" alt="Box plots en unidades originales y en z-score"></figure></section>
+
+<section class="figure"><h2>Biplot PC1–PC2 con todos los creadores</h2><figure><img src="assets/reports__ejercicio1__biplot.png" alt="Biplot"></figure></section>
+
+<section class="figure"><h2>PC3: publicidad y fútbol</h2><figure><img src="assets/reports__ejercicio1__biplot_pc3.png" alt="Biplots con PC3"></figure></section>
+
+<section class="figure"><h2>Correlaciones por bloques, con valores</h2><figure><img src="assets/reports__ejercicio1__correlaciones_bloques.png" alt="Matriz de correlaciones con valores"></figure></section>
+
+<section class="figure"><h2>Barrido de geometría del mapa</h2><figure><img src="assets/reports__ejercicio1__geometria_kohonen__comparacion.png" alt="Comparación de geometrías"></figure></section>
+
+<section class="figure"><h2>Barrido de tasa de aprendizaje y radio</h2><figure><img src="assets/reports__ejercicio1__aprendizaje_vecindad_kohonen__comparacion.png" alt="Comparación de tasa y radio"></figure></section>
+
+<section class="figure"><h2>Representaciones de entrada para Kohonen</h2><figure><img src="assets/reports__ejercicio1__representacion_kohonen__comparacion.png" alt="Comparación de representaciones"></figure></section>
+
+<section class="figure"><h2>Planos de componentes del mapa</h2><figure><img src="assets/reports__ejercicio1__som__planos.png" alt="Planos de componentes"></figure></section>
+
+<section class="figure"><h2>Qué variables separan las regiones</h2><figure><img src="assets/reports__ejercicio1__campanas__5_separacion.png" alt="η² por variable"></figure></section>
+
+<section class="figure"><h2>Regiones en PC1–PC3</h2><figure><img src="assets/reports__ejercicio1__som__regiones_pca_3d.png" alt="Regiones en tres componentes"></figure></section>
+
+<section class="figure"><h2>Kohonen sobre componentes principales</h2><figure><img src="assets/reports__ejercicio1__som_pca__coincidencias.png" alt="Coincidencias con entradas PCA"></figure></section>
+
+<section class="figure"><h2>Candidatos de cada cliente</h2><figure><img src="assets/reports__ejercicio1__campanas__6_candidatos.png" alt="Candidatos por cliente"></figure></section>
+
+<section class="figure"><h2>Elegidos frente al top 3 por seguidores</h2><figure><img src="assets/reports__ejercicio1__campanas__7_frente_a_seguidores.png" alt="Costo, audiencia y gasto"></figure></section>
+
+<section class="figure"><h2>Regiones y elegidos en el mapa</h2><figure><img src="assets/reports__ejercicio1__campanas__3_mapa_clientes.png" alt="Regiones, elegidos y audiencia argentina"></figure></section>
+
+<section class="figure"><h2>Un QR con ruido, paso a paso</h2><figure><img src="assets/reports__ejercicio2__ejemplos.png" alt="Original, consulta y salida para cuatro niveles de ruido"></figure></section>
+
+<section class="figure"><h2>Iteraciones hasta converger</h2><figure><img src="assets/reports__ejercicio2__iteraciones.png" alt="Iteraciones por nivel de ruido"></figure></section>
+
+<section class="figure"><h2>Solapamientos entre los QR</h2><figure><img src="assets/reports__ejercicio2__solapamientos.png" alt="Matriz de solapamientos y módulos iguales"></figure></section>
+
+<section class="figure"><h2>Interferencia por módulo</h2><figure><img src="assets/reports__ejercicio2__crosstalk.png" alt="Crosstalk por módulo"></figure></section>
+
+<section class="figure"><h2>Capacidad medida: patrones al azar contra QR</h2><figure><img src="assets/reports__ejercicio2__controles__control3_capacidad.png" alt="Capacidad medida"></figure></section>
+
+<section class="figure"><h2>Sin compartidos: ruido, con la reposición sin red como referencia</h2><figure><img src="assets/reports__ejercicio2__variante__4_barrido_ruido.png" alt="Barrido de ruido de la variante"></figure></section>
+
+<section class="figure"><h2>Sin compartidos: todas las ternas</h2><figure><img src="assets/reports__ejercicio2__variante__5_ternas.png" alt="Recuperación por terna"></figure></section>
+
+<section class="figure"><h2>Una red por zona: barrido de ruido y lector</h2><figure><img src="assets/reports__ejercicio2__zonas__3_barrido.png" alt="Barrido de ruido por tamaño de zona"></figure></section>
+
+<section class="figure"><h2>Cuántas redes y cómo repartir los QR</h2><figure><img src="assets/reports__ejercicio2__dos_redes__1_esquemas.png" alt="Esquemas de reparto"></figure></section>
+
+<section class="figure"><h2>Cómo se elige la red</h2><figure><img src="assets/reports__ejercicio2__dos_redes__3_diagnostico.png" alt="Diagnóstico de la elección"></figure></section>
+
+<section class="figure"><h2>Todos los métodos con una esquina rota</h2><figure><img src="assets/reports__ejercicio2__mejoras__2_esquina.png" alt="Esquina rota por método"></figure></section>
+
+</div></div>
+<script src="vendor/reveal/reveal.js"></script>
+<script src="vendor/reveal/plugin/notes.js"></script>
+<script>
+  Reveal.initialize({
+    width: 1280,
+    height: 720,
+    margin: 0.025,
+    center: false,
+    hash: true,
+    controls: false,
+    progress: false,
+    slideNumber: "c/t",
+    transition: "none",
+    backgroundTransition: "none",
+    plugins: [RevealNotes],
+  });
+</script>
+</body>
+</html>
