@@ -140,6 +140,37 @@ def region_separation(frame):
     return separation, random_baseline
 
 
+@dataclass(frozen=True)
+class TopicAssociation:
+    """Cruce región × tema, con pureza y V de Cramér frente a regiones del mismo tamaño asignadas al azar."""
+    counts: pd.DataFrame
+    purity: float
+    cramers_v: float
+    random_purity: float
+    random_cramers_v: float
+
+
+def region_topic_association(frame, permutations=1000, seed=0):
+    regions, topics = frame.region.to_numpy(), frame.main_topic.to_numpy()
+    rng = np.random.default_rng(seed)
+    shuffled = [rng.permutation(regions) for _ in range(permutations)]
+    return TopicAssociation(
+        counts=pd.crosstab(frame.region, frame.main_topic).reindex(columns=TOPICS, fill_value=0),
+        purity=topic_purity(regions, topics), cramers_v=cramers_v(regions, topics),
+        random_purity=float(np.mean([topic_purity(sample, topics) for sample in shuffled])),
+        random_cramers_v=float(np.mean([cramers_v(sample, topics) for sample in shuffled])))
+
+
+def cramers_v(first, second):
+    """Asociación entre dos variables categóricas: 0 si son independientes, 1 si una determina a la otra."""
+    table = pd.crosstab(np.asarray(first), np.asarray(second)).to_numpy()
+    if min(table.shape) < 2:
+        raise ValueError('V de Cramér requiere al menos dos categorías en cada variable')
+    expected = table.sum(axis=1, keepdims=True) * table.sum(axis=0, keepdims=True) / table.sum()
+    chi_squared = ((table - expected) ** 2 / expected).sum()
+    return float(np.sqrt(chi_squared / (table.sum() * (min(table.shape) - 1))))
+
+
 def topic_region_options(frame):
     """Qué tipos de creador hay para cada cliente: candidatos de su tema, separados por región."""
     grouped = frame.groupby(['main_topic', 'region'])
@@ -269,6 +300,7 @@ def _plot_campaigns(frame, x, preprocessor, catalog, criteria, selections, outpu
     plots.plot_oja_axis(frame, criteria, chosen, output)
     ar_plane = neuron_planes(catalog, preprocessor)['argentina_audience_pct']
     plots.plot_map_targets(catalog, ar_plane, chosen, TARGET_REGIONS, output)
+    plots.plot_region_topics(catalog, frame.main_topic.to_numpy(), region_topic_association(frame), output)
     plots.plot_region_separation(*region_separation(frame), output)
     plots.plot_candidates(frame, selections, TARGET_REGIONS, output)
     plots.plot_against_followers(selections, output)

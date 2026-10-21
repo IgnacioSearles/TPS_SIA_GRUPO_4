@@ -5,13 +5,13 @@ Cada gráfico muestra un resultado de los métodos (PCA, Oja, Kohonen) sobre el 
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap
+from matplotlib.colors import to_rgba
 from matplotlib.ticker import LogLocator, ScalarFormatter
 import numpy as np
 
 from .eda import TOPICS
 from .plots import TOPIC_COLORS, TOPIC_LABELS, _save
-from .som_plots import REGION_COLORS, _cells
+from .som_plots import _cells, draw_region_borders, draw_region_map
 
 COST_LABEL = 'USD por 1.000 cuentas argentinas'
 FOLLOWERS_COLOR, CHOSEN_COLOR, OTHER_COLOR = 'C1', 'C0', 'lightgray'
@@ -77,24 +77,54 @@ def plot_map_targets(catalog, ar_plane, chosen, target_regions, output):
     """Izquierda: regiones del mapa con la región de cada cliente y sus elegidos. Derecha: plano de audiencia argentina."""
     grid = catalog.som.grid
     fig, axes = plt.subplots(1, 2, figsize=(15, 6.5))
-    regions = _cells(axes[0], grid, catalog.neuron_regions, ListedColormap(REGION_COLORS[:len(catalog.region_names)]),
-                     edgecolors='white', linewidths=2)
-    regions.set_alpha(.35)
+    draw_region_map(axes[0], catalog)
     neurons = chosen.neuron.to_numpy()
-    for position, ((column, row), label) in enumerate(zip(grid.positions, catalog.neuron_regions)):
+    for position, (column, row) in enumerate(grid.positions):
         cell = '{},{}'.format(*grid.indices[position])
         names = '\n'.join(chosen.name[neurons == cell])
-        axes[0].text(column, row - .32, catalog.region_names[label], ha='center', va='center', weight='bold')
-        axes[0].text(column, row + .08, names, ha='center', va='center', fontsize=7)
+        axes[0].text(column, row + .12, names, ha='center', va='center', fontsize=7)
     axes[0].set_title('Regiones y elegidos\n' + _client_targets(target_regions))
 
     plane = _cells(axes[1], grid, ar_plane, 'viridis')
     fig.colorbar(plane, ax=axes[1], shrink=.8, label='Audiencia argentina del prototipo (%)')
+    draw_region_borders(axes[1], catalog)
     for position, ((column, row), label) in enumerate(zip(grid.positions, catalog.neuron_regions)):
         axes[1].text(column, row, f'{catalog.region_names[label]}\n{ar_plane[position]:.0f} %', ha='center',
                      va='center', fontsize=9, bbox={'facecolor': 'white', 'alpha': .7, 'edgecolor': 'none', 'pad': 1})
     axes[1].set_title('Plano de audiencia argentina')
     _save(fig, output / '3_mapa_clientes.png')
+
+
+def plot_region_topics(catalog, topics, association, output):
+    """Izquierda: cada neurona con el color de su tema mayoritario y los bordes de las regiones encima.
+    Derecha: composición temática de cada región."""
+    grid = catalog.som.grid
+    fig, axes = plt.subplots(1, 2, figsize=(15, 6.5), gridspec_kw={'width_ratios': [1, 1.1]})
+    facecolors = []
+    for neuron, (column, row) in enumerate(grid.positions):
+        names, counts = np.unique(topics[catalog.winners == neuron], return_counts=True)
+        # Más intenso cuanto mayor es la fracción del tema mayoritario en la neurona.
+        facecolors.append(to_rgba(TOPIC_COLORS[names[counts.argmax()]], .25 + .6 * counts.max() / counts.sum()))
+        composition = '\n'.join(f'{TOPIC_LABELS[name]} {count}' for name, count in
+                                sorted(zip(names, counts), key=lambda pair: -pair[1]))
+        axes[0].text(column, row + .08, composition, ha='center', va='center', fontsize=8)
+    draw_region_map(axes[0], catalog, facecolors)
+    axes[0].set_title('Tema mayoritario por neurona (más intenso = más puro) y regiones')
+
+    counts = association.counts
+    left = np.zeros(len(counts))
+    for topic in TOPICS:
+        axes[1].barh(counts.index, counts[topic], left=left, color=TOPIC_COLORS[topic], label=TOPIC_LABELS[topic])
+        for position, (start, value) in enumerate(zip(left, counts[topic])):
+            if value:
+                axes[1].text(start + value / 2, position, str(value), ha='center', va='center', color='white')
+        left += counts[topic].to_numpy()
+    axes[1].invert_yaxis()
+    axes[1].set(xlabel='Creadores', title=(
+        f'Pureza {_decimal(association.purity, ".2f")} (azar {_decimal(association.random_purity, ".2f")}) · '
+        f'V de Cramér {_decimal(association.cramers_v, ".2f")} (azar {_decimal(association.random_cramers_v, ".2f")})'))
+    axes[1].legend(title='Tema principal', loc='upper left', bbox_to_anchor=(1.01, 1))
+    _save(fig, output / '4_regiones_temas.png')
 
 
 def _client_targets(target_regions):
@@ -116,7 +146,7 @@ def plot_region_separation(separation, random_baseline, output):
     for position, value in enumerate(ordered):
         ax.text(value + .01, position, _decimal(value, '.2f'), va='center')
     ax.set(xlabel='η² por región', xlim=(0, 1))
-    _save(fig, output / '4_separacion.png')
+    _save(fig, output / '5_separacion.png')
 
 
 def plot_candidates(frame, selections, target_regions, output):
@@ -144,7 +174,7 @@ def plot_candidates(frame, selections, target_regions, output):
                plt.Line2D([], [], marker='s', ls='', mfc='none', mec=FOLLOWERS_COLOR, ms=12, label='Top 3 por seguidores'),
                plt.Line2D([], [], marker='o', ls='', mfc='none', mec='black', ms=12, label='Elegidos')]
     fig.legend(handles=handles, loc='upper center', ncol=4, frameon=False)
-    _save(fig, output / '5_candidatos.png', rect=(0, 0, 1, .96))
+    _save(fig, output / '6_candidatos.png', rect=(0, 0, 1, .96))
 
 
 def _ring(ax, creators, color, marker, label):
@@ -192,4 +222,4 @@ def plot_against_followers(selections, output):
     for position, (before, after) in enumerate(zip(table['cpm_arg', 'seguidores'], table['cpm_arg', 'som'])):
         axes[0].text(position + width / 2, after, _decimal(after / before - 1, '+.0%'), ha='center', va='bottom')
     fig.legend(*axes[0].get_legend_handles_labels(), loc='upper center', ncol=2, frameon=False)
-    _save(fig, output / '6_frente_a_seguidores.png', rect=(0, 0, 1, .92))
+    _save(fig, output / '7_frente_a_seguidores.png', rect=(0, 0, 1, .92))

@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from analysis.som_campanas import _order_by_median, region_separation
+from analysis.som_campanas import _order_by_median, cramers_v, region_separation
 from analysis.som_pca_comparison import aligned_to_reference
 from analysis.som_regions import co_assignment, contiguous_ward, membership_firmness
 from src.tp4.geometry import Grid
@@ -74,6 +74,18 @@ class SeparationTests(unittest.TestCase):
     def test_random_baseline_is_the_expected_eta_squared_of_random_groups(self):
         _, baseline = region_separation(self.frame)
         self.assertAlmostEqual(baseline, (3 - 1) / (6 - 1))
+
+
+class CramersVTests(unittest.TestCase):
+    def test_is_one_when_the_region_determines_the_topic(self):
+        self.assertAlmostEqual(cramers_v(['R1', 'R1', 'R2', 'R2'], ['dogs', 'dogs', 'art', 'art']), 1.0)
+
+    def test_is_zero_when_every_region_has_the_same_topic_mix(self):
+        self.assertAlmostEqual(cramers_v(['R1', 'R1', 'R2', 'R2'], ['dogs', 'art', 'dogs', 'art']), 0.0)
+
+    def test_rejects_a_single_category(self):
+        with self.assertRaises(ValueError):
+            cramers_v(['R1', 'R1'], ['dogs', 'art'])
 
 
 if __name__ == '__main__':

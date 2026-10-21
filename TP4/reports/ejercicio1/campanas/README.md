@@ -48,11 +48,20 @@ El mapa agrupa a los creadores en cinco regiones contiguas, estables entre semil
 | R4 | Entretenimiento mediano | −1,3 | −0,7 |
 | R5 | Entretenimiento masivo | −4,9 | −0,6 |
 
+**Las regiones también separan los temas**, aunque el tema es solo 4 de las 27 variables de entrada:
+
+![Regiones y temas](4_regiones_temas.png)
+
+- R1 tiene solo perros (9 de 9) y R3, casi solo arte (6 de 7). Maquillaje ocupa la columna derecha (R4 y la esquina de R5) y fútbol, el centro de R2 y R5.
+- La pureza de tema, la fracción de creadores que comparten región con la mayoría de su tema, es 0,66. Con las mismas regiones asignadas al azar es 0,40.
+- La V de Cramér, la asociación entre dos variables categóricas (0 independientes, 1 una determina a la otra), es 0,64 frente a 0,28 al azar.
+- Las regiones de entretenimiento (R4 y R5) mezclan temas: ahí el mapa agrupa primero por tamaño y formato. Por eso fútbol y maquillaje comparten regiones objetivo.
+
 Cada región es un tipo de creador, y el objetivo de cada cliente pide uno: **la decisión de qué tipo de creador contratar sale del mapa**.
 
 ### Lo que el mapa no separa: audiencia argentina y costo
 
-![η² por región](4_separacion.png)
+![η² por región](5_separacion.png)
 
 Las regiones explican tamaño (η² 0,71), alcance a no seguidores (0,48) y tutoriales (0,47), pero la audiencia argentina (0,08) y el costo por cuenta argentina (0,02) quedan al nivel del azar. El plano de audiencia argentina (derecha en la figura del mapa) es alto solo en dos esquinas: la neurona de R1 con perros de comunidad (69 %) y la neurona de R5 con los masivos locales (63 %). En el resto de cada región hay creadores con 25 % y con 90 %.
 
@@ -69,7 +78,7 @@ Supuestos:
 - El catálogo no tiene ventas, consultas ni adopciones: la elección optimiza llegar al público adecuado con el contenido adecuado, no conversiones medidas.
 - Qué región sirve a cada objetivo es un juicio sobre el perfil de la región; se explica en cada caso.
 
-![Candidatos por cliente](5_candidatos.png)
+![Candidatos por cliente](6_candidatos.png)
 
 Cada panel muestra los creadores del tema del cliente: en color los de la región elegida, abajo a la derecha los baratos por cuenta argentina y con mucha audiencia local. Los cuadrados son el top 3 por seguidores y los círculos, la selección.
 
@@ -146,7 +155,7 @@ R3 reúne a 6 de los 11 creadores de arte. Es la región con más exhibición de
 
 ## Frente a elegir solo por seguidores
 
-![Top 3 por seguidores frente a la selección propuesta](6_frente_a_seguidores.png)
+![Top 3 por seguidores frente a la selección propuesta](7_frente_a_seguidores.png)
 
 | Tema | USD / 1.000 AR: seguidores → elegido | Audiencia AR | Tres publicaciones (USD) |
 | --- | --- | --- | --- |

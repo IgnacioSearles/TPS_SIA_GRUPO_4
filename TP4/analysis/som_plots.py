@@ -6,10 +6,8 @@ from matplotlib.collections import PolyCollection
 import numpy as np
 
 from .eda import TOPICS
-from .plots import TOPIC_LABELS, _save
+from .plots import TOPIC_COLORS, TOPIC_LABELS, _save, _topic_legend
 
-REGION_COLORS = [f'C{index}' for index in range(10)]
-TOPIC_MARKERS = dict(zip(TOPICS, 'os^D'))
 LOG_PLANES = {'followers', 'price_usd'}
 
 
@@ -38,22 +36,48 @@ def plot_map(catalog, topics, output):
                      bbox={'facecolor': 'white', 'alpha': .7, 'edgecolor': 'none', 'pad': 1})
     axes[0].set_title('Matriz U (valor y ocupación por neurona)')
 
-    colors = [REGION_COLORS[label] for label in catalog.neuron_regions]
-    polygons = [grid.layout.cell_vertices(center) for center in grid.positions]
-    axes[1].add_collection(PolyCollection(polygons, facecolors=colors, alpha=.35, edgecolors='white', linewidths=2))
-    axes[1].autoscale_view()
-    axes[1].invert_yaxis()
-    axes[1].set_aspect('equal')
-    axes[1].set_xticks([])
-    axes[1].set_yticks([])
-    for neuron, ((column, row), label) in enumerate(zip(grid.positions, catalog.neuron_regions)):
+    draw_region_map(axes[1], catalog)
+    for neuron, (column, row) in enumerate(grid.positions):
         members = catalog.winners == neuron
         composition = ' '.join(f'{TOPIC_LABELS[t][:3]} {count}' for t, count in
                                zip(*np.unique(topics[members], return_counts=True))) if members.any() else 'vacía'
-        axes[1].text(column, row, f'{catalog.region_names[label]}\n{composition}', ha='center', va='center',
-                     fontsize=7)
+        axes[1].text(column, row + .1, composition, ha='center', va='center', fontsize=7)
     axes[1].set_title('Regiones (Ward sobre prototipos vecinos) y temas por neurona')
     _save(fig, output / 'mapa.png')
+
+
+def draw_region_map(ax, catalog, facecolors='whitesmoke'):
+    """Grilla con los bordes de las regiones y su nombre. Las regiones no usan color de relleno, porque los
+    colores del informe identifican temas; facecolors permite pintar cada neurona con otra variable."""
+    grid = catalog.som.grid
+    polygons = [grid.layout.cell_vertices(center) for center in grid.positions]
+    ax.add_collection(PolyCollection(polygons, facecolors=facecolors, edgecolors='white', linewidths=1))
+    draw_region_borders(ax, catalog)
+    for label, region in enumerate(catalog.region_names):
+        # La etiqueta va en la neurona de la región más cercana a su centro: el centro puede caer en un borde.
+        cells = grid.positions[catalog.neuron_regions == label]
+        column, row = cells[np.linalg.norm(cells - cells.mean(axis=0), axis=1).argmin()]
+        ax.text(column, row - .36, region, ha='center', va='center', weight='bold', fontsize=12,
+                bbox={'facecolor': 'white', 'edgecolor': 'black', 'pad': 2})
+    ax.autoscale_view()
+    ax.invert_yaxis()
+    ax.set_aspect('equal')
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+
+def draw_region_borders(ax, catalog):
+    """Línea gruesa en cada lado compartido por dos neuronas vecinas de regiones distintas."""
+    grid = catalog.som.grid
+    first, second = np.where(np.triu(grid.adjacency, 1))
+    for a, b in zip(first, second):
+        if catalog.neuron_regions[a] == catalog.neuron_regions[b]:
+            continue
+        vertices_b = grid.layout.cell_vertices(grid.positions[b])
+        shared = [vertex for vertex in grid.layout.cell_vertices(grid.positions[a])
+                  if np.min(np.linalg.norm(vertices_b - vertex, axis=1)) < 1e-6]
+        if len(shared) == 2:
+            ax.plot(*np.array(shared).T, color='black', lw=3)
 
 
 def plot_component_planes(grid, planes, output):
@@ -73,21 +97,17 @@ def plot_component_planes(grid, planes, output):
 
 
 def plot_regions_on_pca(frame, output):
-    """Plano PC1–PC2 del biplot con cada creador coloreado por su región del SOM."""
+    """Plano PC1–PC2 del biplot: cada creador con el color de su tema y cada región como el contorno de sus creadores."""
+    from scipy.spatial import ConvexHull
     fig, ax = plt.subplots(figsize=(11, 8))
-    regions = sorted(frame.region.unique())
-    for index, region in enumerate(regions):
-        members = frame[frame.region == region]
-        for topic, marker in TOPIC_MARKERS.items():
-            subset = members[members.main_topic == topic]
-            ax.scatter(subset.pc1, subset.pc2, color=REGION_COLORS[index], marker=marker, s=45)
-        ax.annotate(region, (members.pc1.mean(), members.pc2.mean()), fontsize=14, weight='bold',
-                    color=REGION_COLORS[index], ha='center', va='center')
-    region_handles = [plt.Line2D([], [], marker='o', ls='', color=REGION_COLORS[index]) for index in range(len(regions))]
-    topic_handles = [plt.Line2D([], [], marker=marker, ls='', color='gray') for marker in TOPIC_MARKERS.values()]
-    first = ax.legend(region_handles, regions, title='Región SOM', loc='upper left')
-    ax.add_artist(first)
-    ax.legend(topic_handles, [TOPIC_LABELS[topic] for topic in TOPICS], title='Tema principal', loc='upper right')
+    ax.scatter(frame.pc1, frame.pc2, c=frame.main_topic.map(TOPIC_COLORS), s=45)
+    for region in sorted(frame.region.unique()):
+        points = frame.loc[frame.region == region, ['pc1', 'pc2']].to_numpy()
+        hull = points[ConvexHull(points).vertices]
+        ax.fill(*hull.T, facecolor='none', edgecolor='dimgray', lw=1.5, ls='--')
+        ax.text(*points.mean(axis=0), region, fontsize=13, weight='bold', ha='center', va='center',
+                bbox={'facecolor': 'white', 'edgecolor': 'black', 'pad': 2})
+    _topic_legend(ax, loc='upper right')
     ax.axhline(0, color='black', lw=.4)
     ax.axvline(0, color='black', lw=.4)
     ax.set(xlabel='PC1 (− visibilidad · + profundidad)', ylabel='PC2 (+ arte y exhibición · − audiencia argentina y perros)',
@@ -118,16 +138,20 @@ def plot_region_agreement(reference, partitions, output):
 
 
 def plot_regions_3d(frame, output):
-    """PC1–PC3 coloreado por región del SOM: muestra qué separa el mapa más allá del plano del biplot."""
+    """PC1–PC3 con el color de cada tema y el nombre de cada región en su centro: muestra qué separa el mapa
+    más allá del plano del biplot."""
     from .plots import scatter_3d
-    regions = sorted(frame.region.unique())
-    colors = frame.region.map({region: REGION_COLORS[index] for index, region in enumerate(regions)}).to_numpy()
+    scores = frame[['pc1', 'pc2', 'pc3']].to_numpy()
+    colors = frame.main_topic.map(TOPIC_COLORS).to_numpy()
+    centers = frame.groupby('region')[['pc1', 'pc2', 'pc3']].mean()
     fig = plt.figure(figsize=(15, 6.5))
     for position, (elevation, azimuth) in enumerate([(20, -60), (15, 30)], start=1):
         ax = fig.add_subplot(1, 2, position, projection='3d')
-        scatter_3d(ax, frame[['pc1', 'pc2', 'pc3']].to_numpy(), colors, ['PC1', 'PC2', 'PC3'])
+        scatter_3d(ax, scores, colors, ['PC1', 'PC2', 'PC3'])
+        for region, center in centers.iterrows():
+            ax.text(*center, region, fontsize=12, weight='bold', ha='center',
+                    bbox={'facecolor': 'white', 'edgecolor': 'black', 'pad': 2})
         ax.view_init(elevation, azimuth)
-    handles = [plt.Line2D([], [], marker='o', ls='', color=REGION_COLORS[index]) for index in range(len(regions))]
-    fig.axes[0].legend(handles, regions, title='Región SOM', loc='upper left')
+    _topic_legend(fig.axes[0], loc='upper left')
     fig.suptitle('Regiones del SOM en PC1–PC3: dos vistas')
     _save(fig, output / 'regiones_pca_3d.png')
