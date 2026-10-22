@@ -46,3 +46,7 @@ python presentation/sync_assets.py
 El primero rehace los gráficos simplificados (necesita las salidas de `analysis.som_campanas` y `analysis/hopfield_qr_mejoras.py`). El segundo copia a `assets/` cada gráfico que usa `index.html` y anota su origen en `FUENTES.json`.
 
 reveal.js está en `vendor/` (ver `vendor/VERSIONS.txt`).
+
+## Experimentos nuevos de Hopfield
+
+La [guía de incorporación y notas](experimentos_hopfield_nuevos.md) resume los resultados confirmados de desaprendizaje y pseudoinversa, distingue Hamming sin red y fija qué afirmaciones sostiene la evidencia. Complementa las diapositivas existentes.

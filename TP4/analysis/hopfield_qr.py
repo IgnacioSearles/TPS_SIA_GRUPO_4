@@ -16,7 +16,6 @@ import pandas as pd
 
 from typing import get_args
 
-from analysis import hopfield_qr_reader
 from src.tp4.hopfield import Hopfield
 from src.tp4.qr import SIDE, load_qr, pattern_to_image
 from src.tp4.queries import make_queries
@@ -406,6 +405,7 @@ def main():
     analyze_iterations_and_energy(network, queries, results)
 
     # Experimento secundario: lee original, consulta y salida de la red.
+    from analysis import hopfield_qr_reader
     hopfield_qr_reader.run(list(QRS), patterns, queries, results, finals, OUT)
 
 

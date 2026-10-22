@@ -1,0 +1,40 @@
+{
+  "name": "Prueba rápida: desaprendizaje con los cinco QR completos",
+  "modes": [
+    "directed",
+    "dream"
+  ],
+  "learning_rates": [
+    0.05
+  ],
+  "checkpoints": [
+    0,
+    5,
+    20
+  ],
+  "training_seeds": [
+    0
+  ],
+  "noise_levels": [
+    0,
+    0.2,
+    0.4
+  ],
+  "query_seeds": [
+    0,
+    1
+  ],
+  "max_iterations": 100,
+  "patterns_sha256": "1d7f27dec764343506d689cc99b9cc204cb104a3f747e0e15b2e89c320e414a1",
+  "qr_names": [
+    "menu_principal",
+    "vinos",
+    "cocteles_y_bebidas",
+    "postres",
+    "especiales"
+  ],
+  "created_utc": "2026-10-22T22:32:36.773022+00:00",
+  "python_version": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "numpy_version": "2.4.6",
+  "pandas_version": "3.0.3"
+}

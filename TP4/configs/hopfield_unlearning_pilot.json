@@ -1,0 +1,10 @@
+{
+  "name": "Exploración de tasas y presupuesto: cinco QR completos",
+  "modes": ["directed", "dream"],
+  "learning_rates": [0.01, 0.05, 0.1],
+  "checkpoints": [0, 10, 50, 100],
+  "training_seeds": [0, 1, 2],
+  "noise_levels": [0, 0.1, 0.2, 0.3, 0.35, 0.4, 0.45],
+  "query_seeds": [10, 11, 12, 13, 14],
+  "max_iterations": 100
+}

@@ -1,0 +1,57 @@
+{
+  "name": "Exploración de tasas y presupuesto: cinco QR completos (sin módulos compartidos)",
+  "modes": [
+    "directed",
+    "dream"
+  ],
+  "learning_rates": [
+    0.01,
+    0.05,
+    0.1
+  ],
+  "checkpoints": [
+    0,
+    10,
+    50,
+    100
+  ],
+  "training_seeds": [
+    0,
+    1,
+    2
+  ],
+  "noise_levels": [
+    0,
+    0.1,
+    0.2,
+    0.3,
+    0.35,
+    0.4,
+    0.45
+  ],
+  "query_seeds": [
+    10,
+    11,
+    12,
+    13,
+    14
+  ],
+  "max_iterations": 100,
+  "remove_shared": true,
+  "patterns_sha256": "1d7f27dec764343506d689cc99b9cc204cb104a3f747e0e15b2e89c320e414a1",
+  "full_neurons": 1369,
+  "active_neurons": 414,
+  "removed_shared": 955,
+  "active_patterns_sha256": "fa2b73fbf260aa954a5e81ecaec9aa85f790046f7a87f2195e2b93279462a04d",
+  "qr_names": [
+    "menu_principal",
+    "vinos",
+    "cocteles_y_bebidas",
+    "postres",
+    "especiales"
+  ],
+  "created_utc": "2026-10-22T22:59:40.765013+00:00",
+  "python_version": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "numpy_version": "2.4.6",
+  "pandas_version": "3.0.3"
+}

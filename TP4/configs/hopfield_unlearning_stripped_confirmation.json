@@ -1,0 +1,51 @@
+{
+  "name": "Confirmación congelada de desaprendizaje",
+  "modes": [
+    "dream"
+  ],
+  "learning_rates": [
+    0.1
+  ],
+  "checkpoints": [
+    0,
+    50
+  ],
+  "training_seeds": [
+    0,
+    1,
+    2
+  ],
+  "noise_levels": [
+    0,
+    0.1,
+    0.2,
+    0.3,
+    0.35,
+    0.4,
+    0.45
+  ],
+  "query_seeds": [
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110,
+    111,
+    112,
+    113,
+    114,
+    115,
+    116,
+    117,
+    118,
+    119
+  ],
+  "max_iterations": 100,
+  "remove_shared": true
+}

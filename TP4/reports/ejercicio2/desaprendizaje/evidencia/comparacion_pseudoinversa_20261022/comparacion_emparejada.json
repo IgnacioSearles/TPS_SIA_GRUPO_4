@@ -1,0 +1,16 @@
+{
+  "pseudoinverse_full": {
+    "delta_unlearning_minus_pseudoinverse": -0.02833333333333334,
+    "interval95": [
+      -0.04555555555555557,
+      -0.0138888888888889
+    ]
+  },
+  "pseudoinverse_stripped": {
+    "delta_unlearning_minus_pseudoinverse": 0.009999999999999986,
+    "interval95": [
+      -0.002222222222222242,
+      0.02277777777777777
+    ]
+  }
+}

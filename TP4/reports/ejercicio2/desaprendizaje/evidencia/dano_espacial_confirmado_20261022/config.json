@@ -1,0 +1,129 @@
+{
+  "candidate": {
+    "name": "Confirmación congelada de desaprendizaje",
+    "modes": [
+      "dream"
+    ],
+    "learning_rates": [
+      0.1
+    ],
+    "checkpoints": [
+      0,
+      50
+    ],
+    "training_seeds": [
+      0,
+      1,
+      2
+    ],
+    "noise_levels": [
+      0,
+      0.1,
+      0.2,
+      0.3,
+      0.35,
+      0.4,
+      0.45
+    ],
+    "query_seeds": [
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119
+    ],
+    "max_iterations": 100,
+    "remove_shared": true
+  },
+  "plan": {
+    "candidate_source": "configs/hopfield_unlearning_stripped_confirmation.json",
+    "block_sizes": [
+      3,
+      5,
+      7,
+      9,
+      11,
+      13,
+      15,
+      17,
+      21,
+      25,
+      29
+    ],
+    "corner_fill": -1,
+    "corners": [
+      "superior_izquierda",
+      "superior_derecha",
+      "inferior_izquierda",
+      "inferior_derecha"
+    ],
+    "spot_fill": 1,
+    "spot_seeds": [
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119
+    ],
+    "spot_rng_key": "(20261022, origin, side, seed)",
+    "conditions": "Execute only if confirmation preserves all originals and improves recovery over Hebb; no retuning.",
+    "queries_per_model": 1320,
+    "frozen_before_reading_confirmation_results": true
+  },
+  "plan_sha256": "9b77bd628892c7f76097530e5df8ce8fd3ba390dbdf462eba2c9352a27f9bc10",
+  "selection": {
+    "selected_utc": "2026-10-22T23:01:31.879676+00:00",
+    "pilot_directory": "results/hopfield_unlearning/pilot_sin_compartidos_20261022",
+    "patterns_sha256": "1d7f27dec764343506d689cc99b9cc204cb104a3f747e0e15b2e89c320e414a1",
+    "criterion": "5 originales estables en cada semilla; media ruido>0; menos intentos; menor eta",
+    "viable_candidates": 10,
+    "status": "frozen",
+    "candidate": {
+      "mode": "dream",
+      "learning_rate": 0.1,
+      "attempts": 50,
+      "eligible": true,
+      "min_stable_originals": 5,
+      "mean_accuracy": 0.8844444444444445,
+      "min_training_seed_accuracy": 0.8733333333333333,
+      "max_training_seed_accuracy": 0.9,
+      "cycle_fraction": 0.0,
+      "capped_fraction": 0.0,
+      "mean_updates": 20.666666666666668
+    },
+    "confirmation": "configs/hopfield_unlearning_stripped_confirmation.json",
+    "confirmation_sha256": "0a81fa3d86051cf99b7586c638128f047e91104e67c85c8b4563c3e26b37d781"
+  },
+  "confirmation_directory": "results/hopfield_unlearning/confirmacion_sin_compartidos_20261022",
+  "created_utc": "2026-10-22T23:03:50.464898+00:00"
+}

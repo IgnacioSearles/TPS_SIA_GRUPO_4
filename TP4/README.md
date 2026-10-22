@@ -258,3 +258,11 @@ El [protocolo de experimentos](docs/experimentos_kohonen.md) detalla presupuesto
 ## Bitácora y evidencia publicada
 
 La [bitácora del ejercicio 1](reports/ejercicio1/bitacora/README.md) registra experimentos ejecutados, decisiones y pendientes. Incluye un inventario CSV de estados y enlaza los resultados agregados de las 300 corridas de geometría; los datos y checkpoints permanecen en `results/`, fuera de Git.
+
+## Desaprendizaje de Hopfield
+
+Implementación y experimento reproducible de desaprendizaje antihebbiano sobre una única red con los cinco QR completos. Ver [protocolo, métricas y confirmación](docs/experimentos_desaprendizaje.md). Las [pruebas completas](reports/ejercicio2/desaprendizaje/PRUEBAS_COMPLETAS.md) comparan ambas representaciones, confirmación con ruido nuevo y daño espacial. Ver también la [bitácora del ejercicio 2](reports/ejercicio2/bitacora/README.md), la [comparación con pseudoinversa](reports/ejercicio2/desaprendizaje/PSEUDOINVERSA_VS_DESAPRENDIZAJE.md) y la [evidencia liviana publicada](reports/ejercicio2/desaprendizaje/evidencia/README.md). No se publican pesos ni checkpoints.
+
+```bash
+OPENBLAS_NUM_THREADS=1 python3 analysis/hopfield_qr_unlearning.py --config configs/hopfield_unlearning_smoke.json
+```

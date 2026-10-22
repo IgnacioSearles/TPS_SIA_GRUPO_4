@@ -1,0 +1,458 @@
+{
+  "description": "Derived metrics only; no network weights, checkpoints or original QR images.",
+  "new_evaluations_including_smoke": 25160,
+  "new_evaluations_excluding_smoke": 24800,
+  "bytes": 567505,
+  "runs": [
+    {
+      "run": "20261022T223236748114Z",
+      "phase": "smoke_completo",
+      "stored_rows": 180,
+      "new_evaluations": 180,
+      "patterns_sha256": "1d7f27dec764343506d689cc99b9cc204cb104a3f747e0e15b2e89c320e414a1"
+    },
+    {
+      "run": "20261022T224138937279Z",
+      "phase": "smoke_reducido",
+      "stored_rows": 180,
+      "new_evaluations": 180,
+      "patterns_sha256": "1d7f27dec764343506d689cc99b9cc204cb104a3f747e0e15b2e89c320e414a1"
+    },
+    {
+      "run": "pilot_completo_20261022",
+      "phase": "exploracion_completa",
+      "stored_rows": 6650,
+      "new_evaluations": 6650,
+      "patterns_sha256": "1d7f27dec764343506d689cc99b9cc204cb104a3f747e0e15b2e89c320e414a1"
+    },
+    {
+      "run": "pilot_sin_compartidos_20261022",
+      "phase": "exploracion_reducida",
+      "stored_rows": 6650,
+      "new_evaluations": 6650,
+      "patterns_sha256": "1d7f27dec764343506d689cc99b9cc204cb104a3f747e0e15b2e89c320e414a1"
+    },
+    {
+      "run": "confirmacion_sin_compartidos_20261022",
+      "phase": "confirmacion_reducida",
+      "stored_rows": 3500,
+      "new_evaluations": 3500,
+      "patterns_sha256": "1d7f27dec764343506d689cc99b9cc204cb104a3f747e0e15b2e89c320e414a1"
+    },
+    {
+      "run": "dano_espacial_confirmado_20261022",
+      "phase": "validacion_espacial",
+      "stored_rows": 6600,
+      "new_evaluations": 6600,
+      "patterns_sha256": "1d7f27dec764343506d689cc99b9cc204cb104a3f747e0e15b2e89c320e414a1"
+    },
+    {
+      "run": "comparacion_pseudoinversa_20261022",
+      "phase": "comparacion_pseudoinversa",
+      "stored_rows": 3500,
+      "new_evaluations": 1400,
+      "patterns_sha256": "1d7f27dec764343506d689cc99b9cc204cb104a3f747e0e15b2e89c320e414a1"
+    }
+  ],
+  "files": [
+    {
+      "path": "20261022T223236748114Z/COMPLETED",
+      "bytes": 53,
+      "source_sha256": "8400ec5c8f97f91839ffb5dd3415fe21c39c172342bb5776a515a45acaf790b7",
+      "published_sha256": "8400ec5c8f97f91839ffb5dd3415fe21c39c172342bb5776a515a45acaf790b7",
+      "encoding": "plain"
+    },
+    {
+      "path": "20261022T223236748114Z/config.json",
+      "bytes": 731,
+      "source_sha256": "aa4142a3325911eac1567e161ec7c941e629c82c9bbf70350da59f84e81da5a1",
+      "published_sha256": "dfd83f139f02ed35f1c5f265e8b30ed4c5bf3b77db3032161b1bfa4acc050b20",
+      "encoding": "plain"
+    },
+    {
+      "path": "20261022T223236748114Z/resultados.csv.gz",
+      "bytes": 2561,
+      "source_sha256": "db8394339c000e96e64090725bfa167c6c9c5a2dd03a3f3700bb24e1a1bd6f23",
+      "published_sha256": "3c8a42146a5404b761f9967a1cb04ca4feca9ed58f1ba86adc870df109abf9df",
+      "encoding": "gzip"
+    },
+    {
+      "path": "20261022T223236748114Z/entrenamiento.csv.gz",
+      "bytes": 830,
+      "source_sha256": "716f349b22b2c59bd24dfc44d715248359d500be3c189800cb203bebcb663781",
+      "published_sha256": "e5747fc9e43e60af6a4b5f0020ccebacb2a91e7f728a6eb79ed75497880f5fc9",
+      "encoding": "gzip"
+    },
+    {
+      "path": "20261022T223236748114Z/estabilidad.csv",
+      "bytes": 3283,
+      "source_sha256": "e39841c3bc1aaa5ef485aa6d4524fd185b0b1caea5e2db911ada5fdc841eb567",
+      "published_sha256": "e39841c3bc1aaa5ef485aa6d4524fd185b0b1caea5e2db911ada5fdc841eb567",
+      "encoding": "plain"
+    },
+    {
+      "path": "20261022T223236748114Z/resumen.csv",
+      "bytes": 1228,
+      "source_sha256": "96e2f3ad1115c1538c2eaa7fe5874de8f7b4aa7bc17245ec5f920c5dd934e370",
+      "published_sha256": "96e2f3ad1115c1538c2eaa7fe5874de8f7b4aa7bc17245ec5f920c5dd934e370",
+      "encoding": "plain"
+    },
+    {
+      "path": "20261022T223236748114Z/resumen_por_qr.csv.gz",
+      "bytes": 607,
+      "source_sha256": "84f058ba75ec6365d27a5b50d1321a7351bdfe89920ece1862a8cd077ffe8bdd",
+      "published_sha256": "97f963c9f12e4bc799ac8cf4055df41ac10578db225c6184a474dbdde8fbfe6f",
+      "encoding": "gzip"
+    },
+    {
+      "path": "20261022T223236748114Z/pares_hebb.csv",
+      "bytes": 741,
+      "source_sha256": "8ea33933aaca900b3fe0b56ecd6df270705f25dc0f50fa7b82552310c9a923b0",
+      "published_sha256": "8ea33933aaca900b3fe0b56ecd6df270705f25dc0f50fa7b82552310c9a923b0",
+      "encoding": "plain"
+    },
+    {
+      "path": "20261022T224138937279Z/COMPLETED",
+      "bytes": 53,
+      "source_sha256": "8400ec5c8f97f91839ffb5dd3415fe21c39c172342bb5776a515a45acaf790b7",
+      "published_sha256": "8400ec5c8f97f91839ffb5dd3415fe21c39c172342bb5776a515a45acaf790b7",
+      "encoding": "plain"
+    },
+    {
+      "path": "20261022T224138937279Z/config.json",
+      "bytes": 953,
+      "source_sha256": "a8eebb65f9f98daab4ab2d97fc9768ce9706fecac70b5e44ba0f09b730605f40",
+      "published_sha256": "04c61b634e9ff718a266f062e365b646d6c406c897d76dfd29b1d136e7030819",
+      "encoding": "plain"
+    },
+    {
+      "path": "20261022T224138937279Z/resultados.csv.gz",
+      "bytes": 2706,
+      "source_sha256": "c84d9aa0b35a0b0e75c09308ae08ca8dbb2d93b27130f139cd14f83cd1c3d3f5",
+      "published_sha256": "186315170c425796ff8ab209ee1d8e50716bdb459467bb65cad7ae7d33afa7f7",
+      "encoding": "gzip"
+    },
+    {
+      "path": "20261022T224138937279Z/entrenamiento.csv.gz",
+      "bytes": 951,
+      "source_sha256": "0f88cd016e25b6f82b5fafb61ef17323771c98efdf38386df305f9b8ecc3cf4a",
+      "published_sha256": "8754885672b8dbd0882a8a774fcbf5b46a4b8dbac0cef2d0f4f7ca850e77cfd6",
+      "encoding": "gzip"
+    },
+    {
+      "path": "20261022T224138937279Z/estabilidad.csv",
+      "bytes": 3456,
+      "source_sha256": "d82ca5c93eb0ff2eef012c49cbbcea7265cc04143cbdbf7e904fb53fcc2db52a",
+      "published_sha256": "d82ca5c93eb0ff2eef012c49cbbcea7265cc04143cbdbf7e904fb53fcc2db52a",
+      "encoding": "plain"
+    },
+    {
+      "path": "20261022T224138937279Z/resumen.csv",
+      "bytes": 1215,
+      "source_sha256": "3b9b4803fe9eb324fc27d389ed9f14a6576bb48724ca6db84fb5238430dca8b5",
+      "published_sha256": "3b9b4803fe9eb324fc27d389ed9f14a6576bb48724ca6db84fb5238430dca8b5",
+      "encoding": "plain"
+    },
+    {
+      "path": "20261022T224138937279Z/resumen_por_qr.csv.gz",
+      "bytes": 647,
+      "source_sha256": "5227f7b1d1e51dcf0bbd79b35596bb490bf5637638dfbb46c78f66d14411b407",
+      "published_sha256": "a697c43ce5cc91a591552d67780f601ae57fc1373cdee9bb1eade278a2117f99",
+      "encoding": "gzip"
+    },
+    {
+      "path": "20261022T224138937279Z/pares_hebb.csv",
+      "bytes": 744,
+      "source_sha256": "7082ff7aa52cbf1d85e2e4a9729e1d575a08e3dddaa8453d110567ea0a61659d",
+      "published_sha256": "7082ff7aa52cbf1d85e2e4a9729e1d575a08e3dddaa8453d110567ea0a61659d",
+      "encoding": "plain"
+    },
+    {
+      "path": "pilot_completo_20261022/COMPLETED",
+      "bytes": 53,
+      "source_sha256": "8400ec5c8f97f91839ffb5dd3415fe21c39c172342bb5776a515a45acaf790b7",
+      "published_sha256": "8400ec5c8f97f91839ffb5dd3415fe21c39c172342bb5776a515a45acaf790b7",
+      "encoding": "plain"
+    },
+    {
+      "path": "pilot_completo_20261022/config.json",
+      "bytes": 1031,
+      "source_sha256": "7f5e5044f3abc03b5097e1079fc85ee00c0153c7983664945751bb56b138da56",
+      "published_sha256": "df318149527a1600087dbe368beee6271e9c681e3bbc6ca11171fc86f9cf64b8",
+      "encoding": "plain"
+    },
+    {
+      "path": "pilot_completo_20261022/resultados.csv.gz",
+      "bytes": 93382,
+      "source_sha256": "09ec67b8b7c2c2b18eed11ab9c6aa448ad02de3fbcc2d45ac3a0118a3cc6a768",
+      "published_sha256": "b149b1b08f7c135de60a70c6ba409ff49fe635f59412519098b3c707fce7c9b0",
+      "encoding": "gzip"
+    },
+    {
+      "path": "pilot_completo_20261022/entrenamiento.csv.gz",
+      "bytes": 17003,
+      "source_sha256": "d6398dcc072cf132886d522f2d0add0c48ef720ee350c6bf58ee7258c573c0fa",
+      "published_sha256": "7135aa6927962600b0028dc0941df65935b329e6cbb7fc4933faf91cae9f4934",
+      "encoding": "gzip"
+    },
+    {
+      "path": "pilot_completo_20261022/estabilidad.csv",
+      "bytes": 25668,
+      "source_sha256": "f568a59f39589699ef7e0efb93984b466d811f7d95ae931da7ba39dc3c105a3e",
+      "published_sha256": "f568a59f39589699ef7e0efb93984b466d811f7d95ae931da7ba39dc3c105a3e",
+      "encoding": "plain"
+    },
+    {
+      "path": "pilot_completo_20261022/resumen.csv",
+      "bytes": 17485,
+      "source_sha256": "cc945fc7d3372c4569282f8104e0666b4ebbaf8363b270d4d3e2f6734e465195",
+      "published_sha256": "cc945fc7d3372c4569282f8104e0666b4ebbaf8363b270d4d3e2f6734e465195",
+      "encoding": "plain"
+    },
+    {
+      "path": "pilot_completo_20261022/resumen_por_qr.csv.gz",
+      "bytes": 6888,
+      "source_sha256": "e6b3df6aadd075c04315a6cf95cf1f0e37fe0b48aef4891a3d8d97a946dbd557",
+      "published_sha256": "53043d6822702ada9ac6f2a94721f124e046de7b858600b0af7cc4d046630541",
+      "encoding": "gzip"
+    },
+    {
+      "path": "pilot_completo_20261022/pares_hebb.csv",
+      "bytes": 10463,
+      "source_sha256": "e72bac5ff28f75538f0651d6f215284b3b6a68eaa98b8426e6b93ece5128cc69",
+      "published_sha256": "e72bac5ff28f75538f0651d6f215284b3b6a68eaa98b8426e6b93ece5128cc69",
+      "encoding": "plain"
+    },
+    {
+      "path": "pilot_completo_20261022/candidatos.csv",
+      "bytes": 1318,
+      "source_sha256": "bddd4e690c5869bdf10e86e7540aaec452d5bd3f300133b6dfeb6ada983a71ac",
+      "published_sha256": "bddd4e690c5869bdf10e86e7540aaec452d5bd3f300133b6dfeb6ada983a71ac",
+      "encoding": "plain"
+    },
+    {
+      "path": "pilot_completo_20261022/seleccion.json",
+      "bytes": 426,
+      "source_sha256": "6aa4f8005cbd9d6bf7f4c2d4ec9f9fc74b09e9d062b8f899ae568ad9dea5eb13",
+      "published_sha256": "d91e382581b30aeacc9f65f5c693cd6141c32d2d582297b5c918982e0af7dbb8",
+      "encoding": "plain"
+    },
+    {
+      "path": "pilot_sin_compartidos_20261022/COMPLETED",
+      "bytes": 53,
+      "source_sha256": "8400ec5c8f97f91839ffb5dd3415fe21c39c172342bb5776a515a45acaf790b7",
+      "published_sha256": "8400ec5c8f97f91839ffb5dd3415fe21c39c172342bb5776a515a45acaf790b7",
+      "encoding": "plain"
+    },
+    {
+      "path": "pilot_sin_compartidos_20261022/config.json",
+      "bytes": 1058,
+      "source_sha256": "4055f58d0b383f794e965d5c1ff8f63a5cbfa293056f2cfce919ebd323490026",
+      "published_sha256": "8db655c7ce642419576e8659c06b08ec010e276ba6a954dd93609b76183276f8",
+      "encoding": "plain"
+    },
+    {
+      "path": "pilot_sin_compartidos_20261022/resultados.csv.gz",
+      "bytes": 79170,
+      "source_sha256": "7c9613f94b7ddff99b2c189f30857325517d4ea6cb8ce72a90a96032c1d9225d",
+      "published_sha256": "7b46fd5e948f4c9d3d550c5866c2075f2be1b73954281e9fba287551759835f4",
+      "encoding": "gzip"
+    },
+    {
+      "path": "pilot_sin_compartidos_20261022/entrenamiento.csv.gz",
+      "bytes": 15876,
+      "source_sha256": "6544550f3727243638fb1a5c2986a1f1418ed6ff9bb937580fc3782da5d67bb9",
+      "published_sha256": "822ee4b88d15e7b11ec7c868c94bb7e454fdb9851e869113c14819883bd3d2a9",
+      "encoding": "gzip"
+    },
+    {
+      "path": "pilot_sin_compartidos_20261022/estabilidad.csv",
+      "bytes": 25151,
+      "source_sha256": "882387ab52397f0143134055dbb382d549a140c2157371f5be54d95ea71f41a9",
+      "published_sha256": "882387ab52397f0143134055dbb382d549a140c2157371f5be54d95ea71f41a9",
+      "encoding": "plain"
+    },
+    {
+      "path": "pilot_sin_compartidos_20261022/resumen.csv",
+      "bytes": 17332,
+      "source_sha256": "046241cfd9d0fb3c07c248f7161028245e56b01bf140194394b87b325670ab08",
+      "published_sha256": "046241cfd9d0fb3c07c248f7161028245e56b01bf140194394b87b325670ab08",
+      "encoding": "plain"
+    },
+    {
+      "path": "pilot_sin_compartidos_20261022/resumen_por_qr.csv.gz",
+      "bytes": 6531,
+      "source_sha256": "b9dfcdc759a7b292a38f6da7b53691eb208f74f2828351b9089852de51fa72cf",
+      "published_sha256": "51e6362f94db27374e85a92aac3cd10e512ce9643713b12cb239d93dfc9d8a71",
+      "encoding": "gzip"
+    },
+    {
+      "path": "pilot_sin_compartidos_20261022/pares_hebb.csv",
+      "bytes": 10523,
+      "source_sha256": "3aabe3b5f9b6f517fe1d200a8d1009cc37623fc513f7d0e2f5e88ad8636a2cf8",
+      "published_sha256": "3aabe3b5f9b6f517fe1d200a8d1009cc37623fc513f7d0e2f5e88ad8636a2cf8",
+      "encoding": "plain"
+    },
+    {
+      "path": "pilot_sin_compartidos_20261022/candidatos.csv",
+      "bytes": 1549,
+      "source_sha256": "77f4f77982588b517c9b94dc4a7ef8c2606075832a465f9d854f1c43396d94ae",
+      "published_sha256": "77f4f77982588b517c9b94dc4a7ef8c2606075832a465f9d854f1c43396d94ae",
+      "encoding": "plain"
+    },
+    {
+      "path": "pilot_sin_compartidos_20261022/seleccion.json",
+      "bytes": 915,
+      "source_sha256": "4712bc7f2d8925d1c51d6d4d59bbc7e6c002841a4a5cc59c5b187257d921d969",
+      "published_sha256": "d282288c6e0291aa1e2db8c221e192debbaa4c8ddf41ffe1fe9380fc47b4a6b4",
+      "encoding": "plain"
+    },
+    {
+      "path": "confirmacion_sin_compartidos_20261022/COMPLETED",
+      "bytes": 53,
+      "source_sha256": "8400ec5c8f97f91839ffb5dd3415fe21c39c172342bb5776a515a45acaf790b7",
+      "published_sha256": "8400ec5c8f97f91839ffb5dd3415fe21c39c172342bb5776a515a45acaf790b7",
+      "encoding": "plain"
+    },
+    {
+      "path": "confirmacion_sin_compartidos_20261022/config.json",
+      "bytes": 1104,
+      "source_sha256": "eb642e65817a6de6435e3202d9c45e8352afc8b92f4f372292977200b1172832",
+      "published_sha256": "21f119b268a156257b3a8ba94a0433206c563516e205c2516728c8806c07daea",
+      "encoding": "plain"
+    },
+    {
+      "path": "confirmacion_sin_compartidos_20261022/resultados.csv.gz",
+      "bytes": 42820,
+      "source_sha256": "5dae64b2e24f8593c119ce7924adb0e1f00ce51d146e1e7dbba4a7acda45a50f",
+      "published_sha256": "71db6b960e03109967345416910bb2dcc279bea7f74a329453d75d8f0258b821",
+      "encoding": "gzip"
+    },
+    {
+      "path": "confirmacion_sin_compartidos_20261022/entrenamiento.csv.gz",
+      "bytes": 2229,
+      "source_sha256": "d90bba02b8dd0618284998b8854008edb6fabceac6e38d76904720cd19d672d7",
+      "published_sha256": "bb4a94c4fc49cee6f1640ed4425520bd376986eec7ce2eb65635d8c45a854bc1",
+      "encoding": "gzip"
+    },
+    {
+      "path": "confirmacion_sin_compartidos_20261022/estabilidad.csv",
+      "bytes": 2738,
+      "source_sha256": "475a64fa3bf67711db88a9db0b9920a3de325461311ad788d110e7058af008f9",
+      "published_sha256": "475a64fa3bf67711db88a9db0b9920a3de325461311ad788d110e7058af008f9",
+      "encoding": "plain"
+    },
+    {
+      "path": "confirmacion_sin_compartidos_20261022/resumen.csv",
+      "bytes": 2236,
+      "source_sha256": "143bdcd75970de30766a1022f90bce993b5a4c2416ea4b49ef81a0ad8cab00e5",
+      "published_sha256": "143bdcd75970de30766a1022f90bce993b5a4c2416ea4b49ef81a0ad8cab00e5",
+      "encoding": "plain"
+    },
+    {
+      "path": "confirmacion_sin_compartidos_20261022/resumen_por_qr.csv.gz",
+      "bytes": 1168,
+      "source_sha256": "30d25a2ecf653dbf6b4745d0fabe7cc2b095c5da22a960ea0b46e7c67e5d9dac",
+      "published_sha256": "53b9ced009c25e3df12b3545dc0e898e1d4e3b1662dd71cd96b70ba0912f1178",
+      "encoding": "gzip"
+    },
+    {
+      "path": "confirmacion_sin_compartidos_20261022/pares_hebb.csv",
+      "bytes": 1351,
+      "source_sha256": "a75a452cf9b4e34f7a0743a633b8e5e5cdd1208a4a840afdc647838701704dda",
+      "published_sha256": "a75a452cf9b4e34f7a0743a633b8e5e5cdd1208a4a840afdc647838701704dda",
+      "encoding": "plain"
+    },
+    {
+      "path": "confirmacion_sin_compartidos_20261022/estadisticas_confirmacion.json",
+      "bytes": 710,
+      "source_sha256": "4db12f73d9a21fea0ade1a08e9a28edfd44b184cecc02673b194bb12798de2bf",
+      "published_sha256": "4db12f73d9a21fea0ade1a08e9a28edfd44b184cecc02673b194bb12798de2bf",
+      "encoding": "plain"
+    },
+    {
+      "path": "confirmacion_sin_compartidos_20261022/comparacion_por_ruido.csv",
+      "bytes": 824,
+      "source_sha256": "4eb6e225a934db7c88895e512291e0256dd6d24ff54f6ac57b932d20bf89d055",
+      "published_sha256": "4eb6e225a934db7c88895e512291e0256dd6d24ff54f6ac57b932d20bf89d055",
+      "encoding": "plain"
+    },
+    {
+      "path": "confirmacion_sin_compartidos_20261022/comparacion_por_qr.csv",
+      "bytes": 860,
+      "source_sha256": "19e7ad611d7b3c82a4170a625f0274710e3c7f4484cdf9c371852d96ff68a27d",
+      "published_sha256": "19e7ad611d7b3c82a4170a625f0274710e3c7f4484cdf9c371852d96ff68a27d",
+      "encoding": "plain"
+    },
+    {
+      "path": "dano_espacial_confirmado_20261022/COMPLETED",
+      "bytes": 58,
+      "source_sha256": "d546763614b2f12633e49d101f811a7282207214868b211fd9146fddd8aa83e6",
+      "published_sha256": "d546763614b2f12633e49d101f811a7282207214868b211fd9146fddd8aa83e6",
+      "encoding": "plain"
+    },
+    {
+      "path": "dano_espacial_confirmado_20261022/config.json",
+      "bytes": 2789,
+      "source_sha256": "c8928c2d7d014a67af93d10993ee8f1eb725e88402076dfae73761c9362a6159",
+      "published_sha256": "b3fe225863419812aab252d0822da087b795b34442e43522fe6ee5074a736b9a",
+      "encoding": "plain"
+    },
+    {
+      "path": "dano_espacial_confirmado_20261022/resultados.csv.gz",
+      "bytes": 93306,
+      "source_sha256": "a9e23ab0fbf2fc9ddd4b3c4958d1450ad07330f8fb454a829a3ac7449b316cf7",
+      "published_sha256": "34ba9d1579d4f6fac0e6da7a2eb202b1b8c916cf5c5c799d05d6d8a98db76900",
+      "encoding": "gzip"
+    },
+    {
+      "path": "dano_espacial_confirmado_20261022/resumen.csv",
+      "bytes": 5457,
+      "source_sha256": "080096207d741be0a68b329bc8a50aa4f52553cd93f5b8184bb41b46849bde68",
+      "published_sha256": "080096207d741be0a68b329bc8a50aa4f52553cd93f5b8184bb41b46849bde68",
+      "encoding": "plain"
+    },
+    {
+      "path": "dano_espacial_confirmado_20261022/comparacion.csv",
+      "bytes": 2467,
+      "source_sha256": "1bac7e370c6192b34dc2e745bb09c340d8e2a2a1c832ef1cb03135c59eace0f7",
+      "published_sha256": "1bac7e370c6192b34dc2e745bb09c340d8e2a2a1c832ef1cb03135c59eace0f7",
+      "encoding": "plain"
+    },
+    {
+      "path": "comparacion_pseudoinversa_20261022/COMPLETED",
+      "bytes": 81,
+      "source_sha256": "346270d56e470afcde1e373a1f9e4276646a5d0c4358478c45c93e9c5f090456",
+      "published_sha256": "346270d56e470afcde1e373a1f9e4276646a5d0c4358478c45c93e9c5f090456",
+      "encoding": "plain"
+    },
+    {
+      "path": "comparacion_pseudoinversa_20261022/config.json",
+      "bytes": 1465,
+      "source_sha256": "820c68639b3d33b0b1b06384e83a90d9bb9238f6ee9c33e82b0a04b8ac0cb9b6",
+      "published_sha256": "f06d346340531ff299965219babcfd5669d3bc822fe21e076bf7135975aef883",
+      "encoding": "plain"
+    },
+    {
+      "path": "comparacion_pseudoinversa_20261022/resultados.csv.gz",
+      "bytes": 51902,
+      "source_sha256": "d2837b4736d5897df058a1aa3cba2f72cf9f70e552677972cb1e789c56a4143c",
+      "published_sha256": "854d7f9e1c3092e35d7f953ce632661778632fb90b3822401c79c0efecf59867",
+      "encoding": "gzip"
+    },
+    {
+      "path": "comparacion_pseudoinversa_20261022/resumen.csv",
+      "bytes": 891,
+      "source_sha256": "7cfaf6c096ef6e04522995aff97a5e67126d8f0f3b3c0e886b42372502a00516",
+      "published_sha256": "7cfaf6c096ef6e04522995aff97a5e67126d8f0f3b3c0e886b42372502a00516",
+      "encoding": "plain"
+    },
+    {
+      "path": "comparacion_pseudoinversa_20261022/comparacion_emparejada.json",
+      "bytes": 362,
+      "source_sha256": "1a99f8c3e2cea0aa83e81d367d6783bc7f46123fdd34e95287e109607c5b2e21",
+      "published_sha256": "1a99f8c3e2cea0aa83e81d367d6783bc7f46123fdd34e95287e109607c5b2e21",
+      "encoding": "plain"
+    }
+  ]
+}

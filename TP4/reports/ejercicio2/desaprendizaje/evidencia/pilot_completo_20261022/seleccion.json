@@ -1,0 +1,10 @@
+{
+  "selected_utc": "2026-10-22T23:02:32.846334+00:00",
+  "pilot_directory": "results/hopfield_unlearning/pilot_completo_20261022",
+  "patterns_sha256": "1d7f27dec764343506d689cc99b9cc204cb104a3f747e0e15b2e89c320e414a1",
+  "criterion": "5 originales estables en cada semilla; media ruido>0; menos intentos; menor eta",
+  "viable_candidates": 0,
+  "status": "no_viable_candidate",
+  "candidate": null,
+  "confirmation": null
+}

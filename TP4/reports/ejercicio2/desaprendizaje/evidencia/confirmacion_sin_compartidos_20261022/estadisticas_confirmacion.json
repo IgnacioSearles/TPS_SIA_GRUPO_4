@@ -1,0 +1,30 @@
+{
+  "bootstrap_repetitions": 20000,
+  "bootstrap_seed": 20261022,
+  "unit": "query_seed block across all fixed QR, noise levels and training seeds; QR set fixed",
+  "accuracy": 0.9049999999999999,
+  "accuracy_95_interval": [
+    0.8838888888888888,
+    0.9255555555555555
+  ],
+  "delta_hebb": 0.9049999999999999,
+  "delta_hebb_95_interval": [
+    0.8838888888888888,
+    0.9255555555555555
+  ],
+  "delta_nearest": -0.05166666666666666,
+  "delta_nearest_95_interval": [
+    -0.07166666666666668,
+    -0.03333333333333333
+  ],
+  "training_seed_scores": {
+    "0": 0.9116666666666666,
+    "1": 0.9133333333333333,
+    "2": 0.89
+  },
+  "counts": {
+    "hebb": 700,
+    "nearest": 700,
+    "unlearning": 2100
+  }
+}
