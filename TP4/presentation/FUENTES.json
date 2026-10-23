@@ -20,6 +20,7 @@
   "reports__ejercicio1__som_pca__coincidencias.png": "reports/ejercicio1/som_pca/coincidencias.png",
   "reports__ejercicio2__controles__control3_capacidad.png": "reports/ejercicio2/controles/control3_capacidad.png",
   "reports__ejercicio2__crosstalk.png": "reports/ejercicio2/crosstalk.png",
+  "reports__ejercicio2__desaprendizaje__CONFIRMACION.png": "reports/ejercicio2/desaprendizaje/CONFIRMACION.png",
   "reports__ejercicio2__dos_redes__1_esquemas.png": "reports/ejercicio2/dos_redes/1_esquemas.png",
   "reports__ejercicio2__dos_redes__3_diagnostico.png": "reports/ejercicio2/dos_redes/3_diagnostico.png",
   "reports__ejercicio2__ejemplos.png": "reports/ejercicio2/ejemplos.png",
@@ -52,9 +53,13 @@
   "reports__presentacion__e2_azar_vs_qr.png": "reports/presentacion/e2_azar_vs_qr.png",
   "reports__presentacion__e2_compartidos.png": "reports/presentacion/e2_compartidos.png",
   "reports__presentacion__e2_consultas_y_salidas.png": "reports/presentacion/e2_consultas_y_salidas.png",
+  "reports__presentacion__e2_crosstalk.png": "reports/presentacion/e2_crosstalk.png",
   "reports__presentacion__e2_energia.png": "reports/presentacion/e2_energia.png",
-  "reports__presentacion__e2_esquina.png": "reports/presentacion/e2_esquina.png",
   "reports__presentacion__e2_fraccion_compartida.png": "reports/presentacion/e2_fraccion_compartida.png",
+  "reports__presentacion__e2_iteraciones_desaprendizaje.png": "reports/presentacion/e2_iteraciones_desaprendizaje.png",
   "reports__presentacion__e2_metodos.png": "reports/presentacion/e2_metodos.png",
+  "reports__presentacion__e2_par_parecido.png": "reports/presentacion/e2_par_parecido.png",
+  "reports__presentacion__e2_reglas.png": "reports/presentacion/e2_reglas.png",
+  "reports__presentacion__e2_solapamiento_antes_despues.png": "reports/presentacion/e2_solapamiento_antes_despues.png",
   "reports__presentacion__e2_subconjuntos.png": "reports/presentacion/e2_subconjuntos.png"
 }

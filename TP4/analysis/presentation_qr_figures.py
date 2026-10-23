@@ -1,10 +1,12 @@
 """Gráficos del ejercicio 2 para la presentación: QR grandes y comparaciones con pocas líneas."""
+from itertools import combinations
+
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.ticker
 from matplotlib.colors import ListedColormap
-from matplotlib.patches import Patch, Rectangle
+from matplotlib.patches import FancyArrowPatch, Patch, Rectangle
 import numpy as np
 
 from analysis.hopfield_qr import ENERGY_EXAMPLE_NOISES, MAX_ITERATIONS, QRS, _save, find_query, recall_query
@@ -37,18 +39,30 @@ def _show_qr(ax, pattern, title, wrong=None):
 
 
 def plot_queries_and_outputs(patterns, path):
-    """Arriba, una consulta con ruido de cada QR; abajo, lo que devuelve la red de Hebb: siempre lo mismo."""
+    """Arriba, una consulta con ruido de cada QR; abajo, la única imagen que devuelve la red de Hebb para las
+    cinco: todas las flechas llegan al mismo lugar."""
     network = Hopfield(patterns)
     queries = make_queries(patterns, [EXAMPLE_NOISE], [EXAMPLE_SEED])
-    fig, axes = plt.subplots(2, len(patterns), figsize=(3.2 * len(patterns), 7))
+    fig = plt.figure(figsize=(3.2 * len(patterns), 8))
+    grid = fig.add_gridspec(2, len(patterns), height_ratios=(1, 1.25), hspace=.45)
+    tops, outputs = [], []
     for origin, name in enumerate(QRS):
         query = find_query(queries, origin, EXAMPLE_NOISE, EXAMPLE_SEED).pattern
-        output = network.recall(query, max_iterations=MAX_ITERATIONS).state
-        _show_qr(axes[0, origin], query, MENU_NAMES[name])
-        _show_qr(axes[1, origin], output, '')
-    axes[0, 0].text(-6, SIDE / 2, 'consulta', rotation=90, ha='center', va='center', fontsize=18)
-    axes[1, 0].text(-6, SIDE / 2, 'salida', rotation=90, ha='center', va='center', fontsize=18)
-    _save(fig, path)
+        outputs.append(network.recall(query, max_iterations=MAX_ITERATIONS).state)
+        tops.append(fig.add_subplot(grid[0, origin]))
+        _show_qr(tops[-1], query, MENU_NAMES[name])
+    differences = max(int(np.sum(output != outputs[0])) for output in outputs)
+    bottom = fig.add_subplot(grid[1, len(patterns) // 2])
+    _show_qr(bottom, outputs[0], f'las 5 salidas: {differences} módulos de diferencia entre sí')
+    end = bottom.get_position()
+    for top in tops:
+        start = top.get_position()
+        fig.add_artist(FancyArrowPatch(((start.x0 + start.x1) / 2, start.y0 - .01), ((end.x0 + end.x1) / 2, end.y1 + .06),
+                                       transform=fig.transFigure, arrowstyle='-|>', mutation_scale=22, lw=2,
+                                       color='gray'))
+    tops[0].text(-6, SIDE / 2, 'consulta', rotation=90, ha='center', va='center', fontsize=18)
+    fig.savefig(path, dpi=160, bbox_inches='tight')
+    plt.close(fig)
 
 
 def _decimal(value):
@@ -159,4 +173,92 @@ def plot_methods(summary, path):
         ax.plot(noise.index, noise[method], marker='o', lw=3, color=color, label=label)
     ax.set(xlabel='Fracción de módulos invertidos', ylabel='QR recuperado exacto', ylim=(-.03, 1.05))
     ax.legend(loc='center left', fontsize=20)
+    _save(fig, path)
+
+
+def plot_similar_pair(results, path, pair=('menu_principal', 'vinos')):
+    """Sin módulos compartidos y guardando tres QR: las ternas que incluyen a menú y vinos contra las demás."""
+    triads = results[(results.variant == 'sin_compartidos') & (results.stored == 3)]
+    with_pair = triads.subset.str.contains(pair[0]) & triads.subset.str.contains(pair[1])
+    correct = (triads.category == 'correct').groupby([with_pair, triads.noise]).mean().unstack(0)
+    counts = triads.groupby(with_pair).subset.nunique()
+    lines = {False: (f'las {counts[False]} ternas sin ese par', 'C0'),
+             True: (f'las {counts[True]} ternas con menú y vinos', 'C3')}
+    fig, ax = plt.subplots(figsize=(11, 5.2))
+    for has_pair, (label, color) in lines.items():
+        ax.plot(correct.index, correct[has_pair], marker='o', lw=3, color=color, label=label)
+    _recall_axis(ax, 'Fracción de módulos invertidos')
+    ax.legend(loc='lower left', fontsize=18)
+    _save(fig, path)
+
+
+def plot_rules(summary, path):
+    """Recuperación media con ruido (sin contar el nivel 0) de cada regla, sobre las mismas consultas nuevas.
+    Comparar con los originales no es una red: es la referencia."""
+    mean = summary[summary.noise > 0].groupby('method').accuracy.mean()
+    bars = {'hebb': ('Hebb', 'C0'),
+            'pseudoinverse_stripped': ('pseudoinversa, sin lo común', 'C1'),
+            'unlearning': ('Hebb + desaprendizaje, sin lo común', 'C1'),
+            'pseudoinverse_full': ('pseudoinversa, QR completo', 'C1'),
+            'nearest': ('comparar con los originales', 'gray')}
+    fig, ax = plt.subplots(figsize=(11, 5.2))
+    rows = ax.barh([label for label, _ in bars.values()], mean[list(bars)], color=[color for _, color in bars.values()])
+    ax.bar_label(rows, [f'{value:.1%}'.replace('.', ',').replace('%', ' %') for value in mean[list(bars)]],
+                 padding=6, fontsize=18)
+    ax.invert_yaxis()
+    ax.set(xlim=(0, 1.15), xlabel='Recuperación media con ruido')
+    ax.xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1))
+    _save(fig, path)
+
+
+def plot_overlap_before_after(overlaps, path, pair=('menu_principal', 'vinos')):
+    """Solapamiento de cada par de QR con el QR completo y sin los módulos compartidos: todos bajan, el de menú
+    y vinos queda arriba."""
+    overlaps = overlaps.rename(columns={overlaps.columns[1]: 'qr'}).set_index(['variant', 'qr'])
+    stages = {'completo': 'QR completo', 'sin_compartidos': 'sin lo común'}
+    fig, ax = plt.subplots(figsize=(11, 5.5))
+    for a, b in combinations(QRS, 2):
+        values = [overlaps.loc[(variant, a), b] for variant in stages]
+        highlighted = {a, b} == set(pair)
+        ax.plot(range(len(stages)), values, marker='o', lw=4 if highlighted else 2, ms=10,
+                color='C3' if highlighted else 'lightgray', zorder=3 if highlighted else 2)
+        if highlighted:
+            for x, value in enumerate(values):
+                ax.annotate(f'menú y vinos: {_decimal(round(value, 2))}', (x, value), xytext=(0, 14),
+                            textcoords='offset points', ha='center', va='bottom', color='C3', fontsize=17)
+    ax.axhline(0, color='gray', ls=':', lw=1.5)
+    ax.text(.5, .03, 'ortogonales', color='gray', ha='center', fontsize=15)
+    ax.set_xticks(range(len(stages)), list(stages.values()))
+    ax.set(xlim=(-.9, 1.9), ylabel='Solapamiento entre dos QR')
+    _save(fig, path)
+
+
+def plot_unstable(patterns, path):
+    """Crosstalk del apunte: en rojo, las neuronas donde el campo de Hebb tiene el signo contrario al del QR
+    guardado, o sea donde la interferencia de los otros QR le gana a la señal propia."""
+    network = Hopfield(patterns)
+    fig, axes = plt.subplots(1, len(patterns), figsize=(3.2 * len(patterns), 4))
+    for ax, name, pattern in zip(axes, QRS, network.patterns_):
+        unstable = np.sign(network.weights_ @ pattern) != pattern
+        _show_qr(ax, pattern, f'{MENU_NAMES[name]}: {int(unstable.sum())}', wrong=unstable)
+    _save(fig, path)
+
+
+def plot_iterations(results, path):
+    """Con desaprendizaje: qué fracción de las consultas queda estable tras 0, 1, 2 o 3 o más iteraciones,
+    por nivel de ruido."""
+    unlearning = results[results.method == 'unlearning']
+    shares = unlearning.iterations.clip(upper=3).groupby(unlearning.noise).value_counts(normalize=True)
+    shares = shares.unstack(fill_value=0)
+    labels = {0: 'ya estable', 1: '1 iteración', 2: '2 iteraciones', 3: '3 o más'}
+    fig, ax = plt.subplots(figsize=(11, 5.2))
+    bottom = np.zeros(len(shares))
+    positions = np.arange(len(shares))
+    for steps, color in zip(shares.columns, ('lightgray', 'C0', 'C1', 'C3')):
+        ax.bar(positions, shares[steps], bottom=bottom, color=color, label=labels[steps], width=.7)
+        bottom += shares[steps].to_numpy()
+    ax.set_xticks(positions, [_decimal(noise) for noise in shares.index])
+    ax.yaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1))
+    ax.set(xlabel='Fracción de módulos invertidos', ylabel='Consultas', ylim=(0, 1))
+    ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
     _save(fig, path)

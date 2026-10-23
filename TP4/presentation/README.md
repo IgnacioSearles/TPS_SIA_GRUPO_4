@@ -1,6 +1,6 @@
 # TP4: presentación
 
-52 diapositivas de relato y un apéndice de 25 gráficos para preguntas.
+63 diapositivas de relato y un apéndice de 26 gráficos para preguntas.
 
 Abrir `index.html`. Flechas: avanzar. F: pantalla completa. S: notas del orador. Funciona sin conexión; para compartirla, enviar la carpeta completa.
 
@@ -16,9 +16,9 @@ Abrir `index.html`. Flechas: avanzar. F: pantalla completa. S: notas del orador.
 | Bloque | Diapositivas |
 |---|---|
 | Portada | 1 |
-| Ejercicio 1: exploración y PCA · Kohonen · Oja · campañas | 2–35 |
-| Ejercicio 2: qué pasó · por qué · qué probamos | 36–52 |
-| Apéndice | 53–78 |
+| Ejercicio 1: exploración y PCA · Kohonen · Oja · campañas | 2–34 |
+| Ejercicio 2: el ejercicio · problema 1 (los cinco QR se parecen) · soluciones · problema 2 (menú y vinos) · soluciones · límites | 35–63 |
+| Apéndice | 64–90 |
 
 ## Dónde se responde cada pregunta de la consigna
 
@@ -31,8 +31,8 @@ Abrir `index.html`. Flechas: avanzar. F: pantalla completa. S: notas del orador.
 | 1.4 Fútbol: alcance, descubrimiento o profundidad | 27–28 |
 | 1.4 Comparación con elegir por seguidores | 30–32 |
 | 1.4 Mantenimiento | 33 |
-| 2.1 Ruido, iteraciones y energía | 37–39 |
-| 2.1 Limitaciones del caso de uso | 41–45, 51 |
+| 2.1 Ruido, iteraciones y energía | 37–39, 58 |
+| 2.1 Limitaciones del caso de uso | 40–53 (crosstalk en la 44), 61–62 |
 
 ## Regenerar
 
@@ -43,10 +43,10 @@ python analysis/presentation_figures.py
 python presentation/sync_assets.py
 ```
 
-El primero rehace los gráficos simplificados (necesita las salidas de `analysis.som_campanas` y `analysis/hopfield_qr_mejoras.py`). El segundo copia a `assets/` cada gráfico que usa `index.html` y anota su origen en `FUENTES.json`.
+El primero rehace los gráficos simplificados (necesita las salidas de `analysis.som_campanas`, `analysis/hopfield_qr_variante.py` y `analysis/hopfield_qr_mejoras.py`, y la evidencia de `reports/ejercicio2/desaprendizaje/`). El segundo copia a `assets/` cada gráfico que usa `index.html` y anota su origen en `FUENTES.json`.
 
 reveal.js está en `vendor/` (ver `vendor/VERSIONS.txt`).
 
 ## Experimentos nuevos de Hopfield
 
-La [guía de incorporación y notas](experimentos_hopfield_nuevos.md) resume los resultados confirmados de desaprendizaje y pseudoinversa, distingue Hamming sin red y fija qué afirmaciones sostiene la evidencia. Complementa las diapositivas existentes.
+La [guía de incorporación y notas](experimentos_hopfield_nuevos.md) resume los resultados confirmados de desaprendizaje y pseudoinversa, distingue Hamming sin red y fija qué afirmaciones sostiene la evidencia. Sus cifras de desaprendizaje y pseudoinversa están en las diapositivas 57–59 y 61.

@@ -3,7 +3,7 @@
 No calculan resultados nuevos: rehacen con los mismos datos y modelos lo que ya muestran los informes.
 Requiere las salidas de `analysis.som_campanas` (usa `som/cantidad_regiones.csv`) y de
 `analysis/hopfield_qr_controles.py`, `analysis/hopfield_qr_variante.py` y `analysis/hopfield_qr_mejoras.py`
-(usa sus resúmenes en CSV).
+(usa sus resúmenes en CSV), más la evidencia publicada del desaprendizaje en reports/ejercicio2/desaprendizaje/.
 
 Uso desde TP4: python3 analysis/presentation_figures.py
 Salidas en reports/presentacion/.
@@ -75,6 +75,7 @@ def qr(out):
     qr_figures.plot_random_vs_qr(pd.read_csv(QR_REPORTS / 'controles' / 'control1_resumen.csv', index_col='noise'),
                                  out / 'e2_azar_vs_qr.png')
     qr_figures.plot_shared(patterns, out / 'e2_compartidos.png')
+    qr_figures.plot_unstable(patterns, out / 'e2_crosstalk.png')
     qr_figures.plot_shared_fraction(
         pd.read_csv(QR_REPORTS / 'controles' / 'control2_resumen.csv', index_col='shared_fraction'),
         1 - SharedModules(patterns).count / patterns.shape[1], len(patterns), out / 'e2_fraccion_compartida.png')
@@ -83,6 +84,19 @@ def qr(out):
     qr_figures.plot_broken_corner(patterns, out / 'e2_esquina.png')
     qr_figures.plot_methods(pd.read_csv(QR_REPORTS / 'mejoras' / 'resumen.csv'),
                             out / 'e2_metodos.png')
+    qr_figures.plot_overlap_before_after(pd.read_csv(QR_REPORTS / 'variante' / 'solapamientos.csv'),
+                                         out / 'e2_solapamiento_antes_despues.png')
+    qr_figures.plot_similar_pair(pd.read_csv(QR_REPORTS / 'variante' / 'resultados.csv'),
+                                 out / 'e2_par_parecido.png')
+    # Las tres reglas sobre las mismas consultas de confirmación; el desaprendizaje sale de la confirmación.
+    evidence = QR_REPORTS / 'desaprendizaje' / 'evidencia'
+    pseudoinverse = pd.read_csv(evidence / 'comparacion_pseudoinversa_20261022' / 'resumen.csv')
+    qr_figures.plot_rules(pd.concat([
+        pd.read_csv(evidence / 'confirmacion_sin_compartidos_20261022' / 'comparacion_por_ruido.csv'),
+        pseudoinverse[pseudoinverse.method != 'unlearning']]), out / 'e2_reglas.png')
+    qr_figures.plot_iterations(
+        pd.read_csv(evidence / 'confirmacion_sin_compartidos_20261022' / 'resultados.csv.gz'),
+        out / 'e2_iteraciones_desaprendizaje.png')
 
 
 def main():

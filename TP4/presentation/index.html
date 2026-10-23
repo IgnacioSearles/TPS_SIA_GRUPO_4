@@ -311,37 +311,44 @@
   <aside class="notes">Cada QR es una matriz de 37×37, o sea 1.369 neuronas. Guardamos los cinco con la regla de Hebb y actualización sincrónica, como en el apunte. Las consultas son los QR con ruido: de 0 a 50 % de módulos invertidos, 20 semillas por nivel y por QR, 1.100 consultas en total.</aside>
 </section>
 
-<section class="section">
-  <h2>Qué pasó</h2>
-  <p class="roadmap"><span class="current">Qué pasó</span> · Por qué · Qué probamos</p>
+<section>
+  <h2>Qué le pedimos a la red</h2>
+  <div class="steps">
+    <div><p class="n">1</p><div><p class="what">Guardar los cinco QR</p><p class="how">37×37 módulos: una neurona por módulo, pesos con la regla de Hebb</p></div></div>
+    <div><p class="n">2</p><div><p class="what">Recibir un QR dañado</p><p class="how">con módulos invertidos al azar, o con una esquina rota</p></div></div>
+    <div><p class="n">3</p><div><p class="what">Devolver el QR original</p><p class="how">exacto, y que un lector de QR lo pueda leer</p></div></div>
+  </div>
+  <aside class="notes">Los cinco QR son las cartas del restaurante: menú principal, vinos, cócteles, postres y especiales. Medimos dos cosas: si la salida es exactamente el QR guardado y si el lector de OpenCV la decodifica.</aside>
 </section>
 
 <section class="figure has-take">
   <h2>Le pasamos cualquier QR y devuelve siempre lo mismo</h2>
   <figure><img src="assets/reports__presentacion__e2_consultas_y_salidas.png" alt="Cinco consultas con ruido y cinco salidas iguales"></figure>
   <p class="take"><em>0 de 1.100</em> consultas recuperadas. Ni siquiera sin ruido.</p>
-  <aside class="notes">Arriba, una consulta de cada QR con 10 % de ruido. Abajo, lo que devuelve la red: la misma imagen las cinco veces. Es el estado mezcla: en cada módulo, el color de la mayoría de los cinco QR. 1.051 consultas terminan ahí y las otras 49, en su inverso, todas con 50 % de ruido. Un QR perfecto, sin ruido, también cae a la mezcla en una iteración: ninguno de los cinco es estable.</aside>
+  <aside class="notes">Arriba, una consulta de cada QR con 10 % de ruido. Abajo, lo que devuelve la red: las cinco salidas son exactamente la misma imagen, sin un solo módulo distinto. Es el estado mezcla: en cada módulo, el color de la mayoría de los cinco QR. 1.051 consultas terminan ahí y las otras 49, en su inverso, todas con 50 % de ruido. Un QR perfecto, sin ruido, también cae a la mezcla en una iteración: ninguno de los cinco es estable.</aside>
 </section>
 
 <section class="figure has-take">
   <h2>La red baja de energía, pero hacia la mezcla</h2>
   <figure><img src="assets/reports__presentacion__e2_energia.png" alt="Energía por iteración para cuatro niveles de ruido"></figure>
-  <p class="take">La mezcla tiene menos energía que cualquier QR. Llega en 1 o 2 iteraciones.</p>
-  <aside class="notes">La línea gris es la energía del QR original, el menú principal. La mezcla está en −2.173; los QR, entre −2.077 y −1.790. La red hace lo que promete, bajar la energía, pero el mínimo no es un QR. Con actualización sincrónica la energía podría subir; en este barrido no subió nunca, pero eso es lo observado, no una garantía.</aside>
+  <p class="take">Cae a la mezcla en 1 o 2 iteraciones. La mezcla se parece bastante a los cinco QR a la vez, y para Hebb eso vale más que ser igual a uno solo.</p>
+  <aside class="notes">Cada panel es una consulta del menú principal con distinto ruido. La curva es la energía en cada iteración; la línea gris, la energía del menú original. La red baja en 1 o 2 iteraciones hasta −2.173, por debajo de la línea gris: pasa de largo el QR y termina en la mezcla. Por qué la mezcla está más abajo: con Hebb, la energía de un estado es −N/2 por la suma, sobre los cinco QR, del cuadrado de cuánto se parece a cada uno. El menú se parece 1 a sí mismo y 0,86, 0,60, 0,59 y 0,77 a los otros: suma 3,04, energía −2.077. La mezcla se parece 0,90, 0,87, 0,67, 0,67 y 0,85: suma 3,18, energía −2.173. Con patrones al azar no pasa: cada patrón suma casi 1 y la mezcla de cinco, 0,70, así que los valles son los patrones. Los QR van de −2.077 a −1.790. Con actualización sincrónica la energía podría subir; en este barrido no subió nunca, pero eso es lo observado, no una garantía.</aside>
 </section>
 
 <section>
-  <h2>Y además arruina QR que se podían leer</h2>
+  <h2>La salida ni siquiera es un QR que se pueda leer</h2>
   <div class="numbers">
-    <div><p class="value">100 %</p><p class="label">de las consultas sin ruido las lee un lector de QR</p></div>
-    <div><p class="value warm">0 %</p><p class="label">de las salidas de la red</p></div>
+    <div><p class="value">5 de 5</p><p class="label">QR originales los lee un lector</p></div>
+    <div><p class="value warm">0 de 1.100</p><p class="label">salidas de la red</p></div>
   </div>
-  <aside class="notes">Usamos el lector de OpenCV. Lee los cinco originales y ninguna de las 1.100 salidas. La corrección de errores del QR, nivel L, aguanta muy poco ruido al azar: el lector solo lee 66 % con 0,5 % de ruido y nada desde 3 %.</aside>
+  <aside class="notes">El lector de OpenCV no recuerda ningún QR: ubica los tres cuadrados de las esquinas, lee los módulos y los verifica con la corrección de errores que trae el propio QR. Por eso lee los originales. La mezcla junta pedazos de las cinco URL y no es ninguna, así que el lector no la decodifica. Y el lector solo, sin red, aguanta muy poco ruido al azar: con corrección de nivel L lee el 66 % con 0,5 % de ruido y nada desde 3 %. Por eso hace falta algo que limpie el QR antes.</aside>
 </section>
 
+<!-- Problema 1: los cinco QR se parecen -->
+
 <section class="section">
-  <h2>Por qué</h2>
-  <p class="roadmap">Qué pasó · <span class="current">Por qué</span> · Qué probamos</p>
+  <h2>Problema 1: los cinco QR no son ortogonales</h2>
+  <p class="roadmap"><span class="current">Problema 1</span> · Soluciones · Problema 2 · Soluciones · Límites</p>
 </section>
 
 <section class="figure has-take">
@@ -367,18 +374,24 @@
     <figure><img src="assets/reports__presentacion__e2_compartidos.png" alt="Módulos iguales en los cinco QR"></figure>
     <div class="points">
       <p><em>70 %</em> de los módulos son iguales en los cinco</p>
-      <p>Solapamiento entre pares de 0,58 a 0,86; al azar, 0,03</p>
-      <p class="muted">La interferencia de los otros QR le gana a la señal propia, 2,1 a 1</p>
+      <p>Solapamiento entre pares de 0,58 a 0,86; ortogonales sería 0, y al azar da 0,03</p>
     </div>
   </main>
-  <aside class="notes">Solapamiento: 1 es idéntico, 0 es ortogonal (la mitad de módulos iguales). Menú principal y vinos coinciden en el 93 % de los módulos. El campo de cada neurona es su señal (1) más el crosstalk de los otros patrones, y acá el crosstalk vale entre 2,06 y 2,21. Por eso todo cae a la mezcla.</aside>
+  <aside class="notes">Hebb funciona cuando los patrones son casi ortogonales: cada uno coincide con los otros en la mitad de los módulos. Solapamiento: 1 es idéntico, 0 es ortogonal. Menú principal y vinos coinciden en el 93 % de los módulos. El campo de cada neurona es su señal (1) más el crosstalk de los otros patrones, y acá el crosstalk vale entre 2,06 y 2,21. Por eso todo cae a la mezcla.</aside>
 </section>
 
 <section class="figure has-take">
-  <h2>Con más de 25 % compartido, la red se corta de golpe</h2>
+  <h2>El crosstalk le gana a la señal en 71 a 225 neuronas por QR</h2>
+  <figure><img src="assets/reports__presentacion__e2_crosstalk.png" alt="Neuronas donde el crosstalk da vuelta el signo, en cada QR"></figure>
+  <p class="take">Campo de cada neurona = señal propia + crosstalk de los otros QR. En rojo, donde el crosstalk le da vuelta el signo. Con cinco patrones al azar: <em>ninguna</em>.</p>
+  <aside class="notes">Es la cuenta del apunte: con el QR guardado como consulta, el campo de la neurona i es su propio valor (la señal, 1) más el crosstalk, la suma de lo que aportan los otros cuatro QR pesados por cuánto se parecen. Si el crosstalk tiene el signo contrario y es mayor que 1, la neurona se da vuelta: el QR no es estable. Los cinco tienen neuronas en rojo, por eso ninguno queda estable. Todas están en la franja izquierda, donde están los datos que distinguen a los QR; en los módulos comunes el crosstalk empuja a favor. Cócteles y postres, los que menos se parecen a la mezcla, son los que tienen más. En promedio el crosstalk vale entre 2,06 y 2,21 en valor absoluto. Sin lo común bajan a 16 a 34 neuronas por QR: menos, pero ninguno queda estable. Con cinco patrones al azar del mismo tamaño, cero.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Con más de 25 % compartido, los otros patrones le ganan al propio</h2>
   <figure><img src="assets/reports__presentacion__e2_fraccion_compartida.png" alt="Recuperación según la fracción de módulos compartidos"></figure>
-  <p class="take">Los QR comparten el 70 %. Con k patrones, el límite es 1/(k − 1).</p>
-  <aside class="notes">Generamos cinco patrones al azar que comparten una fracción de sus módulos. Hasta 20 % se recupera todo; con 28 %, nada, ni sin ruido. Por qué 25 %: en un módulo propio donde los otros cuatro valen lo contrario, la señal es 1 y la interferencia, 4 por la fracción compartida. Es coherente con los QR: con 2 patrones el límite es 100 % y entran de a dos; con 3 es 50 % y ya fallan.</aside>
+  <p class="take">Su propio patrón empuja con 1; cada uno de los otros cuatro, en contra, con lo que comparte. Si 4 × compartido &gt; 1, ganan los otros. Los QR comparten el 70 %.</p>
+  <aside class="notes">Experimento: cinco patrones al azar de 1.369 módulos, forzando que una fracción de sus módulos valga lo mismo en los cinco. En el eje x, esa fracción; cada línea es un nivel de ruido. Hasta 20 % se recupera todo; con 28 %, nada, ni sin ruido: no depende de cuánto se dañe la consulta sino de cuánto se parecen los guardados. La cuenta es el campo de Hebb: la señal propia (1) más el crosstalk de los otros patrones, cada uno pesado por su solapamiento. El peor módulo es uno donde los otros cuatro valen lo contrario: ahí queda 1 − 4 × compartido. Con k patrones el límite es 1/(k − 1): con 2 es 100 % y los QR entran de a dos; con 3 es 50 % y ya fallan. Línea gris: el límite, 25 %; roja: los QR.</aside>
 </section>
 
 <section>
@@ -391,52 +404,137 @@
   <aside class="notes">Solo cambia la palabra: food, wine, beverages, dessert, specials. El QR escribe los datos desde la esquina inferior derecha, así que el prefijo común queda en la mitad derecha: 410 de los 414 módulos que difieren están en las columnas 1 a 19. Cualquier conjunto de QR de un mismo sitio web va a tener este problema.</aside>
 </section>
 
+<!-- Soluciones al problema 1 -->
+
 <section class="section">
-  <h2>Qué probamos</h2>
-  <p class="roadmap">Qué pasó · Por qué · <span class="current">Qué probamos</span></p>
+  <h2>Qué hicimos con el problema 1</h2>
+  <p class="roadmap">Problema 1 · <span class="current">Soluciones</span> · Problema 2 · Soluciones · Límites</p>
 </section>
 
 <section class="figure has-take">
-  <h2>Sacar lo común ayuda: de 2 QR a 3</h2>
-  <figure><img src="assets/reports__presentacion__e2_subconjuntos.png" alt="Subconjuntos de QR estables antes y después de sacar los compartidos"></figure>
-  <p class="take">Con los cinco sigue fallando: lo que queda también se parece.</p>
-  <aside class="notes">La red trabaja solo con los 414 módulos que difieren y al final reponemos los 955 comunes. Con tres QR guardados recupera el 95,7 % con 25 % de ruido. Cuidado al medir: reponer los comunes ya borra el ruido que cayó ahí sin que la red haga nada; por eso comparamos contra esa reposición sin red (103,5 módulos mal contra 2,1 de la red). Con cinco no alcanza: menú y vinos siguen pareciéndose (0,54) porque sus nombres tienen el mismo largo y el resto de la URL cae en los mismos módulos.</aside>
-</section>
-
-<section class="figure has-take">
-  <h2>Cortar la imagen en zonas tampoco alcanza</h2>
+  <h2>Cortar la imagen en zonas no alcanza</h2>
   <figure><img src="assets/reports__ejercicio2__zonas__2_mapa_zonas.png" alt="QR estables por zona"></figure>
   <p class="take">Achicar la zona no achica el parecido: a lo sumo 1 o 2 zonas guardan los cinco.</p>
   <aside class="notes">Una red por zona, cada una con los cinco QR recortados. En la franja donde están las diferencias, ninguna zona de 10×10 deja estable a ningún QR. Ninguna salida completa es un QR guardado. Con zonas de 10×10 el lector llega a decodificar el 40 % sin ruido, pero solo menú y vinos, y gracias a la corrección de errores del propio QR, no a la red.</aside>
 </section>
 
 <section class="figure has-take">
-  <h2>Repartir los QR en dos redes sí funciona</h2>
-  <figure><img src="assets/reports__presentacion__e2_metodos.png" alt="Recuperación con una red y con dos redes"></figure>
-  <p class="take"><em>100 %</em> hasta 35 % de ruido, sin salir de Hebb.</p>
-  <aside class="notes">Una red guarda menú, cócteles y postres; la otra, vinos y especiales; las dos sin los módulos comunes. La consulta pasa por las dos y elegimos la salida que es un QR válido; si hay dos, la más parecida a la consulta. Cero elecciones equivocadas. La pseudoinversa, que no está en el apunte, también recupera los cinco: los deja con la misma energía y la mezcla deja de ser estable. Límite: con cinco redes de un QR cada una, esto es comparar con los originales.</aside>
+  <h2>Sacar lo común: entran de a tres, pero los cinco juntos siguen en cero</h2>
+  <figure><img src="assets/reports__presentacion__e2_subconjuntos.png" alt="Subconjuntos de QR estables antes y después de sacar los compartidos"></figure>
+  <p class="take">Guardando los cinco: <em>0</em> QR estables antes y después. Lo que mejora es cuántos entran juntos: de 2 a 3.</p>
+  <aside class="notes">La red trabaja solo con los 414 módulos que difieren y al final reponemos los 955 comunes. Con tres QR guardados recupera el 95,7 % con 25 % de ruido. Cuidado al medir: reponer los comunes ya borra el ruido que cayó ahí sin que la red haga nada; por eso comparamos contra esa reposición sin red (103,5 módulos mal contra 2,1 de la red). Cada barra cuenta, entre todos los grupos posibles de k QR, cuántos quedan con sus k QR estables. Con los cinco, ninguno queda estable, ni completos ni sin lo común: hay un segundo problema.</aside>
+</section>
+
+<!-- Problema 2: menú y vinos -->
+
+<section class="section">
+  <h2>Problema 2: sin lo común, menú y vinos siguen pareciéndose</h2>
+  <p class="roadmap">Problema 1 · Soluciones · <span class="current">Problema 2</span> · Soluciones · Límites</p>
 </section>
 
 <section class="figure has-take">
-  <h2>Con la esquina rota del enunciado, reconstruye el QR</h2>
-  <figure><img src="assets/reports__presentacion__e2_esquina.png" alt="QR con una esquina rota: una red contra dos redes"></figure>
-  <p class="take">En rojo, lo que cada salida tiene mal. Dos redes recuperan esquinas de hasta 17×17.</p>
-  <aside class="notes">El bloque roto es de 11×11 módulos en blanco y se lleva un cuadrado de posición. Dos redes lo reconstruyen y el lector lee la URL. 17×17 es el 21 % del QR. El lector solo lee la consulta rota únicamente en la esquina que no tiene cuadrado de posición, y hasta 9×9.</aside>
+  <h2>Sacar lo común separa a casi todos los pares, menos a menú y vinos</h2>
+  <figure><img src="assets/reports__presentacion__e2_solapamiento_antes_despues.png" alt="Solapamiento de cada par de QR con el QR completo y sin lo común"></figure>
+  <p class="take">Ya eran el par más parecido con el QR completo. Sin lo común quedan en <em>0,54</em>; los demás, en 0,23 o menos.</p>
+  <aside class="notes">Cada línea es un par de QR. A la izquierda, el solapamiento con los 1.369 módulos: de 0,58 a 0,86, todos altos. A la derecha, con los 414 módulos que difieren. Los negativos salen de que cada módulo se reparte 4 contra 1 o 3 contra 2 entre los cinco QR; las ternas con esos pares se recuperan igual de bien, así que el que molesta es el par positivo. Como referencia, cinco patrones al azar de 414 módulos llegan como mucho a 0,08 en valor absoluto.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Las ternas que fallan son las que tienen a menú y vinos</h2>
+  <figure><img src="assets/reports__presentacion__e2_par_parecido.png" alt="Recuperación de ternas con y sin el par menú y vinos"></figure>
+  <p class="take">Con 25 % de ruido: <em>100 %</em> sin el par, 86 % con el par.</p>
+  <aside class="notes">Red sin lo común, guardando tres QR. De las diez ternas posibles, tres incluyen a menú y vinos, y son las tres peores. Con los cinco juntos el par está siempre adentro. El detalle por terna está en el apéndice.</aside>
+</section>
+
+<section>
+  <h2>Por qué ese par: en los datos difieren en 6 bits</h2>
+  <p class="url">food → 011<b>0</b>011<b>0</b> 01101<b>1</b><b>1</b>1 0110111<b>1</b> 0110010<b>0</b><br>wine → 011<b>1</b>011<b>1</b> 01101<b>0</b><b>0</b>1 0110111<b>0</b> 0110010<b>1</b></p>
+  <div class="points">
+    <p>Las dos URL miden 85 caracteres: todo lo demás cae en los mismos bits</p>
+    <p>Difieren en <em>6 de 864</em> bits de datos; el par que sigue, en 47</p>
+    <p class="muted">Lo que los separa es la corrección de errores, que mezcla todo el mensaje</p>
+  </div>
+  <aside class="notes">Las letras minúsculas en ASCII empiezan todas con 011, así que food y wine comparten 26 de sus 32 bits. Como las URL tienen el mismo largo, el campo de largo y el resto, _menu.png, quedan en las mismas posiciones. Las otras tres miden 88, 89 y 90 y corren todo lo que sigue. Lo verificamos reconstruyendo los cinco QR desde sus URL (versión 5, corrección de errores L, máscara 0): coinciden módulo por módulo con las imágenes. De los 414 módulos que difieren, 220 son datos y 194 corrección de errores. Menú y vinos difieren en 6 de datos y 90 de corrección: por eso su solapamiento sin lo común es 0,54.</aside>
+</section>
+
+<!-- Soluciones al problema 2 -->
+
+<section class="section">
+  <h2>Qué hicimos con el problema 2</h2>
+  <p class="roadmap">Problema 1 · Soluciones · Problema 2 · <span class="current">Soluciones</span> · Límites</p>
+</section>
+
+<section class="figure has-take">
+  <h2>Separar el par: dos redes, menú en una y vinos en la otra</h2>
+  <figure><img src="assets/reports__presentacion__e2_metodos.png" alt="Recuperación con una red y con dos redes"></figure>
+  <p class="take"><em>100 %</em> hasta 35 % de ruido, sin salir de Hebb.</p>
+  <aside class="notes">Una red guarda menú, cócteles y postres; la otra, vinos y especiales; las dos sin los módulos comunes, con Hebb. La siguiente diapositiva explica cómo se elige la salida.</aside>
+</section>
+
+<section>
+  <h2>Cómo decidimos a qué red va</h2>
+  <div class="steps">
+    <div><p class="n">1</p><div><p class="what">Repartimos una vez, al guardar</p><p class="how">el reparto 3 + 2 con menos parecido dentro de cada red: menú, cócteles, postres | vinos, especiales</p></div></div>
+    <div><p class="n">2</p><div><p class="what">La consulta pasa por las dos</p><p class="how">cada red devuelve su salida</p></div></div>
+    <div><p class="n">3</p><div><p class="what">Nos quedamos con la que es un QR guardado</p><p class="how">si las dos lo son, la más parecida a la consulta</p></div></div>
+  </div>
+  <aside class="notes">El reparto se elige mirando solo los QR guardados: de los diez repartos posibles en una terna y un par, el que tiene menor solapamiento máximo dentro de cada grupo. Sale solo que menú y vinos quedan separados. En las consultas con ruido no hubo ninguna elección equivocada. Ojo con el paso 3: para elegir comparamos la salida con los QR guardados. Llevado al extremo, cinco redes de un QR cada una, esto sería directamente comparar con los originales.</aside>
+</section>
+
+<section>
+  <h2>Desaprender la mezcla: una sola red guarda los cinco</h2>
+  <div class="numbers">
+    <div><p class="value warm">0 %</p><p class="label">Hebb sin lo común</p></div>
+    <div><p class="value">90,5 %</p><p class="label">Hebb sin lo común, más desaprendizaje</p></div>
+  </div>
+  <p class="take">Dejamos que la red caiga en estados falsos y les restamos peso: Hebb al revés.</p>
+  <aside class="notes">Desde estados al azar, la red converge; si termina en algo que no es un QR guardado ni su inverso, ese estado se resta de los pesos con tasa 0,1. 50 intentos. Los cinco QR quedan estables en las tres semillas de entrenamiento. 90,5 % es la media con ruido de 10 a 45 %, sobre consultas nuevas que no se usaron para elegir los parámetros. Más intentos no fue mejor: en la exploración, 100 intentos dieron 86,0 % y 50, 88,4 %. Sobre el QR completo, sin sacar lo común, ninguna configuración dejó estables a los cinco en todas las semillas.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Con desaprendizaje también llega en 1 o 2 iteraciones, pero al QR</h2>
+  <figure><img src="assets/reports__presentacion__e2_iteraciones_desaprendizaje.png" alt="Iteraciones hasta quedar estable según el ruido, con desaprendizaje"></figure>
+  <p class="take">Con más ruido tarda más, como mucho 6. La energía no subió en ninguna de las 2.100 consultas.</p>
+  <aside class="notes">Son las consultas de confirmación: 700 por red, tres redes entrenadas con semillas distintas. Una iteración es un paso en que cambia el estado; sin ruido el QR ya es estable y no cambia nada. Ninguna consulta terminó en un ciclo ni llegó al tope de 100 iteraciones. Con actualización sincrónica la energía podría subir; acá no subió nunca, pero es lo observado, no una garantía. Para comparar: Hebb sin lo común tarda parecido, de 1 a 5 iteraciones, pero termina en estados falsos.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Ninguna red le gana a comparar con los originales</h2>
+  <figure><img src="assets/reports__presentacion__e2_reglas.png" alt="Recuperación media con ruido de cada regla"></figure>
+  <p class="take">La pseudoinversa no necesita sacar lo común, pero no está en el apunte.</p>
+  <aside class="notes">Todas sobre las mismas 700 consultas nuevas: cinco QR, siete niveles de ruido de 0 a 45 %, 20 semillas; la media no cuenta el nivel 0. Comparar con los originales es elegir el QR guardado más parecido a la consulta, sin red. La diferencia entre pseudoinversa sin lo común y desaprendizaje, un punto, no es concluyente. La pseudoinversa deja a los cinco QR con la misma energía y la mezcla deja de ser estable. Las dos redes no están en este gráfico: se midieron con otras consultas.</aside>
+</section>
+
+<!-- Límites y conclusiones -->
+
+<section class="section">
+  <h2>Límites y conclusiones</h2>
+  <p class="roadmap">Problema 1 · Soluciones · Problema 2 · Soluciones · <span class="current">Límites</span></p>
+</section>
+
+<section>
+  <h2>La esquina rota casi no le llega a la red</h2>
+  <div class="numbers">
+    <div><p class="value">65</p><p class="label">módulos dañados por una esquina de 11×11</p></div>
+    <div><p class="value warm">9</p><p class="label">de esos los tiene que arreglar la red</p></div>
+  </div>
+  <p class="take">El resto cae en partes fijas de todo QR: cuadrados de las esquinas, sincronismo y formato. Esas las reponemos sin la red.</p>
+  <aside class="notes">Promedio de las cuatro esquinas, en blanco, con la red sin lo común. La esquina y su tamaño los elegimos nosotros: el enunciado solo cuenta que una esquina está rota. Por eso reconstruir la esquina no prueba mucho. Lo que sí mide a la red es el daño que cae sobre lo que distingue a los QR: con manchas en cualquier lugar le llega un tercio del daño, y con desaprendizaje recupera el 100 % mientras la red ve hasta 120 módulos dañados de sus 414; con más, el 89 %.</aside>
 </section>
 
 <section>
   <h2>Límites del caso de uso</h2>
   <div class="steps">
     <div><p class="n">→</p><div><p class="what">Hebb necesita patrones distintos</p><p class="how">y los QR de un mismo sitio no lo son</p></div></div>
+    <div><p class="n">→</p><div><p class="what">Comparar con los originales gana</p><p class="how">y la red igual tiene que conocer todos los QR</p></div></div>
     <div><p class="n">→</p><div><p class="what">El ruido al azar no es el daño real</p><p class="how">un QR se rompe, se mancha o se dobla por zonas</p></div></div>
-    <div><p class="n">→</p><div><p class="what">La red tiene que conocer todos los QR</p><p class="how">con pocos QR, compararlos con los originales es más simple</p></div></div>
   </div>
-  <aside class="notes">Lo que se podría hacer sin cambiar la red: generar cada QR con una máscara distinta, para que los datos se vean casi al azar entre QR, o usar más corrección de errores (nivel H, 30 %, en vez de L, 7 %), que ayuda al lector solo. No los probamos.</aside>
+  <aside class="notes">Todo está medido con estos cinco QR: otro menú puede tener otro par parecido. Lo que se podría hacer sin cambiar la red: generar cada QR con una máscara distinta, para que los datos se vean casi al azar entre QR, o usar más corrección de errores (nivel H, 30 %, en vez de L, 7 %), que ayuda al lector solo. No los probamos.</aside>
 </section>
 
 <section class="statement">
-  <h2>El problema no es la red ni la cantidad.<br>Es que los QR se parecen.</h2>
-  <p class="sub">Con patrones distintos, Hebb funciona. Con QR del mismo restaurante hay que separarlos o repartirlos.</p>
+  <h2>Los cinco QR se parecen.<br>Sin lo común, menú y vinos siguen pareciéndose.</h2>
+  <p class="sub">Sacar lo común resuelve el primero. Separar el par o desaprender la mezcla, el segundo.</p>
 </section>
 
 <!-- ===================================================================== Apéndice -->
@@ -496,6 +594,8 @@
 <section class="figure"><h2>Cómo se elige la red</h2><figure><img src="assets/reports__ejercicio2__dos_redes__3_diagnostico.png" alt="Diagnóstico de la elección"></figure></section>
 
 <section class="figure"><h2>Todos los métodos con una esquina rota</h2><figure><img src="assets/reports__ejercicio2__mejoras__2_esquina.png" alt="Esquina rota por método"></figure></section>
+
+<section class="figure"><h2>Desaprendizaje: ruido, esquinas y manchas</h2><figure><img src="assets/reports__ejercicio2__desaprendizaje__CONFIRMACION.png" alt="Recuperación del desaprendizaje frente a Hebb y a comparar con los originales"></figure></section>
 
 </div></div>
 <script src="vendor/reveal/reveal.js"></script>
