@@ -120,6 +120,39 @@ Las dos salidas son QR válidos, pero food está mucho más cerca de la consulta
 
 ![Tasa por QR](4_por_qr.png)
 
+## Experimento 5: ¿quién hace el trabajo, la red o la regla que elige?
+
+**Por qué.** En el experimento 3, el 20 % de las consultas (todas las de food) se resuelven con la regla del "más parecido a la consulta". Esa regla es comparar con los originales, que sin ninguna red ya recupera el 100 % hasta p = 0,35. Hacía falta separar lo que aporta la red de lo que aporta la regla.
+
+**Qué hice.** Con el reparto elegido y las mismas 1100 consultas de ruido, comparé cinco formas de elegir la salida:
+
+| Regla | Qué usa |
+|---|---|
+| Sin red: el original más parecido a la consulta | Los originales, sin red |
+| Oráculo: la red que tiene el QR de la consulta | Sabe la respuesta; mide a cada red sola |
+| Desempate comparando con los originales | La regla de arriba (la de `SplitHopfield` por defecto) |
+| Menor energía de la consulta | Sólo los pesos de cada red (`selection='energy'`) |
+| Sin desempate: vale sólo si una sola red devuelve un QR guardado | Que la salida sea un QR guardado |
+
+![Quién hace el trabajo](5_eleccion.png)
+
+**Resultado** (`eleccion_resumen.csv`), fracción correcta:
+
+| p | Sin red | Oráculo | Desempate con originales | Energía | Sin desempate |
+|---|---|---|---|---|---|
+| 0 a 0,25 | 1,00 | 1,00 | 1,00 | 1,00 | 0,80 |
+| 0,3 | 1,00 | 1,00 | 1,00 | 0,99 | 0,80 |
+| 0,35 | 1,00 | 1,00 | 1,00 | 0,98 | 0,77 |
+| 0,4 | 0,98 | 0,91 | 0,90 | 0,89 | 0,69 |
+| 0,45 | 0,71 | 0,70 | 0,65 | 0,51 | 0,51 |
+| 0,5 | 0,22 | 0,19 | 0,17 | 0,14 | 0,14 |
+
+**Qué significa.**
+- **Cada red guarda bien sus QR:** si la consulta va a la red que tiene su QR, vuelve el 100 % hasta p = 0,35.
+- **Elegir la red es el par food–wine otra vez:** la red de wine le devuelve wine a las 140 consultas de food con p ≤ 0,3. Sin desempate, food da 0 % y el total 80 %. El desempate que lo arregla compara con los originales: en food, lo resuelve Hamming, no la red.
+- **Nunca le gana a comparar con los originales:** de 1100 consultas, el desempate acierta 6 que Hamming falla y falla 25 que Hamming acierta (todas con p ≥ 0,4).
+- **Elegir por energía no usa los originales** y da 100 % hasta p = 0,25 (acierta 3 que Hamming falla, falla 43). Pero con Hebb la energía de la consulta es −N/2 · Σ (solapamiento con cada QR de la red)²: sigue midiendo parecido con los QR guardados, sólo que a través de los pesos.
+
 ## Comparación con una red: los mismos gráficos del informe principal
 
 **Qué hice.** Repetí los gráficos del [informe principal](../README.md) con las mismas 1100 consultas, comparando una red (Hebb con los 5 QR) contra las dos redes del reparto elegido.
@@ -199,8 +232,8 @@ Con una red, en cambio, la mezcla (−2172,88) era más honda que cualquier QR.
 
 ## Conclusión
 
-1. **Repartir los QR en varias redes de Hebb resuelve el problema** sin salir de la regla del apunte: los 5 QR se recuperan hasta con 35 % de ruido o con un 21 % del QR arrancado, y el lector los lee.
-2. **La red se elige con una regla simple:** se queda con la que devuelve un QR válido y, si son varias, con la más parecida al QR dañado. Hasta p = 0,35 nunca se equivoca.
+1. **Cada red guarda bien sus QR:** con la consulta en la red correcta, se recuperan hasta con 35 % de ruido, y el lector los lee.
+2. **Pero elegir la red no lo hace la red:** con food, las dos redes devuelven un QR guardado y el desempate compara con los originales. Sin desempate, 80 %; con él, igual que comparar con los originales y nunca mejor (experimento 5). Elegir por la energía de la consulta evita mirar los originales y da 100 % hasta p = 0,25.
 3. **Funciona porque cada red guarda pocos QR y poco parecidos:** ninguna neurona inestable, y los QR son los pozos más hondos de energía.
 4. **El esquema más robusto es 2 + 2 + 1 con los QR completos:** no necesita sacar los módulos compartidos y cualquier reparto anda.
 5. **Límite:** cuantas más redes, más se parece a "comparar con los originales". Con 5 redes de un QR cada una, ya es exactamente eso.
@@ -212,5 +245,6 @@ Con una red, en cambio, la mezcla (−2172,88) era más honda que cualquier QR.
 | `repartos.csv` | Cada reparto posible: solapamiento máximo dentro de una red y fracción correcta con poco y con mucho ruido |
 | `resultados.csv`, `resumen_esquemas.csv` | Una fila por consulta y esquema; fracción correcta por esquema, daño y nivel |
 | `diagnostico.csv` | Qué devolvieron las dos redes, por daño y nivel |
+| `eleccion.csv`, `eleccion_resumen.csv` | Experimento 5: si cada regla de elección acierta, por consulta y por nivel |
 | `comparacion_resultados.csv` | Una red contra dos redes: categoría, Hamming, iteraciones y lector, por consulta |
 | `comparacion_inestables.csv`, `comparacion_energia.csv` | Neuronas inestables por QR; energía de cada QR y de la mezcla en cada red |

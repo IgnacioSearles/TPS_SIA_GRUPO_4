@@ -464,21 +464,32 @@
   <p class="roadmap">Problema 1 · Soluciones · Problema 2 · <span class="current">Soluciones</span> · Límites</p>
 </section>
 
-<section class="figure has-take">
-  <h2>Separar el par: dos redes, menú en una y vinos en la otra</h2>
-  <figure><img src="assets/reports__presentacion__e2_metodos.png" alt="Recuperación con una red y con dos redes"></figure>
-  <p class="take"><em>100 %</em> hasta 35 % de ruido, sin salir de Hebb.</p>
-  <aside class="notes">Una red guarda menú, cócteles y postres; la otra, vinos y especiales; las dos sin los módulos comunes, con Hebb. La siguiente diapositiva explica cómo se elige la salida.</aside>
+<section>
+  <h2>Separar el par: menú en una red, vinos en otra</h2>
+  <div class="steps">
+    <div><p class="n">1</p><div><p class="what">Repartimos una vez, al guardar</p><p class="how">menú, cócteles, postres | vinos, especiales</p></div></div>
+    <div><p class="n">2</p><div><p class="what">La consulta pasa por las dos</p><p class="how">cada red devuelve su salida, con Hebb y sin lo común</p></div></div>
+    <div><p class="n">3</p><div><p class="what">Hay que elegir una de las dos salidas</p><p class="how">y acá está la trampa</p></div></div>
+  </div>
+  <p class="take">Si le mandamos la consulta a la red que tiene su QR, lo devuelve: <em>100 %</em> hasta 35 % de ruido.</p>
+  <aside class="notes">El reparto se elige mirando solo los QR guardados: de los diez repartos posibles en una terna y un par, el que tiene menor solapamiento máximo dentro de cada grupo. Sale solo que menú y vinos quedan separados. El 100 % es con un oráculo: la consulta va directo a la red que guarda su QR. Eso mide a cada red sola, pero en la realidad no sabemos qué QR es la consulta.</aside>
 </section>
 
 <section>
-  <h2>Cómo decidimos a qué red va</h2>
-  <div class="steps">
-    <div><p class="n">1</p><div><p class="what">Repartimos una vez, al guardar</p><p class="how">el reparto 3 + 2 con menos parecido dentro de cada red: menú, cócteles, postres | vinos, especiales</p></div></div>
-    <div><p class="n">2</p><div><p class="what">La consulta pasa por las dos</p><p class="how">cada red devuelve su salida</p></div></div>
-    <div><p class="n">3</p><div><p class="what">Nos quedamos con la que es un QR guardado</p><p class="how">si las dos lo son, la más parecida a la consulta</p></div></div>
+  <h2>Pero elegir la red es el problema 2 otra vez</h2>
+  <div class="numbers">
+    <div><p class="value warm">140 de 140</p><p class="label">consultas de menú en que la red de vinos devuelve vinos</p></div>
+    <div><p class="value">80 %</p><p class="label">si solo aceptamos cuando una sola red devuelve un QR guardado</p></div>
   </div>
-  <aside class="notes">El reparto se elige mirando solo los QR guardados: de los diez repartos posibles en una terna y un par, el que tiene menor solapamiento máximo dentro de cada grupo. Sale solo que menú y vinos quedan separados. En las consultas con ruido no hubo ninguna elección equivocada. Ojo con el paso 3: para elegir comparamos la salida con los QR guardados. Llevado al extremo, cinco redes de un QR cada una, esto sería directamente comparar con los originales.</aside>
+  <p class="take">Con menú, las dos redes devuelven un QR guardado. Desempatábamos comparando con los originales: eso es Hamming, no la red.</p>
+  <aside class="notes">140 consultas de menú con ruido de 0 a 30 %, 20 semillas por nivel. La red de vinos y especiales tiene dos QR; a una consulta de menú la lleva a vinos porque son el par más parecido. Las salidas son dos QR válidos y no hay forma de saber cuál es el bueno sin otra regla. Sin desempate, menú da 0 % y el total queda en 80 % hasta 30 % de ruido. Con el desempate que usábamos (quedarse con la salida más parecida a la consulta), el resultado es igual a comparar con los originales hasta 35 %, y nunca mejor: de 1.100 consultas, acierta 6 que Hamming falla y falla 25 que Hamming acierta, todas con ruido de 40 % o más.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Sin mirar los originales: elegir la red por energía</h2>
+  <figure><img src="assets/reports__presentacion__e2_dos_redes.png" alt="Recuperación con dos redes según cómo se elige la salida, contra comparar con los originales"></figure>
+  <p class="take">Elegimos la red donde la consulta tiene menor energía. <em>100 %</em> hasta 25 % de ruido, pero nunca mejor que comparar con los originales.</p>
+  <aside class="notes">La energía de la consulta se calcula con los pesos de cada red, sin guardar los QR aparte. Con 30 % de ruido da 99 % y con 35 %, 98 %. De 1.100 consultas, acierta 3 que comparar con los originales falla y falla 43 que acierta. Ojo: con Hebb, la energía de un estado es menos N/2 por la suma de sus solapamientos al cuadrado con los QR de la red. O sea que sigue midiendo parecido con los QR guardados, solo que a través de los pesos. Conclusión: las dos redes guardan bien sus QR, pero no le agregan nada a comparar con los originales.</aside>
 </section>
 
 <section>
@@ -496,6 +507,16 @@
   <figure><img src="assets/reports__presentacion__e2_iteraciones_desaprendizaje.png" alt="Iteraciones hasta quedar estable según el ruido, con desaprendizaje"></figure>
   <p class="take">Con más ruido tarda más, como mucho 6. La energía no subió en ninguna de las 2.100 consultas.</p>
   <aside class="notes">Son las consultas de confirmación: 700 por red, tres redes entrenadas con semillas distintas. Una iteración es un paso en que cambia el estado; sin ruido el QR ya es estable y no cambia nada. Ninguna consulta terminó en un ciclo ni llegó al tope de 100 iteraciones. Con actualización sincrónica la energía podría subir; acá no subió nunca, pero es lo observado, no una garantía. Para comparar: Hebb sin lo común tarda parecido, de 1 a 5 iteraciones, pero termina en estados falsos.</aside>
+</section>
+
+<section>
+  <h2>Pseudoinversa: otra forma de calcular los pesos</h2>
+  <div class="eqs">
+    <p><b>Hebb:</b> W = Ξᵀ Ξ / N. Suma cada QR a los pesos: lo que comparten se suma cinco veces y tapa lo que los distingue.</p>
+    <p><b>Pseudoinversa:</b> W = Ξᵀ (Ξ Ξᵀ)⁻¹ Ξ. Antes de sumar, descuenta cuánto se parece cada QR a los otros.</p>
+  </div>
+  <p class="take">Así cada QR guardado queda estable, se parezcan o no. Con QR ortogonales da lo mismo que Hebb.</p>
+  <aside class="notes">Ξ es la matriz con los cinco QR como filas, 5 por 1.369. Ξ Ξᵀ es la matriz de 5 por 5 de cuánto se parece cada QR a cada otro; su inversa es lo que descuenta el parecido. Se llama pseudoinversa porque Ξ no es cuadrada y no tiene inversa: Ξᵀ (Ξ Ξᵀ)⁻¹ es lo más parecido a una. Multiplicar por estos pesos proyecta cualquier estado sobre lo que se puede armar combinando los QR guardados; un QR guardado ya está ahí, así que no cambia. Sirve mientras los QR no sean combinación de los otros, hasta N patrones, contra unos 0,14 N de Hebb con patrones al azar. Como en Hebb, la diagonal va en cero. No está en el apunte: la usamos solo para comparar.</aside>
 </section>
 
 <section class="figure has-take">
@@ -534,7 +555,7 @@
 
 <section class="statement">
   <h2>Los cinco QR se parecen.<br>Sin lo común, menú y vinos siguen pareciéndose.</h2>
-  <p class="sub">Sacar lo común resuelve el primero. Separar el par o desaprender la mezcla, el segundo.</p>
+  <p class="sub">Sacar lo común resuelve el primero. Desaprender la mezcla, el segundo. Separar el par en dos redes solo lo pasa a quien elige la red.</p>
 </section>
 
 <!-- ===================================================================== Apéndice -->

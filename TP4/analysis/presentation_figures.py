@@ -2,7 +2,7 @@
 
 No calculan resultados nuevos: rehacen con los mismos datos y modelos lo que ya muestran los informes.
 Requiere las salidas de `analysis.som_campanas` (usa `som/cantidad_regiones.csv`) y de
-`analysis/hopfield_qr_controles.py`, `analysis/hopfield_qr_variante.py` y `analysis/hopfield_qr_mejoras.py`
+`analysis/hopfield_qr_controles.py`, `analysis/hopfield_qr_variante.py` y `analysis/hopfield_qr_dos_redes.py`
 (usa sus resúmenes en CSV), más la evidencia publicada del desaprendizaje en reports/ejercicio2/desaprendizaje/.
 
 Uso desde TP4: python3 analysis/presentation_figures.py
@@ -82,8 +82,8 @@ def qr(out):
     qr_figures.plot_stable_subsets(pd.read_csv(QR_REPORTS / 'variante' / 'subconjuntos.csv'),
                                    out / 'e2_subconjuntos.png')
     qr_figures.plot_broken_corner(patterns, out / 'e2_esquina.png')
-    qr_figures.plot_methods(pd.read_csv(QR_REPORTS / 'mejoras' / 'resumen.csv'),
-                            out / 'e2_metodos.png')
+    qr_figures.plot_two_networks(pd.read_csv(QR_REPORTS / 'dos_redes' / 'eleccion_resumen.csv', index_col='level'),
+                                 out / 'e2_dos_redes.png')
     qr_figures.plot_overlap_before_after(pd.read_csv(QR_REPORTS / 'variante' / 'solapamientos.csv'),
                                          out / 'e2_solapamiento_antes_despues.png')
     qr_figures.plot_similar_pair(pd.read_csv(QR_REPORTS / 'variante' / 'resultados.csv'),

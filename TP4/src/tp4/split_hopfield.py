@@ -1,14 +1,20 @@
 """Varias redes de Hopfield, cada una con un grupo de los patrones almacenados.
 
-La consulta pasa por todas las redes. Entre las salidas que son un patrón almacenado
-de su propia red se elige la más cercana a la consulta (distancia de Hamming); si
-ninguna red devolvió un patrón almacenado, la más cercana entre todas las salidas.
+La consulta pasa por todas las redes y hay dos formas de elegir la salida:
+
+- `'stored'`: entre las salidas que son un patrón almacenado de su propia red, la más
+  cercana a la consulta (distancia de Hamming); si ninguna red devolvió un patrón
+  almacenado, la más cercana entre todas las salidas. Usa los patrones originales.
+- `'energy'`: la de la red en la que la consulta tiene menor energía. Usa sólo los
+  pesos de cada red, no los patrones originales.
 """
-from typing import NamedTuple
+from typing import Literal, NamedTuple
 
 import numpy as np
 
 from .hopfield import Hopfield, LearningRule, StopReason
+
+Selection = Literal['stored', 'energy']
 
 
 class SplitRecall(NamedTuple):
@@ -26,10 +32,13 @@ class SplitRecall(NamedTuple):
 
 
 class SplitHopfield:
-    def __init__(self, patterns, groups, shared=None, rule: LearningRule = 'hebb'):
+    def __init__(self, patterns, groups, shared=None, rule: LearningRule = 'hebb', selection: Selection = 'stored'):
         """`groups`: índices de `patterns` que guarda cada red. Con `shared` (un
         `SharedModules`), cada red trabaja sólo con los módulos que difieren y las
-        salidas se completan con los compartidos."""
+        salidas se completan con los compartidos. `selection`: cómo se elige la salida."""
+        if selection not in ('stored', 'energy'):
+            raise ValueError(f'selección desconocida: {selection}')
+        self.selection = selection
         self.patterns_ = np.asarray(patterns, dtype=float)
         self.groups_ = [tuple(group) for group in groups]
         self._strip = shared.strip if shared is not None else np.asarray
@@ -44,5 +53,9 @@ class SplitHopfield:
             match = next((i for i in group if np.array_equal(self.patterns_[i], state)), None)
             outputs.append((state, match, index, result))
         stored = [output for output in outputs if output[1] is not None]
-        state, match, group, result = min(stored or outputs, key=lambda output: np.sum(output[0] != query))
+        if self.selection == 'energy':
+            state, match, group, result = min(outputs, key=lambda output: self.networks_[output[2]].energy(
+                self._strip(query)))
+        else:
+            state, match, group, result = min(stored or outputs, key=lambda output: np.sum(output[0] != query))
         return SplitRecall(state, match, len(stored), group, result.iterations, result.energies, result.stop_reason)

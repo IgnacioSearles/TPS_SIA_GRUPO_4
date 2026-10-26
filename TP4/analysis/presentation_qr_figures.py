@@ -164,15 +164,18 @@ def plot_broken_corner(patterns, path, origin=0):
     _save(fig, path)
 
 
-def plot_methods(summary, path):
-    """Ruido aleatorio: una red de Hebb con los cinco QR contra dos redes de Hebb."""
-    noise = summary[summary.kind == 'ruido'].pivot(index='level', columns='method', values='correct')
-    lines = {'dos_redes': ('dos redes', 'C1'), 'hebb': ('una red', 'C0')}
+def plot_two_networks(summary, path):
+    """Ruido aleatorio con dos redes de Hebb, según cómo se elige la salida, contra comparar con los
+    originales sin red."""
+    lines = {'sin_desempate': ('dos redes, sin desempate', 'C3', '-'),
+             'desempate_hamming': ('dos redes, desempate con los originales', 'C1', '-'),
+             'energia': ('dos redes, elige la energía', 'C0', '-'),
+             'hamming': ('sin red: comparar con los originales', 'gray', '--')}
     fig, ax = plt.subplots(figsize=(11, 5.5))
-    for method, (label, color) in lines.items():
-        ax.plot(noise.index, noise[method], marker='o', lw=3, color=color, label=label)
-    ax.set(xlabel='Fracción de módulos invertidos', ylabel='QR recuperado exacto', ylim=(-.03, 1.05))
-    ax.legend(loc='center left', fontsize=20)
+    for key, (label, color, linestyle) in lines.items():
+        ax.plot(summary.index, summary[key], marker='o', lw=3, color=color, linestyle=linestyle, label=label)
+    _recall_axis(ax, 'Fracción de módulos invertidos')
+    ax.legend(loc='lower left', fontsize=16)
     _save(fig, path)
 
 

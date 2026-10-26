@@ -189,13 +189,13 @@ Fuente: `reports/ejercicio2/ortogonalidad/README.md`.
 
 Fuente: `reports/ejercicio2/mejoras/README.md`.
 
-**Mensaje:** el problema tiene arreglo. Con la pseudoinversa, o sin salir de Hebb con dos redes, se recuperan los 5 QR; y con una esquina rota, como dice el enunciado, la red sí ayuda al lector.
+**Mensaje:** con la pseudoinversa se recuperan los 5 QR. Dos redes de Hebb también, pero porque el desempate entre redes compara con los originales (ver "Problema 11"). Ninguna le gana a comparar con los originales.
 
 | Método | Ruido aleatorio (correctas) | Esquina rota (correctas) | Estado |
 |---|---|---|---|
 | Hebb, 5 QR completos | 0 % siempre | 0 % siempre | Resultado principal |
 | **Pseudoinversa**, 5 QR | 100 % hasta p = 0,35; 96 % en 0,4 | 100 % hasta 25×25 (46 % del QR) | No está en el apunte: sólo comparación |
-| **Dos redes de Hebb** sin compartidos ({menú, cócteles, postres} + {vinos, especiales}) | 100 % hasta p = 0,35; 90 % en 0,4 | 100 % hasta 17×17 (21 %) | **La mejor opción dentro de lo visto en clase** |
+| **Dos redes de Hebb** sin compartidos ({menú, cócteles, postres} + {vinos, especiales}) | 100 % hasta p = 0,35; 90 % en 0,4 | 100 % hasta 17×17 (21 %) | El desempate compara con los originales: ver Problema 11 |
 | Sin red: QR original más cercano | 100 % hasta p = 0,35; 98 % en 0,4 | 100 % hasta 25×25 | Techo; no es Hopfield |
 | Lector solo, sin red | sólo con p = 0 | sólo la esquina sin cuadrado de posición, hasta 9×9 | Referencia |
 
@@ -204,12 +204,22 @@ Fuente: `reports/ejercicio2/mejoras/README.md`.
 
 ### Varias redes de Hebb, a fondo (`reports/ejercicio2/dos_redes/README.md`)
 
-**Mensaje:** repartiendo los QR en varias redes, cada QR queda estable y se recupera. La red se elige con una regla simple: la que devuelve un QR válido y, si hay varias, la más parecida a la consulta.
+**Mensaje:** repartiendo los QR en varias redes, cada QR queda estable y se recupera si la consulta llega a su red. Elegir la red es otra cosa: ver Problema 11.
 
 - **Cómo se elige:** hasta p = 0,35, en el 80 % de los casos sólo una red devuelve un QR válido. En el 20 % restante (siempre food: la otra red devuelve wine) se elige el más parecido y sale bien. 0 errores (`3_diagnostico.png`).
 - **Una red contra dos** (`c1`–`c7`): las neuronas inestables pasan de 71–225 a 0; el estado espurio del 100 % pasa a 100 % correcto hasta p = 0,35; un QR sin ruido ya no se mueve (0 iteraciones); los QR son los pozos más hondos de cada red; el lector lee el 100 %.
 - **El reparto importa con ternas:** de 67 % a 85 % con mucho ruido; juntar food y wine es lo peor. **Con 2 + 2 + 1 (QR completos, sin sacar nada) cualquier reparto anda** (90 % a 92 %), porque un par siempre es estable.
 - **Límite:** con 5 redes de un QR cada una es exactamente comparar con los originales.
+
+### Problema 11. Con dos redes, el que resuelve el par menú–vinos es el desempate, no la red
+
+Fuente: `reports/ejercicio2/dos_redes/README.md`, experimento 5 (`eleccion_resumen.csv`).
+
+- **La red de vinos le devuelve vinos a las 140 consultas de menú** con p ≤ 0,3. Las dos salidas son QR guardados, así que hay que desempatar.
+- **Sin desempate:** 80 % (menú 0 %). **Con el desempate "la más parecida a la consulta":** igual que comparar con los originales hasta p = 0,35, y nunca mejor (acierta 6 que Hamming falla, falla 25 que Hamming acierta, de 1100). O sea, el problema 2 no se resuelve: se pasa a quien elige la red, y quien elige es Hamming.
+- **Si le mandamos la consulta a la red correcta (oráculo):** 100 % hasta p = 0,35. Cada red, sola, funciona.
+- **Elegir por energía** (la red donde la consulta tiene menor energía; sólo usa los pesos): 100 % hasta p = 0,25, 99 % en 0,3, 98 % en 0,35. No mira los originales, pero con Hebb esa energía es −N/2 · Σ (solapamiento con cada QR de la red)², así que sigue midiendo parecido con los QR guardados.
+- **Conclusión:** dos redes no le agregan nada a comparar con los originales. Para el problema 2, la solución con una sola red y sin desempate es el desaprendizaje (90,5 %).
 
 ## Soluciones que quedan sin probar
 

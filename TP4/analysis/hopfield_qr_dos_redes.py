@@ -5,7 +5,9 @@
 2. Todos los repartos posibles: ¿importa cómo se agrupan los QR?
 3. Diagnóstico de la elección: cuántas redes devuelven un QR válido y si se elige bien.
 4. Tasa de recuperación por QR con el reparto elegido.
-5. Los mismos gráficos del informe principal, una red contra dos redes (c1 a c7).
+5. Quién hace el trabajo: la red o la regla que elige. Con el reparto elegido, cada
+   regla de elección contra comparar la consulta con los originales (Hamming, sin red).
+6. Los mismos gráficos del informe principal, una red contra dos redes (c1 a c7).
 
 Uso desde TP4: python3 analysis/hopfield_qr_dos_redes.py
 Salidas (regenerables, fuera de git) en reports/ejercicio2/dos_redes/.
@@ -125,6 +127,65 @@ def outcome(row):
     if row.stored_outputs == 1:
         return 'una_correcta' if row.correct else 'una_otro'
     return 'varias_bien' if row.correct else 'varias_mal'
+
+
+# Experimento 5: reglas para elegir la salida, de la que más sabe a la que menos.
+CHOICES = {
+    'hamming': ('Sin red: el original más parecido a la consulta', MUTED, '--'),
+    'oraculo': ('Dos redes, si supiéramos qué red tiene el QR', CATEGORICAL[2], ':'),
+    'desempate_hamming': ('Dos redes, desempate comparando con los originales', CATEGORICAL[1], '-'),
+    'energia': ('Dos redes, la red donde la consulta tiene menor energía', CATEGORICAL[0], '-'),
+    'sin_desempate': ('Dos redes, sólo si una sola devuelve un QR guardado', CATEGORICAL[4], '-'),
+}
+
+
+def choice_rows(patterns, shared, groups, queries):
+    """Una fila por consulta de ruido: si cada regla de elección termina en el QR correcto."""
+    split = SplitHopfield(patterns, groups, shared)
+    by_energy = SplitHopfield(patterns, groups, shared, selection='energy')
+    rows = []
+    for query in queries:
+        outputs = [split._restore(network.recall(split._strip(query.pattern), max_iterations=MAX_ITERATIONS).state)
+                   for network in split.networks_]
+        matches = [next((i for i in group if np.array_equal(patterns[i], state)), None)
+                   for group, state in zip(split.groups_, outputs)]
+        stored = [m for m in matches if m is not None]
+        own = next(index for index, group in enumerate(split.groups_) if query.origin in group)
+        rows.append({'qr': list(QRS)[query.origin], 'level': query.noise, 'seed': query.seed,
+                     'hamming': int(np.argmin(np.sum(patterns != query.pattern, axis=1))) == query.origin,
+                     'oraculo': matches[own] == query.origin,
+                     'desempate_hamming': split.recall(query.pattern, max_iterations=MAX_ITERATIONS).match == query.origin,
+                     'energia': by_energy.recall(query.pattern, max_iterations=MAX_ITERATIONS).match == query.origin,
+                     'sin_desempate': stored == [query.origin],
+                     'otra_red_devuelve_qr': matches[1 - own] is not None})
+    return pd.DataFrame(rows)
+
+
+def plot_choice(summary, path):
+    fig, ax = plt.subplots(figsize=(9, 4.6))
+    for key, (label, color, linestyle) in CHOICES.items():
+        ax.plot(summary.index, summary[key], color=color, linestyle=linestyle, linewidth=2, marker='o', markersize=5,
+                label=label)
+    ax.set_xticks(NOISE_LEVELS, [_decimal(p) for p in NOISE_LEVELS], fontsize=8)
+    ax.set(xlabel='Nivel de ruido p', ylabel='Fracción que devuelve el QR exacto', ylim=(-.03, 1.03),
+           title='Experimento 5: ¿quién hace el trabajo, la red o la regla que elige?')
+    _style(ax)
+    ax.legend(loc='lower left', frameon=False, fontsize=8)
+    _save(fig, path)
+
+
+def choice_experiment(patterns, shared, groups):
+    rows = choice_rows(patterns, shared, groups, make_queries(patterns, NOISE_LEVELS, SEEDS))
+    rows.to_csv(OUT / 'eleccion.csv', index=False)
+    summary = rows.groupby('level')[list(CHOICES) + ['otra_red_devuelve_qr']].mean()
+    summary.to_csv(OUT / 'eleccion_resumen.csv')
+    plot_choice(summary, OUT / '5_eleccion.png')
+    print(summary.round(3).to_string())
+    low = rows[rows.level <= .3]
+    print(low.groupby('qr')[list(CHOICES) + ['otra_red_devuelve_qr']].mean().round(3).to_string())
+    for key in ('desempate_hamming', 'energia'):
+        print(f'{key}: acierta y Hamming no {int((rows[key] & ~rows.hamming).sum())}, '
+              f'Hamming acierta y {key} no {int((~rows[key] & rows.hamming).sum())}, de {len(rows)}')
 
 
 # --- Gráficos --------------------------------------------------------------------
@@ -510,6 +571,7 @@ def main():
     print(diagnosis.to_string())
     plot_per_qr(chosen, OUT / '4_por_qr.png')
 
+    choice_experiment(patterns, shared, best['3+2'])
     compare_with_one_network(patterns, shared, best['3+2'])
 
 
