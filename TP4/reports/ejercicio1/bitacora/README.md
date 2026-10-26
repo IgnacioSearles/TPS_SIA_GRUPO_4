@@ -1,6 +1,8 @@
 # Bitácora de experimentos — ejercicio 1
 
-Actualización: **21/10/2026**. Esta bitácora registra qué probamos, qué evidencia tenemos y qué decisiones siguen abiertas. Los resultados son sobre 50 creadores; las semillas cambian inicialización y orden de entrenamiento, no constituyen nuevas muestras del catálogo.
+Actualización: **26/10/2026**. Esta bitácora registra qué probamos, qué evidencia tenemos y qué decisiones siguen abiertas. Los resultados son sobre 50 creadores; las semillas cambian inicialización y orden de entrenamiento, no constituyen nuevas muestras del catálogo.
+
+Aclaración del grupo (22/10): las corridas también se realizaron fuera de esta copia y se usaron resultados de un compañero. Los informes subidos son la referencia histórica; la ausencia local de pesos o resultados individuales no demuestra que una prueba no se haya realizado. El inventario CSV refleja únicamente archivos disponibles en su fecha de corte.
 
 ## Estado de la evidencia
 
@@ -16,7 +18,39 @@ Actualización: **21/10/2026**. Esta bitácora registra qué probamos, qué evid
 | Aprendizaje y radio (4×4) | **840/840 completas, sin fallos** | Se confirman tasa 0,3 → 0,01 y radio gaussiano 2 → 0,5 |
 | Modelo de interpretación 4×4 y regiones | 5 semillas | 5 regiones estables (ARI 0,79); selección para campañas |
 | Oja | 4 tasas × 5 semillas | η = 0,001; el índice es PC1 |
-| Resto de etapas | Configuradas; sin ejecución registrada | Duración, early stopping, orden e interacciones pendientes |
+| Resto de etapas | Configuradas; sin salidas individuales disponibles aquí | No se puede reconstruir su ejecución a partir de esta copia |
+
+## 26/10 — Uniforme frente a gaussiana, con presentación intacta
+
+Primero se completaron **1.260 modelos nuevos**, más dos referencias uniformes, repitiendo finalistas, 100 submuestras y augmentation. Se verificaron y reutilizaron 630 controles gaussianos. Uniforme 2 → 0,5 redujo QE de entrenamiento y empeoró topología y QE de excluidos; uniforme 2 → 1 mejoró TE con más QE. Ninguna intensidad de augmentation pasó todos los criterios. [Informe de la tanda uniforme](../uniforme_20261026/README.md).
+
+Después se ejecutó un versus equilibrado: **1.800 calibraciones y 90 confirmaciones**. Cada familia recibió diez candidatos (cinco radios/calendarios × dos tasas), con tres repeticiones de cinco particiones externas. Los diez externos de cada bloque quedaron fuera de escalado y elección de parámetros. Se congeló la selección antes de confirmar.
+
+**QE externo medio casi igual:** gaussiana 3,7281, uniforme 3,7307. Uniforme tuvo menor TE externo (24,89 % frente a 34,67 %); gaussiana mayor ARI regional entre semillas (0,760 frente a 0,681). Cada familia tuvo un bloque sin candidato interno apto; el fallback se informó explícitamente. No hay una ganadora universal ni se hizo una prueba formal de equivalencia.
+
+Los radios constantes sí estaban probados históricamente (20 configuraciones × cinco semillas). En el nuevo versus se eligieron constantes en 8/15 bloques de uniforme y 4/15 de gaussiana, incluyendo un fallback en cada una. [Versus completo, protocolo y figuras](../versus_vecindades_20261026/README.md).
+
+Pasaron 124 tests. Se verificaron tareas, presupuestos, semillas, cobertura por creador, hashes y elecciones congeladas. No se guardaron pesos ni se modificó ningún archivo de `presentation/`; no hubo push ni cambio automático del modelo final. Después se agregaron a la presentación la diapositiva 14 y el apéndice 74–75, sin cambiar el modelo ni quitar diapositivas.
+
+## 22/10 — Augmentation local en Kohonen
+
+Se probaron interpolaciones hacia vecinos del mismo tema con intensidades máximas 0; 0,05; 0,15 y 0,30: **240/240 entrenamientos completos**, más una referencia. Se usaron 20 particiones 40/50 y tres semillas por partición, con 40.000 actualizaciones por modelo y escalador y vecinos calculados solo en entrenamiento. No se guardaron redes ni copias sintéticas.
+
+Las mejoras medias de QE en los diez perfiles excluidos fueron 0,002 %, 0,680 % y 1,053 %, con mejoras en 11/20, 14/20 y 12/20 particiones, respectivamente. Ningún nivel cumplió simultáneamente la reducción mínima de 1 %, frecuencia mínima de 70 % y tolerancias de TE y arte fijadas antes del entrenamiento. **Se conserva el modelo actual y no se habilita la etapa de confirmación.** El nivel 0,30 duplicó los casos de arte con menos de tres candidatos (7/60 a 14/60), aunque también conservó el trío completo en más corridas. La conclusión se limita a esta familia de augmentation y este catálogo.
+
+Detalle, figura, protocolo y reproducción: [augmentation en Kohonen](../augmentation_20261022/README.md). Pasaron 112 tests. Los cambios y resultados permanecen locales, sin push.
+
+## 22/10 — Confirmación con semillas nuevas, submuestras y extremos
+
+Se completaron **460/460 corridas sin fallos**, más una referencia: 90 SOM de finalistas (30 semillas nuevas por candidato), 300 SOM de submuestras (100 grupos de 40/50 creadores × tres semillas), 30 Oja con tasas y semillas nuevas y 40 Oja retirando perfiles con más seguidores. No se guardaron pesos. El manifiesto identifica tareas, semillas y hashes antes del entrenamiento; el consolidado comprueba su correspondencia exacta.
+
+Se mantiene el **4×4 rectangular**: QE medio 2,789 frente a 2,852 y 2,849 de las alternativas hexagonales. Su ARI entre semillas nuevas es 0,811. Las hexagonales tienen menor TE con su propia adyacencia y algo más de estabilidad, pero no dominan todos los criterios.
+
+El remuestreo muestra sensibilidad al catálogo: ARI medio contra referencia 0,608, mientras entre semillas de una misma submuestra es 0,821. Arte conserva el trío de candidatos en 18,3 % de las corridas de submuestras, frente a 88,3 % en perros. Esta estabilidad es descriptiva y alinea etiquetas contra la referencia: no mide ventas ni validación comercial independiente.
+
+Oja converge con las tres tasas probadas y se mantiene **η₀ = 0,001** por llegar antes a los umbrales. Quitar los uno o tres perfiles con más seguidores cambia poco la dirección y los rankings; no cubre todos los tipos de atípicos. Augmentation queda propuesto como ensayo secundario, sin ejecutarlo ni atribuirle mejoras.
+
+Detalle y reproducción: [confirmación del ejercicio 1](../confirmacion_20261022/README.md). Los 107 tests del TP4 pasaron. Estos resultados quedaron locales, sin push.
 
 ## 21/10 — Tasa de aprendizaje y radio
 

@@ -1,0 +1,438 @@
+{
+  "uniform_matched": {
+    "config": {
+      "seed": 0,
+      "epochs": 1000,
+      "shuffle": true,
+      "learning_rate_start": 0.3,
+      "learning_rate_end": 0.01,
+      "decay": "exponential",
+      "early_stopping": {
+        "enabled": false,
+        "min_delta": 1e-06,
+        "patience": 20,
+        "min_epochs": 30
+      },
+      "rows": 4,
+      "cols": 4,
+      "topology": "rectangular",
+      "neighborhood": "uniform",
+      "initialization": "samples",
+      "radius_start": 2.0,
+      "radius_end": 0.5,
+      "radius_decay": "exponential",
+      "schedule_epochs": 500
+    },
+    "profiles": [
+      {
+        "aligned_region": "R1",
+        "creators": 14,
+        "topics": {
+          "football": 3,
+          "makeup": 2,
+          "dogs": 9,
+          "art": 0
+        },
+        "followers_median": 28599.5,
+        "argentina_audience_pct_median": 54.8,
+        "tutorial_pct_median": 45.955,
+        "cpm_arg_median": 45.65650257643416
+      },
+      {
+        "aligned_region": "R2",
+        "creators": 1,
+        "topics": {
+          "football": 1,
+          "makeup": 0,
+          "dogs": 0,
+          "art": 0
+        },
+        "followers_median": 198136.0,
+        "argentina_audience_pct_median": 89.37,
+        "tutorial_pct_median": 32.33,
+        "cpm_arg_median": 18.260575380914194
+      },
+      {
+        "aligned_region": "R3",
+        "creators": 14,
+        "topics": {
+          "football": 3,
+          "makeup": 0,
+          "dogs": 1,
+          "art": 10
+        },
+        "followers_median": 106752.5,
+        "argentina_audience_pct_median": 42.75,
+        "tutorial_pct_median": 30.515,
+        "cpm_arg_median": 49.78244836081528
+      },
+      {
+        "aligned_region": "R4",
+        "creators": 6,
+        "topics": {
+          "football": 0,
+          "makeup": 5,
+          "dogs": 1,
+          "art": 0
+        },
+        "followers_median": 342985.0,
+        "argentina_audience_pct_median": 38.785,
+        "tutorial_pct_median": 5.055,
+        "cpm_arg_median": 43.42968172745664
+      },
+      {
+        "aligned_region": "R5",
+        "creators": 15,
+        "topics": {
+          "football": 8,
+          "makeup": 4,
+          "dogs": 2,
+          "art": 1
+        },
+        "followers_median": 381324.0,
+        "argentina_audience_pct_median": 59.81,
+        "tutorial_pct_median": 9.92,
+        "cpm_arg_median": 35.114991133542496
+      }
+    ],
+    "u_matrix": [
+      [
+        3.072146252387779,
+        3.389382424477193,
+        4.681336011043971,
+        4.105558867263653
+      ],
+      [
+        3.1972785202581426,
+        4.868493276863912,
+        5.094790122907746,
+        3.7640980110206996
+      ],
+      [
+        3.2950122548123866,
+        5.224832050919386,
+        4.1505501647381475,
+        3.6889305624000905
+      ],
+      [
+        2.9868932532362185,
+        3.9730839103696547,
+        3.1248334103377444,
+        3.151805427901923
+      ]
+    ],
+    "train_metrics": {
+      "quantization_error": 2.6689001190865143,
+      "topographic_error": 0.24
+    },
+    "ari_reference": 0.5380728525101184,
+    "labels": [
+      2,
+      2,
+      0,
+      3,
+      2,
+      2,
+      2,
+      3,
+      4,
+      2,
+      2,
+      3,
+      3,
+      0,
+      0,
+      3,
+      2,
+      0,
+      0,
+      3,
+      2,
+      1,
+      0,
+      3,
+      0,
+      3,
+      0,
+      0,
+      3,
+      2,
+      0,
+      1,
+      0,
+      2,
+      0,
+      2,
+      0,
+      1,
+      1,
+      2,
+      2,
+      1,
+      0,
+      3,
+      2,
+      1,
+      3,
+      3,
+      3,
+      3
+    ],
+    "selections": {
+      "football": [
+        20,
+        4,
+        29
+      ],
+      "makeup": [
+        9,
+        45,
+        0
+      ],
+      "dogs": [
+        2,
+        42,
+        14
+      ],
+      "art": [
+        15,
+        25,
+        43
+      ]
+    },
+    "selection_overlap": {
+      "football": 1.0,
+      "makeup": 1.0,
+      "dogs": 1.0,
+      "art": 0.6666666666666666
+    },
+    "selection_sizes": {
+      "football": 3,
+      "makeup": 3,
+      "dogs": 3,
+      "art": 3
+    },
+    "occupied_neurons": 15,
+    "occupied_regions": 5,
+    "epochs": 1000,
+    "updates": 50000
+  },
+  "uniform_neighbors": {
+    "config": {
+      "seed": 0,
+      "epochs": 1000,
+      "shuffle": true,
+      "learning_rate_start": 0.3,
+      "learning_rate_end": 0.01,
+      "decay": "exponential",
+      "early_stopping": {
+        "enabled": false,
+        "min_delta": 1e-06,
+        "patience": 20,
+        "min_epochs": 30
+      },
+      "rows": 4,
+      "cols": 4,
+      "topology": "rectangular",
+      "neighborhood": "uniform",
+      "initialization": "samples",
+      "radius_start": 2.0,
+      "radius_end": 1.0,
+      "radius_decay": "exponential",
+      "schedule_epochs": 500
+    },
+    "profiles": [
+      {
+        "aligned_region": "R1",
+        "creators": 9,
+        "topics": {
+          "football": 0,
+          "makeup": 0,
+          "dogs": 9,
+          "art": 0
+        },
+        "followers_median": 33338.0,
+        "argentina_audience_pct_median": 66.45,
+        "tutorial_pct_median": 49.45,
+        "cpm_arg_median": 42.43712772998014
+      },
+      {
+        "aligned_region": "R2",
+        "creators": 9,
+        "topics": {
+          "football": 6,
+          "makeup": 2,
+          "dogs": 0,
+          "art": 1
+        },
+        "followers_median": 28181.0,
+        "argentina_audience_pct_median": 43.4,
+        "tutorial_pct_median": 40.91,
+        "cpm_arg_median": 46.997437357630986
+      },
+      {
+        "aligned_region": "R3",
+        "creators": 11,
+        "topics": {
+          "football": 1,
+          "makeup": 0,
+          "dogs": 1,
+          "art": 9
+        },
+        "followers_median": 211937.0,
+        "argentina_audience_pct_median": 46.42,
+        "tutorial_pct_median": 30.05,
+        "cpm_arg_median": 43.859511343804535
+      },
+      {
+        "aligned_region": "R4",
+        "creators": 8,
+        "topics": {
+          "football": 1,
+          "makeup": 5,
+          "dogs": 2,
+          "art": 0
+        },
+        "followers_median": 254515.5,
+        "argentina_audience_pct_median": 43.394999999999996,
+        "tutorial_pct_median": 11.215,
+        "cpm_arg_median": 43.42968172745664
+      },
+      {
+        "aligned_region": "R5",
+        "creators": 13,
+        "topics": {
+          "football": 7,
+          "makeup": 4,
+          "dogs": 1,
+          "art": 1
+        },
+        "followers_median": 461892.0,
+        "argentina_audience_pct_median": 68.3,
+        "tutorial_pct_median": 8.69,
+        "cpm_arg_median": 33.25704202339716
+      }
+    ],
+    "u_matrix": [
+      [
+        1.581561616855911,
+        1.8676067651366042,
+        3.1216903638081654,
+        2.4366394067132346
+      ],
+      [
+        1.6716133624515324,
+        3.111339570143534,
+        3.105049148041245,
+        2.2097183244911065
+      ],
+      [
+        2.366882883418983,
+        2.947101086816281,
+        2.3276067270629826,
+        2.2445994206760287
+      ],
+      [
+        1.7088379345938565,
+        1.9855456527184165,
+        2.8294754501522816,
+        2.1845102607228624
+      ]
+    ],
+    "train_metrics": {
+      "quantization_error": 3.1851357693831175,
+      "topographic_error": 0.0
+    },
+    "ari_reference": 0.7788561554927059,
+    "labels": [
+      4,
+      4,
+      0,
+      3,
+      4,
+      4,
+      1,
+      3,
+      3,
+      4,
+      4,
+      3,
+      2,
+      2,
+      0,
+      3,
+      4,
+      0,
+      0,
+      2,
+      4,
+      1,
+      0,
+      3,
+      2,
+      3,
+      2,
+      0,
+      3,
+      4,
+      0,
+      1,
+      2,
+      4,
+      0,
+      4,
+      2,
+      1,
+      1,
+      4,
+      1,
+      1,
+      0,
+      2,
+      4,
+      1,
+      3,
+      3,
+      3,
+      2
+    ],
+    "selections": {
+      "football": [
+        20,
+        4,
+        29
+      ],
+      "makeup": [
+        9,
+        45,
+        0
+      ],
+      "dogs": [
+        2,
+        42,
+        14
+      ],
+      "art": [
+        15,
+        25,
+        23
+      ]
+    },
+    "selection_overlap": {
+      "football": 1.0,
+      "makeup": 1.0,
+      "dogs": 1.0,
+      "art": 1.0
+    },
+    "selection_sizes": {
+      "football": 3,
+      "makeup": 3,
+      "dogs": 3,
+      "art": 3
+    },
+    "occupied_neurons": 15,
+    "occupied_regions": 5,
+    "epochs": 1000,
+    "updates": 50000
+  }
+}

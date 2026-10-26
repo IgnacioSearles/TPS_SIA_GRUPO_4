@@ -266,3 +266,21 @@ Implementación y experimento reproducible de desaprendizaje antihebbiano sobre 
 ```bash
 OPENBLAS_NUM_THREADS=1 python3 analysis/hopfield_qr_unlearning.py --config configs/hopfield_unlearning_smoke.json
 ```
+
+## Comparación de vecindades de Kohonen (26/10)
+
+Las nuevas configuraciones individuales son `configs/kohonen_uniform_matched.json` (radio 2 → 0,5) y `configs/kohonen_uniform_neighbors.json` (2 → 1). Conservan el modelo gaussiano existente como referencia.
+
+- [Repetición de finalistas, submuestras y augmentation](reports/ejercicio1/uniforme_20261026/README.md): 1.260 modelos nuevos frente a controles gaussianos verificados.
+- [Versus con calibración equilibrada y confirmación anidada](reports/ejercicio1/versus_vecindades_20261026/README.md): 1.800 calibraciones y 90 confirmaciones; incluye radios constantes.
+
+Desde TP4, con directorios de salida nuevos:
+
+```bash
+OPENBLAS_NUM_THREADS=1 python3 -m analysis.kohonen_uniform_experiments --output /tmp/uniformes --workers 6
+OPENBLAS_NUM_THREADS=1 python3 -m analysis.summarize_kohonen_uniform /tmp/uniformes
+OPENBLAS_NUM_THREADS=1 python3 -m analysis.kohonen_neighborhood_versus --output /tmp/versus --workers 6
+OPENBLAS_NUM_THREADS=1 python3 -m analysis.summarize_neighborhood_versus /tmp/versus
+```
+
+El primer experimento verifica y reutiliza las métricas gaussianas previas; el segundo ejecuta su propia calibración. Ambos permiten `--resume` y conservan solo métricas y asignaciones, sin pesos. La presentación no se modifica y sus hashes se comprueban. Después se incorporaron a la presentación: diapositiva 14 y apéndice 74–75 ([guía](presentation/experimentos_kohonen_vecindades.md)).

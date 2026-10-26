@@ -116,7 +116,14 @@
   <h2>4×4: con 50 creadores, un mapa más grande se vacía</h2>
   <figure><img src="assets/reports__presentacion__e1_ocupacion.png" alt="Creadores por neurona en 4×4 y 5×5"></figure>
   <p class="take">4×4 además repite los mismos grupos entre semillas: ARI 0,83–0,91, contra 0,67–0,74 en 5×5.</p>
-  <aside class="notes">Probamos 1.500 configuraciones: tamaño y forma, topología, inicialización, tasa de aprendizaje y radio. Un mapa más grande siempre baja el error de cuantización, pero con 50 creadores cada neurona termina describiendo a una persona y no a un perfil. Modelo final: rectangular, inicialización con muestras, vecindad gaussiana, tasa de 0,3 a 0,01 y radio de 2 a 0,5, con decaimiento exponencial, 1.000 épocas. QE 2,78, error topográfico 0,06. Las configuraciones con menor QE no tienen vecindad efectiva: agrupan sin formar un mapa. Los barridos están en el apéndice.</aside>
+  <aside class="notes">Probamos 1.500 configuraciones: tamaño y forma, topología, inicialización, tasa de aprendizaje y radio. Un mapa más grande siempre baja el error de cuantización, pero con 50 creadores cada neurona termina describiendo a una persona y no a un perfil. Modelo final: rectangular, inicialización con muestras, vecindad gaussiana, tasa de 0,3 a 0,01 y radio de 2 a 0,5, con decaimiento exponencial, 1.000 épocas. QE 2,78, error topográfico 0,06. Las configuraciones con menor QE no tienen vecindad efectiva: agrupan sin formar un mapa. Los barridos están en el apéndice. Por qué gaussiana y no uniforme: diapositiva siguiente.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Gaussiana o uniforme: mismo error, distinto mapa</h2>
+  <figure><img src="assets/reports__ejercicio1__versus_vecindades_20261026__versus_externo.png" alt="QE y TE externos de gaussiana y uniforme calibradas, y diferencia de QE por partición"></figure>
+  <p class="take">Error en creadores no vistos: <em>3,73</em> en las dos. Uniforme ordena mejor el mapa; gaussiana repite mejor las regiones.</p>
+  <aside class="notes">Calibramos las dos con el mismo presupuesto: diez candidatos cada una, cinco radios por dos tasas iniciales. En 15 particiones dejamos diez creadores afuera de todo: escalado, entrenamiento y elección de parámetros. El QE de esos excluidos da 3,728 con gaussiana y 3,731 con uniforme, y la diferencia cambia de signo: uniforme gana en 8 de 15 particiones. Uniforme tiene menos error topográfico, 25 % contra 35 %, y gana en 10 de 15. Gaussiana da regiones más repetibles entre semillas: ARI 0,76 contra 0,68. Nos quedamos con gaussiana porque las campañas se apoyan en las regiones. Ojo: el mismo radio no significa lo mismo. Con uniforme, radio menor a 1 actualiza solo a la ganadora; con 2 a 0,5 eso pasa desde la época 251. Con gaussiana de ancho 0,5 una vecina todavía recibe 0,135. Por eso uniforme prefirió terminar en 1 o radio constante. No hay prueba formal de equivalencia: son 50 creadores y las particiones se superponen.</aside>
 </section>
 
 <section class="side">
@@ -577,6 +584,14 @@
 <section class="figure"><h2>Barrido de geometría del mapa</h2><figure><img src="assets/reports__ejercicio1__geometria_kohonen__comparacion.png" alt="Comparación de geometrías"></figure></section>
 
 <section class="figure"><h2>Barrido de tasa de aprendizaje y radio</h2><figure><img src="assets/reports__ejercicio1__aprendizaje_vecindad_kohonen__comparacion.png" alt="Comparación de tasa y radio"></figure></section>
+
+<section class="figure"><h2>Vecindad uniforme con las mismas semillas y datos</h2><figure><img src="assets/reports__ejercicio1__uniforme_20261026__comparacion.png" alt="QE, TE, submuestras y augmentation de gaussiana y dos uniformes"></figure>
+  <aside class="notes">Mismas semillas, datos y actualizaciones que la gaussiana; solo cambia la vecindad. Uniforme 2 a 0,5 baja el QE de entrenamiento (2,65 contra 2,79), pero sube el error topográfico a 24 % y empeora en los creadores excluidos de 100 submuestras. Uniforme 2 a 1 ordena casi perfecto (TE 2,5 %) a cambio de más QE (3,18). Augmentation no pasó los criterios en ninguna de las tres. 1.260 entrenamientos nuevos.</aside>
+</section>
+
+<section class="figure"><h2>Qué radio eligió cada vecindad al calibrar</h2><figure><img src="assets/reports__ejercicio1__versus_vecindades_20261026__selecciones.png" alt="Cantidad de particiones en que se eligió cada radio y tasa, por vecindad"></figure>
+  <aside class="notes">Cada número es en cuántas de las 15 particiones ganó ese candidato, sin mirar la prueba externa. Gaussiana eligió casi siempre 2 a 0,5, nuestro modelo. Uniforme nunca: prefirió terminar en 1 o radio constante 1. Radio constante ganó en 8 de 15 con uniforme y 4 de 15 con gaussiana, así que no es siempre malo. El barrido histórico ya tenía constantes 0,5 a 8 con cinco semillas.</aside>
+</section>
 
 <section class="figure"><h2>Representaciones de entrada para Kohonen</h2><figure><img src="assets/reports__ejercicio1__representacion_kohonen__comparacion.png" alt="Comparación de representaciones"></figure></section>
 

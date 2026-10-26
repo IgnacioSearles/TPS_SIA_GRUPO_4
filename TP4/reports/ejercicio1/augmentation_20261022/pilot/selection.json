@@ -1,0 +1,13 @@
+{
+  "stage": "pilot",
+  "selected_strength": null,
+  "decision": "keep_baseline",
+  "criteria": {
+    "min_relative_qe_improvement": 0.01,
+    "min_split_win_fraction": 0.7,
+    "max_te_increase": 0.02,
+    "max_art_overlap_decrease": 0.02
+  },
+  "data_sha256": "f86ab396e86c242801a4cd9e3dea14903695446e52f7ef4cb55fbc30bf03e86d",
+  "note": "Los cuantiles describen 20 particiones superpuestas de este catálogo; no una población nueva."
+}

@@ -1,0 +1,9 @@
+{
+  "python": "3.12.3",
+  "numpy": "2.4.6",
+  "pandas": "3.0.3",
+  "system": "Linux",
+  "machine": "x86_64",
+  "workers": 6,
+  "openblas_threads": "1"
+}

@@ -7,6 +7,10 @@
 | 1.2 Kohonen: interpretación | [Regiones, matriz U y campañas](som/README.md); [comparación con entradas PCA](som_pca/README.md) |
 | 1.3 Índice de Oja | [Índice](oja/README.md) |
 | 1.4 Decisiones | [Decisiones para las campañas](campanas/README.md); análisis por criterio en [Campañas](#campañas) |
+| Confirmación 22/10 | [30 semillas por finalista, 100 submuestras y Oja con controles de extremos](confirmacion_20261022/README.md): 460 corridas nuevas |
+| Augmentation 22/10 | [Interpolaciones locales en Kohonen](augmentation_20261022/README.md): 240 entrenamientos; se conserva el modelo sin augmentation |
+| Vecindad uniforme 26/10 | [Dos variantes y repetición de experimentos](uniforme_20261026/README.md): 1.260 entrenamientos nuevos |
+| Versus robusto 26/10 | [Calibración equilibrada y confirmación externa](versus_vecindades_20261026/README.md): 1.890 entrenamientos; incluye radios constantes |
 
 ## Reproducción
 

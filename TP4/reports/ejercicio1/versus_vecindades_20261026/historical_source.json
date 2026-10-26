@@ -1,0 +1,7 @@
+{
+  "source": "reports/ejercicio1/aprendizaje_vecindad_kohonen/vecindad.csv",
+  "sha256": "dcdc81b9b0afd48a8d6399118ebd2bf57cbe4e5de141bc222199bc98ca1f8e9b",
+  "configurations": 20,
+  "reported_seeds": 100,
+  "note": "Resumen hist\u00f3rico publicado; no se mezcla con la confirmaci\u00f3n externa nueva."
+}

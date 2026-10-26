@@ -1,0 +1,236 @@
+{
+  "fits": 240,
+  "conditions": [
+    {
+      "strength": 0.0,
+      "fits": 60,
+      "split_count": 20,
+      "train_qe": 2.6725737714892404,
+      "excluded_qe": 3.666238092794881,
+      "excluded_te": 0.295,
+      "train_te": 0.13583333333333333,
+      "ari_reference": 0.5627797011826239,
+      "ari_between_seeds": 0.8738398704013403,
+      "ari_paired_baseline": 1.0,
+      "mean_displacement_z": 0.0,
+      "mean_qe_difference": 0.0,
+      "qe_difference_p05": 0.0,
+      "qe_difference_p95": 0.0,
+      "relative_qe_improvement": 0.0,
+      "split_win_fraction": 0.0,
+      "mean_te_difference": 0.0,
+      "mean_art_overlap": 0.6111111111111109,
+      "mean_art_overlap_difference": 0.0,
+      "passes_qe": false,
+      "passes_wins": false,
+      "passes_te": true,
+      "passes_art": true,
+      "eligible": false
+    },
+    {
+      "strength": 0.05,
+      "fits": 60,
+      "split_count": 20,
+      "train_qe": 2.6602609581548533,
+      "excluded_qe": 3.6661491860542283,
+      "excluded_te": 0.30500000000000005,
+      "train_te": 0.12250000000000001,
+      "ari_reference": 0.5980101211696132,
+      "ari_between_seeds": 0.850525574161919,
+      "ari_paired_baseline": 0.8778621562126803,
+      "mean_displacement_z": 0.05639013714346269,
+      "mean_qe_difference": -8.890674065283529e-05,
+      "qe_difference_p05": -0.03870572048653936,
+      "qe_difference_p95": 0.031342738623658245,
+      "relative_qe_improvement": 2.4250127351854722e-05,
+      "split_win_fraction": 0.55,
+      "mean_te_difference": 0.010000000000000007,
+      "mean_art_overlap": 0.6333333333333333,
+      "mean_art_overlap_difference": 0.02222222222222222,
+      "passes_qe": false,
+      "passes_wins": false,
+      "passes_te": true,
+      "passes_art": true,
+      "eligible": false
+    },
+    {
+      "strength": 0.15,
+      "fits": 60,
+      "split_count": 20,
+      "train_qe": 2.6401309524383656,
+      "excluded_qe": 3.6412977011033085,
+      "excluded_te": 0.25333333333333335,
+      "train_te": 0.13083333333333333,
+      "ari_reference": 0.6038007298946357,
+      "ari_between_seeds": 0.821888895928766,
+      "ari_paired_baseline": 0.7630567722735717,
+      "mean_displacement_z": 0.16917041143038805,
+      "mean_qe_difference": -0.02494039169157283,
+      "qe_difference_p05": -0.08648671194860162,
+      "qe_difference_p95": 0.04479500755516648,
+      "relative_qe_improvement": 0.006802720134457929,
+      "split_win_fraction": 0.7,
+      "mean_te_difference": -0.041666666666666664,
+      "mean_art_overlap": 0.5944444444444443,
+      "mean_art_overlap_difference": -0.01666666666666667,
+      "passes_qe": false,
+      "passes_wins": true,
+      "passes_te": true,
+      "passes_art": true,
+      "eligible": false
+    },
+    {
+      "strength": 0.3,
+      "fits": 60,
+      "split_count": 20,
+      "train_qe": 2.625898889042716,
+      "excluded_qe": 3.627649061441134,
+      "excluded_te": 0.27666666666666667,
+      "train_te": 0.13000000000000003,
+      "ari_reference": 0.5781613992963226,
+      "ari_between_seeds": 0.8597429817281036,
+      "ari_paired_baseline": 0.6953501993460834,
+      "mean_displacement_z": 0.3383408228607761,
+      "mean_qe_difference": -0.03858903135374728,
+      "qe_difference_p05": -0.1380463245347629,
+      "qe_difference_p95": 0.05046420442660775,
+      "relative_qe_improvement": 0.010525511539903776,
+      "split_win_fraction": 0.6,
+      "mean_te_difference": -0.018333333333333333,
+      "mean_art_overlap": 0.6,
+      "mean_art_overlap_difference": -0.01111111111111111,
+      "passes_qe": true,
+      "passes_wins": false,
+      "passes_te": true,
+      "passes_art": true,
+      "eligible": false
+    }
+  ],
+  "campaigns": [
+    {
+      "strength": 0.0,
+      "topic": "football",
+      "mean_overlap": 0.8833333333333331,
+      "all_three_fraction": 0.65,
+      "fewer_than_three_fraction": 0.0
+    },
+    {
+      "strength": 0.0,
+      "topic": "makeup",
+      "mean_overlap": 0.8777777777777778,
+      "all_three_fraction": 0.6333333333333333,
+      "fewer_than_three_fraction": 0.0
+    },
+    {
+      "strength": 0.0,
+      "topic": "dogs",
+      "mean_overlap": 0.95,
+      "all_three_fraction": 0.8833333333333333,
+      "fewer_than_three_fraction": 0.016666666666666666
+    },
+    {
+      "strength": 0.0,
+      "topic": "art",
+      "mean_overlap": 0.6111111111111109,
+      "all_three_fraction": 0.16666666666666666,
+      "fewer_than_three_fraction": 0.11666666666666667
+    },
+    {
+      "strength": 0.05,
+      "topic": "football",
+      "mean_overlap": 0.872222222222222,
+      "all_three_fraction": 0.6166666666666667,
+      "fewer_than_three_fraction": 0.0
+    },
+    {
+      "strength": 0.05,
+      "topic": "makeup",
+      "mean_overlap": 0.9055555555555553,
+      "all_three_fraction": 0.7166666666666667,
+      "fewer_than_three_fraction": 0.0
+    },
+    {
+      "strength": 0.05,
+      "topic": "dogs",
+      "mean_overlap": 0.9611111111111111,
+      "all_three_fraction": 0.9166666666666666,
+      "fewer_than_three_fraction": 0.016666666666666666
+    },
+    {
+      "strength": 0.05,
+      "topic": "art",
+      "mean_overlap": 0.6333333333333331,
+      "all_three_fraction": 0.21666666666666667,
+      "fewer_than_three_fraction": 0.11666666666666667
+    },
+    {
+      "strength": 0.15,
+      "topic": "football",
+      "mean_overlap": 0.8777777777777777,
+      "all_three_fraction": 0.6333333333333333,
+      "fewer_than_three_fraction": 0.0
+    },
+    {
+      "strength": 0.15,
+      "topic": "makeup",
+      "mean_overlap": 0.8888888888888888,
+      "all_three_fraction": 0.6833333333333333,
+      "fewer_than_three_fraction": 0.0
+    },
+    {
+      "strength": 0.15,
+      "topic": "dogs",
+      "mean_overlap": 0.9111111111111111,
+      "all_three_fraction": 0.8666666666666667,
+      "fewer_than_three_fraction": 0.05
+    },
+    {
+      "strength": 0.15,
+      "topic": "art",
+      "mean_overlap": 0.5944444444444443,
+      "all_three_fraction": 0.18333333333333332,
+      "fewer_than_three_fraction": 0.18333333333333332
+    },
+    {
+      "strength": 0.3,
+      "topic": "football",
+      "mean_overlap": 0.8999999999999999,
+      "all_three_fraction": 0.7,
+      "fewer_than_three_fraction": 0.0
+    },
+    {
+      "strength": 0.3,
+      "topic": "makeup",
+      "mean_overlap": 0.872222222222222,
+      "all_three_fraction": 0.6666666666666666,
+      "fewer_than_three_fraction": 0.0
+    },
+    {
+      "strength": 0.3,
+      "topic": "dogs",
+      "mean_overlap": 0.9055555555555554,
+      "all_three_fraction": 0.8833333333333333,
+      "fewer_than_three_fraction": 0.08333333333333333
+    },
+    {
+      "strength": 0.3,
+      "topic": "art",
+      "mean_overlap": 0.5999999999999999,
+      "all_three_fraction": 0.25,
+      "fewer_than_three_fraction": 0.23333333333333334
+    }
+  ],
+  "selection": {
+    "stage": "pilot",
+    "selected_strength": null,
+    "decision": "keep_baseline",
+    "criteria": {
+      "min_relative_qe_improvement": 0.01,
+      "min_split_win_fraction": 0.7,
+      "max_te_increase": 0.02,
+      "max_art_overlap_decrease": 0.02
+    },
+    "data_sha256": "f86ab396e86c242801a4cd9e3dea14903695446e52f7ef4cb55fbc30bf03e86d",
+    "note": "Los cuantiles describen 20 particiones superpuestas de este catálogo; no una población nueva."
+  }
+}

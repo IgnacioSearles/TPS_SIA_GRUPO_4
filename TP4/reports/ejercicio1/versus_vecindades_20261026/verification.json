@@ -1,0 +1,13 @@
+{
+  "data_hash_matches": true,
+  "source_hashes_match": true,
+  "presentation_unchanged_from_first_experiment": true,
+  "weights_saved": false,
+  "project_tests_passed": 124,
+  "figures_visually_checked": true,
+  "completed_fits": 1890,
+  "additional_sources": {
+    "analysis/summarize_neighborhood_versus.py": "0aef26145ae4fa98504723bf3f88f8079c9fa96c2a8af1bca896005850e8214a",
+    "tests/test_neighborhood_versus.py": "820a93d46bfacb39e27f009f695025b76250cd4da02cd58b6c578564335eba26"
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "calibration_fits": 1800,
+  "confirmation_fits": 90,
+  "models": [
+    {
+      "family": "gaussian",
+      "models": 45,
+      "outer_blocks": 15,
+      "train_qe": 2.8773301839486085,
+      "test_qe": 3.7280765119389043,
+      "train_te": 0.13333333333333333,
+      "test_te": 0.3466666666666666,
+      "empty_fraction": 0.1013888888888889,
+      "region_ari": 0.7599353155159022,
+      "fallback_blocks": 1
+    },
+    {
+      "family": "uniform",
+      "models": 45,
+      "outer_blocks": 15,
+      "train_qe": 3.170178135545142,
+      "test_qe": 3.7307226822525674,
+      "train_te": 0.07388888888888889,
+      "test_te": 0.24888888888888885,
+      "empty_fraction": 0.05694444444444444,
+      "region_ari": 0.6814147101809446,
+      "fallback_blocks": 1
+    }
+  ],
+  "paired": {
+    "qe_difference_uniform_minus_gaussian": 0.0026461703136627436,
+    "qe_difference_p05": -0.12857030004908826,
+    "qe_difference_p95": 0.14724448478405947,
+    "uniform_wins_outer_qe": 8,
+    "outer_blocks": 15,
+    "te_difference_uniform_minus_gaussian": -0.09777777777777777,
+    "uniform_wins_outer_te": 10,
+    "uniform_wins_creators_qe": 31,
+    "creator_count": 50,
+    "relative_qe_change": 0.0007097950659511864,
+    "both_families_eligible_blocks": 13,
+    "qe_difference_both_eligible": -0.02287001267770777,
+    "uniform_wins_both_eligible": 8
+  },
+  "presentation_unchanged": true,
+  "selection_frequency": [
+    {
+      "family": "gaussian",
+      "candidate_id": "gaussian_const1_eta100",
+      "outer_blocks": 1,
+      "fallback_blocks": 1
+    },
+    {
+      "family": "gaussian",
+      "candidate_id": "gaussian_const1_eta300",
+      "outer_blocks": 3,
+      "fallback_blocks": 0
+    },
+    {
+      "family": "gaussian",
+      "candidate_id": "gaussian_decay205_eta100",
+      "outer_blocks": 1,
+      "fallback_blocks": 0
+    },
+    {
+      "family": "gaussian",
+      "candidate_id": "gaussian_decay205_eta300",
+      "outer_blocks": 9,
+      "fallback_blocks": 0
+    },
+    {
+      "family": "gaussian",
+      "candidate_id": "gaussian_decay21_eta100",
+      "outer_blocks": 1,
+      "fallback_blocks": 0
+    },
+    {
+      "family": "uniform",
+      "candidate_id": "uniform_const1_eta100",
+      "outer_blocks": 1,
+      "fallback_blocks": 0
+    },
+    {
+      "family": "uniform",
+      "candidate_id": "uniform_const1_eta300",
+      "outer_blocks": 5,
+      "fallback_blocks": 0
+    },
+    {
+      "family": "uniform",
+      "candidate_id": "uniform_const2_eta100",
+      "outer_blocks": 1,
+      "fallback_blocks": 1
+    },
+    {
+      "family": "uniform",
+      "candidate_id": "uniform_const2_eta300",
+      "outer_blocks": 1,
+      "fallback_blocks": 0
+    },
+    {
+      "family": "uniform",
+      "candidate_id": "uniform_decay21_eta100",
+      "outer_blocks": 5,
+      "fallback_blocks": 0
+    },
+    {
+      "family": "uniform",
+      "candidate_id": "uniform_decay21_eta300",
+      "outer_blocks": 2,
+      "fallback_blocks": 0
+    }
+  ],
+  "note": "Los percentiles describen 15 particiones dependientes. No son intervalos de confianza ni creadores nuevos."
+}

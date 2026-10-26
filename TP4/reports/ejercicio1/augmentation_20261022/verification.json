@@ -1,0 +1,12 @@
+{
+  "source_hashes_match": true,
+  "data_hash_match": true,
+  "completed_fits": 240,
+  "tests_passed": 112,
+  "weights_saved": false,
+  "figure_visually_checked": true,
+  "additional_sources": {
+    "analysis/summarize_kohonen_augmentation.py": "bdc487c4f83b9a3b3a27a16d136ccc6f3ec9a9d0fc08ed6048c034273d10b81f",
+    "tests/test_kohonen_augmentation.py": "e812785a78408b6865c4e0f8576744b7a9cb6e7f7cb41305d35253c6361626dd"
+  }
+}

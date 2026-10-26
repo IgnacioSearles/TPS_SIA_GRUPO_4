@@ -1,0 +1,12 @@
+family,candidate_id,outer_blocks,fallback_blocks
+gaussian,gaussian_const1_eta100,1,1
+gaussian,gaussian_const1_eta300,3,0
+gaussian,gaussian_decay205_eta100,1,0
+gaussian,gaussian_decay205_eta300,9,0
+gaussian,gaussian_decay21_eta100,1,0
+uniform,uniform_const1_eta100,1,0
+uniform,uniform_const1_eta300,5,0
+uniform,uniform_const2_eta100,1,1
+uniform,uniform_const2_eta300,1,0
+uniform,uniform_decay21_eta100,5,0
+uniform,uniform_decay21_eta300,2,0

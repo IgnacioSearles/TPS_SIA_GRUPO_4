@@ -1,0 +1,13 @@
+{
+  "data_hash_matches": true,
+  "source_hashes_match": true,
+  "presentation_unchanged_from_first_experiment": true,
+  "weights_saved": false,
+  "project_tests_passed": 124,
+  "figures_visually_checked": true,
+  "completed_fits": 1260,
+  "additional_sources": {
+    "analysis/summarize_kohonen_uniform.py": "705bf8939dfc838810acc6ead0dc613dd2ce1ab235967562beb996a5722bf86c",
+    "tests/test_uniform_experiments.py": "c2b6d79f63bb650d8e4d9e0f6a1c3a1994809fa1257a156664dbbeef26852727"
+  }
+}

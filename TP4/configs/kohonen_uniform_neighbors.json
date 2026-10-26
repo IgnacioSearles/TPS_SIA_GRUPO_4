@@ -1,0 +1,39 @@
+{
+  "algorithm": "kohonen",
+  "data": "data/creadores.csv",
+  "output": "results/uniform_neighbors",
+  "preprocessing": {
+    "include": null,
+    "exclude": [
+      "price_ars",
+      "organic_posts_pct",
+      "total_engagement_per_1000",
+      "estimated_argentina_reach"
+    ],
+    "log_columns": [],
+    "pca_components": null
+  },
+  "model": {
+    "seed": 0,
+    "epochs": 1000,
+    "shuffle": true,
+    "learning_rate_start": 0.3,
+    "learning_rate_end": 0.01,
+    "decay": "exponential",
+    "early_stopping": {
+      "enabled": false,
+      "min_delta": 1e-06,
+      "patience": 20,
+      "min_epochs": 30
+    },
+    "rows": 4,
+    "cols": 4,
+    "topology": "rectangular",
+    "neighborhood": "uniform",
+    "initialization": "samples",
+    "radius_start": 2.0,
+    "radius_end": 1.0,
+    "radius_decay": "exponential",
+    "schedule_epochs": 500
+  }
+}
