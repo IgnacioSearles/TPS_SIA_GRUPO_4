@@ -8,6 +8,7 @@ import matplotlib.ticker
 from matplotlib.colors import ListedColormap
 from matplotlib.patches import FancyArrowPatch, Patch, Rectangle
 import numpy as np
+import pandas as pd
 
 from analysis.hopfield_qr import ENERGY_EXAMPLE_NOISES, MAX_ITERATIONS, QRS, _save, find_query, recall_query
 from analysis.hopfield_qr_mejoras import WHITE, best_partition, block
@@ -245,6 +246,177 @@ def plot_unstable(patterns, path):
         unstable = np.sign(network.weights_ @ pattern) != pattern
         _show_qr(ax, pattern, f'{MENU_NAMES[name]}: {int(unstable.sum())}', wrong=unstable)
     _save(fig, path)
+
+
+PERCENT = matplotlib.ticker.PercentFormatter(1, decimals=0, symbol=' %')
+
+
+def _percent_axis(ax, xlabel):
+    ax.set(xlabel=xlabel, ylabel='Recuperación exacta', ylim=(-.03, 1.05))
+    ax.yaxis.set_major_formatter(PERCENT)
+
+
+def plot_energy_levels(patterns, path, origin=0):
+    """Izquierda, energía por iteración de una consulta del menú con tres niveles de ruido; derecha, la energía
+    de cada QR guardado y de la mezcla: la mezcla está más abajo que cualquier QR, por eso la red cae ahí."""
+    network = Hopfield(patterns)
+    noises = (0, .2, .45)
+    queries = make_queries(patterns, noises, [EXAMPLE_SEED])
+    mixture = np.sign(network.patterns_.sum(axis=0))
+    levels = {MENU_NAMES[name]: network.energy(pattern) for name, pattern in zip(QRS, network.patterns_)}
+    levels['mezcla'] = network.energy(mixture)
+    fig = plt.figure(figsize=(16, 5))
+    grid = fig.add_gridspec(1, 4, width_ratios=(1, 1, 1, 1.6), wspace=.35)
+    axes = [fig.add_subplot(grid[0, 0])]
+    axes += [fig.add_subplot(grid[0, i], sharey=axes[0]) for i in (1, 2)]
+    for ax, noise in zip(axes, noises):
+        energies = recall_query(network, find_query(queries, origin, noise, EXAMPLE_SEED)).energies
+        ax.plot(range(len(energies)), energies, marker='o', lw=2.5, ms=8, color='C0', label='consulta de menú')
+        ax.axhline(levels['menú principal'], color='gray', ls='--', lw=1.5, label='menú guardado')
+        ax.axhline(levels['mezcla'], color='C3', ls=':', lw=2, label='mezcla')
+        ax.set(title=f'ruido {_decimal(noise * 100)} %', xlabel='Iteración', xticks=range(len(energies)))
+    axes[0].set_ylabel('Energía')
+    axes[0].legend(loc='center', fontsize=12)
+    bars = fig.add_subplot(grid[0, 3])
+    names = list(levels)
+    rows = bars.barh(names, [levels[name] for name in names],
+                     color=['lightgray'] * (len(names) - 1) + ['C3'])
+    bars.bar_label(rows, [f'{levels[name]:,.0f}'.replace(',', '.') for name in names], label_type='center',
+                   fontsize=13)
+    bars.set(xlim=(min(levels.values()) * 1.05, 0), title='Energía de cada estado', xticks=[])
+    bars.invert_yaxis()
+    bars.spines[['bottom']].set_visible(False)
+    _save(fig, path)
+
+
+def plot_shared_annotated(patterns, path):
+    """Mapa de módulos iguales en los cinco QR, con dónde empieza a escribirse el mensaje y dónde difieren."""
+    differing = SharedModules(patterns).differing.reshape(SIDE, SIDE)
+    left = int(np.sum(differing[:, :19]))
+    fig, ax = plt.subplots(figsize=(8.6, 7.4))
+    ax.imshow(differing, cmap=ListedColormap(['C0', 'lightgray']), interpolation='nearest')
+    ax.annotate('el mensaje empieza\nen esta esquina:\nlas 5 URL comparten\n72 caracteres',
+                xy=(SIDE - 1.5, SIDE - 1.5), xytext=(21, 20), color='white', fontsize=14,
+                arrowprops={'arrowstyle': '->', 'lw': 2, 'color': 'white'})
+    ax.annotate('', xy=(-.5, -1.6), xytext=(18.5, -1.6), arrowprops={'arrowstyle': '<->', 'lw': 2},
+                annotation_clip=False)
+    ax.text(9, -2.6, f'{left} de los {differing.sum()} que difieren', ha='center', fontsize=14)
+    ax.axis('off')
+    ax.legend(handles=[Patch(color='C0', label=f'iguales en los cinco ({(~differing).sum()})'),
+                       Patch(color='lightgray', label=f'difieren ({differing.sum()})')],
+              loc='upper center', bbox_to_anchor=(.5, 0), ncol=2)
+    _save(fig, path)
+
+
+def plot_unlearning_training(stability, training, path):
+    """Qué cambia el desaprendizaje: neuronas que rechazan cada estado (campo con el signo contrario) antes y
+    después, y qué pasó en los 50 intentos de cada semilla de entrenamiento."""
+    states = list(MENU_NAMES) + ['mezcla']
+    labels = [MENU_NAMES[s] for s in MENU_NAMES] + ['mezcla']
+    before = stability[stability.method == 'hebb'].set_index('state').wrong_fields.reindex(states)
+    after = stability[stability.method == 'unlearning'].groupby('state').wrong_fields.mean().reindex(states)
+    fig, (left, right) = plt.subplots(1, 2, figsize=(16, 5.2), gridspec_kw={'width_ratios': (1.7, 1)})
+    positions, width = np.arange(len(states)), .38
+    for offset, values, label, color in ((-width / 2, before, 'Hebb', 'C0'),
+                                         (width / 2, after, 'después de desaprender', 'C1')):
+        bars = left.bar(positions + offset, values, width, label=label, color=color)
+        left.bar_label(bars, [f'{v:.0f}' for v in values], padding=3, fontsize=13)
+    left.set_xticks(positions, labels)
+    left.set(ylabel='Neuronas que lo rechazan', ylim=(0, before.max() * 1.25))
+    left.legend(loc='upper left')
+    counts = training.groupby(['training_seed', 'action']).size().unstack(fill_value=0)
+    seeds = [f'semilla {seed}' for seed in counts.index]
+    kinds = {'updated': ('cayó en un espurio: se resta', 'C1'),
+             'protected': ('cayó en un QR o su inverso: no se toca', 'lightgray')}
+    start = np.zeros(len(counts))
+    for action, (label, color) in kinds.items():
+        values = counts.get(action, pd.Series(0, index=counts.index)).to_numpy()
+        bars = right.barh(seeds, values, left=start, color=color, label=label)
+        right.bar_label(bars, [str(v) for v in values], label_type='center', fontsize=13)
+        start += values
+    right.set(xlabel='Intentos (50 por semilla)', xlim=(0, 50))
+    right.invert_yaxis()
+    right.legend(loc='upper center', bbox_to_anchor=(.5, -.2), fontsize=12)
+    _save(fig, path)
+
+
+def plot_unlearning_result(by_noise, results, path):
+    """Izquierda, recuperación según el ruido con desaprendizaje, Hebb y comparar con los originales;
+    derecha, cuántas iteraciones tarda el desaprendizaje en quedar estable."""
+    fig, (left, right) = plt.subplots(1, 2, figsize=(16, 5.2))
+    lines = {'hebb': ('Hebb, sin lo común', 'C0', '-'),
+             'unlearning': ('Hebb + desaprendizaje, sin lo común', 'C1', '-'),
+             'nearest': ('sin red: comparar con los originales', 'gray', '--')}
+    for method, (label, color, style) in lines.items():
+        rows = by_noise[by_noise.method == method].groupby('noise').accuracy.mean()
+        left.plot(rows.index, rows, marker='o', lw=3, color=color, linestyle=style, label=label)
+    left.xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1, decimals=0))
+    _percent_axis(left, 'Módulos invertidos')
+    left.legend(loc='lower left', fontsize=13)
+    unlearning = results[results.method == 'unlearning']
+    shares = unlearning.iterations.clip(upper=3).groupby(unlearning.noise).value_counts(normalize=True)
+    shares = shares.unstack(fill_value=0)
+    names = {0: 'ya estable', 1: '1 iteración', 2: '2 iteraciones', 3: '3 a 6'}
+    bottom = np.zeros(len(shares))
+    for steps, color in zip(shares.columns, ('lightgray', 'C0', 'C1', 'C3')):
+        right.bar(np.arange(len(shares)), shares[steps], bottom=bottom, color=color, label=names[steps], width=.7)
+        bottom += shares[steps].to_numpy()
+    right.set_xticks(np.arange(len(shares)), [f'{_decimal(n * 100)} %' for n in shares.index])
+    right.yaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1))
+    right.set(xlabel='Módulos invertidos', ylabel='Consultas', ylim=(0, 1), title='Iteraciones hasta quedar estable')
+    right.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=12)
+    _save(fig, path)
+
+
+def plot_rules_by_noise(by_noise, pseudoinverse, path):
+    """Las reglas sobre las mismas 700 consultas nuevas, según el ruido. Comparar con los originales no es una
+    red: es el techo con este ruido."""
+    rows = pd.concat([by_noise, pseudoinverse[pseudoinverse.method != 'unlearning']])
+    lines = {'hebb': ('Hebb, sin lo común', 'C0', '-'),
+             'unlearning': ('Hebb + desaprendizaje, sin lo común', 'C1', '-'),
+             'pseudoinverse_stripped': ('pseudoinversa, sin lo común', '#7cc9a6', '-'),
+             'pseudoinverse_full': ('pseudoinversa, QR completo', '#1a9e6e', '-'),
+             'nearest': ('sin red: comparar con los originales', 'gray', '--')}
+    fig, ax = plt.subplots(figsize=(12, 5.4))
+    for method, (label, color, style) in lines.items():
+        values = rows[rows.method == method].groupby('noise').accuracy.mean()
+        ax.plot(values.index, values, marker='o', lw=3, color=color, linestyle=style, label=label)
+    ax.xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1, decimals=0))
+    _percent_axis(ax, 'Módulos invertidos')
+    ax.legend(loc='lower left', fontsize=14)
+    _save(fig, path)
+
+
+def plot_realistic_damage(summary, path, kinds=('desgaste', 'mancha_negra', 'rayones', 'foto')):
+    """Daño realista: recuperación exacta de las dos reglas que guardan los cinco QR y de comparar con los
+    originales, más el lector solo sobre la consulta dañada. `summary` puede juntar varias corridas: cada
+    nivel se ubica por la fracción media de módulos alterados."""
+    titles = {'desgaste': 'Desgaste: se pierde tinta', 'mancha_negra': 'Manchas negras irregulares',
+              'rayones': 'Rayones', 'foto': 'Foto gastada, binarizada'}
+    lines = {'desaprendizaje': ('Hebb + desaprendizaje', 'C1', '-', 'exacta'),
+             'pseudoinversa': ('pseudoinversa, QR completo', '#1a9e6e', '-', 'exacta'),
+             'vecino': ('sin red: comparar con los originales', 'gray', '--', 'exacta'),
+             'vecino_asimetrico': ('sin red: comparar sabiendo que solo se borra tinta', 'black', ':', 'exacta'),
+             'consulta': ('sin red: el lector lee la consulta', '#d6609b', ':', 'lector')}
+    fig, axes = plt.subplots(1, len(kinds), figsize=(17, 5.6), sharey=True)
+    for ax, kind in zip(axes, kinds):
+        rows = summary[summary.kind == kind]
+        damage = (rows[rows.method == 'consulta'].set_index('level').dano / (SIDE * SIDE)).sort_values()
+        for method, (label, color, style, column) in lines.items():
+            if method == 'vecino_asimetrico' and kind != 'desgaste':
+                continue
+            values = rows[rows.method == method].set_index('level')[column].reindex(damage.index)
+            ax.plot(100 * damage, values, marker='o', lw=2.6, color=color, linestyle=style, label=label)
+        ax.set_title(titles[kind], fontsize=16)
+        ax.xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(decimals=0, symbol=' %'))
+        _percent_axis(ax, 'Módulos alterados')
+    for ax in axes[1:]:
+        ax.set_ylabel('')
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc='lower center', ncol=3, fontsize=13, bbox_to_anchor=(.5, -.02))
+    fig.tight_layout(rect=(0, .14, 1, 1))
+    fig.savefig(path, dpi=160)
+    plt.close(fig)
 
 
 def plot_iterations(results, path):

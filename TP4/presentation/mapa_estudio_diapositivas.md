@@ -1,6 +1,6 @@
 # Ensayo diapositiva por diapositiva
 
-Revisión del 25/10/2026, presentación después del pull a `ca3229f`. Hay 66 diapositivas de relato, una separadora de apéndice y 28 figuras de respaldo: 95 en total. Numeración actualizada el 26/10 con las diapositivas de dos redes, pseudoinversa y vecindad uniforme. Las preguntas son para comprobar comprensión; las respuestas se desarrollan en la [guía de estudio](guia_estudio.md).
+Revisión del 25/10/2026, presentación después del pull a `ca3229f`. Hay 59 diapositivas de relato, una separadora de apéndice y 32 figuras de respaldo: 92 en total. Numeración actualizada el 26/10 con la parte de Hopfield compactada y el daño realista.
 
 Los enlaces abren la diapositiva correspondiente en `index.html`. La tecla S muestra las notas originales. Ninguna diapositiva fue editada para esta revisión.
 
@@ -44,67 +44,64 @@ Los enlaces abren la diapositiva correspondiente en `index.html`. La tecla S mue
 | 34 | [¿Qué pasa cuando algo cambia?](index.html#/33) | §6 | ¿Cuándo se proyecta sin entrenar y cuándo se revisa el preprocesamiento y el modelo? |
 | 35 | [En resumen](index.html#/34) | §6 | ¿Podés resumir el ejercicio sin presentar los supuestos comerciales como resultados medidos? |
 | 36 | [Memoria asociativa](index.html#/35) | §7, §12 | ¿Qué es memoria asociativa y cómo pasamos de 37x37 módulos a un vector? |
-| 37 | [Qué le pedimos a la red](index.html#/36) | §7, §12 | ¿Qué diferencia hay entre almacenar, recuperar exactamente y decodificar? |
+| 37 | [Cómo funciona la red](index.html#/36) | §7 | ¿Cómo se pasa del QR a neuronas, cómo se guarda con Hebb, cómo se actualiza y cuándo para? ¿Qué mide la energía? |
 | 38 | [Le pasamos cualquier QR y devuelve siempre lo mismo](index.html#/37) | §7, §12 | ¿Cuántas consultas hubo, a dónde fueron y por qué falla incluso con ruido cero? |
-| 39 | [La red baja de energía, pero hacia la mezcla](index.html#/38) | §7, §12 | ¿Cómo puede bajar energía y empeorar la identidad? ¿Qué supone la garantía de monotonía? |
-| 40 | [La salida ni siquiera es un QR que se pueda leer](index.html#/39) | §7, §12 | ¿Qué hace el lector y por qué lectura y exactitud son medidas distintas? |
-| 41 | [Problema 1: los cinco QR no son ortogonales](index.html#/40) | §7–8 | ¿Qué significa casi ortogonal para patrones bipolares? |
-| 42 | [¿Está mal la red? Con patrones al azar anda perfecto](index.html#/41) | §7–8 | ¿Qué se mantiene fijo en el control aleatorio y qué diagnóstico apoya? |
-| 43 | [Tampoco es cantidad](index.html#/42) | §7–8 | ¿Qué supuestos tiene 0,15N y por qué no es una garantía para QR correlacionados? |
-| 44 | [Los cinco QR son casi el mismo QR](index.html#/43) | §7–8 | ¿Cómo se relacionan solapamiento y porcentaje de coincidencias? ¿Qué incluye el 70 % común? |
-| 45 | [El crosstalk le gana a la señal en 71 a 225 neuronas por QR](index.html#/44) | §7–8 | ¿Qué se colorea en rojo? ¿Por qué una media grande de crosstalk no basta para explicar errores? |
-| 46 | [Con más de 25 % compartido, los otros patrones le ganan al propio](index.html#/45) | §7–8 | ¿Bajo qué aproximación sale 1-4q y por qué 25 % no es universal? |
-| 47 | [El parecido viene de cómo se arma un QR](index.html#/46) | §7–8 | ¿Qué comparten estas URL y por qué no debemos generalizar a todos los QR de un sitio? |
-| 48 | [Qué hicimos con el problema 1](index.html#/47) | §11 | ¿Qué causa se busca cambiar con cada variante? |
-| 49 | [Cortar la imagen en zonas no alcanza](index.html#/48) | §11 | ¿Por qué piezas recuperadas por separado pueden producir un QR completo inválido? |
-| 50 | [Sacar lo común: entran de a tres, pero los cinco juntos siguen en cero](index.html#/49) | §11 | ¿Cómo funcionan strip y restore? ¿Cuántos originales quedan estables con Hebb y cinco QR? |
-| 51 | [Problema 2: sin lo común, menú y vinos siguen pareciéndose](index.html#/50) | §8 | ¿Qué problema queda después de retirar las coordenadas comunes? |
-| 52 | [Sacar lo común separa a casi todos los pares, menos a menú y vinos](index.html#/51) | §8 | ¿Por qué cambian los solapamientos y por qué el par menú-vinos sigue destacándose? |
-| 53 | [Las ternas que fallan son las que tienen a menú y vinos](index.html#/52) | §8 | ¿Qué comparación entre ternas apoya el papel de ese par y cuál es su alcance? |
-| 54 | [Por qué ese par: en los datos difieren en 6 bits](index.html#/53) | §8 | ¿Cómo se obtienen los 6 bits de datos y los 90 de corrección? ¿Qué se reconstruyó exactamente? |
-| 55 | [Qué hicimos con el problema 2](index.html#/54) | §11 | ¿Qué alternativas cambian el reparto y cuáles cambian los pesos? |
-| 56 | [Separar el par: menú en una red, vinos en otra](index.html#/55) | §11 | ¿Qué identidades almacena cada red y a qué barrido pertenece el 100 % hasta 35 %? |
-| 57 | [Pero elegir la red es el problema 2 otra vez](index.html#/56) | §11 | ¿Qué optimiza el reparto? ¿Por qué desempatar comparando con los originales es Hamming y no la red? |
-| 58 | [Sin mirar los originales: elegir la red por energía](index.html#/57) | §11 | ¿Por qué la energía con Hebb sigue midiendo parecido con los QR guardados? ¿Qué agrega frente a Hamming? |
-| 59 | [Desaprender la mezcla: una sola red guarda los cinco](index.html#/58) | §10, §12 | ¿Qué estado se desaprende? ¿Cómo funciona anti-Hebb? ¿Por qué 50 intentos no son 50 updates? |
-| 60 | [Con desaprendizaje también llega en 1 o 2 iteraciones, pero al QR](index.html#/59) | §10, §12 | ¿Qué cuenta una iteración y por qué 2.100 evaluaciones no son consultas independientes? |
-| 61 | [Pseudoinversa: otra forma de calcular los pesos](index.html#/60) | §9 | ¿Qué descuenta (Ξ Ξᵀ)⁻¹ y por qué cada QR guardado queda estable? |
-| 62 | [Ninguna red le gana a comparar con los originales](index.html#/61) | §9, §12 | ¿Qué métodos usaron las mismas 700 consultas y qué niveles entran en la media? ¿Cómo funciona pinv? |
-| 63 | [Límites y conclusiones](index.html#/62) | §12, §14 | ¿Cuáles son límites del algoritmo y cuáles del diseño de evaluación? |
-| 64 | [La esquina rota casi no le llega a la red](index.html#/63) | §12, §14 | ¿Cuántos módulos cubre, altera y ve la red? ¿Qué arregla la plantilla? |
-| 65 | [Límites del caso de uso](index.html#/64) | §12, §14 | ¿Qué alternativas solo se proponen? ¿Los porcentajes de corrección QR son porcentajes de píxeles? |
-| 66 | [Los cinco QR se parecen. Sin lo común, menú y vinos siguen pareciéndose.](index.html#/65) | §12, §14 | ¿Cómo reformularías la conclusión para no afirmar que sacar lo común basta con cinco QR? |
+| 39 | [La energía baja, pero hacia la mezcla](index.html#/38) | §7, §12 | ¿Por qué la mezcla tiene menos energía que cualquier QR guardado? ¿Qué supone la garantía de que la energía no sube? |
+| 40 | [Problema 1: los cinco QR no son ortogonales](index.html#/39) | §7–8 | ¿Qué significa casi ortogonal para patrones bipolares? |
+| 41 | [No es la red ni la cantidad](index.html#/40) | §7–8 | ¿Qué se mantiene fijo en el control al azar y qué supuestos tiene 0,15·N? |
+| 42 | [Los cinco QR son casi el mismo QR](index.html#/41) | §7–8 | ¿Cómo se define el solapamiento? ¿Por qué las diferencias quedan a la izquierda del QR? |
+| 43 | [Con más de 25 % compartido, los otros QR le ganan al propio](index.html#/42) | §7–8 | ¿De dónde sale 1 − 4 × compartido y por qué vale solo para el peor módulo? |
+| 44 | [Sacar lo común: entran de a tres, pero los cinco juntos siguen en cero](index.html#/43) | §11 | ¿Cómo funcionan strip y restore? ¿Por qué reponer lo común no es comparar con los originales? |
+| 45 | [Problema 2: sin lo común, menú y vinos siguen pareciéndose](index.html#/44) | §8 | ¿Qué problema queda después de retirar las coordenadas comunes? |
+| 46 | [Sacar lo común separa a casi todos los pares, menos a menú y vinos](index.html#/45) | §8 | ¿Por qué los pares negativos no molestan y el par menú-vinos sí? ¿Qué muestran las ternas? |
+| 47 | [Por qué ese par: en los datos difieren en 6 bits](index.html#/46) | §8 | ¿Cómo se llega de 96 módulos distintos a un solapamiento de 0,54? |
+| 48 | [Separado el par, cada red funciona; elegir la red no](index.html#/47) | §11 | ¿Por qué las dos redes son un diagnóstico y no una solución? ¿Por qué elegir por energía sigue midiendo parecido con los QR? |
+| 49 | [Soluciones: una sola red que guarde los cinco](index.html#/48) | §9–10 | ¿Qué tienen en común desaprendizaje y pseudoinversa y en qué se diferencian de las dos redes? |
+| 50 | [Desaprendizaje: rellenar los pozos falsos](index.html#/49) | §10 | ¿Qué estado se resta, cuándo no se toca y cuánto sube su energía? ¿Por qué 50 intentos no son 50 restas? |
+| 51 | [Después de desaprender, los cinco QR son estables](index.html#/50) | §10 | ¿Qué cuenta "neuronas que lo rechazan"? ¿Qué pasó en los 50 intentos de cada semilla? |
+| 52 | [Desaprendizaje: 99 % hasta 35 % de ruido, casi siempre en 1 o 2 iteraciones](index.html#/51) | §10, §12 | ¿Por qué las consultas son nuevas? ¿Qué cuenta una iteración y qué pasó con la energía? |
+| 53 | [Pseudoinversa: descontar el parecido antes de guardar](index.html#/52) | §9 | ¿Qué matriz se invierte, de qué tamaño, y por qué cada QR guardado queda estable? |
+| 54 | [Pseudoinversa en chico: 6 neuronas, 3 recuerdos](index.html#/53) | §9 | ¿Por qué Hebb da vuelta la quinta neurona de A y la pseudoinversa no? |
+| 55 | [Comparar con los originales es el techo](index.html#/54) | §9, §12 | ¿Por qué comparar con los originales es el techo con este ruido? ¿Qué diferencias son concluyentes? |
+| 56 | [La esquina rota casi no le llega a la red](index.html#/55) | §12, §14 | ¿Cuántos módulos cubre, altera y ve la red? ¿Hasta qué tamaño se recupera? |
+| 57 | [Con daño realista, la red recupera el QR mucho después de que el lector deja de leer](index.html#/56) | §12 | ¿Cómo se genera cada daño? ¿Por qué el lector solo falla tan pronto y dónde se rompe cada método? |
+| 58 | [Límites del caso de uso](index.html#/57) | §12, §14 | ¿Qué supone que la consulta llegue a 37×37? ¿Qué alternativas solo se proponen? |
+| 59 | [Los cinco QR se parecen. Sin lo común, menú y vinos siguen pareciéndose.](index.html#/58) | §12, §14 | ¿Cómo reformularías la conclusión para no afirmar que sacar lo común basta con cinco QR? |
 
 ## Apéndice
 
 | Nº | Diapositiva | Leer en la guía | Pregunta que tenés que poder responder |
 | --- | --- | --- | --- |
-| 67 | [Apéndice](index.html#/66) | §0 | ¿Qué gráfico de respaldo elegirías para cada pregunta del docente? |
-| 68 | [Escalas originales y estandarizadas](index.html#/67) | §1 | ¿Cómo verificamos que el escalado cambió el peso de magnitudes, sin eliminar correlaciones? |
-| 69 | [Biplot PC1–PC2 con todos los creadores](index.html#/68) | §2 | ¿Qué distancias e interpretaciones del biplot son aproximadas? |
-| 70 | [PC3: publicidad y fútbol](index.html#/69) | §2 | ¿Qué información de publicidad y fútbol no se ve en PC1-PC2? |
-| 71 | [Correlaciones por bloques, con valores](index.html#/70) | §1–2 | ¿Cómo leer bloques positivos y oposiciones sin atribuir causalidad? |
-| 72 | [Barrido de geometría del mapa](index.html#/71) | §4 | ¿Qué factores se variaron y qué efecto del radio puede confundirse con forma? |
-| 73 | [Barrido de tasa de aprendizaje y radio](index.html#/72) | §3–4 | ¿Cómo afecta el radio a QE y TE y cómo decaen tasa y radio? |
-| 74 | [Vecindad uniforme con las mismas semillas y datos](index.html#/73) | §3–4 | ¿Por qué uniforme 2 → 0,5 baja QE de entrenamiento y empeora en excluidos? |
-| 75 | [Qué radio eligió cada vecindad al calibrar](index.html#/74) | §3–4 | ¿En cuántas particiones ganó un radio constante y qué dice eso del radio menor a 1 en uniforme? |
-| 76 | [Representaciones de entrada para Kohonen](index.html#/75) | §2, §4 | ¿Por qué QE no se compara directamente entre representaciones de distinta dimensión? |
-| 77 | [Planos de componentes del mapa](index.html#/76) | §4 | ¿Cómo se pasa del peso estandarizado a unidades originales en un plano? |
-| 78 | [Qué variables separan las regiones](index.html#/77) | §4 | ¿Cómo se calcula eta cuadrado y cuál fue la referencia al azar? |
-| 79 | [Regiones en PC1–PC3](index.html#/78) | §2, §4 | ¿Qué separa PC3 que no muestra el plano principal? |
-| 80 | [Kohonen sobre componentes principales](index.html#/79) | §2 | ¿Qué cambió al entrenar con 2, 3, 6 y 10 componentes? |
-| 81 | [Candidatos de cada cliente](index.html#/80) | §6 | ¿Por qué un candidato barato de otra región puede no ser del tipo comercial elegido? |
-| 82 | [Elegidos frente al top 3 por seguidores](index.html#/81) | §6 | ¿Qué parte del ahorro viene de mirar público argentino y no solo seguidores? |
-| 83 | [Regiones y elegidos en el mapa](index.html#/82) | §6 | ¿Qué se hace si un elegido no está disponible y qué no garantiza cercanía en el mapa? |
-| 84 | [Un QR con ruido, paso a paso](index.html#/83) | §7 | ¿Podés seguir consulta, estados intermedios y salida sin confundir cercanía con estabilidad? |
-| 85 | [Iteraciones hasta converger](index.html#/84) | §7 | ¿Por qué pocas iteraciones no implican buena recuperación? |
-| 86 | [Solapamientos entre los QR](index.html#/85) | §7 | ¿Cómo se calcula cada entrada de la matriz de solapamientos? |
-| 87 | [Interferencia por módulo](index.html#/86) | §7 | ¿Cómo se obtiene el campo exacto con diagonal cero? |
-| 88 | [Capacidad medida: patrones al azar contra QR](index.html#/87) | §8 | ¿Con qué criterio se midió capacidad y por qué difiere entre QR y patrones aleatorios? |
-| 89 | [Sin compartidos: ruido, con la reposición sin red como referencia](index.html#/88) | §11 | ¿Qué mejora aporta solo reponer comunes sin Hopfield? |
-| 90 | [Sin compartidos: todas las ternas](index.html#/89) | §8, §11 | ¿Qué ternas contienen al par más parecido y cómo se compararon? |
-| 91 | [Una red por zona: barrido de ruido y lector](index.html#/90) | §11 | ¿Cómo difieren exactitud de módulos y tasa de lectura por tamaño de zona? |
-| 92 | [Cuántas redes y cómo repartir los QR](index.html#/91) | §11 | ¿Qué costo conceptual tiene aumentar cantidad de redes hasta una por recuerdo? |
-| 93 | [Cómo se elige la red](index.html#/92) | §11 | ¿Cuándo el selector elige un recuerdo reconocido y cuándo una salida espuria? |
-| 94 | [Todos los métodos con una esquina rota](index.html#/93) | §12 | ¿Las alternativas de este gráfico comparten consultas con la confirmación nueva? |
-| 95 | [Desaprendizaje: ruido, esquinas y manchas](index.html#/94) | §10, §12 | ¿Dónde se rompe el 100 % del desaprendizaje y cuánto del daño ve realmente la red? |
+| 60 | [Apéndice](index.html#/59) | §0 | ¿Qué gráfico de respaldo elegirías para cada pregunta del docente? |
+| 61 | [Escalas originales y estandarizadas](index.html#/60) | §1 | ¿Cómo verificamos que el escalado cambió el peso de magnitudes, sin eliminar correlaciones? |
+| 62 | [Biplot PC1–PC2 con todos los creadores](index.html#/61) | §2 | ¿Qué distancias e interpretaciones del biplot son aproximadas? |
+| 63 | [PC3: publicidad y fútbol](index.html#/62) | §2 | ¿Qué información de publicidad y fútbol no se ve en PC1-PC2? |
+| 64 | [Correlaciones por bloques, con valores](index.html#/63) | §1–2 | ¿Cómo leer bloques positivos y oposiciones sin atribuir causalidad? |
+| 65 | [Barrido de geometría del mapa](index.html#/64) | §4 | ¿Qué factores se variaron y qué efecto del radio puede confundirse con forma? |
+| 66 | [Barrido de tasa de aprendizaje y radio](index.html#/65) | §3–4 | ¿Cómo afecta el radio a QE y TE y cómo decaen tasa y radio? |
+| 67 | [Vecindad uniforme con las mismas semillas y datos](index.html#/66) | §3–4 | ¿Por qué uniforme 2 → 0,5 baja QE de entrenamiento y empeora en excluidos? |
+| 68 | [Qué radio eligió cada vecindad al calibrar](index.html#/67) | §3–4 | ¿En cuántas particiones ganó un radio constante y qué dice eso del radio menor a 1 en uniforme? |
+| 69 | [Representaciones de entrada para Kohonen](index.html#/68) | §2, §4 | ¿Por qué QE no se compara directamente entre representaciones de distinta dimensión? |
+| 70 | [Planos de componentes del mapa](index.html#/69) | §4 | ¿Cómo se pasa del peso estandarizado a unidades originales en un plano? |
+| 71 | [Qué variables separan las regiones](index.html#/70) | §4 | ¿Cómo se calcula eta cuadrado y cuál fue la referencia al azar? |
+| 72 | [Regiones en PC1–PC3](index.html#/71) | §2, §4 | ¿Qué separa PC3 que no muestra el plano principal? |
+| 73 | [Kohonen sobre componentes principales](index.html#/72) | §2 | ¿Qué cambió al entrenar con 2, 3, 6 y 10 componentes? |
+| 74 | [Candidatos de cada cliente](index.html#/73) | §6 | ¿Por qué un candidato barato de otra región puede no ser del tipo comercial elegido? |
+| 75 | [Elegidos frente al top 3 por seguidores](index.html#/74) | §6 | ¿Qué parte del ahorro viene de mirar público argentino y no solo seguidores? |
+| 76 | [Regiones y elegidos en el mapa](index.html#/75) | §6 | ¿Qué se hace si un elegido no está disponible y qué no garantiza cercanía en el mapa? |
+| 77 | [Un QR con ruido, paso a paso](index.html#/76) | §7 | ¿Podés seguir consulta, estados intermedios y salida sin confundir cercanía con estabilidad? |
+| 78 | [Hebb: iteraciones hasta converger](index.html#/77) | §7 | ¿Por qué pocas iteraciones no implican buena recuperación? |
+| 79 | [Solapamientos entre los QR](index.html#/78) | §7 | ¿Cómo se calcula cada entrada de la matriz de solapamientos? |
+| 80 | [Crosstalk: dónde el campo le gana a cada QR](index.html#/79) | §7–8 | ¿Qué se pinta en rojo y por qué está en la franja izquierda? |
+| 81 | [Capacidad medida: patrones al azar contra QR](index.html#/80) | §8 | ¿Con qué criterio se midió capacidad y por qué difiere entre QR y patrones aleatorios? |
+| 82 | [Sin compartidos: ruido, con la reposición sin red como referencia](index.html#/81) | §11 | ¿Qué mejora aporta solo reponer comunes sin Hopfield? |
+| 83 | [Sin compartidos: todas las ternas](index.html#/82) | §8, §11 | ¿Qué ternas contienen al par más parecido y cómo se compararon? |
+| 84 | [Una red por zona: QR estables en cada zona](index.html#/83) | §11 | ¿Por qué cortar en zonas no reduce el parecido? |
+| 85 | [Una red por zona: barrido de ruido y lector](index.html#/84) | §11 | ¿Cómo difieren exactitud de módulos y tasa de lectura por tamaño de zona? |
+| 86 | [Dos redes (diagnóstico): cuántas redes y cómo repartir](index.html#/85) | §11 | ¿Qué costo tiene llevar el reparto hasta una red por QR? |
+| 87 | [Dos redes (diagnóstico): qué devuelve cada una](index.html#/86) | §11 | ¿Cuándo devuelven QR guardados las dos redes y qué regla elige? |
+| 88 | [Todos los métodos con una esquina rota](index.html#/87) | §12 | ¿Las alternativas de este gráfico comparten consultas con la confirmación nueva? |
+| 89 | [Desaprendizaje: ruido, esquinas y manchas](index.html#/88) | §10, §12 | ¿Dónde se rompe el 100 % del desaprendizaje y cuánto del daño ve realmente la red? |
+| 90 | [Daño realista: los siete tipos](index.html#/89) | §12 | ¿Cómo se genera cada daño y en cuáles el lector solo deja de leer? |
+| 91 | [Daño realista: niveles extremos](index.html#/90) | §12 | ¿Dónde se rompe cada método y por qué ahí conviene saber que el daño solo borra tinta? |
+| 92 | [Daño realista: un ejemplo de cada tipo](index.html#/91) | §12 | ¿Qué parte de cada daño ve la red? |

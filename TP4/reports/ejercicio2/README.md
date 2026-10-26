@@ -277,6 +277,7 @@ Para el restaurante, la red responde lo mismo sea cual sea el menú escaneado: n
 - El ruido del barrido invierte cada módulo de forma independiente, repartido por todo el código: con p = 0,05 ya son 68,5 módulos invertidos en promedio (`resultados.csv`, columna `query_hamming`), incluidos módulos de los patrones localizadores, y el lector ubica sólo 40 de las 100 consultas (`lector_qr_resumen.csv`).
 - El daño de un QR impreso (una mancha, un doblez, una esquina rota, un reflejo) suele concentrarse en una zona. La corrección de errores del QR agrupa los módulos en palabras de código y está pensada para ese tipo de daño; según el estándar, el nivel L corrige alrededor del 7 % de las palabras de código. Este análisis no mide daño estructurado (quedó fuera de alcance), así que no dice cómo se comportarían la red ni el lector ante una mancha.
 - El nivel de ruido más alto no es el "peor daño": con p = 0,5 la consulta es independiente del QR original, y por eso las consultas se reparten entre A (51) y −A (49) (`resultados.csv`).
+- **Actualización 26/10:** el daño estructurado se midió después, con desgaste, manchas irregulares, rayones y una foto gastada, sobre Hebb, desaprendizaje, pseudoinversa y el lector solo. Ver [daño realista](dano_realista_20261026/README.md) y [niveles extremos](dano_realista_extremo_20261026/README.md).
 
 ### 6. El lector de QR no se beneficia de la red
 

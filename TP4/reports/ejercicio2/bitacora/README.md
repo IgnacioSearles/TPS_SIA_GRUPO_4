@@ -21,6 +21,14 @@ sin ellas. La tabla de pseudoinversa almacena también 2100 resultados ya calcul
 del candidato: esos registros reutilizados no se cuentan como evaluaciones nuevas.
 El [inventario](../desaprendizaje/evidencia/inventario.csv) distingue ambas cantidades.
 
+## 26/10 — Daño realista, sin reajustar
+
+Se probaron siete daños que imitan un QR impreso gastado (`src/tp4/damage.py`): desgaste que solo borra tinta, desgaste mayor en un borde, manchas negras y blancas irregulares, rayones, desgaste con mancha y una foto gastada binarizada por módulo. Métodos congelados: Hebb, el candidato de desaprendizaje reducido (se reprodujo con 20/22/20 actualizaciones), pseudoinversa completa y reducida, Hamming, una variante que sabe que el daño solo borra tinta y el lector solo. Semillas nuevas 200–219. **7.800 consultas** en dos corridas; la de niveles extremos se agregó después de ver la primera.
+
+El lector solo no lee desde 5 % de módulos alterados, ni con 2,6 % de desgaste. El desaprendizaje recuperó el 97 % o más con hasta un cuarto de los módulos alterados en los siete tipos y se rompe entre 40 y 47 %; la pseudoinversa completa aguanta más. Con daño que solo borra tinta, Hamming deja de ser el techo: la variante asimétrica acierta 97 % con 49 % alterado, contra 71 %. [Informe](../dano_realista_20261026/README.md) y [niveles extremos](../dano_realista_extremo_20261026/README.md).
+
+La presentación del ejercicio 2 se compactó de 31 a 24 diapositivas en la rama `tp4/hopfield-compacto-dano-realista`: se agregaron el método, el desaprendizaje y la pseudoinversa en detalle, y las dos redes pasaron a presentarse como diagnóstico (elegir la red vuelve a ser comparar con los originales).
+
 ## 22/10 — Protocolo fijado y selección
 
 Se construye una única red con Hebb y se penalizan sólo salidas estables que no

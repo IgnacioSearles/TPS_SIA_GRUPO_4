@@ -50,6 +50,24 @@ Notas: tamaño cubierto no equivale a cantidad de módulos invertidos. Los comun
 se reponen con información conocida. Esta tanda mide recuperación de módulos;
 no se corrió un lector óptico y no se demuestra robustez de detección fotográfica.
 
+### 5. Con daño realista, el problema práctico es el lector (26/10)
+
+Mostrar que el lector solo no lee desde **5 %** de módulos alterados y que el
+desaprendizaje recupera el **97 % o más** con hasta un cuarto de los módulos
+alterados, en desgaste, manchas, rayones y foto gastada. Diapositiva 57;
+[informe](../reports/ejercicio2/dano_realista_20261026/README.md).
+
+Notas: son simulaciones con métodos congelados y semillas nuevas. La corrida de
+niveles extremos se agregó después de ver la primera. Con daño que solo borra
+tinta, Hamming deja de ser el techo.
+
+### 6. Dos redes es un diagnóstico, no una solución
+
+Con la consulta en la red que guarda su QR, 100 % hasta 35 %: confirma que el
+par menú-vinos es el obstáculo. Pero elegir la red vuelve a ser comparar con los
+originales (desempate por Hamming) o algo equivalente (energía con Hebb). No la
+presentamos entre las soluciones. Diapositiva 48.
+
 ## Nombres exactos para las leyendas
 
 - **Hopfield — Hebb (caso base)**.

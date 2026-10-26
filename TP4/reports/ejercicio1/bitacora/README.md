@@ -30,7 +30,7 @@ Después se ejecutó un versus equilibrado: **1.800 calibraciones y 90 confirmac
 
 Los radios constantes sí estaban probados históricamente (20 configuraciones × cinco semillas). En el nuevo versus se eligieron constantes en 8/15 bloques de uniforme y 4/15 de gaussiana, incluyendo un fallback en cada una. [Versus completo, protocolo y figuras](../versus_vecindades_20261026/README.md).
 
-Pasaron 124 tests. Se verificaron tareas, presupuestos, semillas, cobertura por creador, hashes y elecciones congeladas. No se guardaron pesos ni se modificó ningún archivo de `presentation/`; no hubo push ni cambio automático del modelo final. Después se agregaron a la presentación la diapositiva 14 y el apéndice 74–75, sin cambiar el modelo ni quitar diapositivas.
+Pasaron 124 tests. Se verificaron tareas, presupuestos, semillas, cobertura por creador, hashes y elecciones congeladas. No se guardaron pesos ni se modificó ningún archivo de `presentation/`; no hubo push ni cambio automático del modelo final. Después se agregaron a la presentación la diapositiva 14 y el apéndice 67–68, sin cambiar el modelo ni quitar diapositivas.
 
 ## 22/10 — Augmentation local en Kohonen
 

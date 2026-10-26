@@ -1,0 +1,101 @@
+{
+  "created_utc": "2026-10-26T22:24:50.833014+00:00",
+  "damages": {
+    "desgaste": [
+      0.6,
+      0.7,
+      0.8,
+      0.85,
+      0.9,
+      0.95
+    ],
+    "mancha_negra": [
+      0.35,
+      0.4,
+      0.45,
+      0.5,
+      0.55,
+      0.6
+    ],
+    "mancha_blanca": [
+      0.35,
+      0.4,
+      0.45,
+      0.5,
+      0.55,
+      0.6
+    ],
+    "rayones": [
+      10,
+      12,
+      14,
+      16,
+      20,
+      24
+    ],
+    "desgaste_y_mancha": [
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.85,
+      0.9
+    ],
+    "foto": [
+      0.65,
+      0.7,
+      0.75,
+      0.8,
+      0.85,
+      0.9
+    ]
+  },
+  "seeds": [
+    200,
+    201,
+    202,
+    203,
+    204,
+    205,
+    206,
+    207,
+    208,
+    209,
+    210,
+    211,
+    212,
+    213,
+    214,
+    215,
+    216,
+    217,
+    218,
+    219
+  ],
+  "queries": 3600,
+  "max_iterations": 100,
+  "unlearning": {
+    "mode": "dream",
+    "learning_rate": 0.1,
+    "attempts": 50,
+    "training_seeds": [
+      0,
+      1,
+      2
+    ],
+    "updates_by_seed": {
+      "0": 20,
+      "1": 22,
+      "2": 20
+    }
+  },
+  "patterns_sha256": "1d7f27dec764343506d689cc99b9cc204cb104a3f747e0e15b2e89c320e414a1",
+  "sources_sha256": {
+    "src/tp4/damage.py": "6ce4fba3d09aea94074c0de174f92085c1162c5cd2a4cc91b3b1a94550a39687",
+    "src/tp4/hopfield.py": "9b6e64970940c75e91efcc6d3d22739d680ee7f32d2969a2c780a6b725b24f1b",
+    "src/tp4/unlearning.py": "0220e3525759cdc28ea40e0186907b0bbf555518d78ba8993a166b610eb89349",
+    "src/tp4/shared_modules.py": "7ff813b950d07a68cf85eb4c4a1ce59a1398053526c5728654e0cf275bd45b43",
+    "analysis/hopfield_qr_dano_realista.py": "3a410aad297e206a0621e3bea310ac5d65fe1d78d4d965c4227d27e2c142d7df",
+    "analysis/hopfield_qr_dano_realista_extremo.py": "71eed72a1028800d73f46a39a5da8c2177efc4378f69e811c60b96bf47e97db5"
+  }
+}

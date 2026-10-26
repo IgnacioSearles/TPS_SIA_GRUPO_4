@@ -97,6 +97,28 @@ def qr(out):
     qr_figures.plot_iterations(
         pd.read_csv(evidence / 'confirmacion_sin_compartidos_20261022' / 'resultados.csv.gz'),
         out / 'e2_iteraciones_desaprendizaje.png')
+    qr_published(out)
+
+
+def qr_published(out):
+    """Gráficos del ejercicio 2 que sólo usan los QR y la evidencia publicada en el repositorio, sin los CSV
+    regenerables de controles/, variante/ ni dos_redes/."""
+    patterns = load_patterns()
+    evidence = QR_REPORTS / 'desaprendizaje' / 'evidencia'
+    confirmation = evidence / 'confirmacion_sin_compartidos_20261022'
+    by_noise = pd.read_csv(confirmation / 'comparacion_por_ruido.csv')
+    qr_figures.plot_energy_levels(patterns, out / 'e2_energia_niveles.png')
+    qr_figures.plot_shared_annotated(patterns, out / 'e2_compartidos_anotado.png')
+    qr_figures.plot_unlearning_training(pd.read_csv(confirmation / 'estabilidad.csv'),
+                                        pd.read_csv(confirmation / 'entrenamiento.csv.gz'),
+                                        out / 'e2_desaprendizaje_entrenamiento.png')
+    qr_figures.plot_unlearning_result(by_noise, pd.read_csv(confirmation / 'resultados.csv.gz'),
+                                      out / 'e2_desaprendizaje_resultado.png')
+    qr_figures.plot_rules_by_noise(by_noise, pd.read_csv(evidence / 'comparacion_pseudoinversa_20261022' / 'resumen.csv'),
+                                   out / 'e2_reglas_por_ruido.png')
+    qr_figures.plot_realistic_damage(pd.concat([pd.read_csv(QR_REPORTS / run / 'resumen.csv') for run in
+                                                ('dano_realista_20261026', 'dano_realista_extremo_20261026')]),
+                                     out / 'e2_dano_realista.png')
 
 
 def main():

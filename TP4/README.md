@@ -283,4 +283,4 @@ OPENBLAS_NUM_THREADS=1 python3 -m analysis.kohonen_neighborhood_versus --output 
 OPENBLAS_NUM_THREADS=1 python3 -m analysis.summarize_neighborhood_versus /tmp/versus
 ```
 
-El primer experimento verifica y reutiliza las métricas gaussianas previas; el segundo ejecuta su propia calibración. Ambos permiten `--resume` y conservan solo métricas y asignaciones, sin pesos. La presentación no se modifica y sus hashes se comprueban. Después se incorporaron a la presentación: diapositiva 14 y apéndice 74–75 ([guía](presentation/experimentos_kohonen_vecindades.md)).
+El primer experimento verifica y reutiliza las métricas gaussianas previas; el segundo ejecuta su propia calibración. Ambos permiten `--resume` y conservan solo métricas y asignaciones, sin pesos. La presentación no se modifica y sus hashes se comprueban. Después se incorporaron a la presentación: diapositiva 14 y apéndice 67–68 ([guía](presentation/experimentos_kohonen_vecindades.md)).
