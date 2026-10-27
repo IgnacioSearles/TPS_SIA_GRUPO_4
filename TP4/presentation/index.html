@@ -553,6 +553,19 @@ Campo de cada neurona al presentar A:
 
 <section class="figure"><h2>Regiones y elegidos en el mapa</h2><figure><img src="assets/reports__ejercicio1__campanas__3_mapa_clientes.png" alt="Regiones, elegidos y audiencia argentina"></figure></section>
 
+<section>
+  <h2>Cómo funciona la red</h2>
+  <div class="eqs tight">
+    <p><b>Cada módulo es una neurona.</b> Un QR de 37×37 son 1.369 neuronas: negro = +1, blanco = −1.</p>
+    <p><b>Guardar, con Hebb:</b> <code>W = (1/N) Σ ξξᵀ</code>, con la diagonal en cero. Cada QR guardado refuerza las conexiones que lo sostienen.</p>
+    <p><b>Recuperar:</b> <code>s ← sign(W s)</code>, todas las neuronas a la vez. Si el campo de una neurona da cero, no cambia.</p>
+    <p><b>Energía:</b> <code>H = −½ Σ wᵢⱼ sᵢ sⱼ</code>. Los QR guardados deberían ser sus pozos.</p>
+    <p><b>Para</b> cuando el estado no cambia, cuando repite uno anterior (ciclo) o a las 100 iteraciones.</p>
+  </div>
+  <p class="take">Medimos dos cosas: si la salida es exactamente el QR guardado y si un lector de QR la puede leer.</p>
+  <aside class="notes">Es la red del apunte, con actualización sincrónica. El lector es el detector de QR de OpenCV, el mismo tipo de lector que usa la cámara de un celular: busca los tres cuadrados de las esquinas, lee los módulos y los verifica con la corrección de errores del propio QR. La consulta ya llega como una matriz de 37×37 alineada: eso es un supuesto, lo retomamos en los límites.</aside>
+</section>
+
 <section class="figure"><h2>Un QR con ruido, paso a paso</h2><figure><img src="assets/reports__ejercicio2__ejemplos.png" alt="Original, consulta y salida para cuatro niveles de ruido"></figure></section>
 
 <section class="figure"><h2>Hebb: iteraciones hasta converger</h2><figure><img src="assets/reports__ejercicio2__iteraciones.png" alt="Iteraciones por nivel de ruido"></figure></section>

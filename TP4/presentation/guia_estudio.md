@@ -4,7 +4,7 @@ Revisión del **25/10/2026**, sobre la presentación de `main` después del pull
 
 El objetivo es que puedas hacer cuatro cosas con cada método: explicar qué entra y qué sale, ejecutar mentalmente una actualización, señalar la función que la implementa y defender qué conclusión permiten los experimentos.
 
-Tenés un [mapa de las 91 diapositivas](mapa_estudio_diapositivas.md) y [ejemplos numéricos ejecutables](ejemplos_estudio.py). Desde TP4: `python3 presentation/ejemplos_estudio.py`. Los ejemplos son didácticos y no reentrenan los experimentos ni guardan redes.
+Tenés un [mapa de las 92 diapositivas](mapa_estudio_diapositivas.md) y [ejemplos numéricos ejecutables](ejemplos_estudio.py). Desde TP4: `python3 presentation/ejemplos_estudio.py`. Los ejemplos son didácticos y no reentrenan los experimentos ni guardan redes.
 
 ## 0. Qué estudiar primero
 
@@ -14,7 +14,7 @@ Tenés un [mapa de las 91 diapositivas](mapa_estudio_diapositivas.md) y [ejemplo
 | 1 | Estandarización; PCA frente a Oja; qué representa PC1 | 4–11, 24–25 |
 | 1 | Una actualización de Kohonen; pesos frente a posiciones de grilla | 13–19 |
 | 1 | Matriz U, Ward contiguo y selección comercial posterior | 15–22, 27–34 |
-| 1 | Hebb, campo local, crosstalk, mezcla y estabilidad | 37–42 |
+| 1 | Hebb, campo local, crosstalk, mezcla y estabilidad | 37–42 y apéndice 76 |
 | 1 | Pseudoinversa y desaprendizaje, con diagonal cero | 49–54; ampliación en esta guía |
 | 1 | Qué es Hopfield y qué hacen máscaras, Hamming y lectores | 37, 43–57 |
 | 2 | Diseño de experimentos, porcentajes comparables y límites | 13–14, 40–42, 47–56 |
@@ -243,7 +243,7 @@ Para creadores nuevos se conserva el escalador y se busca BMU. Con muchas observ
 
 ## 7. Hopfield con Hebb: almacenar y recuperar son cosas distintas
 
-**Diapositivas 37–42. Código:** `src/tp4/hopfield.py`, `__init__`, `_synchronous`, `recall`, `energy` y `overlaps`.
+**Diapositivas 37–42 y apéndice 76 (fórmulas). Código:** `src/tp4/hopfield.py`, `__init__`, `_synchronous`, `recall`, `energy` y `overlaps`.
 
 Un módulo QR es un cuadrado lógico; no cada píxel de una foto. Se usan imágenes binarias de **37×37 módulos**, aplanadas por filas. Negro es `+1`, blanco `−1`. Los cinco recuerdos forman `Ξ` de **5×1.369**.
 
@@ -448,7 +448,7 @@ Con cinco QR, quitar compartidos **no bastó para Hebb**: cero originales establ
 
 ### Una red por zona
 
-**Diapositiva 43 (mencionada) y apéndice 83–84. Código:** `src/tp4/zoned_hopfield.py`.
+**Diapositiva 43 (mencionada) y apéndice 84–85. Código:** `src/tp4/zoned_hopfield.py`.
 
 Se divide espacialmente el QR. Cada zona almacena los recortes de los cinco recuerdos; si todos son iguales ahí, se repone la zona conocida sin red. Se recupera cada zona y se ensamblan salidas. Zonas distintas pueden corresponder a identidades distintas o a espurios: que cada pieza parezca razonable no garantiza un QR completo válido. El parecido local siguió causando problemas.
 
@@ -515,7 +515,7 @@ La corrección QR por Reed–Solomon trabaja con **codewords de ocho bits**. Los
 
 ### Daño realista
 
-**Diapositiva 56 y apéndice 89–91. Código:** `src/tp4/damage.py`, `analysis/hopfield_qr_dano_realista.py`. Informes: [niveles moderados](../reports/ejercicio2/dano_realista_20261026/README.md) y [extremos](../reports/ejercicio2/dano_realista_extremo_20261026/README.md).
+**Diapositiva 56 y apéndice 90–92. Código:** `src/tp4/damage.py`, `analysis/hopfield_qr_dano_realista.py`. Informes: [niveles moderados](../reports/ejercicio2/dano_realista_20261026/README.md) y [extremos](../reports/ejercicio2/dano_realista_extremo_20261026/README.md).
 
 Siete daños que imitan un QR impreso gastado: desgaste (negro → blanco, nunca al revés), desgaste mayor en un borde, manchas negras y blancas irregulares, rayones que borran tinta, desgaste con mancha y una foto gastada (poco contraste, desenfoque y mancha semitransparente sobre una imagen de 8 píxeles por módulo, binarizada después). Se usaron los métodos congelados y semillas nuevas 200–219: 7.800 consultas en dos corridas. La segunda, con niveles extremos, se agregó después de ver la primera.
 

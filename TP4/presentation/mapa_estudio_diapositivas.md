@@ -1,6 +1,6 @@
 # Ensayo diapositiva por diapositiva
 
-Revisión del 25/10/2026, presentación después del pull a `ca3229f`. Hay 58 diapositivas de relato, una separadora de apéndice y 32 figuras de respaldo: 91 en total. Numeración actualizada el 26/10 con la parte de Hopfield compactada y el daño realista.
+Revisión del 25/10/2026, presentación después del pull a `ca3229f`. Hay 58 diapositivas de relato, una separadora de apéndice y 33 figuras de respaldo: 92 en total. Numeración actualizada el 26/10 con la parte de Hopfield compactada y el daño realista.
 
 Los enlaces abren la diapositiva correspondiente en `index.html`. La tecla S muestra las notas originales. Ninguna diapositiva fue editada para esta revisión.
 
@@ -88,19 +88,20 @@ Los enlaces abren la diapositiva correspondiente en `index.html`. La tecla S mue
 | 73 | [Candidatos de cada cliente](index.html#/72) | §6 | ¿Por qué un candidato barato de otra región puede no ser del tipo comercial elegido? |
 | 74 | [Elegidos frente al top 3 por seguidores](index.html#/73) | §6 | ¿Qué parte del ahorro viene de mirar público argentino y no solo seguidores? |
 | 75 | [Regiones y elegidos en el mapa](index.html#/74) | §6 | ¿Qué se hace si un elegido no está disponible y qué no garantiza cercanía en el mapa? |
-| 76 | [Un QR con ruido, paso a paso](index.html#/75) | §7 | ¿Podés seguir consulta, estados intermedios y salida sin confundir cercanía con estabilidad? |
-| 77 | [Hebb: iteraciones hasta converger](index.html#/76) | §7 | ¿Por qué pocas iteraciones no implican buena recuperación? |
-| 78 | [Solapamientos entre los QR](index.html#/77) | §7 | ¿Cómo se calcula cada entrada de la matriz de solapamientos? |
-| 79 | [Crosstalk: dónde el campo le gana a cada QR](index.html#/78) | §7–8 | ¿Qué se pinta en rojo y por qué está en la franja izquierda? |
-| 80 | [Capacidad medida: patrones al azar contra QR](index.html#/79) | §8 | ¿Con qué criterio se midió capacidad y por qué difiere entre QR y patrones aleatorios? |
-| 81 | [Sin compartidos: ruido, con la reposición sin red como referencia](index.html#/80) | §11 | ¿Qué mejora aporta solo reponer comunes sin Hopfield? |
-| 82 | [Sin compartidos: todas las ternas](index.html#/81) | §8, §11 | ¿Qué ternas contienen al par más parecido y cómo se compararon? |
-| 83 | [Una red por zona: QR estables en cada zona](index.html#/82) | §11 | ¿Por qué cortar en zonas no reduce el parecido? |
-| 84 | [Una red por zona: barrido de ruido y lector](index.html#/83) | §11 | ¿Cómo difieren exactitud de módulos y tasa de lectura por tamaño de zona? |
-| 85 | [Dos redes (diagnóstico): cuántas redes y cómo repartir](index.html#/84) | §11 | ¿Qué costo tiene llevar el reparto hasta una red por QR? |
-| 86 | [Dos redes (diagnóstico): qué devuelve cada una](index.html#/85) | §11 | ¿Cuándo devuelven QR guardados las dos redes y qué regla elige? |
-| 87 | [Todos los métodos con una esquina rota](index.html#/86) | §12 | ¿Las alternativas de este gráfico comparten consultas con la confirmación nueva? |
-| 88 | [Desaprendizaje: ruido, esquinas y manchas](index.html#/87) | §10, §12 | ¿Dónde se rompe el 100 % del desaprendizaje y cuánto del daño ve realmente la red? |
-| 89 | [Daño realista: los siete tipos](index.html#/88) | §12 | ¿Cómo se genera cada daño y en cuáles el lector solo deja de leer? |
-| 90 | [Daño realista: niveles extremos](index.html#/89) | §12 | ¿Dónde se rompe cada método y por qué ahí conviene saber que el daño solo borra tinta? |
-| 91 | [Daño realista: un ejemplo de cada tipo](index.html#/90) | §12 | ¿Qué parte de cada daño ve la red? |
+| 76 | [Cómo funciona la red](index.html#/75) | §7 | ¿Cómo se pasa del QR a neuronas, cómo se guarda con Hebb, cómo se actualiza y cuándo para? ¿Qué mide la energía? |
+| 77 | [Un QR con ruido, paso a paso](index.html#/76) | §7 | ¿Podés seguir consulta, estados intermedios y salida sin confundir cercanía con estabilidad? |
+| 78 | [Hebb: iteraciones hasta converger](index.html#/77) | §7 | ¿Por qué pocas iteraciones no implican buena recuperación? |
+| 79 | [Solapamientos entre los QR](index.html#/78) | §7 | ¿Cómo se calcula cada entrada de la matriz de solapamientos? |
+| 80 | [Crosstalk: dónde el campo le gana a cada QR](index.html#/79) | §7–8 | ¿Qué se pinta en rojo y por qué está en la franja izquierda? |
+| 81 | [Capacidad medida: patrones al azar contra QR](index.html#/80) | §8 | ¿Con qué criterio se midió capacidad y por qué difiere entre QR y patrones aleatorios? |
+| 82 | [Sin compartidos: ruido, con la reposición sin red como referencia](index.html#/81) | §11 | ¿Qué mejora aporta solo reponer comunes sin Hopfield? |
+| 83 | [Sin compartidos: todas las ternas](index.html#/82) | §8, §11 | ¿Qué ternas contienen al par más parecido y cómo se compararon? |
+| 84 | [Una red por zona: QR estables en cada zona](index.html#/83) | §11 | ¿Por qué cortar en zonas no reduce el parecido? |
+| 85 | [Una red por zona: barrido de ruido y lector](index.html#/84) | §11 | ¿Cómo difieren exactitud de módulos y tasa de lectura por tamaño de zona? |
+| 86 | [Dos redes (diagnóstico): cuántas redes y cómo repartir](index.html#/85) | §11 | ¿Qué costo tiene llevar el reparto hasta una red por QR? |
+| 87 | [Dos redes (diagnóstico): qué devuelve cada una](index.html#/86) | §11 | ¿Cuándo devuelven QR guardados las dos redes y qué regla elige? |
+| 88 | [Todos los métodos con una esquina rota](index.html#/87) | §12 | ¿Las alternativas de este gráfico comparten consultas con la confirmación nueva? |
+| 89 | [Desaprendizaje: ruido, esquinas y manchas](index.html#/88) | §10, §12 | ¿Dónde se rompe el 100 % del desaprendizaje y cuánto del daño ve realmente la red? |
+| 90 | [Daño realista: los siete tipos](index.html#/89) | §12 | ¿Cómo se genera cada daño y en cuáles el lector solo deja de leer? |
+| 91 | [Daño realista: niveles extremos](index.html#/90) | §12 | ¿Dónde se rompe cada método y por qué ahí conviene saber que el daño solo borra tinta? |
+| 92 | [Daño realista: un ejemplo de cada tipo](index.html#/91) | §12 | ¿Qué parte de cada daño ve la red? |
