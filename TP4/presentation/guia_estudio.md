@@ -243,7 +243,7 @@ Para creadores nuevos se conserva el escalador y se busca BMU. Con muchas observ
 
 ## 7. Hopfield con Hebb: almacenar y recuperar son cosas distintas
 
-**Diapositivas 37–42 y apéndice 76 (fórmulas). Código:** `src/tp4/hopfield.py`, `__init__`, `_synchronous`, `recall`, `energy` y `overlaps`.
+**Diapositivas 37–42 y apéndice 77 (fórmulas). Código:** `src/tp4/hopfield.py`, `__init__`, `_synchronous`, `recall`, `energy` y `overlaps`.
 
 Un módulo QR es un cuadrado lógico; no cada píxel de una foto. Se usan imágenes binarias de **37×37 módulos**, aplanadas por filas. Negro es `+1`, blanco `−1`. Los cinco recuerdos forman `Ξ` de **5×1.369**.
 
@@ -327,7 +327,7 @@ La capacidad `≈0,15N` del apunte supone patrones adecuados, típicamente aleat
 
 ## 9. Pseudoinversa, explicada con A, B y C
 
-**Diapositivas 52–54 y material de respaldo. Código:** rama `rule == 'pseudoinverse'` de `Hopfield.__init__`.
+**Diapositivas 53–55, apéndice 78 y material de respaldo. Código:** rama `rule == 'pseudoinverse'` de `Hopfield.__init__`.
 
 La matriz de patrones sigue teniendo recuerdos por filas. Se calcula:
 
@@ -403,7 +403,7 @@ Quitar posiciones comunes cambia la matriz de Gram y la dinámica. Aunque no dis
 
 ## 10. Desaprendizaje: qué se penaliza y cuándo se termina
 
-**Diapositivas 49–51. Código:** `src/tp4/unlearning.py`, `UnlearningTrainer.step` y `anti_hebbian_update`.
+**Diapositivas 49–52. Código:** `src/tp4/unlearning.py`, `UnlearningTrainer.step` y `anti_hebbian_update`.
 
 Se parte de **una red de Hebb** y se hacen intentos de encontrar estados espurios. Si un intento llega a un estado estable `a` que no es un original ni su inverso, se aplica:
 
@@ -444,11 +444,11 @@ La versión completa de 1.369 neuronas **no tuvo candidato que conservara los ci
 
 La consulta ruidosa se genera completa antes del recorte. La red recibe solo la parte variable. Si el daño cae en un módulo común, lo corrige la plantilla, sin inferencia de Hopfield. Eso debe contarse como parte explícita de la solución.
 
-Con cinco QR, quitar compartidos **no bastó para Hebb**: cero originales estables. Mejoró qué subconjuntos de tres pueden almacenarse. Por eso la diapositiva 58 dice que sacar lo común reduce el primer problema, no que lo resuelve solo.
+Con cinco QR, quitar compartidos **no bastó para Hebb**: cero originales estables. Mejoró qué subconjuntos de tres pueden almacenarse. Por eso la diapositiva 59 dice que sacar lo común reduce el primer problema, no que lo resuelve solo.
 
 ### Una red por zona
 
-**Diapositiva 43 (mencionada) y apéndice 84–85. Código:** `src/tp4/zoned_hopfield.py`.
+**Diapositiva 43 (mencionada) y apéndice 86–87. Código:** `src/tp4/zoned_hopfield.py`.
 
 Se divide espacialmente el QR. Cada zona almacena los recortes de los cinco recuerdos; si todos son iguales ahí, se repone la zona conocida sin red. Se recupera cada zona y se ensamblan salidas. Zonas distintas pueden corresponder a identidades distintas o a espurios: que cada pieza parezca razonable no garantiza un QR completo válido. El parecido local siguió causando problemas.
 
@@ -460,7 +460,7 @@ Aquí no se cortan posiciones: se reparten **identidades** entre redes. Se enume
 
 La consulta pasa por ambas. Se restauran salidas completas y se comprueba cuáles son recuerdos de la propia red. Si hay alguna, se elige entre esas; si hay más de una, se usa menor Hamming a la consulta. Si ninguna es un recuerdo almacenado, se elige la salida más cercana entre todas.
 
-Esto es **redes de Hopfield + selector externo**. El selector conoce los recuerdos y no forma parte de la dinámica recurrente. El código usa Hamming, aunque usar dos redes no obliga teóricamente a elegir ese criterio. Sus resultados hasta 35 % de ruido pertenecen al barrido correspondiente; no están emparejados con las consultas nuevas del gráfico de la diapositiva 54.
+Esto es **redes de Hopfield + selector externo**. El selector conoce los recuerdos y no forma parte de la dinámica recurrente. El código usa Hamming, aunque usar dos redes no obliga teóricamente a elegir ese criterio. Sus resultados hasta 35 % de ruido pertenecen al barrido correspondiente; no están emparejados con las consultas nuevas del gráfico de la diapositiva 55.
 
 **Por qué en la presentación es un diagnóstico y no una solución.** Si la consulta va directo a la red que guarda su QR, recupera el 100 % hasta 35 % de ruido: eso prueba que el par menú-vinos era el único obstáculo. Pero con una consulta de menú las dos redes devuelven un QR guardado (la de vinos, vinos: 140 de 140), así que alguien tiene que elegir. Sin desempate el total queda en 80 %. Desempatar con la salida más cercana a la consulta equivale a Hamming y nunca le gana (6 consultas mejor, 25 peor). Elegir la red de menor energía no mira los originales, pero con Hebb `E = −N/2 Σ m² + p/2`: sigue midiendo el parecido con los QR guardados, y queda por debajo (3 mejor, 43 peor). Con cinco redes de un QR cada una, el método sería exactamente comparar con los originales. **Cómo contarlo:** «Separar el par confirma que es el obstáculo; elegir la red nos devuelve a comparar con los originales».
 
@@ -515,7 +515,7 @@ La corrección QR por Reed–Solomon trabaja con **codewords de ocho bits**. Los
 
 ### Daño realista
 
-**Diapositiva 56 y apéndice 90–92. Código:** `src/tp4/damage.py`, `analysis/hopfield_qr_dano_realista.py`. Informes: [niveles moderados](../reports/ejercicio2/dano_realista_20261026/README.md) y [extremos](../reports/ejercicio2/dano_realista_extremo_20261026/README.md).
+**Diapositiva 57 y apéndice 92–94. Código:** `src/tp4/damage.py`, `analysis/hopfield_qr_dano_realista.py`. Informes: [niveles moderados](../reports/ejercicio2/dano_realista_20261026/README.md) y [extremos](../reports/ejercicio2/dano_realista_extremo_20261026/README.md).
 
 Siete daños que imitan un QR impreso gastado: desgaste (negro → blanco, nunca al revés), desgaste mayor en un borde, manchas negras y blancas irregulares, rayones que borran tinta, desgaste con mancha y una foto gastada (poco contraste, desenfoque y mancha semitransparente sobre una imagen de 8 píxeles por módulo, binarizada después). Se usaron los métodos congelados y semillas nuevas 200–219: 7.800 consultas en dos corridas. La segunda, con niveles extremos, se agregó después de ver la primera.
 
@@ -648,7 +648,7 @@ Un orden de estudio sugerido, ajustable al tiempo disponible:
 
 ## Fuentes para profundizar sin leer todo el repositorio
 
-- Presentación: [index.html](index.html), notas con la tecla S. El mapa de estudio usa su numeración real de 90 diapositivas.
+- Presentación: [index.html](index.html), notas con la tecla S. El mapa de estudio usa su numeración real de 94 diapositivas.
 - Núcleo matemático: [preprocessing.py](../src/tp4/preprocessing.py), [pca.py](../src/tp4/pca.py), [kohonen.py](../src/tp4/kohonen.py), [oja.py](../src/tp4/oja.py), [hopfield.py](../src/tp4/hopfield.py), [unlearning.py](../src/tp4/unlearning.py).
 - Interpretación y selección: [som_regions.py](../analysis/som_regions.py), [som_campanas.py](../analysis/som_campanas.py).
 - Composición de soluciones QR: [shared_modules.py](../src/tp4/shared_modules.py), [zoned_hopfield.py](../src/tp4/zoned_hopfield.py), [split_hopfield.py](../src/tp4/split_hopfield.py), [qr_bits.py](../analysis/qr_bits.py).

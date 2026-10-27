@@ -1,6 +1,6 @@
 # TP4: presentación
 
-58 diapositivas de relato y un apéndice de 33 diapositivas para preguntas.
+59 diapositivas de relato y un apéndice de 34 diapositivas para preguntas.
 
 Abrir `index.html`. Flechas: avanzar. F: pantalla completa. S: notas del orador. Funciona sin conexión; para compartirla, enviar la carpeta completa.
 
@@ -49,11 +49,11 @@ reveal.js está en `vendor/` (ver `vendor/VERSIONS.txt`).
 
 ## Experimentos nuevos de Hopfield
 
-La [guía de incorporación y notas](experimentos_hopfield_nuevos.md) resume los resultados confirmados de desaprendizaje y pseudoinversa, distingue Hamming sin red y fija qué afirmaciones sostiene la evidencia. Sus cifras de desaprendizaje y pseudoinversa están en las diapositivas 49–54 y 55.
+La [guía de incorporación y notas](experimentos_hopfield_nuevos.md) resume los resultados confirmados de desaprendizaje y pseudoinversa, distingue Hamming sin red y fija qué afirmaciones sostiene la evidencia. Sus cifras de desaprendizaje y pseudoinversa están en las diapositivas 49–55 y 56.
 
 ## Ejercicio 2 compactado y daño realista (26/10)
 
-La parte de Hopfield pasó de 31 a 23 diapositivas. Las fórmulas de la red (Hebb, actualización y energía) quedaron en el apéndice (76). Se agregaron el desaprendizaje en tres pasos (49–51) y la pseudoinversa con un ejemplo de 6 neuronas (52–53). Las dos redes se presentan como diagnóstico (47) y comparar con los originales como el techo (54). La diapositiva 56 muestra el [daño realista](../reports/ejercicio2/dano_realista_20261026/README.md); el apéndice suma sus curvas y ejemplos (90–92). Los gráficos nuevos salen de `presentation_figures.qr_published`, que solo usa los QR y la evidencia publicada.
+La parte de Hopfield pasó de 31 a 23 diapositivas. Las fórmulas de la red (Hebb, actualización y energía) quedaron en el apéndice (77). Se agregaron el desaprendizaje en tres pasos (50–52) y la pseudoinversa con un ejemplo de 6 neuronas (54). Las dos redes se presentan como diagnóstico (47) y comparar con los originales como el techo (55). La diapositiva 57 muestra el [daño realista](../reports/ejercicio2/dano_realista_20261026/README.md); el apéndice suma sus curvas y ejemplos (92–94). Los gráficos nuevos salen de `presentation_figures.qr_published`, que solo usa los QR y la evidencia publicada. El 27/10 se agregaron dos comparaciones lado a lado, Hebb contra desaprendizaje (49) y Hebb contra pseudoinversa (53); la diapositiva anterior de la fórmula de la pseudoinversa pasó al apéndice (78).
 
 ## Vecindad uniforme frente a gaussiana
 

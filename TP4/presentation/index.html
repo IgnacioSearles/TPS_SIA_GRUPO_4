@@ -420,6 +420,29 @@
 </section>
 
 <section>
+  <h2>Desaprender es Hebb al revés, solo para lo falso</h2>
+  <div class="compare">
+    <span></span>
+    <h3>Hebb</h3>
+    <h3 class="chosen">Desaprendizaje</h3>
+
+    <p class="k">Regla</p>
+    <p class="f">W = (1/N) Σ ξ ξᵀ<br><small>suma los 5 QR, una vez</small></p>
+    <p class="f">W ← W − (η/N) a aᵀ<br><small>resta un estado falso <i>a</i>, de a uno</small></p>
+
+    <p class="k">Qué busca</p>
+    <p>Que cada QR sea un pozo de energía</p>
+    <p>Rellenar los pozos que nadie guardó</p>
+
+    <p class="k">Energía</p>
+    <p>Baja donde el estado se parece a los QR. La mezcla se parece a los cinco y queda <em>más abajo</em></p>
+    <p>La de <i>a</i> sube η(N−1)/2. La de cada QR sube según cuánto se parezca a&nbsp;<i>a</i></p>
+  </div>
+  <p class="take">Hebb no puede evitar la mezcla: nunca la guardó, aparece sola. Desaprender la busca y la resta. Funciona si los QR no se parecen a lo que se resta: por eso, sin lo común.</p>
+  <aside class="notes">Las dos reglas usan el mismo término, la tabla de productos de un estado consigo mismo: ξ ξᵀ en Hebb, a aᵀ en el desaprendizaje. Hebb lo suma para cada QR; el desaprendizaje lo resta, con un factor chico (η = 0,1), para un estado falso. Con Hebb, la energía de un estado es −N/2 por la suma de los cuadrados de cuánto se parece a cada QR, más una constante: un estado que se parece bastante a los cinco puede quedar más abajo que cada QR, y así nace la mezcla. Hebb no tiene forma de evitarlo porque nunca la sumó. El desaprendizaje parte de estados al azar, deja que la red caiga, y si cae en un estado estable que no es un QR ni el inverso de un QR, lo resta. Al restar a, su energía sube exactamente η(N−1)/2. La de cualquier otro estado s sube (η/2)(N q² − 1), donde q es cuánto se parece s a a: si los QR se parecen mucho al estado falso, la resta también los sube a ellos. No se restan los inversos porque restar −ξ es lo mismo que restar ξ, ni los ciclos, porque no son un pozo sino una oscilación de la actualización sincrónica. En la red completa todos los estados falsos comparten los 955 módulos comunes con los QR: cada resta le saca 0,1 de voto a esas conexiones, que empezaron en 5, y a las 50 restas las borra. Por eso solo funciona sin lo común.</aside>
+</section>
+
+<section>
   <h2>Desaprendizaje: rellenar los pozos falsos</h2>
   <div class="steps tight">
     <div><p class="n">1</p><div><p class="what">Partir de un estado al azar</p><p class="how">±1 en cada una de las 414 neuronas (sin lo común)</p></div></div>
@@ -446,15 +469,26 @@
 </section>
 
 <section>
-  <h2>Pseudoinversa: descontar el parecido antes de guardar</h2>
-  <div class="eqs tight">
-    <p><b>Hebb:</b> <code>W = Ξᵀ Ξ / N</code>. Suma cada QR: lo que comparten se suma cinco veces y tapa lo que los distingue.</p>
-    <p><b>Pseudoinversa:</b> <code>W = Ξᵀ (Ξ Ξᵀ)⁻¹ Ξ</code>, con la diagonal en cero. <code>Ξ</code> tiene los cinco QR como filas.</p>
-    <p><b><code>Ξ Ξᵀ</code></b> es la tabla 5 × 5 de solapamientos (por N). Su inversa descuenta cuánto se parece cada QR a los otros.</p>
-    <p><b>Resultado:</b> <code>W</code> proyecta sobre lo que se arma combinando los QR. Un QR guardado ya está ahí: su campo es <code>(1 − Pᵢᵢ) ξᵢ</code>, del mismo signo. Queda estable.</p>
+  <h2>La pseudoinversa es Hebb descontando el parecido</h2>
+  <div class="compare">
+    <span></span>
+    <h3>Hebb</h3>
+    <h3 class="chosen">Pseudoinversa</h3>
+
+    <p class="k">Regla</p>
+    <p class="f">W = Ξᵀ Ξ / N<br><small>divide por N</small></p>
+    <p class="f">W = Ξᵀ G⁻¹ Ξ<br><small>con G = Ξ Ξᵀ, la tabla 5 × 5 de parecidos</small></p>
+
+    <p class="k">Qué busca</p>
+    <p>Que cada QR se reproduzca: <code>W ξ ≈ ξ</code></p>
+    <p>Lo mismo, pero exacto: <code>W ξ = ξ</code></p>
+
+    <p class="k">Campo de un QR</p>
+    <p>Señal propia + crosstalk de los otros. Con QR parecidos, el crosstalk <em>le gana</em></p>
+    <p><code>(1 − Pᵢᵢ) ξᵢ</code>: mismo signo que el QR, sin crosstalk. G⁻¹ ya descontó el parecido</p>
   </div>
-  <p class="take">Con QR ortogonales da lo mismo que Hebb. Sirve mientras ningún QR sea combinación de los otros. No está en el apunte.</p>
-  <aside class="notes">Se llama pseudoinversa porque Ξ no es cuadrada (5 por 1.369) y no tiene inversa: Ξᵀ (Ξ Ξᵀ)⁻¹ es lo más parecido a una. La matriz que se invierte es de 5 por 5, no de 1.369. P es el proyector sobre el espacio de los QR; al poner su diagonal en cero, el campo sobre un QR guardado queda (1 − Pᵢᵢ) por su valor, y como Pᵢᵢ está entre 0 y 1 no cambia el signo. Eso garantiza que los originales son estables, no que se recuperen desde cualquier ruido: eso depende del tamaño de los pozos. Guarda hasta N patrones linealmente independientes, contra unos 0,14 N de Hebb con patrones al azar. A diferencia del desaprendizaje, no necesita sacar lo común: el descuento ya contempla lo que comparten.</aside>
+  <p class="take">Con QR ortogonales, G = N·I y las dos reglas son iguales. La pseudoinversa no necesita sacar lo común ni iterar: es un solo cálculo, pero no está en el apunte.</p>
+  <aside class="notes">Ξ tiene los cinco QR como filas. Hebb es Ξᵀ Ξ / N: cada QR se reproduce a sí mismo y, además, arrastra a los otros pesados por cuánto se parecen; ese arrastre es el crosstalk. Solo si los QR fueran ortogonales el arrastre sería cero. La pseudoinversa cambia el 1/N por G⁻¹, donde G = Ξ Ξᵀ es la tabla de productos escalares entre pares de QR. Entonces W Ξᵀ = Ξᵀ G⁻¹ G = Ξᵀ: cada QR se reproduce exacto. Leída como Hebb, es una suma de tablas ξ ξᵀ con coeficientes distintos y con tablas cruzadas entre QR que restan lo que comparten. Si G = N·I, G⁻¹ = I/N y queda Hebb. Al poner la diagonal en cero, el campo sobre un QR es (1 − Pᵢᵢ) por su valor; la suma de los Pᵢᵢ es la cantidad de QR, así que en promedio Pᵢᵢ = 5/1.369 y el margen es casi 1. Garantiza que los QR sean estables, no que se recuperen desde cualquier ruido. La matriz que se invierte es de 5 × 5. Cada peso depende de todos los QR a la vez, no solo de los dos módulos que conecta: por eso no es una regla local como Hebb ni está en el apunte. El detalle de la fórmula está en el apéndice.</aside>
 </section>
 
 <section>
@@ -564,6 +598,18 @@ Campo de cada neurona al presentar A:
   </div>
   <p class="take">Medimos dos cosas: si la salida es exactamente el QR guardado y si un lector de QR la puede leer.</p>
   <aside class="notes">Es la red del apunte, con actualización sincrónica. El lector es el detector de QR de OpenCV, el mismo tipo de lector que usa la cámara de un celular: busca los tres cuadrados de las esquinas, lee los módulos y los verifica con la corrección de errores del propio QR. La consulta ya llega como una matriz de 37×37 alineada: eso es un supuesto, lo retomamos en los límites.</aside>
+</section>
+
+<section>
+  <h2>Pseudoinversa: descontar el parecido antes de guardar</h2>
+  <div class="eqs tight">
+    <p><b>Hebb:</b> <code>W = Ξᵀ Ξ / N</code>. Suma cada QR: lo que comparten se suma cinco veces y tapa lo que los distingue.</p>
+    <p><b>Pseudoinversa:</b> <code>W = Ξᵀ (Ξ Ξᵀ)⁻¹ Ξ</code>, con la diagonal en cero. <code>Ξ</code> tiene los cinco QR como filas.</p>
+    <p><b><code>Ξ Ξᵀ</code></b> es la tabla 5 × 5 de solapamientos (por N). Su inversa descuenta cuánto se parece cada QR a los otros.</p>
+    <p><b>Resultado:</b> <code>W</code> proyecta sobre lo que se arma combinando los QR. Un QR guardado ya está ahí: su campo es <code>(1 − Pᵢᵢ) ξᵢ</code>, del mismo signo. Queda estable.</p>
+  </div>
+  <p class="take">Con QR ortogonales da lo mismo que Hebb. Sirve mientras ningún QR sea combinación de los otros. No está en el apunte.</p>
+  <aside class="notes">Se llama pseudoinversa porque Ξ no es cuadrada (5 por 1.369) y no tiene inversa: Ξᵀ (Ξ Ξᵀ)⁻¹ es lo más parecido a una. La matriz que se invierte es de 5 por 5, no de 1.369. P es el proyector sobre el espacio de los QR; al poner su diagonal en cero, el campo sobre un QR guardado queda (1 − Pᵢᵢ) por su valor, y como Pᵢᵢ está entre 0 y 1 no cambia el signo. Eso garantiza que los originales son estables, no que se recuperen desde cualquier ruido: eso depende del tamaño de los pozos. Guarda hasta N patrones linealmente independientes, contra unos 0,14 N de Hebb con patrones al azar. A diferencia del desaprendizaje, no necesita sacar lo común: el descuento ya contempla lo que comparten.</aside>
 </section>
 
 <section class="figure"><h2>Un QR con ruido, paso a paso</h2><figure><img src="assets/reports__ejercicio2__ejemplos.png" alt="Original, consulta y salida para cuatro niveles de ruido"></figure></section>
