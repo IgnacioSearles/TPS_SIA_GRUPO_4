@@ -118,6 +118,7 @@ def qr_published(out):
     qr_figures.plot_shared_annotated(patterns, out / 'e2_compartidos_anotado.png')
     qr_figures.plot_unlearning_training(pd.read_csv(confirmation / 'estabilidad.csv'),
                                         pd.read_csv(confirmation / 'entrenamiento.csv.gz'),
+                                        qr_figures.hebb_sink_rejections(patterns),
                                         out / 'e2_desaprendizaje_entrenamiento.png')
     qr_figures.plot_unlearning_result(by_noise, pd.read_csv(confirmation / 'resultados.csv.gz'),
                                       out / 'e2_desaprendizaje_resultado.png')

@@ -17,6 +17,7 @@ from src.tp4.qr import SIDE
 from src.tp4.queries import make_queries
 from src.tp4.shared_modules import SharedModules
 from src.tp4.split_hopfield import SplitHopfield
+from src.tp4.unlearning import UnlearningTrainer
 
 MENU_NAMES = {'menu_principal': 'food', 'vinos': 'wine', 'cocteles_y_bebidas': 'beverages',
               'postres': 'dessert', 'especiales': 'specials'}
@@ -311,21 +312,46 @@ def plot_shared_annotated(patterns, path):
     _save(fig, path)
 
 
-def plot_unlearning_training(stability, training, path):
-    """Qué cambia el desaprendizaje: neuronas que rechazan cada estado (campo con el signo contrario) antes y
-    después, y qué pasó en los 50 intentos de cada semilla de entrenamiento."""
-    states = list(MENU_NAMES) + ['mezcla']
-    labels = [MENU_NAMES[s] for s in MENU_NAMES] + ['mezcla']
-    before = stability[stability.method == 'hebb'].set_index('state').wrong_fields.reindex(states)
-    after = stability[stability.method == 'unlearning'].groupby('state').wrong_fields.mean().reindex(states)
+def hebb_sink_rejections(patterns, seeds=(0, 1, 2), attempts=50, learning_rate=.1):
+    """Neuronas que rechazan el pozo falso de Hebb sin lo común, antes y después de desaprender.
+
+    El pozo es el estado estable al que llega Hebb desde la mezcla mayoritaria (la mezcla misma no es
+    estable sin lo común). Las redes se reentrenan con la configuración congelada de la confirmación
+    (sueños, η = 0,1, 50 intentos, semillas 0/1/2); devuelve el valor con Hebb y la media de las tres."""
+    active = SharedModules(patterns).strip(patterns.astype(float))
+    hebb = Hopfield(active)
+    sink = hebb.recall(UnlearningTrainer(active).mixture, max_iterations=MAX_ITERATIONS)
+    if sink.stop_reason != 'stable':
+        raise ValueError('Hebb no llega a un estado estable desde la mezcla')
+    rejecting = lambda network: int(np.count_nonzero(sink.state * (network.weights_ @ sink.state) < 0))
+    after = []
+    for seed in seeds:
+        trainer = UnlearningTrainer(active, mode='dream', learning_rate=learning_rate, seed=seed,
+                                    max_iterations=MAX_ITERATIONS)
+        for _ in range(attempts):
+            trainer.step()
+        after.append(rejecting(trainer.network))
+    return rejecting(hebb), float(np.mean(after))
+
+
+def plot_unlearning_training(stability, training, sink, path):
+    """Qué cambia el desaprendizaje: neuronas que rechazan cada QR y el pozo falso de Hebb (campo con el
+    signo contrario) antes y después, y qué pasó en los 50 intentos de cada semilla de entrenamiento.
+    `sink` es el par (Hebb, después) de `hebb_sink_rejections`."""
+    states = list(MENU_NAMES)
+    labels = [MENU_NAMES[s] for s in MENU_NAMES] + ['pozo falso\nde Hebb']
+    before = stability[stability.method == 'hebb'].set_index('state').wrong_fields.reindex(states).tolist()
+    after = stability[stability.method == 'unlearning'].groupby('state').wrong_fields.mean().reindex(states).tolist()
+    before.append(sink[0])
+    after.append(sink[1])
     fig, (left, right) = plt.subplots(1, 2, figsize=(16, 5.2), gridspec_kw={'width_ratios': (1.7, 1)})
-    positions, width = np.arange(len(states)), .38
+    positions, width = np.arange(len(labels)), .38
     for offset, values, label, color in ((-width / 2, before, 'Hebb', 'C0'),
                                          (width / 2, after, 'después de desaprender', 'C1')):
         bars = left.bar(positions + offset, values, width, label=label, color=color)
         left.bar_label(bars, [f'{v:.0f}' for v in values], padding=3, fontsize=13)
     left.set_xticks(positions, labels)
-    left.set(ylabel='Neuronas que lo rechazan', ylim=(0, before.max() * 1.25))
+    left.set(ylabel='Neuronas que lo rechazan', ylim=(0, max(before + after) * 1.25))
     left.legend(loc='upper left')
     counts = training.groupby(['training_seed', 'action']).size().unstack(fill_value=0)
     seeds = [f'semilla {seed}' for seed in counts.index]
