@@ -482,13 +482,18 @@
 
 <section>
   <h2>Pseudoinversa en chico: 6 neuronas, 3 recuerdos</h2>
-  <div class="toy">A = (+1 +1 +1 +1 −1 −1)    B = (+1 +1 +1 −1 +1 −1)    C = (+1 +1 −1 +1 +1 −1)
+  <div class="toy">A = (+ + + + − −)    B = (+ + + − + −)    C = (+ + − + + −)
 
-Campo de cada neurona al presentar A:
-<strong>Hebb</strong>           (1,17  1,17  0,50  0,50  <b>+0,17</b>  −1,17)  → la 5.ª se da vuelta
-<strong>Pseudoinversa</strong>  (0,70  0,70  0,30  0,30  <strong>−0,30</strong>  −0,70)  → mismo signo que A</div>
-  <p class="take">Con Hebb, A no es estable: se parece demasiado a B y C. La pseudoinversa descuenta ese parecido y A queda fijo. Con los QR pasa lo mismo.</p>
-  <aside class="notes">Los tres recuerdos comparten las dos primeras neuronas y la última. La tabla de Gram, Ξ Ξᵀ, vale 6 en la diagonal y 2 fuera; su inversa vale 0,20 en la diagonal y −0,05 fuera: ese −0,05 es el descuento. En la quinta neurona, B y C valen +1 y A vale −1. Con Hebb, los dos que valen +1 empujan más que A y la neurona se da vuelta. Con la pseudoinversa, el campo es (1 − 0,7) × (−1) = −0,3: queda. Si además invertimos la primera neurona de A como consulta, Hebb termina en una mezcla estable y la pseudoinversa vuelve a A. Con los cinco QR, la pseudoinversa deja estables a los cinco y la mezcla deja de serlo.</aside>
+Presento A. En la neurona 5, A pide <b>−</b>; B y C piden <b>+</b>. ¿Cuánto empuja cada uno?
+                          A        B        C       campo
+<strong>1. Parecido con A</strong>         5        3        3       (sin contar la 5.ª)
+<strong>2. Hebb</strong>: parecido / 6   −0,83    +0,50    +0,50     <b>+0,17</b>  se da vuelta
+<strong>3. Pseudoinversa</strong>        −0,70    +0,20    +0,20     <strong>−0,30</strong>  queda
+
+   G⁻¹: 0,20 propio, −0,05 por cada otro recuerdo
+   A: 0,20·5 − 0,05·(3+3) = 0,70      B: 0,20·3 − 0,05·(5+3) = 0,20</div>
+  <p class="take">Con Hebb, B y C juntos empujan más que A. La pseudoinversa les descuenta lo que comparten con A: bajan de 0,50 a 0,20 y gana A.</p>
+  <aside class="notes">Los tres recuerdos comparten las dos primeras neuronas y la última. El campo de una neurona es la suma de lo que le pide cada recuerdo, pesado por cuánto se parece el estado a ese recuerdo en las otras neuronas. Paso 1: A coincide consigo mismo en las otras 5 neuronas; B y C coinciden con A en 4 y difieren en 1, así que su parecido es 3. Paso 2, Hebb: cada peso es parecido sobre 6. A empuja −5/6 y B y C, +3/6 cada uno: suma +1/6 y la neurona 5 se da vuelta. Paso 3, pseudoinversa: G = Ξ Ξᵀ vale 6 en la diagonal y 2 fuera; su inversa vale 0,20 en la diagonal y −0,05 fuera. El peso de cada recuerdo es G⁻¹ por el vector de parecidos: a cada uno se le suma 0,20 de su propio parecido y se le resta 0,05 del parecido de los otros, que es la parte que comparten. B baja de 0,50 a 0,20 y A, de 0,83 a 0,70. Campo: −0,70 + 0,20 + 0,20 = −0,30: queda. Si además invertimos la primera neurona de A como consulta, Hebb termina en una mezcla estable y la pseudoinversa vuelve a A. Con los cinco QR, la pseudoinversa deja estables a los cinco y la mezcla deja de serlo.</aside>
 </section>
 
 <section class="figure has-take">
@@ -501,19 +506,20 @@ Campo de cada neurona al presentar A:
 <!-- Límites y conclusiones -->
 
 <section>
-  <h2>La esquina rota casi no le llega a la red</h2>
-  <div class="numbers">
-    <div><p class="value">65</p><p class="label">módulos dañados por una esquina de 11×11</p></div>
-    <div><p class="value warm">9</p><p class="label">de esos los tiene que arreglar la red</p></div>
+  <h2>Una esquina rota cae casi toda donde los QR son iguales</h2>
+  <div class="numbers three">
+    <div><p class="value">121</p><p class="label">módulos en una esquina de 11×11</p></div>
+    <div><p class="value">65</p><p class="label">cambian: los negros que quedan blancos</p></div>
+    <div><p class="value warm">9</p><p class="label">caen donde los QR difieren: solo esos los arregla la red</p></div>
   </div>
-  <p class="take">Con desaprendizaje vuelve exacto el <em>100 %</em> hasta un bloque de 21×21 (32 % del QR); comparar con los originales, hasta 25×25.</p>
+  <p class="take">Los otros 56 caen en módulos iguales en los cinco QR, que se reponen sin la red. Con desaprendizaje vuelve exacto el <em>100 %</em> hasta una esquina de 21×21 (32 % del QR).</p>
   <aside class="notes">El resto del daño cae en partes fijas de todo QR, cuadrados de las esquinas, sincronismo y formato, que reponemos sin la red. Promedio de las cuatro esquinas, en blanco. La esquina y su tamaño los elegimos nosotros: el enunciado solo cuenta que una esquina está rota. Con 25×25, el desaprendizaje recupera el 88 %, y con 29×29, el 75 %. Con manchas negras cuadradas en cualquier lugar, 100 % hasta 17×17 y 91 % con 29×29. Hebb: 0 % en todos los casos.</aside>
 </section>
 
 <section class="figure has-take">
-  <h2>Con daño realista, la red recupera el QR mucho después de que el lector deja de leer</h2>
+  <h2>Con daño realista, las redes recuperan casi todo</h2>
   <figure><img src="assets/reports__presentacion__e2_dano_realista.png" alt="Recuperación exacta con desgaste, manchas, rayones y foto gastada"></figure>
-  <p class="take">El lector solo no lee con una mancha del 5 %, dos rayones o un poco de desgaste. Con desaprendizaje vuelve exacto el <em>97 % o más</em> hasta con un cuarto de los módulos alterados, en todos los tipos.</p>
+  <p class="take">Con desaprendizaje vuelve exacto el <em>97 % o más</em> hasta con un cuarto de los módulos alterados, en todos los tipos. La pseudoinversa completa aguanta más: 99 % con 44 % de desgaste.</p>
   <aside class="notes">Probamos daños que imitan cómo se arruina un QR impreso: desgaste (la tinta se pierde, negro a blanco y nunca al revés), desgaste mayor en un borde, manchas negras y blancas de forma irregular, rayones que borran tinta, desgaste con una mancha, y una foto gastada: poco contraste, desenfoque y una mancha semitransparente, binarizada después por módulo. Usamos los métodos ya elegidos, sin reajustar nada, y semillas nuevas: 7.800 consultas en dos corridas. La segunda, con niveles extremos, la agregamos después de ver que en la primera casi todo daba 100 %. El eje x es la fracción de módulos alterados. Con desgaste, el lector no lee ni con 2,6 % de módulos perdidos, porque el daño se reparte por todo el QR. Las salidas exactas se leen siempre y las que no son exactas, nunca. Hebb da 0 % en todos los casos. La pseudoinversa completa aguanta más: 99 % con 44 % de módulos perdidos por desgaste. Lo que más cuesta es la foto: con 40 % de módulos alterados el desaprendizaje baja a 87 %. Línea negra punteada: si sabemos que el daño solo borra tinta, un negro en la consulta no puede venir de un blanco del original. Usando eso, con 49 % alterado se acierta el 97 %, contra 71 % de comparar con los originales: con daño de un solo lado, Hamming deja de ser el techo. Las curvas de los siete tipos están en el apéndice.</aside>
 </section>
 

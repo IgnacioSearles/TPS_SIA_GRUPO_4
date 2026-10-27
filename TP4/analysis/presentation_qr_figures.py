@@ -392,15 +392,14 @@ def plot_rules_by_noise(by_noise, pseudoinverse, path):
 
 def plot_realistic_damage(summary, path, kinds=('desgaste', 'mancha_negra', 'rayones', 'foto')):
     """Daño realista: recuperación exacta de las dos reglas que guardan los cinco QR y de comparar con los
-    originales, más el lector solo sobre la consulta dañada. `summary` puede juntar varias corridas: cada
-    nivel se ubica por la fracción media de módulos alterados."""
+    originales. `summary` puede juntar varias corridas: cada nivel se ubica por la fracción media de módulos
+    alterados."""
     titles = {'desgaste': 'Desgaste: se pierde tinta', 'mancha_negra': 'Manchas negras irregulares',
               'rayones': 'Rayones', 'foto': 'Foto gastada, binarizada'}
     lines = {'desaprendizaje': ('Hebb + desaprendizaje', 'C1', '-', 'exacta'),
              'pseudoinversa': ('pseudoinversa, QR completo', '#1a9e6e', '-', 'exacta'),
              'vecino': ('sin red: comparar con los originales', 'gray', '--', 'exacta'),
-             'vecino_asimetrico': ('sin red: comparar sabiendo que solo se borra tinta', 'black', ':', 'exacta'),
-             'consulta': ('sin red: el lector lee la consulta', '#d6609b', ':', 'lector')}
+             'vecino_asimetrico': ('sin red: comparar sabiendo que solo se borra tinta', 'black', ':', 'exacta')}
     fig, axes = plt.subplots(1, len(kinds), figsize=(17, 5.6), sharey=True)
     for ax, kind in zip(axes, kinds):
         rows = summary[summary.kind == kind]
@@ -416,7 +415,7 @@ def plot_realistic_damage(summary, path, kinds=('desgaste', 'mancha_negra', 'ray
     for ax in axes[1:]:
         ax.set_ylabel('')
     handles, labels = axes[0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc='lower center', ncol=3, fontsize=13, bbox_to_anchor=(.5, -.02))
+    fig.legend(handles, labels, loc='lower center', ncol=2, fontsize=13, bbox_to_anchor=(.5, -.02))
     fig.tight_layout(rect=(0, .14, 1, 1))
     fig.savefig(path, dpi=160)
     plt.close(fig)
