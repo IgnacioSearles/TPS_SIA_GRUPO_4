@@ -349,7 +349,7 @@ def plot_unlearning_result(by_noise, results, path):
     fig, (left, right) = plt.subplots(1, 2, figsize=(16, 5.2))
     lines = {'hebb': ('Hebb, sin lo común', 'C0', '-'),
              'unlearning': ('Hebb + desaprendizaje, sin lo común', 'C1', '-'),
-             'nearest': ('sin red: comparar con los originales', 'gray', '--')}
+             'nearest': ('sin red: distancia de Hamming a los originales', 'gray', '--')}
     for method, (label, color, style) in lines.items():
         rows = by_noise[by_noise.method == method].groupby('noise').accuracy.mean()
         left.plot(rows.index, rows, marker='o', lw=3, color=color, linestyle=style, label=label)
@@ -379,7 +379,7 @@ def plot_rules_by_noise(by_noise, pseudoinverse, path):
              'unlearning': ('Hebb + desaprendizaje, sin lo común', 'C1', '-'),
              'pseudoinverse_stripped': ('pseudoinversa, sin lo común', '#7cc9a6', '-'),
              'pseudoinverse_full': ('pseudoinversa, QR completo', '#1a9e6e', '-'),
-             'nearest': ('sin red: comparar con los originales', 'gray', '--')}
+             'nearest': ('sin red: distancia de Hamming a los originales', 'gray', '--')}
     fig, ax = plt.subplots(figsize=(12, 5.4))
     for method, (label, color, style) in lines.items():
         values = rows[rows.method == method].groupby('noise').accuracy.mean()
@@ -398,7 +398,7 @@ def plot_realistic_damage(summary, path, kinds=('desgaste', 'mancha_negra', 'ray
               'rayones': 'Rayones', 'foto': 'Foto gastada, binarizada'}
     lines = {'desaprendizaje': ('Hebb + desaprendizaje', 'C1', '-', 'exacta'),
              'pseudoinversa': ('pseudoinversa, QR completo', '#1a9e6e', '-', 'exacta'),
-             'vecino': ('sin red: comparar con los originales', 'gray', '--', 'exacta'),
+             'vecino': ('sin red: distancia de Hamming a los originales', 'gray', '--', 'exacta'),
              'vecino_asimetrico': ('sin red: comparar sabiendo que solo se borra tinta', 'black', ':', 'exacta')}
     fig, axes = plt.subplots(1, len(kinds), figsize=(17, 5.6), sharey=True)
     for ax, kind in zip(axes, kinds):

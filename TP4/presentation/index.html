@@ -448,9 +448,9 @@
     <div><p class="n">1</p><div><p class="what">Partir de un estado al azar</p><p class="how">±1 en cada una de las 414 neuronas (sin lo común)</p></div></div>
     <div><p class="n">2</p><div><p class="what">Dejar que la red converja</p><p class="how">con la misma dinámica sincrónica</p></div></div>
     <div><p class="n">3</p><div><p class="what">Si cae en un QR o en su inverso, no se toca</p><p class="how">tampoco si termina en un ciclo o en el tope</p></div></div>
-    <div><p class="n">4</p><div><p class="what">Si cae en otro estado estable <i>a</i>: <code>W ← W − (η/N) a aᵀ</code></p><p class="how">Hebb al revés, con η = 0,1 y la diagonal en cero: la energía de <i>a</i> sube η(N−1)/2 = 20,65</p></div></div>
+    <div><p class="n">4</p><div><p class="what">Si cae en otro estado estable <i>a</i>: <code>W ← W − (η/N) a aᵀ</code></p><p class="how">con η = 0,1 y la diagonal en cero</p></div></div>
   </div>
-  <p class="take">Hebb cava un pozo por QR y, de paso, pozos falsos. Repetimos 50 veces: cada resta rellena un pozo falso.</p>
+  <p class="take">50 intentos, η = 0,1 y tres semillas de entrenamiento: elegidos en una exploración y confirmados después con consultas nuevas.</p>
   <aside class="notes">Se parte de la red de Hebb sin lo común. El desaprendizaje no usa las consultas de evaluación: solo estados al azar. Proteger los QR como objetivos no garantiza que no se desestabilicen, porque restar un estado cambia toda la matriz; por eso se exige después que los cinco QR queden estables en todas las semillas. Probamos dos modos (partir de la mezcla o de estados al azar), tasas 0,01, 0,05 y 0,1 y 10, 50 o 100 intentos. Elegimos al azar, 0,1 y 50 intentos, y después lo confirmamos con consultas nuevas. Más intentos no fue mejor: 100 dio 86,0 % y 50, 88,4 % en la exploración. Sobre el QR completo, sin sacar lo común, ninguna configuración dejó estables a los cinco en todas las semillas.</aside>
 </section>
 
@@ -499,8 +499,8 @@ Presento A. En la neurona 5, A pide <b>−</b>; B y C piden <b>+</b>. ¿Cuánto 
 <section class="figure has-take">
   <h2>Las redes quedan cerca del mejor caso posible</h2>
   <figure><img src="assets/reports__presentacion__e2_reglas_por_ruido.png" alt="Recuperación según el ruido de cada regla y de comparar con los originales"></figure>
-  <p class="take">Gris: comparar la consulta con los 5 originales y elegir el más parecido. Con ruido al azar, nada lo supera. Media de 10 a 45 %: gris <em>95,7 %</em>, pseudoinversa 93,3 %, desaprendizaje 90,5 %, Hebb 0 %.</p>
-  <aside class="notes">Qué dice la diapositiva: todas las redes, salvo Hebb, recuperan el 100 % hasta 35 % de ruido, igual que la línea gris; recién con 40 y 45 % se separan, y quedan pocos puntos debajo de ella. Por qué la gris es el mejor caso: si cada módulo se invierte con la misma probabilidad y por separado, el QR que difiere en menos módulos de la consulta es el más probable de haberla generado (es la decisión de máxima verosimilitud). Ningún método puede acertar más en promedio.Todas sobre las mismas 700 consultas nuevas: cinco QR, siete niveles de 0 a 45 %, 20 semillas. Comparar con los originales no es una red: guarda los cinco QR aparte y elige el de menor distancia de Hamming. Si cada módulo se invierte con la misma probabilidad y por separado, el más cercano es el más probable, así que ningún método le puede ganar en promedio. La pregunta es cuánto se acerca una memoria que recupera solo con su dinámica. La pseudoinversa completa supera al desaprendizaje (2,8 puntos, intervalo de 1,4 a 4,6). Entre desaprendizaje y pseudoinversa sin lo común la diferencia, 1 punto, no es concluyente (intervalo de −0,2 a 2,3). Hebb sin lo común: 0 %. Las dos redes no están acá: no son una red sola.</aside>
+  <p class="take">Gris: distancia de Hamming, cuántos módulos de la consulta difieren de cada original; gana el de menor distancia. Con ruido al azar nada la supera. Media de 10 a 45 %: Hamming <em>95,7 %</em>, pseudoinversa 93,3 %, desaprendizaje 90,5 %.</p>
+  <aside class="notes">Qué dice la diapositiva: todas las redes, salvo Hebb (0 %), recuperan el 100 % hasta 35 % de ruido, igual que la línea gris; recién con 40 y 45 % se separan, y quedan pocos puntos debajo de ella. Todas sobre las mismas 700 consultas nuevas: cinco QR, siete niveles de 0 a 45 %, 20 semillas. Cómo se calcula la gris: para cada uno de los cinco QR guardados se cuenta en cuántos de los 1.369 módulos difiere de la consulta, d = número de módulos con xᵢ ≠ ξᵢ, que es lo mismo que (N − x·ξ)/2; se devuelve el QR con menor d. No es una red: no tiene pesos ni dinámica, solo compara. Por qué es el mejor caso con este ruido: si cada módulo se invierte por separado con la misma probabilidad p, menor que 0,5, la probabilidad de ver la consulta x viniendo del QR ξ es p^d · (1 − p)^(N − d), que baja cuando d sube. El QR más cercano es el más probable (máxima verosimilitud) y ningún método puede acertar más en promedio. Eso vale solo para este ruido simétrico: con daño de un solo lado, como el desgaste que solo borra tinta, Hamming deja de ser el techo (diapositiva de daño realista). La pregunta es cuánto se acerca una memoria que recupera solo con su dinámica. La pseudoinversa completa supera al desaprendizaje (2,8 puntos, intervalo de 1,4 a 4,6). Entre desaprendizaje y pseudoinversa sin lo común la diferencia, 1 punto, no es concluyente (intervalo de −0,2 a 2,3). Hebb sin lo común: 0 %. Las dos redes no están acá: no son una red sola.</aside>
 </section>
 
 <!-- Límites y conclusiones -->
@@ -519,7 +519,7 @@ Presento A. En la neurona 5, A pide <b>−</b>; B y C piden <b>+</b>. ¿Cuánto 
 <section class="figure has-take">
   <h2>Con daño realista, las redes recuperan casi todo</h2>
   <figure><img src="assets/reports__presentacion__e2_dano_realista.png" alt="Recuperación exacta con desgaste, manchas, rayones y foto gastada"></figure>
-  <p class="take">Con desaprendizaje vuelve exacto el <em>97 % o más</em> hasta con un cuarto de los módulos alterados, en todos los tipos. La pseudoinversa completa aguanta más: 99 % con 44 % de desgaste.</p>
+  <p class="take">Desaprendizaje: <em>97 % o más</em> hasta un cuarto de módulos alterados, en todos los tipos. Con desgaste, Hamming deja de ser el techo: sabiendo que solo se borra tinta se acierta 97 % con 49 % alterado, contra 71 %.</p>
   <aside class="notes">Probamos daños que imitan cómo se arruina un QR impreso: desgaste (la tinta se pierde, negro a blanco y nunca al revés), desgaste mayor en un borde, manchas negras y blancas de forma irregular, rayones que borran tinta, desgaste con una mancha, y una foto gastada: poco contraste, desenfoque y una mancha semitransparente, binarizada después por módulo. Usamos los métodos ya elegidos, sin reajustar nada, y semillas nuevas: 7.800 consultas en dos corridas. La segunda, con niveles extremos, la agregamos después de ver que en la primera casi todo daba 100 %. El eje x es la fracción de módulos alterados. Con desgaste, el lector no lee ni con 2,6 % de módulos perdidos, porque el daño se reparte por todo el QR. Las salidas exactas se leen siempre y las que no son exactas, nunca. Hebb da 0 % en todos los casos. La pseudoinversa completa aguanta más: 99 % con 44 % de módulos perdidos por desgaste. Lo que más cuesta es la foto: con 40 % de módulos alterados el desaprendizaje baja a 87 %. Línea negra punteada: si sabemos que el daño solo borra tinta, un negro en la consulta no puede venir de un blanco del original. Usando eso, con 49 % alterado se acierta el 97 %, contra 71 % de comparar con los originales: con daño de un solo lado, Hamming deja de ser el techo. Las curvas de los siete tipos están en el apéndice.</aside>
 </section>
 
@@ -527,7 +527,7 @@ Presento A. En la neurona 5, A pide <b>−</b>; B y C piden <b>+</b>. ¿Cuánto 
   <h2>Límites del caso de uso</h2>
   <div class="steps">
     <div><p class="n">→</p><div><p class="what">Hebb necesita patrones distintos</p><p class="how">y los QR de un mismo sitio no lo son</p></div></div>
-    <div><p class="n">→</p><div><p class="what">Comparar con los originales es el techo</p><p class="how">y la red igual tiene que conocer los cinco QR</p></div></div>
+    <div><p class="n">→</p><div><p class="what">La red tiene que conocer los cinco QR</p><p class="how">y con esos QR, la distancia de Hamming es más simple y, con ruido al azar, mejor</p></div></div>
     <div><p class="n">→</p><div><p class="what">La consulta llega alineada y binarizada</p><p class="how">una foto real hay que ubicarla, enderezarla y pasarla a 37×37; eso no lo probamos</p></div></div>
   </div>
   <aside class="notes">Todo está medido con estos cinco QR: otro menú puede tener otro par parecido. Lo que se podría hacer sin cambiar la red: generar cada QR con una máscara distinta, para que los datos se vean casi al azar entre QR, o usar más corrección de errores (nivel H, 30 %, en vez de L, 7 %), que ayuda al lector solo. No los probamos.</aside>
@@ -535,7 +535,7 @@ Presento A. En la neurona 5, A pide <b>−</b>; B y C piden <b>+</b>. ¿Cuánto 
 
 <section class="statement">
   <h2>Los cinco QR se parecen.<br>Sin lo común, food y wine siguen pareciéndose.</h2>
-  <p class="sub">Sacar lo común reduce el primero. Desaprender o la pseudoinversa resuelven el segundo, cerca del techo de comparar con los originales.</p>
+  <p class="sub">Sacar lo común reduce el primero. Desaprender o la pseudoinversa resuelven el segundo, cerca del techo que marca la distancia de Hamming.</p>
 </section>
 
 <!-- ===================================================================== Apéndice -->
