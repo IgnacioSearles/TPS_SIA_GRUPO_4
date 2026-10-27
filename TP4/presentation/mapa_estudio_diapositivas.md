@@ -1,6 +1,6 @@
 # Ensayo diapositiva por diapositiva
 
-Revisión del 25/10/2026, presentación después del pull a `ca3229f`. Hay 60 diapositivas de relato, una separadora de apéndice y 36 figuras de respaldo: 97 en total. Numeración actualizada el 27/10: la esquina rota pasó al apéndice.
+Revisión del 25/10/2026, presentación después del pull a `ca3229f`. Hay 60 diapositivas de relato, una separadora de apéndice y 37 figuras de respaldo: 98 en total. Numeración actualizada el 27/10 con la corrida de manchas y rayones hasta 40–50 %.
 
 Los enlaces abren la diapositiva correspondiente en `index.html`. La tecla S muestra las notas originales. Ninguna diapositiva fue editada para esta revisión.
 
@@ -109,4 +109,5 @@ Los enlaces abren la diapositiva correspondiente en `index.html`. La tecla S mue
 | 94 | [Desaprendizaje: ruido, esquinas y manchas](index.html#/93) | §10, §12 | ¿Dónde se rompe el 100 % del desaprendizaje y cuánto del daño ve realmente la red? |
 | 95 | [Daño realista: los siete tipos](index.html#/94) | §12 | ¿Cómo se genera cada daño y en cuáles el lector solo deja de leer? |
 | 96 | [Daño realista: niveles extremos](index.html#/95) | §12 | ¿Dónde se rompe cada método y por qué ahí conviene saber que el daño solo borra tinta? |
-| 97 | [Daño realista: un ejemplo de cada tipo](index.html#/96) | §12 | ¿Qué parte de cada daño ve la red? |
+| 97 | [Daño realista: manchas y rayones hasta 40–50 %](index.html#/96) | §12 | ¿Por qué se agregó esta corrida y qué cambia con manchas negras frente a manchas blancas? |
+| 98 | [Daño realista: un ejemplo de cada tipo](index.html#/97) | §12 | ¿Qué parte de cada daño ve la red? |

@@ -432,7 +432,7 @@ def plot_realistic_damage(summary, path, kinds=('desgaste', 'mancha_negra', 'ray
         rows = summary[summary.kind == kind]
         damage = (rows[rows.method == 'consulta'].set_index('level').dano / (SIDE * SIDE)).sort_values()
         tested = 100 * damage.max()
-        if tested < limit - 5:
+        if tested < limit - 10:
             ax.axvspan(tested + 1, limit + 1.5, color='0.92', zorder=0, lw=0)
             ax.text((tested + 2.5 + limit) / 2, .5, 'no probado', rotation=90, ha='center', va='center',
                     color='0.4', fontsize=17)

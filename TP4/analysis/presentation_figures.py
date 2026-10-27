@@ -125,7 +125,8 @@ def qr_published(out):
     qr_figures.plot_rules_by_noise(by_noise, pd.read_csv(evidence / 'comparacion_pseudoinversa_20261022' / 'resumen.csv'),
                                    out / 'e2_reglas_por_ruido.png')
     qr_figures.plot_realistic_damage(pd.concat([pd.read_csv(QR_REPORTS / run / 'resumen.csv') for run in
-                                                ('dano_realista_20261026', 'dano_realista_extremo_20261026')]),
+                                                ('dano_realista_20261026', 'dano_realista_extremo_20261026',
+                                                 'dano_realista_40_20261027')]),
                                      out / 'e2_dano_realista.png')
 
 
