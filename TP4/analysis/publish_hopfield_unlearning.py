@@ -38,9 +38,8 @@ def portable(value):
         return {key: portable(item) for key, item in value.items()}
     if isinstance(value, list):
         return [portable(item) for item in value]
-    prefix = str(ROOT) + '/'
-    if isinstance(value, str) and value.startswith(prefix):
-        return value[len(prefix):]
+    if isinstance(value, str) and Path(value).is_absolute() and Path(value).is_relative_to(ROOT):
+        return Path(value).relative_to(ROOT).as_posix()
     return value
 
 

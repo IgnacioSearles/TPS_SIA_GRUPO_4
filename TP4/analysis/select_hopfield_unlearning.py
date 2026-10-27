@@ -24,7 +24,7 @@ CONFIG_KEYS = ('name', 'modes', 'learning_rates', 'checkpoints', 'training_seeds
 def project_path(path):
     """Rutas portables dentro del proyecto; conserva rutas externas explícitas."""
     path = Path(path).resolve()
-    return str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path)
+    return path.relative_to(ROOT).as_posix() if path.is_relative_to(ROOT) else str(path)
 
 
 def rank_candidates(directory):
@@ -95,12 +95,12 @@ def freeze_confirmation(directory, destination):
         if set(confirmation['query_seeds']) & set(config['query_seeds']):
             raise ValueError('Las semillas de confirmación se solapan con exploración')
         content = json.dumps(confirmation, ensure_ascii=False, indent=2) + '\n'
-        with destination.open('x') as stream:
+        with destination.open('x', encoding='utf-8', newline='\n') as stream:
             stream.write(content)
         selection.update(status='frozen', candidate=winner,
                          confirmation=project_path(destination),
                          confirmation_sha256=sha256(content.encode()).hexdigest())
-    with selection_path.open('x') as stream:
+    with selection_path.open('x', encoding='utf-8', newline='\n') as stream:
         json.dump(selection, stream, ensure_ascii=False, indent=2)
         stream.write('\n')
     print(ranking.to_string(index=False))
