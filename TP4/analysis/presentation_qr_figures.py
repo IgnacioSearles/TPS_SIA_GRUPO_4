@@ -44,8 +44,8 @@ def plot_queries_and_outputs(patterns, path):
     cinco: todas las flechas llegan al mismo lugar."""
     network = Hopfield(patterns)
     queries = make_queries(patterns, [EXAMPLE_NOISE], [EXAMPLE_SEED])
-    fig = plt.figure(figsize=(3.9 * len(patterns), 8.4))
-    grid = fig.add_gridspec(2, len(patterns), height_ratios=(1, 1.25), hspace=.5, wspace=.45)
+    fig = plt.figure(figsize=(3.2 * len(patterns), 8))
+    grid = fig.add_gridspec(2, len(patterns), height_ratios=(1, 1.25), hspace=.45)
     tops, outputs = [], []
     for origin, name in enumerate(QRS):
         query = find_query(queries, origin, EXAMPLE_NOISE, EXAMPLE_SEED).pattern
@@ -265,8 +265,8 @@ def plot_energy_levels(patterns, path, origin=0):
     mixture = np.sign(network.patterns_.sum(axis=0))
     levels = {MENU_NAMES[name]: network.energy(pattern) for name, pattern in zip(QRS, network.patterns_)}
     levels['mezcla'] = network.energy(mixture)
-    fig = plt.figure(figsize=(17, 5))
-    grid = fig.add_gridspec(1, 5, width_ratios=(1, 1, 1, .45, 1.5), wspace=.3)
+    fig = plt.figure(figsize=(19, 5.2))
+    grid = fig.add_gridspec(1, 5, width_ratios=(1, 1, 1, .75, 1.5), wspace=.55)
     axes = [fig.add_subplot(grid[0, 0])]
     axes += [fig.add_subplot(grid[0, i], sharey=axes[0]) for i in (1, 2)]
     for ax, noise in zip(axes, noises):
@@ -276,7 +276,7 @@ def plot_energy_levels(patterns, path, origin=0):
         ax.axhline(levels['mezcla'], color='C3', ls=':', lw=2, label='mezcla')
         ax.set(title=f'ruido {_decimal(noise * 100)} %', xlabel='Iteración', xticks=range(len(energies)))
     axes[0].set_ylabel('Energía')
-    axes[0].legend(loc='center', fontsize=12)
+    axes[0].legend(loc='center right', fontsize=12)
     for ax in axes[1:]:
         ax.tick_params(labelleft=False)
     bars = fig.add_subplot(grid[0, 4])
