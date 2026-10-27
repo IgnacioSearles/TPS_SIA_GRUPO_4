@@ -6,7 +6,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap, LogNorm, Normalize
-from matplotlib.ticker import FixedLocator, FuncFormatter, NullFormatter
+from matplotlib.ticker import FixedLocator, FuncFormatter, LogLocator, NullFormatter
 from matplotlib.patches import Rectangle
 import numpy as np
 
@@ -174,17 +174,18 @@ def plot_biplot(frame, topics, pca, columns, path):
 
 
 def plot_followers(frame, path):
-    """Seguidores frente a precio y frente a audiencia argentina."""
-    panels = {'price_usd': 'Precio por publicación (USD)', 'argentina_audience_pct': 'Audiencia argentina (%)'}
+    """Seguidores frente a precio y frente a audiencia argentina. El título dice en palabras qué significa r."""
+    panels = {'price_usd': ('Precio por publicación (USD)', 'suben juntos'),
+              'argentina_audience_pct': ('Audiencia argentina (%)', 'sin relación')}
     fig, axes = plt.subplots(1, 2, figsize=(13, 5.2))
-    for ax, (column, label) in zip(axes, panels.items()):
+    for ax, (column, (label, reading)) in zip(axes, panels.items()):
         ax.scatter(frame.followers, frame[column], s=45, color='C0')
         ax.set(xscale='log', xlabel='Seguidores', ylabel=label)
         if column == 'price_usd':
             ax.set_yscale('log')
         correlation = np.corrcoef(frame.followers, frame[column])[0, 1]
-        ax.set_title(f'r = {correlation:+.2f}'.replace('.', ',').replace('+0,00', '0,00').replace('-0,00', '0,00'),
-                     fontsize=22, weight='bold')
+        coefficient = f'{correlation:+.2f}'.replace('.', ',').replace('+0,00', '0,00').replace('-0,00', '0,00')
+        ax.set_title(f'r = {coefficient}: {reading}', fontsize=22, weight='bold')
     _save(fig, path)
 
 
@@ -273,11 +274,12 @@ def plot_region_merges(catalog, path):
     _save(fig, path)
 
 
-def plot_region_count(table, path):
-    """Por qué cinco regiones: es la primera cantidad que separa los temas sin dejar regiones minúsculas."""
-    panels = {'topic_purity': ('Creadores del tema más común', '{:.0%}'),
+def plot_region_count(table, random_purity, path):
+    """Por qué cinco regiones: es la primera cantidad que separa los temas sin dejar regiones minúsculas.
+    La pureza se compara con la de regiones del mismo tamaño armadas al azar."""
+    panels = {'topic_purity': ('Creadores que son del tema\nque más se repite en su región', '{:.0%}'),
               'smallest_region': ('Creadores en la región más chica', '{:.0f}')}
-    fig, axes = plt.subplots(1, len(panels), figsize=(13, 5))
+    fig, axes = plt.subplots(1, len(panels), figsize=(13, 5.4))
     for ax, (column, (title, pattern)) in zip(axes, panels.items()):
         bars = ax.bar(table.regions, table[column],
                       color=[KEPT if count == REGION_COUNT else DROPPED for count in table.regions])
@@ -285,6 +287,10 @@ def plot_region_count(table, path):
                      fontsize=14)
         ax.set(title=title, xlabel='Cantidad de regiones', xticks=table.regions, yticks=[])
         ax.spines['left'].set_visible(False)
+    chance = random_purity.reindex(table.regions)
+    axes[0].hlines(chance, table.regions - .4, table.regions + .4, colors='black', linestyles='--', lw=2,
+                   label='al azar')
+    axes[0].legend(loc='upper left', fontsize=14)
     _save(fig, path)
 
 
@@ -339,6 +345,38 @@ def plot_client_map(catalog, topic, path):
     fig, ax = plt.subplots(figsize=(2.8, 2.8))
     draw_region_map(ax, catalog, facecolors=[matplotlib.colors.to_rgba(color, .55) for color in colors])
     ax.axis('off')
+    _save(fig, path)
+
+
+def plot_decision(frame, selections, region_names, path):
+    """Los dos pasos de la elección, por cliente: la franja es la región objetivo y, dentro, los tres más baratos."""
+    positions = {region: index for index, region in enumerate(region_names)}
+    fig, axes = plt.subplots(1, len(TOPICS), figsize=(13, 5.4), sharey=True)
+    for ax, topic in zip(axes, TOPICS):
+        candidates = frame[frame.main_topic == topic]
+        picks = selections[selections.topic == topic]
+        rows = candidates.region.map(positions)
+        in_target = candidates.region.isin(TARGET_REGIONS[topic])
+        for region in TARGET_REGIONS[topic]:
+            ax.axhspan(positions[region] - .45, positions[region] + .45, color=TOPIC_COLORS[topic], alpha=.18, lw=0)
+        ax.scatter(candidates.cpm_arg[~in_target], rows[~in_target], s=60, color=MUTED, alpha=.6)
+        ax.scatter(candidates.cpm_arg[in_target], rows[in_target], s=60, color=TOPIC_COLORS[topic])
+        for strategy, style in {'seguidores': dict(marker='s', s=200, edgecolors=FOLLOWERS_COLOR),
+                                'som': dict(marker='o', s=330, edgecolors='black')}.items():
+            chosen = candidates[candidates.name.isin(picks[picks.strategy == strategy].name)]
+            ax.scatter(chosen.cpm_arg, chosen.region.map(positions), facecolors='none', lw=2.5, **style)
+        ax.set_xscale('log')
+        ax.xaxis.set_major_locator(LogLocator(subs=(1, 2, 5)))
+        ax.xaxis.set_major_formatter(FuncFormatter(lambda value, _position: f'{value:g}'))
+        ax.xaxis.set_minor_formatter(NullFormatter())
+        ax.set_title(TOPIC_LABELS[topic], fontsize=20)
+    axes[0].set(yticks=range(len(region_names)), yticklabels=region_names, ylim=(len(region_names) - .5, -.5))
+    fig.supxlabel('USD por 1.000 cuentas argentinas (más a la izquierda, más barato)', fontsize=16, y=.04)
+    handles = [plt.Line2D([], [], marker='o', ls='', mfc='none', mec='black', mew=2.5, ms=16, label='elegidos'),
+               plt.Line2D([], [], marker='s', ls='', mfc='none', mec=FOLLOWERS_COLOR, mew=2.5, ms=13,
+                          label='top 3 por seguidores'),
+               plt.Line2D([], [], marker='o', ls='', color=MUTED, alpha=.6, ms=9, label='fuera de la región')]
+    fig.legend(handles=handles, loc='lower center', bbox_to_anchor=(.5, -.1), ncol=3, fontsize=17)
     _save(fig, path)
 
 

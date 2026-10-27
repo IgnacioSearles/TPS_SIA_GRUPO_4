@@ -23,7 +23,8 @@ from analysis import presentation_qr_figures as qr_figures
 from analysis.eda import TOPICS
 from analysis.hopfield_qr import load_patterns
 from analysis.som_campanas import (
-    catalog_map, criterion_selections, prepare, strategy_selections, train_maps, with_regions,
+    catalog_map, criterion_selections, prepare, random_purity_by_count, strategy_selections, train_maps,
+    with_regions,
 )
 from src.tp4.pca import compute_pca
 from src.tp4.shared_modules import SharedModules
@@ -42,7 +43,8 @@ def catalog(out):
     columns = preprocessor.columns_
     topics = frame.main_topic.to_numpy()
     pca = compute_pca(x)
-    som_catalog = catalog_map(train_maps(x), x, frame.followers.to_numpy())
+    soms = train_maps(x)
+    som_catalog = catalog_map(soms, x, frame.followers.to_numpy())
     frame = with_regions(frame, som_catalog)
     planes = {column: values for column, values in zip(columns, (som_catalog.som.weights_ * preprocessor.scale_
                                                                  + preprocessor.mean_).T)}
@@ -58,13 +60,14 @@ def catalog(out):
     catalog_figures.plot_occupancy(x, out / 'e1_ocupacion.png')
     catalog_figures.plot_region_merges(som_catalog, out / 'e1_regiones_union.png')
     catalog_figures.plot_region_count(pd.read_csv(ROOT / 'reports' / 'ejercicio1' / 'som' / 'cantidad_regiones.csv'),
-                                      out / 'e1_regiones_cantidad.png')
+                                      random_purity_by_count(soms, x, topics), out / 'e1_regiones_cantidad.png')
     catalog_figures.plot_planes(som_catalog, planes, catalog_figures.VISIBILITY_PLANES, out / 'e1_planos_eje.png')
     catalog_figures.plot_planes(som_catalog, planes, catalog_figures.TOPIC_PLANES, out / 'e1_planos_temas.png')
     catalog_figures.plot_reach_on_pc1(frame, out / 'e1_masivo_descubrimiento.png')
     catalog_figures.plot_football(frame, selections, criteria, out / 'e1_futbol.png')
     for topic in TOPICS:
         catalog_figures.plot_client_map(som_catalog, topic, out / f'e1_mapa_{topic}.png')
+    catalog_figures.plot_decision(frame, selections, som_catalog.region_names, out / 'e1_decision.png')
     catalog_figures.plot_cost(selections, out / 'e1_costo.png')
 
 

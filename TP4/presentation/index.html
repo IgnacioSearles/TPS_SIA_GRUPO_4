@@ -97,7 +97,7 @@
   <h2>Los seguidores predicen el precio, no dónde está la audiencia</h2>
   <figure><img src="assets/reports__presentacion__e1_seguidores.png" alt="Seguidores frente a precio y frente a audiencia argentina"></figure>
   <p class="take">Elegir por seguidores asegura tamaño, no llegar al público de los clientes.</p>
-  <aside class="notes">Cada punto es un creador. A más seguidores, más caro: r = 0,82. Pero con la audiencia argentina no hay ninguna relación: hay creadores enormes con 25 % de público argentino y chicos con 90 %. Tampoco predicen el costo por cuenta argentina alcanzada (r = −0,02). Por eso las campañas de la agencia tienen visibilidad pero no llegan a quien compra.</aside>
+  <aside class="notes">Cada punto es un creador. r es la correlación: 1 si suben juntos en línea recta, 0 si no hay relación, −1 si uno baja cuando el otro sube. A más seguidores, más caro: r = 0,82. Pero con la audiencia argentina no hay ninguna relación: hay creadores enormes con 25 % de público argentino y chicos con 90 %. Tampoco predicen el costo por cuenta argentina alcanzada (r = −0,02). Por eso las campañas de la agencia tienen visibilidad pero no llegan a quien compra.</aside>
 </section>
 
 <section class="figure has-take">
@@ -149,15 +149,15 @@
 <section class="figure has-take">
   <h2>Con 5 regiones aparecen los temas, sin regiones diminutas</h2>
   <figure><img src="assets/reports__presentacion__e1_regiones_cantidad.png" alt="Pureza de tema y tamaño de la región más chica según la cantidad de regiones"></figure>
-  <p class="take">Con más de 5, los temas casi no mejoran y quedan regiones de 1 a 4 creadores.</p>
-  <aside class="notes">Medias de 5 semillas. Pureza: qué parte de los creadores de cada región comparte el tema más común de esa región; con regiones al azar del mismo tamaño daría 0,41. Las 5 regiones se reproducen entre semillas (ARI 0,79) y cada creador sigue junto a sus compañeros de región en el 88–100 % de las semillas.</aside>
+  <p class="take">Con 5, dos de cada tres creadores comparten tema con su región: al azar sería 41 %. Con más, quedan regiones de 1 a 4.</p>
+  <aside class="notes">Medias de 5 semillas. La barra izquierda es la pureza: en cada región miramos el tema que más se repite y contamos cuántos creadores son de ese tema; 66 % es la suma sobre las cinco regiones dividida por los 50. La línea punteada es lo mismo con regiones del mismo tamaño armadas al azar: cuánto sale solo por tener más grupos. Con 5 regiones la diferencia es la más grande que se consigue sin regiones diminutas. Las 5 regiones se reproducen entre semillas (ARI 0,79) y cada creador sigue junto a sus compañeros de región en el 88–100 % de las semillas.</aside>
 </section>
 
 <section class="figure has-take">
   <h2>En diagonal, el mapa va de visibilidad a profundidad</h2>
   <figure><img src="assets/reports__presentacion__e1_planos_eje.png" alt="Planos de seguidores, alcance a no seguidores, tutoriales y guardados"></figure>
   <p class="take">Amarillo = valor alto. Seguidores crece hacia abajo a la derecha; tutoriales, hacia arriba a la izquierda.</p>
-  <aside class="notes">Cada cuadrado es una neurona, pintada con el valor de su prototipo en esa variable, en unidades originales. Las líneas negras son los bordes de las cinco regiones. Es el mismo eje que PC1, ahora sobre el mapa.</aside>
+  <aside class="notes">Cada cuadrado es una neurona, pintada con el valor de su prototipo en esa variable, en unidades originales. Las líneas negras son los bordes de las cinco regiones. Es el mismo eje que PC1, ahora sobre el mapa: la PC1 de los prototipos sigue la diagonal casi exacta (r = −0,99). PC2 va, más débil, por la otra diagonal (r = 0,78): alta abajo a la izquierda, en arte y exhibición, y baja en el resto.</aside>
 </section>
 
 <section class="figure has-take">
@@ -263,6 +263,13 @@
     <div class="art"><h3>Arte</h3><p class="want">quiere vender materiales</p><img src="assets/reports__presentacion__e1_mapa_art.png" alt="Regiones elegidas para arte"><p class="goal">creadores que muestran el material en uso</p></div>
   </div>
   <aside class="notes">Fútbol: golconmate, tribunacreativa, lookdecancha. Maquillaje: maquillajereal, brochasymates, mateconideas; brochasymates suma 45 % de tutoriales, y en belleza mostrar cómo se aplica es parte de la venta. Perros: huellasyconsejos, consejoscaninos, guiadehuellas; el objetivo son consultas y adopciones, que son locales y requieren confianza. Arte: rinconcreativo, colorenmovimiento, artequeinspira. Lo que buscamos sale del perfil de cada región: R4 y R5 llegan al 58–74 % de no seguidores; R1 es la comunidad que comenta, guarda y visita el perfil, con 66 % de audiencia argentina; R3 tiene la mayor proporción de exhibición de productos. Arte es el caso más débil, y PCA dice por qué: R3 está en la punta de PC2 opuesta a la audiencia argentina.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Primero la región, después el más barato</h2>
+  <figure><img src="assets/reports__presentacion__e1_decision.png" alt="Candidatos de cada cliente por región y costo por cuenta argentina, con los elegidos y el top 3 por seguidores"></figure>
+  <p class="take">La franja es la región del cliente. Los elegidos son sus tres puntos más a la izquierda.</p>
+  <aside class="notes">Cada punto es un creador del tema del cliente, en la fila de su región. Más a la izquierda, más barato llegar a 1.000 cuentas argentinas. Paso 1: el mapa fija la franja (fútbol y maquillaje R4 + R5, perros R1, arte R3). Paso 2: dentro de la franja, los tres más baratos. En fútbol y maquillaje el top por seguidores ya está en R5 y comparte dos nombres con los elegidos; el tercero es mucho más caro. En perros ninguno de los tres más seguidos está en R1: son de las regiones de visibilidad. En arte comparten uno. El eje es logarítmico.</aside>
 </section>
 
 <section class="figure has-take">

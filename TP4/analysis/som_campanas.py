@@ -92,6 +92,17 @@ def region_count_table(soms, x, topics):
     return pd.DataFrame(rows)
 
 
+def random_purity_by_count(soms, x, topics, permutations=200, seed=0):
+    """Pureza de tema que darían regiones del mismo tamaño armadas al azar, para cada cantidad de regiones."""
+    rng = np.random.default_rng(seed)
+    baseline = {}
+    for count in REGION_COUNT_CANDIDATES:
+        assignments = [creator_regions(som, x, count) for som in soms]
+        baseline[count] = float(np.mean([topic_purity(rng.permutation(regions), topics)
+                                         for regions in assignments for _ in range(permutations)]))
+    return pd.Series(baseline, name='random_purity')
+
+
 def catalog_map(soms, x, followers):
     reference = soms[0]
     labels = contiguous_ward(reference.weights_, reference.grid.adjacency, REGION_COUNT)
