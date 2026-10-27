@@ -441,7 +441,7 @@
     <h3 class="chosen">Desaprendizaje</h3>
 
     <p class="k">Regla</p>
-    <p class="f">W = (1/N) Σ ξ ξᵀ<br><small>suma los 5 QR, una vez</small></p>
+    <p class="f">W = (1/N) Σ ξ ξᵀ<br><small>ξ es cada QR; suma los 5, una vez</small></p>
     <p class="f">W ← W − (η/N) a aᵀ<br><small>resta un estado falso <i>a</i>, de a uno</small></p>
 
     <p class="k">Qué busca</p>
@@ -501,14 +501,15 @@
     <p>Votan todos según su parecido con food: wine 0,86, specials 0,77</p>
     <p>Vota <em>solo food</em>: el parecido de los otros con food ya lo explica food</p>
   </div>
-  <p class="take">Hebb confunde parecido con presencia: wine se parece a food, entonces vota. G⁻¹ descuenta ese eco y solo vota el QR que está. Con QR ortogonales no hay eco y las dos reglas coinciden.</p>
+  <p class="compare-note"><b>Ξ</b> (xi mayúscula): los 5 QR como filas, 5 × 1.369 valores de ±1. <b>Ξᵀ</b> es la misma tabla girada.</p>
+  <p class="take">Hebb confunde parecido con presencia: wine se parece a food, entonces vota. G⁻¹ descuenta ese eco y solo vota el QR que está.</p>
   <aside class="notes">Las dos reglas suman las tablas ξ ξᵀ de los cinco QR; cambia con qué peso. Hebb les da a todos el mismo, 1/N. Por eso, al presentar food, cada QR guardado empuja a la red hacia sí mismo con una fuerza igual a cuánto se parece a food: wine 0,86, specials 0,77, beverages 0,60 y dessert 0,59. Ese empuje de los otros es el crosstalk. Pero que wine se parezca 86 % a food no quiere decir que haya algo de wine en el estado: es un eco del parecido entre wine y food. G es la tabla de cuánto se parecen los QR entre sí, o sea de cuánto eco produce cada uno sobre los otros. Usar su inversa es preguntar qué cantidad de cada QR hace falta para explicar los parecidos que se ven. Si el estado es food, la respuesta es uno de food y cero de los demás, así que solo vota food y no hay crosstalk. Una analogía: un licuado de banana sabe un poco a plátano porque banana y plátano se parecen; sabiendo cuánto se parecen, se descuenta y se concluye que es solo banana. Si los QR fueran ortogonales no habría eco, G⁻¹ daría 1/N a cada uno y la regla sería Hebb. Funciona siempre que ningún QR sea combinación de los otros. No está en el apunte, y cada peso depende de todos los QR a la vez, no solo de los dos módulos que conecta: no es una regla local como Hebb.</aside>
 </section>
 
 <section>
   <h2>Pseudoinversa: medir el parecido y descontarlo</h2>
   <div class="steps tight">
-    <div><p class="n">1</p><div><p class="what">Medir el parecido entre cada par de QR: <code>G = Ξ Ξᵀ</code></p><p class="how">tabla 5 × 5: módulos iguales menos distintos. Food y wine: 1.273 − 96 = 1.177</p></div></div>
+    <div><p class="n">1</p><div><p class="what">Medir el parecido entre cada par de QR: <code>G = Ξ Ξᵀ</code></p><p class="how">Ξ: los 5 QR como filas. G es 5 × 5: módulos iguales menos distintos; food y wine: 1.273 − 96 = 1.177</p></div></div>
     <div><p class="n">2</p><div><p class="what">Invertirla: <code>G⁻¹</code></p><p class="how">dice cuánto del parecido con cada QR ya lo explican los otros. Es 5 × 5: un solo cálculo</p></div></div>
     <div><p class="n">3</p><div><p class="what">Guardar como Hebb, con esos pesos: <code>W = Ξᵀ G⁻¹ Ξ</code></p><p class="how">Hebb usa 1/N para todos; acá cada QR lleva su peso y se descuenta lo que comparte</p></div></div>
     <div><p class="n">4</p><div><p class="what">Diagonal en cero, igual que en Hebb</p><p class="how">la neurona no se vota a sí misma</p></div></div>
