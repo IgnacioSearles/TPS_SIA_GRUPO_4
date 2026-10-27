@@ -66,8 +66,8 @@ Los enlaces abren la diapositiva correspondiente en `index.html`. La tecla S mue
 | 56 | [Pseudoinversa: medir el parecido y descontarlo](index.html#/55) | §9 | ¿Qué mide G, para qué se invierte y en qué se diferencia W = Ξᵀ G⁻¹ Ξ de Hebb? ¿Cuándo las dos reglas coinciden? |
 | 57 | [Las redes quedan cerca del mejor caso posible](index.html#/56) | §9, §12 | ¿Por qué comparar con los originales es el techo con este ruido? ¿Qué diferencias son concluyentes? |
 | 58 | [Con daño realista, las redes recuperan casi todo](index.html#/57) | §12 | ¿Cómo se genera cada daño? ¿Hasta qué porcentaje de módulos alterados se probó cada tipo y dónde se rompe cada método? |
-| 59 | [Límites del caso de uso](index.html#/58) | §12, §14 | ¿Qué supone que la consulta llegue a 37×37? ¿Qué alternativas solo se proponen? |
-| 60 | [Los cinco QR se parecen. Sin lo común, food y wine siguen pareciéndose.](index.html#/59) | §12, §14 | ¿Cómo reformularías la conclusión para no afirmar que sacar lo común basta con cinco QR? |
+| 59 | [Conclusiones](index.html#/58) | §9–12 | ¿Por qué falla Hebb, cuánto recuperan desaprendizaje y pseudoinversa, y por qué Hamming gana con ruido al azar pero no con desgaste? ¿Por qué la pseudoinversa completa supera a la de sin lo común y al desaprendizaje? |
+| 60 | [Qué le recomendaríamos a la Trattoria](index.html#/59) | §12, §14 | ¿Por qué Hamming primero y la pseudoinversa completa como memoria? ¿Qué supone que la consulta llegue a 37×37 y qué alternativas solo se proponen? |
 
 ## Apéndice
 

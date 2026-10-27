@@ -533,19 +533,24 @@
   <aside class="notes">Probamos daños que imitan cómo se arruina un QR impreso: desgaste (la tinta se pierde, negro a blanco y nunca al revés), desgaste mayor en un borde, manchas negras y blancas de forma irregular, rayones que borran tinta, desgaste con una mancha, y una foto gastada: poco contraste, desenfoque y una mancha semitransparente, binarizada después por módulo. Usamos los métodos ya elegidos, sin reajustar nada, y semillas nuevas: 7.800 consultas en dos corridas. La segunda, con niveles extremos, la agregamos después de ver que en la primera casi todo daba 100 %. El eje x es la fracción de módulos alterados. Con desgaste, el lector no lee ni con 2,6 % de módulos perdidos, porque el daño se reparte por todo el QR. Las salidas exactas se leen siempre y las que no son exactas, nunca. Hebb da 0 % en todos los casos. La pseudoinversa completa aguanta más: 99 % con 44 % de módulos perdidos por desgaste. El gráfico muestra tres tipos; los siete, con la foto gastada, están en el apéndice. Lo que más cuesta es la foto: con 40 % de módulos alterados el desaprendizaje baja a 87 %. La zona gris es lo que no se probó: las manchas llegan hasta 29 % de módulos alterados y los rayones hasta 24 %; el desgaste, hasta 49 %. Línea negra punteada: si sabemos que el daño solo borra tinta, un negro en la consulta no puede venir de un blanco del original. Usando eso, con 49 % alterado se acierta el 97 %, contra 71 % de comparar con los originales: con daño de un solo lado, Hamming deja de ser el techo. Las curvas de los siete tipos están en el apéndice.</aside>
 </section>
 
-<section>
-  <h2>Límites del caso de uso</h2>
-  <div class="steps">
-    <div><p class="n">→</p><div><p class="what">Hebb necesita patrones distintos</p><p class="how">y los QR de un mismo sitio no lo son</p></div></div>
-    <div><p class="n">→</p><div><p class="what">La red tiene que conocer los cinco QR</p><p class="how">y con esos QR, la distancia de Hamming es más simple y, con ruido al azar, mejor</p></div></div>
-    <div><p class="n">→</p><div><p class="what">La consulta llega alineada y binarizada</p><p class="how">una foto real hay que ubicarla, enderezarla y pasarla a 37×37; eso no lo probamos</p></div></div>
-  </div>
-  <aside class="notes">Todo está medido con estos cinco QR: otro menú puede tener otro par parecido. Lo que se podría hacer sin cambiar la red: generar cada QR con una máscara distinta, para que los datos se vean casi al azar entre QR, o usar más corrección de errores (nivel H, 30 %, en vez de L, 7 %), que ayuda al lector solo. No los probamos.</aside>
+<section class="statement">
+  <h2>Conclusiones</h2>
+  <ol>
+    <li>Hebb no falla por la red sino por los QR: se parecen tanto que <em>la mezcla</em> le gana a cada uno</li>
+    <li>Desaprender o la pseudoinversa guardan los cinco: <em>90&nbsp;a&nbsp;93&nbsp;%</em> de media con 10 a 45 % de ruido</li>
+    <li>Ninguna red le gana a la <em>distancia de Hamming</em> con ruido al azar; con desgaste, ni Hamming es el techo</li>
+  </ol>
+  <aside class="notes">Uno: con patrones al azar la misma red guarda unos 100; con los QR, ni los cinco, porque comparten el 70 % de los módulos y, sin eso, food y wine siguen pareciéndose. Dos: el desaprendizaje (sin lo común) da 90,5 % de media y la pseudoinversa completa 93,3 %. Por qué la pseudoinversa completa le gana al desaprendizaje: en la misma representación, sin lo común, empatan (89,5 contra 90,5 %, diferencia no concluyente). La ventaja viene de que la pseudoinversa puede usar el QR completo y el desaprendizaje no: cada resta le saca 0,1 de voto a las conexiones entre módulos comunes, y a las 50 restas las borra. Además la pseudoinversa elimina el crosstalk de una vez y para los cinco QR, mientras que el desaprendizaje lo corrige de a poco y solo en los pozos falsos que encuentra soñando. Por qué la pseudoinversa completa le gana a la pseudoinversa sin lo común (96 contra 88 % con 40 % de ruido): los módulos comunes funcionan como un ancla. Fijan el signo, así que la red no cae en el inverso de un QR (con 45 % de ruido la versión sin lo común terminó en un inverso 24 veces de 300, la completa ninguna), y descartan mezclas que no se parecen a ningún QR. Reponerlos al final no da esa ayuda, porque no participan de la dinámica. Tres: por qué Hamming gana siempre con ruido al azar. Si cada módulo se invierte por separado con la misma probabilidad, el QR más cercano a la consulta es el más probable: ninguna regla puede acertar más en promedio. Las redes intentan llegar al más cercano con su dinámica, módulo por módulo, y pueden quedarse en un estado falso o en el pozo de otro QR; Hamming compara la consulta con los cinco originales de una vez. Con desgaste el daño es de un solo lado (solo se borra tinta), y comparar sabiendo eso acierta 97 % con 49 % alterado, contra 71 % de Hamming.</aside>
 </section>
 
 <section class="statement">
-  <h2>Los cinco QR se parecen.<br>Sin lo común, food y wine siguen pareciéndose.</h2>
-  <p class="sub">Sacar lo común reduce el primero. Desaprender o la pseudoinversa resuelven el segundo, cerca del techo que marca la distancia de Hamming.</p>
+  <h2>Qué le recomendaríamos a la Trattoria</h2>
+  <ol>
+    <li>Guardar los cinco QR originales y comparar por <em>distancia de Hamming</em>: es lo más simple y lo que más recupera</li>
+    <li>Si quiere una memoria que los recupere sola: <em>pseudoinversa</em> con el QR completo</li>
+    <li>Para los próximos menús: QR que se parezcan menos, por ejemplo con otra máscara en cada uno (sin probar)</li>
+  </ol>
+  <aside class="notes">Uno: con ruido al azar Hamming recupera 95,7 % de media y no necesita entrenar nada; con desgaste conviene compararlos sabiendo que solo se pierde tinta. Dos: entre las memorias asociativas, la pseudoinversa con los 1.369 módulos fue la mejor (93,3 %), es un solo cálculo y no tiene parámetros que elegir; el desaprendizaje queda cerca pero depende de la tasa, los intentos y la semilla. Tres: el problema de fondo es que los QR de un mismo sitio se parecen. Un QR elige una de ocho máscaras para que sus módulos se vean al azar; si cada menú usara una distinta, los cinco se parecerían menos. Más corrección de errores (nivel H, 30 %, en vez de L, 7 %) ayudaría al lector solo. Ninguna de las dos cosas la probamos. Límites de todo lo anterior: está medido con estos cinco QR, y la consulta llega ya alineada y binarizada en 37 × 37; con una foto real habría que ubicar el QR, enderezarlo y binarizarlo antes, y eso no lo probamos.</aside>
 </section>
 
 <!-- ===================================================================== Apéndice -->

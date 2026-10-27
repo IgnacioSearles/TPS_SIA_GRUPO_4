@@ -444,7 +444,7 @@ La versión completa de 1.369 neuronas **no tuvo candidato que conservara los ci
 
 La consulta ruidosa se genera completa antes del recorte. La red recibe solo la parte variable. Si el daño cae en un módulo común, lo corrige la plantilla, sin inferencia de Hopfield. Eso debe contarse como parte explícita de la solución.
 
-Con cinco QR, quitar compartidos **no bastó para Hebb**: cero originales estables. Mejoró qué subconjuntos de tres pueden almacenarse. Por eso la diapositiva 60 dice que sacar lo común reduce el primer problema, no que lo resuelve solo.
+Con cinco QR, quitar compartidos **no bastó para Hebb**: cero originales estables. Mejoró qué subconjuntos de tres pueden almacenarse. Por eso las conclusiones (59) no dicen que sacar lo común lo resuelva: hace falta además desaprender o la pseudoinversa.
 
 ### Una red por zona
 
@@ -572,7 +572,7 @@ Estas son observaciones para estudiar y defender; no se cambiaron las diapositiv
 | 51–52 | Desaprender protege automáticamente los originales | Se excluyen como objetivos directos y después se verifica su estabilidad |
 | 56 | Todos los métodos, incluida la solución de dos redes, se compararon ahí | La tabla usa consultas nuevas emparejadas; las dos redes tienen otro barrido |
 | 58, apéndice 92 | Área dañada = bits invertidos; nivel H tolera cualquier 30 % de módulos | Importan color previo, ubicación, codewords y que se detecte el QR |
-| 60 | Sacar compartidos resolvió por sí solo la recuperación | Redujo interferencia y mejoró subconjuntos; Hebb con cinco siguió sin originales estables |
+| 59 | Sacar compartidos resolvió por sí solo la recuperación | Redujo interferencia y mejoró subconjuntos; Hebb con cinco siguió sin originales estables |
 
 ## 15. Preguntas de defensa con respuestas breves
 

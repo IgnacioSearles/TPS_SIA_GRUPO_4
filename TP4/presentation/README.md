@@ -17,7 +17,7 @@ Abrir `index.html`. Flechas: avanzar. F: pantalla completa. S: notas del orador.
 |---|---|
 | Portada | 1 |
 | Ejercicio 1: exploración y PCA · Kohonen · Oja · campañas | 2–37 |
-| Ejercicio 2: problema 1 (los cinco QR se parecen) · problema 2 (menú y vinos) · soluciones (desaprendizaje y pseudoinversa) · daño realista y límites | 38–60 |
+| Ejercicio 2: problema 1 (los cinco QR se parecen) · problema 2 (menú y vinos) · soluciones (desaprendizaje y pseudoinversa) · daño realista · conclusiones y recomendaciones | 38–60 |
 | Apéndice | 61–97 |
 
 ## Dónde se responde cada pregunta de la consigna
