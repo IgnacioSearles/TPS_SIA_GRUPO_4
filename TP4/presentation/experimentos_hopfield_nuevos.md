@@ -54,7 +54,7 @@ no se corrió un lector óptico y no se demuestra robustez de detección fotogr�
 
 Mostrar que el lector solo no lee desde **5 %** de módulos alterados y que el
 desaprendizaje recupera el **97 % o más** con hasta un cuarto de los módulos
-alterados, en desgaste, manchas, rayones y foto gastada. Diapositiva 57;
+alterados, en desgaste, manchas, rayones y foto gastada. Diapositiva 59;
 [informe](../reports/ejercicio2/dano_realista_20261026/README.md).
 
 Notas: son simulaciones con métodos congelados y semillas nuevas. La corrida de
@@ -66,7 +66,7 @@ tinta, Hamming deja de ser el techo.
 Con la consulta en la red que guarda su QR, 100 % hasta 35 %: confirma que el
 par menú-vinos es el obstáculo. Pero elegir la red vuelve a ser comparar con los
 originales (desempate por Hamming) o algo equivalente (energía con Hebb). No la
-presentamos entre las soluciones. Diapositiva 47.
+presentamos entre las soluciones. Diapositiva 49.
 
 ## Nombres exactos para las leyendas
 
