@@ -60,9 +60,9 @@ Los enlaces abren la diapositiva correspondiente en `index.html`. La tecla S mue
 | 50 | [Desaprendizaje: rellenar los pozos falsos](index.html#/49) | §10 | ¿Qué estado se resta, cuándo no se toca y cuánto sube su energía? ¿Por qué 50 intentos no son 50 restas? |
 | 51 | [Después de desaprender, los cinco QR son estables](index.html#/50) | §10 | ¿Qué cuenta "neuronas que lo rechazan"? ¿Qué pasó en los 50 intentos de cada semilla? |
 | 52 | [Desaprendizaje: 99 % hasta 35 % de ruido, casi siempre en 1 o 2 iteraciones](index.html#/51) | §10, §12 | ¿Por qué las consultas son nuevas? ¿Qué cuenta una iteración y qué pasó con la energía? |
-| 53 | [La pseudoinversa es Hebb descontando el parecido](index.html#/52) | §9 | ¿Qué cambia entre dividir por N y multiplicar por G⁻¹? ¿Por qué el campo de un QR queda (1 − Pᵢᵢ) ξᵢ y cuándo las dos reglas coinciden? |
+| 53 | [Pseudoinversa: Hebb, pero descontando cuánto se parecen los QR](index.html#/52) | §9 | ¿Qué mide G, para qué se invierte y en qué se diferencia W = Ξᵀ G⁻¹ Ξ de Hebb? ¿Cuándo las dos reglas coinciden? |
 | 54 | [Pseudoinversa en chico: 6 neuronas, 3 recuerdos](index.html#/53) | §9 | ¿Por qué Hebb da vuelta la quinta neurona de A y la pseudoinversa no? |
-| 55 | [Comparar con los originales es el techo](index.html#/54) | §9, §12 | ¿Por qué comparar con los originales es el techo con este ruido? ¿Qué diferencias son concluyentes? |
+| 55 | [Las redes quedan cerca del mejor caso posible](index.html#/54) | §9, §12 | ¿Por qué comparar con los originales es el techo con este ruido? ¿Qué diferencias son concluyentes? |
 | 56 | [La esquina rota casi no le llega a la red](index.html#/55) | §12, §14 | ¿Cuántos módulos cubre, altera y ve la red? ¿Hasta qué tamaño se recupera? |
 | 57 | [Con daño realista, la red recupera el QR mucho después de que el lector deja de leer](index.html#/56) | §12 | ¿Cómo se genera cada daño? ¿Por qué el lector solo falla tan pronto y dónde se rompe cada método? |
 | 58 | [Límites del caso de uso](index.html#/57) | §12, §14 | ¿Qué supone que la consulta llegue a 37×37? ¿Qué alternativas solo se proponen? |

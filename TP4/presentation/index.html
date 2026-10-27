@@ -469,26 +469,15 @@
 </section>
 
 <section>
-  <h2>La pseudoinversa es Hebb descontando el parecido</h2>
-  <div class="compare">
-    <span></span>
-    <h3>Hebb</h3>
-    <h3 class="chosen">Pseudoinversa</h3>
-
-    <p class="k">Regla</p>
-    <p class="f">W = Ξᵀ Ξ / N<br><small>divide por N</small></p>
-    <p class="f">W = Ξᵀ G⁻¹ Ξ<br><small>con G = Ξ Ξᵀ, la tabla 5 × 5 de parecidos</small></p>
-
-    <p class="k">Qué busca</p>
-    <p>Que cada QR se reproduzca: <code>W ξ ≈ ξ</code></p>
-    <p>Lo mismo, pero exacto: <code>W ξ = ξ</code></p>
-
-    <p class="k">Campo de un QR</p>
-    <p>Señal propia + crosstalk de los otros. Con QR parecidos, el crosstalk <em>le gana</em></p>
-    <p><code>(1 − Pᵢᵢ) ξᵢ</code>: mismo signo que el QR, sin crosstalk. G⁻¹ ya descontó el parecido</p>
+  <h2>Pseudoinversa: Hebb, pero descontando cuánto se parecen los QR</h2>
+  <div class="steps tight">
+    <div><p class="n">1</p><div><p class="what">Medir el parecido entre cada par de QR</p><p class="how"><code>G = Ξ Ξᵀ</code>, una tabla 5 × 5: módulos iguales menos distintos. Food–wine: 1.177 de 1.369</p></div></div>
+    <div><p class="n">2</p><div><p class="what">Invertir esa tabla: <code>G⁻¹</code></p><p class="how">Dice cuánto pesa cada QR y cuánto restarle de los otros. Es 5 × 5: un solo cálculo</p></div></div>
+    <div><p class="n">3</p><div><p class="what">Guardar como Hebb, con esos pesos: <code>W = Ξᵀ G⁻¹ Ξ</code></p><p class="how">Hebb le da 1/N a todos (<code>W = Ξᵀ Ξ / N</code>); acá cada QR recibe su peso y se descuenta lo que comparte</p></div></div>
+    <div><p class="n">4</p><div><p class="what">Diagonal en cero, igual que en Hebb</p><p class="how">la neurona no se vota a sí misma</p></div></div>
   </div>
-  <p class="take">Con QR ortogonales, G = N·I y las dos reglas son iguales. La pseudoinversa no necesita sacar lo común ni iterar: es un solo cálculo, pero no está en el apunte.</p>
-  <aside class="notes">Ξ tiene los cinco QR como filas. Hebb es Ξᵀ Ξ / N: cada QR se reproduce a sí mismo y, además, arrastra a los otros pesados por cuánto se parecen; ese arrastre es el crosstalk. Solo si los QR fueran ortogonales el arrastre sería cero. La pseudoinversa cambia el 1/N por G⁻¹, donde G = Ξ Ξᵀ es la tabla de productos escalares entre pares de QR. Entonces W Ξᵀ = Ξᵀ G⁻¹ G = Ξᵀ: cada QR se reproduce exacto. Leída como Hebb, es una suma de tablas ξ ξᵀ con coeficientes distintos y con tablas cruzadas entre QR que restan lo que comparten. Si G = N·I, G⁻¹ = I/N y queda Hebb. Al poner la diagonal en cero, el campo sobre un QR es (1 − Pᵢᵢ) por su valor; la suma de los Pᵢᵢ es la cantidad de QR, así que en promedio Pᵢᵢ = 5/1.369 y el margen es casi 1. Garantiza que los QR sean estables, no que se recuperen desde cualquier ruido. La matriz que se invierte es de 5 × 5. Cada peso depende de todos los QR a la vez, no solo de los dos módulos que conecta: por eso no es una regla local como Hebb ni está en el apunte. El detalle de la fórmula está en el apéndice.</aside>
+  <p class="take">Resultado: cada QR guardado se reproduce sin crosstalk, por más que se parezcan, y los cinco quedan estables. Con QR ortogonales, G⁻¹ da 1/N a cada uno y queda Hebb.</p>
+  <aside class="notes">Ξ tiene los cinco QR como filas, así que Hebb es Ξᵀ Ξ / N. Con Hebb, al presentar un QR, cada uno de los otros también empuja hacia sí mismo, pesado por cuánto se parece: ese empuje es el crosstalk. Paso 1: G guarda, para cada par de QR, módulos iguales menos módulos distintos; en la diagonal está cada QR consigo mismo, 1.369. Paso 2: se invierte G, que es de 5 × 5 y no de 1.369. Paso 3: la regla es una suma de tablas ξ ξᵀ como en Hebb, pero en lugar de 1/N cada tabla lleva un coeficiente de G⁻¹, y aparecen tablas cruzadas entre dos QR distintos con coeficiente negativo cuando se parecen: eso resta lo compartido. El efecto es que W multiplicado por cualquier QR guardado devuelve exactamente ese QR: Ξᵀ G⁻¹ (Ξ Ξᵀ) = Ξᵀ. Paso 4: al poner la diagonal en cero, a cada neurona le falta el voto que se daba a sí misma; ese voto es chico, en promedio 5/1.369, así que el campo sigue teniendo el signo del QR y el QR queda estable. Si los QR fueran ortogonales, G sería 1.369 en la diagonal y 0 afuera, G⁻¹ sería 1/N y la regla sería Hebb. Garantiza que los QR sean estables, no que se recuperen desde cualquier ruido. Cada peso depende de todos los QR a la vez, no solo de los dos módulos que conecta: por eso no es una regla local como Hebb ni está en el apunte. Detalle de la fórmula en el apéndice.</aside>
 </section>
 
 <section>
@@ -503,10 +492,10 @@ Campo de cada neurona al presentar A:
 </section>
 
 <section class="figure has-take">
-  <h2>Comparar con los originales es el techo</h2>
+  <h2>Las redes quedan cerca del mejor caso posible</h2>
   <figure><img src="assets/reports__presentacion__e2_reglas_por_ruido.png" alt="Recuperación según el ruido de cada regla y de comparar con los originales"></figure>
-  <p class="take">Con ruido al azar, el original más cercano es la decisión de <em>máxima verosimilitud</em>. Media de 10 a 45 %: techo 95,7 %, pseudoinversa 93,3 %, desaprendizaje 90,5 %.</p>
-  <aside class="notes">Todas sobre las mismas 700 consultas nuevas: cinco QR, siete niveles de 0 a 45 %, 20 semillas. Comparar con los originales no es una red: guarda los cinco QR aparte y elige el de menor distancia de Hamming. Si cada módulo se invierte con la misma probabilidad y por separado, el más cercano es el más probable, así que ningún método le puede ganar en promedio. La pregunta es cuánto se acerca una memoria que recupera solo con su dinámica. La pseudoinversa completa supera al desaprendizaje (2,8 puntos, intervalo de 1,4 a 4,6). Entre desaprendizaje y pseudoinversa sin lo común la diferencia, 1 punto, no es concluyente (intervalo de −0,2 a 2,3). Hebb sin lo común: 0 %. Las dos redes no están acá: no son una red sola.</aside>
+  <p class="take">Gris: comparar la consulta con los 5 originales y elegir el más parecido. Con ruido al azar, nada lo supera. Media de 10 a 45 %: gris <em>95,7 %</em>, pseudoinversa 93,3 %, desaprendizaje 90,5 %, Hebb 0 %.</p>
+  <aside class="notes">Qué dice la diapositiva: todas las redes, salvo Hebb, recuperan el 100 % hasta 35 % de ruido, igual que la línea gris; recién con 40 y 45 % se separan, y quedan pocos puntos debajo de ella. Por qué la gris es el mejor caso: si cada módulo se invierte con la misma probabilidad y por separado, el QR que difiere en menos módulos de la consulta es el más probable de haberla generado (es la decisión de máxima verosimilitud). Ningún método puede acertar más en promedio.Todas sobre las mismas 700 consultas nuevas: cinco QR, siete niveles de 0 a 45 %, 20 semillas. Comparar con los originales no es una red: guarda los cinco QR aparte y elige el de menor distancia de Hamming. Si cada módulo se invierte con la misma probabilidad y por separado, el más cercano es el más probable, así que ningún método le puede ganar en promedio. La pregunta es cuánto se acerca una memoria que recupera solo con su dinámica. La pseudoinversa completa supera al desaprendizaje (2,8 puntos, intervalo de 1,4 a 4,6). Entre desaprendizaje y pseudoinversa sin lo común la diferencia, 1 punto, no es concluyente (intervalo de −0,2 a 2,3). Hebb sin lo común: 0 %. Las dos redes no están acá: no son una red sola.</aside>
 </section>
 
 <!-- Límites y conclusiones -->
