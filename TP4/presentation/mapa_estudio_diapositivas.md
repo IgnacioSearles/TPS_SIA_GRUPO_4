@@ -1,6 +1,6 @@
 # Ensayo diapositiva por diapositiva
 
-Revisión del 25/10/2026, presentación después del pull a `ca3229f`. Hay 61 diapositivas de relato, una separadora de apéndice y 34 figuras de respaldo: 96 en total. Numeración actualizada el 27/10 con las comparaciones Hebb–desaprendizaje y Hebb–pseudoinversa, y con las diapositivas 14 (cómo actualiza cada vecindad) y 32 (cómo se eligió a cada creador).
+Revisión del 25/10/2026, presentación después del pull a `ca3229f`. Hay 61 diapositivas de relato, una separadora de apéndice y 35 figuras de respaldo: 97 en total. Numeración actualizada el 27/10 con la pseudoinversa en cuadro y procedimiento.
 
 Los enlaces abren la diapositiva correspondiente en `index.html`. La tecla S muestra las notas originales. Ninguna diapositiva fue editada para esta revisión.
 
@@ -62,8 +62,8 @@ Los enlaces abren la diapositiva correspondiente en `index.html`. La tecla S mue
 | 52 | [Desaprendizaje: rellenar los pozos falsos](index.html#/51) | §10 | ¿Qué estado se resta, cuándo no se toca y cuánto sube su energía? ¿Por qué 50 intentos no son 50 restas? |
 | 53 | [Después de desaprender, los cinco QR son estables](index.html#/52) | §10 | ¿Qué cuenta "neuronas que lo rechazan"? ¿Qué pasó en los 50 intentos de cada semilla? |
 | 54 | [Desaprendizaje: 99 % hasta 35 % de ruido, casi siempre en 1 o 2 iteraciones](index.html#/53) | §10, §12 | ¿Por qué las consultas son nuevas? ¿Qué cuenta una iteración y qué pasó con la energía? |
-| 55 | [Pseudoinversa: Hebb, pero descontando cuánto se parecen los QR](index.html#/54) | §9 | ¿Qué mide G, para qué se invierte y en qué se diferencia W = Ξᵀ G⁻¹ Ξ de Hebb? ¿Cuándo las dos reglas coinciden? |
-| 56 | [Pseudoinversa en chico: 6 neuronas, 3 recuerdos](index.html#/55) | §9 | ¿Por qué Hebb da vuelta la quinta neurona de A y la pseudoinversa no? |
+| 55 | [La pseudoinversa es Hebb sin el eco del parecido](index.html#/54) | §9 | ¿Por qué Hebb confunde parecido con presencia? ¿Qué descuenta G⁻¹ y por qué al mostrar food solo vota food? |
+| 56 | [Pseudoinversa: medir el parecido y descontarlo](index.html#/55) | §9 | ¿Qué mide G, para qué se invierte y en qué se diferencia W = Ξᵀ G⁻¹ Ξ de Hebb? ¿Cuándo las dos reglas coinciden? |
 | 57 | [Las redes quedan cerca del mejor caso posible](index.html#/56) | §9, §12 | ¿Por qué comparar con los originales es el techo con este ruido? ¿Qué diferencias son concluyentes? |
 | 58 | [Una esquina rota cae casi toda donde los QR son iguales](index.html#/57) | §12, §14 | ¿Cuántos módulos cubre, altera y ve la red? ¿Hasta qué tamaño se recupera? |
 | 59 | [Con daño realista, las redes recuperan casi todo](index.html#/58) | §12 | ¿Cómo se genera cada daño? ¿Por qué el lector solo falla tan pronto y dónde se rompe cada método? |
@@ -93,19 +93,20 @@ Los enlaces abren la diapositiva correspondiente en `index.html`. La tecla S mue
 | 78 | [Regiones y elegidos en el mapa](index.html#/77) | §6 | ¿Qué se hace si un elegido no está disponible y qué no garantiza cercanía en el mapa? |
 | 79 | [Cómo funciona la red](index.html#/78) | §7 | ¿Cómo se pasa del QR a neuronas, cómo se guarda con Hebb, cómo se actualiza y cuándo para? ¿Qué mide la energía? |
 | 80 | [Pseudoinversa: descontar el parecido antes de guardar](index.html#/79) | §9 | ¿Qué matriz se invierte, de qué tamaño, y por qué cada QR guardado queda estable? |
-| 81 | [Un QR con ruido, paso a paso](index.html#/80) | §7 | ¿Podés seguir consulta, estados intermedios y salida sin confundir cercanía con estabilidad? |
-| 82 | [Hebb: iteraciones hasta converger](index.html#/81) | §7 | ¿Por qué pocas iteraciones no implican buena recuperación? |
-| 83 | [Solapamientos entre los QR](index.html#/82) | §7 | ¿Cómo se calcula cada entrada de la matriz de solapamientos? |
-| 84 | [Crosstalk: dónde el campo le gana a cada QR](index.html#/83) | §7–8 | ¿Qué se pinta en rojo y por qué está en la franja izquierda? |
-| 85 | [Capacidad medida: patrones al azar contra QR](index.html#/84) | §8 | ¿Con qué criterio se midió capacidad y por qué difiere entre QR y patrones aleatorios? |
-| 86 | [Sin compartidos: ruido, con la reposición sin red como referencia](index.html#/85) | §11 | ¿Qué mejora aporta solo reponer comunes sin Hopfield? |
-| 87 | [Sin compartidos: todas las ternas](index.html#/86) | §8, §11 | ¿Qué ternas contienen al par más parecido y cómo se compararon? |
-| 88 | [Una red por zona: QR estables en cada zona](index.html#/87) | §11 | ¿Por qué cortar en zonas no reduce el parecido? |
-| 89 | [Una red por zona: barrido de ruido y lector](index.html#/88) | §11 | ¿Cómo difieren exactitud de módulos y tasa de lectura por tamaño de zona? |
-| 90 | [Dos redes (diagnóstico): cuántas redes y cómo repartir](index.html#/89) | §11 | ¿Qué costo tiene llevar el reparto hasta una red por QR? |
-| 91 | [Dos redes (diagnóstico): qué devuelve cada una](index.html#/90) | §11 | ¿Cuándo devuelven QR guardados las dos redes y qué regla elige? |
-| 92 | [Todos los métodos con una esquina rota](index.html#/91) | §12 | ¿Las alternativas de este gráfico comparten consultas con la confirmación nueva? |
-| 93 | [Desaprendizaje: ruido, esquinas y manchas](index.html#/92) | §10, §12 | ¿Dónde se rompe el 100 % del desaprendizaje y cuánto del daño ve realmente la red? |
-| 94 | [Daño realista: los siete tipos](index.html#/93) | §12 | ¿Cómo se genera cada daño y en cuáles el lector solo deja de leer? |
-| 95 | [Daño realista: niveles extremos](index.html#/94) | §12 | ¿Dónde se rompe cada método y por qué ahí conviene saber que el daño solo borra tinta? |
-| 96 | [Daño realista: un ejemplo de cada tipo](index.html#/95) | §12 | ¿Qué parte de cada daño ve la red? |
+| 81 | [Pseudoinversa en chico: 6 neuronas, 3 recuerdos](index.html#/80) | §9 | ¿Por qué Hebb da vuelta la quinta neurona de A y la pseudoinversa no? |
+| 82 | [Un QR con ruido, paso a paso](index.html#/81) | §7 | ¿Podés seguir consulta, estados intermedios y salida sin confundir cercanía con estabilidad? |
+| 83 | [Hebb: iteraciones hasta converger](index.html#/82) | §7 | ¿Por qué pocas iteraciones no implican buena recuperación? |
+| 84 | [Solapamientos entre los QR](index.html#/83) | §7 | ¿Cómo se calcula cada entrada de la matriz de solapamientos? |
+| 85 | [Crosstalk: dónde el campo le gana a cada QR](index.html#/84) | §7–8 | ¿Qué se pinta en rojo y por qué está en la franja izquierda? |
+| 86 | [Capacidad medida: patrones al azar contra QR](index.html#/85) | §8 | ¿Con qué criterio se midió capacidad y por qué difiere entre QR y patrones aleatorios? |
+| 87 | [Sin compartidos: ruido, con la reposición sin red como referencia](index.html#/86) | §11 | ¿Qué mejora aporta solo reponer comunes sin Hopfield? |
+| 88 | [Sin compartidos: todas las ternas](index.html#/87) | §8, §11 | ¿Qué ternas contienen al par más parecido y cómo se compararon? |
+| 89 | [Una red por zona: QR estables en cada zona](index.html#/88) | §11 | ¿Por qué cortar en zonas no reduce el parecido? |
+| 90 | [Una red por zona: barrido de ruido y lector](index.html#/89) | §11 | ¿Cómo difieren exactitud de módulos y tasa de lectura por tamaño de zona? |
+| 91 | [Dos redes (diagnóstico): cuántas redes y cómo repartir](index.html#/90) | §11 | ¿Qué costo tiene llevar el reparto hasta una red por QR? |
+| 92 | [Dos redes (diagnóstico): qué devuelve cada una](index.html#/91) | §11 | ¿Cuándo devuelven QR guardados las dos redes y qué regla elige? |
+| 93 | [Todos los métodos con una esquina rota](index.html#/92) | §12 | ¿Las alternativas de este gráfico comparten consultas con la confirmación nueva? |
+| 94 | [Desaprendizaje: ruido, esquinas y manchas](index.html#/93) | §10, §12 | ¿Dónde se rompe el 100 % del desaprendizaje y cuánto del daño ve realmente la red? |
+| 95 | [Daño realista: los siete tipos](index.html#/94) | §12 | ¿Cómo se genera cada daño y en cuáles el lector solo deja de leer? |
+| 96 | [Daño realista: niveles extremos](index.html#/95) | §12 | ¿Dónde se rompe cada método y por qué ahí conviene saber que el daño solo borra tinta? |
+| 97 | [Daño realista: un ejemplo de cada tipo](index.html#/96) | §12 | ¿Qué parte de cada daño ve la red? |

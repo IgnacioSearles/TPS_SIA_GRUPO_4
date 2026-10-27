@@ -483,31 +483,38 @@
 </section>
 
 <section>
-  <h2>Pseudoinversa: Hebb, pero descontando cuánto se parecen los QR</h2>
-  <div class="steps tight">
-    <div><p class="n">1</p><div><p class="what">Medir el parecido entre cada par de QR</p><p class="how"><code>G = Ξ Ξᵀ</code>, una tabla 5 × 5: módulos iguales menos distintos. Food–wine: 1.177 de 1.369</p></div></div>
-    <div><p class="n">2</p><div><p class="what">Invertir esa tabla: <code>G⁻¹</code></p><p class="how">Dice cuánto pesa cada QR y cuánto restarle de los otros. Es 5 × 5: un solo cálculo</p></div></div>
-    <div><p class="n">3</p><div><p class="what">Guardar como Hebb, con esos pesos: <code>W = Ξᵀ G⁻¹ Ξ</code></p><p class="how">Hebb le da 1/N a todos (<code>W = Ξᵀ Ξ / N</code>); acá cada QR recibe su peso y se descuenta lo que comparte</p></div></div>
-    <div><p class="n">4</p><div><p class="what">Diagonal en cero, igual que en Hebb</p><p class="how">la neurona no se vota a sí misma</p></div></div>
+  <h2>La pseudoinversa es Hebb sin el eco del parecido</h2>
+  <div class="compare">
+    <span></span>
+    <h3>Hebb</h3>
+    <h3 class="chosen">Pseudoinversa</h3>
+
+    <p class="k">Regla</p>
+    <p class="f">W = Ξᵀ Ξ / N<br><small>los 5 QR, todos con el mismo peso</small></p>
+    <p class="f">W = Ξᵀ G⁻¹ Ξ<br><small>los 5 QR, con pesos que descuentan el parecido</small></p>
+
+    <p class="k">Qué busca</p>
+    <p>Que cada QR sea un pozo de energía</p>
+    <p>Que cada QR se reproduzca exacto, aunque se parezcan</p>
+
+    <p class="k">Al mostrar food</p>
+    <p>Votan todos según su parecido con food: wine 0,86, specials 0,77</p>
+    <p>Vota <em>solo food</em>: el parecido de los otros con food ya lo explica food</p>
   </div>
-  <p class="take">Resultado: cada QR guardado se reproduce sin crosstalk, por más que se parezcan, y los cinco quedan estables. Con QR ortogonales, G⁻¹ da 1/N a cada uno y queda Hebb.</p>
-  <aside class="notes">Ξ tiene los cinco QR como filas, así que Hebb es Ξᵀ Ξ / N. Con Hebb, al presentar un QR, cada uno de los otros también empuja hacia sí mismo, pesado por cuánto se parece: ese empuje es el crosstalk. Paso 1: G guarda, para cada par de QR, módulos iguales menos módulos distintos; en la diagonal está cada QR consigo mismo, 1.369. Paso 2: se invierte G, que es de 5 × 5 y no de 1.369. Paso 3: la regla es una suma de tablas ξ ξᵀ como en Hebb, pero en lugar de 1/N cada tabla lleva un coeficiente de G⁻¹, y aparecen tablas cruzadas entre dos QR distintos con coeficiente negativo cuando se parecen: eso resta lo compartido. El efecto es que W multiplicado por cualquier QR guardado devuelve exactamente ese QR: Ξᵀ G⁻¹ (Ξ Ξᵀ) = Ξᵀ. Paso 4: al poner la diagonal en cero, a cada neurona le falta el voto que se daba a sí misma; ese voto es chico, en promedio 5/1.369, así que el campo sigue teniendo el signo del QR y el QR queda estable. Si los QR fueran ortogonales, G sería 1.369 en la diagonal y 0 afuera, G⁻¹ sería 1/N y la regla sería Hebb. Garantiza que los QR sean estables, no que se recuperen desde cualquier ruido. Cada peso depende de todos los QR a la vez, no solo de los dos módulos que conecta: por eso no es una regla local como Hebb ni está en el apunte. Detalle de la fórmula en el apéndice.</aside>
+  <p class="take">Hebb confunde parecido con presencia: wine se parece a food, entonces vota. G⁻¹ descuenta ese eco y solo vota el QR que está. Con QR ortogonales no hay eco y las dos reglas coinciden.</p>
+  <aside class="notes">Las dos reglas suman las tablas ξ ξᵀ de los cinco QR; cambia con qué peso. Hebb les da a todos el mismo, 1/N. Por eso, al presentar food, cada QR guardado empuja a la red hacia sí mismo con una fuerza igual a cuánto se parece a food: wine 0,86, specials 0,77, beverages 0,60 y dessert 0,59. Ese empuje de los otros es el crosstalk. Pero que wine se parezca 86 % a food no quiere decir que haya algo de wine en el estado: es un eco del parecido entre wine y food. G es la tabla de cuánto se parecen los QR entre sí, o sea de cuánto eco produce cada uno sobre los otros. Usar su inversa es preguntar qué cantidad de cada QR hace falta para explicar los parecidos que se ven. Si el estado es food, la respuesta es uno de food y cero de los demás, así que solo vota food y no hay crosstalk. Una analogía: un licuado de banana sabe un poco a plátano porque banana y plátano se parecen; sabiendo cuánto se parecen, se descuenta y se concluye que es solo banana. Si los QR fueran ortogonales no habría eco, G⁻¹ daría 1/N a cada uno y la regla sería Hebb. Funciona siempre que ningún QR sea combinación de los otros. No está en el apunte, y cada peso depende de todos los QR a la vez, no solo de los dos módulos que conecta: no es una regla local como Hebb.</aside>
 </section>
 
 <section>
-  <h2>Pseudoinversa en chico: 6 neuronas, 3 recuerdos</h2>
-  <div class="toy">A = (+ + + + − −)    B = (+ + + − + −)    C = (+ + − + + −)
-
-Presento A. En la neurona 5, A pide <b>−</b>; B y C piden <b>+</b>. ¿Cuánto empuja cada uno?
-                          A        B        C       campo
-<strong>1. Parecido con A</strong>         5        3        3       (sin contar la 5.ª)
-<strong>2. Hebb</strong>: parecido / 6   −0,83    +0,50    +0,50     <b>+0,17</b>  se da vuelta
-<strong>3. Pseudoinversa</strong>        −0,70    +0,20    +0,20     <strong>−0,30</strong>  queda
-
-   G⁻¹: 0,20 propio, −0,05 por cada otro recuerdo
-   A: 0,20·5 − 0,05·(3+3) = 0,70      B: 0,20·3 − 0,05·(5+3) = 0,20</div>
-  <p class="take">Con Hebb, B y C juntos empujan más que A. La pseudoinversa les descuenta lo que comparten con A: bajan de 0,50 a 0,20 y gana A.</p>
-  <aside class="notes">Los tres recuerdos comparten las dos primeras neuronas y la última. El campo de una neurona es la suma de lo que le pide cada recuerdo, pesado por cuánto se parece el estado a ese recuerdo en las otras neuronas. Paso 1: A coincide consigo mismo en las otras 5 neuronas; B y C coinciden con A en 4 y difieren en 1, así que su parecido es 3. Paso 2, Hebb: cada peso es parecido sobre 6. A empuja −5/6 y B y C, +3/6 cada uno: suma +1/6 y la neurona 5 se da vuelta. Paso 3, pseudoinversa: G = Ξ Ξᵀ vale 6 en la diagonal y 2 fuera; su inversa vale 0,20 en la diagonal y −0,05 fuera. El peso de cada recuerdo es G⁻¹ por el vector de parecidos: a cada uno se le suma 0,20 de su propio parecido y se le resta 0,05 del parecido de los otros, que es la parte que comparten. B baja de 0,50 a 0,20 y A, de 0,83 a 0,70. Campo: −0,70 + 0,20 + 0,20 = −0,30: queda. Si además invertimos la primera neurona de A como consulta, Hebb termina en una mezcla estable y la pseudoinversa vuelve a A. Con los cinco QR, la pseudoinversa deja estables a los cinco y la mezcla deja de serlo.</aside>
+  <h2>Pseudoinversa: medir el parecido y descontarlo</h2>
+  <div class="steps tight">
+    <div><p class="n">1</p><div><p class="what">Medir el parecido entre cada par de QR: <code>G = Ξ Ξᵀ</code></p><p class="how">tabla 5 × 5: módulos iguales menos distintos. Food y wine: 1.273 − 96 = 1.177</p></div></div>
+    <div><p class="n">2</p><div><p class="what">Invertirla: <code>G⁻¹</code></p><p class="how">dice cuánto del parecido con cada QR ya lo explican los otros. Es 5 × 5: un solo cálculo</p></div></div>
+    <div><p class="n">3</p><div><p class="what">Guardar como Hebb, con esos pesos: <code>W = Ξᵀ G⁻¹ Ξ</code></p><p class="how">Hebb usa 1/N para todos; acá cada QR lleva su peso y se descuenta lo que comparte</p></div></div>
+    <div><p class="n">4</p><div><p class="what">Diagonal en cero, igual que en Hebb</p><p class="how">la neurona no se vota a sí misma</p></div></div>
+  </div>
+  <p class="take">Se calcula una sola vez: sin iterar, sin elegir parámetros y sin sacar lo común. Hay un ejemplo con 6 neuronas en el apéndice.</p>
+  <aside class="notes">Ξ tiene los cinco QR como filas, así que Hebb es Ξᵀ Ξ / N. Con Hebb, al presentar un QR, cada uno de los otros también empuja hacia sí mismo, pesado por cuánto se parece: ese empuje es el crosstalk. Paso 1: G guarda, para cada par de QR, módulos iguales menos módulos distintos; en la diagonal está cada QR consigo mismo, 1.369. Paso 2: se invierte G, que es de 5 × 5 y no de 1.369. Paso 3: la regla es una suma de tablas ξ ξᵀ como en Hebb, pero en lugar de 1/N cada tabla lleva un coeficiente de G⁻¹, y aparecen tablas cruzadas entre dos QR distintos con coeficiente negativo cuando se parecen: eso resta lo compartido. El efecto es que W multiplicado por cualquier QR guardado devuelve exactamente ese QR: Ξᵀ G⁻¹ (Ξ Ξᵀ) = Ξᵀ. Paso 4: al poner la diagonal en cero, a cada neurona le falta el voto que se daba a sí misma; ese voto es chico, en promedio 5/1.369, así que el campo sigue teniendo el signo del QR y el QR queda estable. Si los QR fueran ortogonales, G sería 1.369 en la diagonal y 0 afuera, G⁻¹ sería 1/N y la regla sería Hebb. Garantiza que los QR sean estables, no que se recuperen desde cualquier ruido. Cada peso depende de todos los QR a la vez, no solo de los dos módulos que conecta: por eso no es una regla local como Hebb ni está en el apunte. Detalle de la fórmula en el apéndice.</aside>
 </section>
 
 <section class="figure has-take">
@@ -619,6 +626,22 @@ Presento A. En la neurona 5, A pide <b>−</b>; B y C piden <b>+</b>. ¿Cuánto 
   </div>
   <p class="take">Con QR ortogonales da lo mismo que Hebb. Sirve mientras ningún QR sea combinación de los otros. No está en el apunte.</p>
   <aside class="notes">Se llama pseudoinversa porque Ξ no es cuadrada (5 por 1.369) y no tiene inversa: Ξᵀ (Ξ Ξᵀ)⁻¹ es lo más parecido a una. La matriz que se invierte es de 5 por 5, no de 1.369. P es el proyector sobre el espacio de los QR; al poner su diagonal en cero, el campo sobre un QR guardado queda (1 − Pᵢᵢ) por su valor, y como Pᵢᵢ está entre 0 y 1 no cambia el signo. Eso garantiza que los originales son estables, no que se recuperen desde cualquier ruido: eso depende del tamaño de los pozos. Guarda hasta N patrones linealmente independientes, contra unos 0,14 N de Hebb con patrones al azar. A diferencia del desaprendizaje, no necesita sacar lo común: el descuento ya contempla lo que comparten.</aside>
+</section>
+
+<section>
+  <h2>Pseudoinversa en chico: 6 neuronas, 3 recuerdos</h2>
+  <div class="toy">A = (+ + + + − −)    B = (+ + + − + −)    C = (+ + − + + −)
+
+Presento A. En la neurona 5, A pide <b>−</b>; B y C piden <b>+</b>. ¿Cuánto empuja cada uno?
+                          A        B        C       campo
+<strong>1. Parecido con A</strong>         5        3        3       (sin contar la 5.ª)
+<strong>2. Hebb</strong>: parecido / 6   −0,83    +0,50    +0,50     <b>+0,17</b>  se da vuelta
+<strong>3. Pseudoinversa</strong>        −0,70    +0,20    +0,20     <strong>−0,30</strong>  queda
+
+   G⁻¹: 0,20 propio, −0,05 por cada otro recuerdo
+   A: 0,20·5 − 0,05·(3+3) = 0,70      B: 0,20·3 − 0,05·(5+3) = 0,20</div>
+  <p class="take">Con Hebb, B y C juntos empujan más que A. La pseudoinversa les descuenta lo que comparten con A: bajan de 0,50 a 0,20 y gana A.</p>
+  <aside class="notes">Los tres recuerdos comparten las dos primeras neuronas y la última. El campo de una neurona es la suma de lo que le pide cada recuerdo, pesado por cuánto se parece el estado a ese recuerdo en las otras neuronas. Paso 1: A coincide consigo mismo en las otras 5 neuronas; B y C coinciden con A en 4 y difieren en 1, así que su parecido es 3. Paso 2, Hebb: cada peso es parecido sobre 6. A empuja −5/6 y B y C, +3/6 cada uno: suma +1/6 y la neurona 5 se da vuelta. Paso 3, pseudoinversa: G = Ξ Ξᵀ vale 6 en la diagonal y 2 fuera; su inversa vale 0,20 en la diagonal y −0,05 fuera. El peso de cada recuerdo es G⁻¹ por el vector de parecidos: a cada uno se le suma 0,20 de su propio parecido y se le resta 0,05 del parecido de los otros, que es la parte que comparten. B baja de 0,50 a 0,20 y A, de 0,83 a 0,70. Campo: −0,70 + 0,20 + 0,20 = −0,30: queda. Si además invertimos la primera neurona de A como consulta, Hebb termina en una mezcla estable y la pseudoinversa vuelve a A. Con los cinco QR, la pseudoinversa deja estables a los cinco y la mezcla deja de serlo.</aside>
 </section>
 
 <section class="figure"><h2>Un QR con ruido, paso a paso</h2><figure><img src="assets/reports__ejercicio2__ejemplos.png" alt="Original, consulta y salida para cuatro niveles de ruido"></figure></section>

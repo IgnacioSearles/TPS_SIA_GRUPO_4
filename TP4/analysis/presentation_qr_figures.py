@@ -403,7 +403,7 @@ def plot_rules_by_noise(by_noise, pseudoinverse, path):
     rows = pd.concat([by_noise, pseudoinverse[pseudoinverse.method != 'unlearning']])
     lines = {'hebb': ('Hebb, sin lo común', 'C0', '-'),
              'unlearning': ('Hebb + desaprendizaje, sin lo común', 'C1', '-'),
-             'pseudoinverse_stripped': ('pseudoinversa, sin lo común', '#7cc9a6', '-'),
+             'pseudoinverse_stripped': ('pseudoinversa, sin lo común', 'C4', '-'),
              'pseudoinverse_full': ('pseudoinversa, QR completo', '#1a9e6e', '-'),
              'nearest': ('sin red: distancia de Hamming a los originales', 'gray', '--')}
     fig, ax = plt.subplots(figsize=(12, 5.4))

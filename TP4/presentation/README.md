@@ -18,7 +18,7 @@ Abrir `index.html`. Flechas: avanzar. F: pantalla completa. S: notas del orador.
 | Portada | 1 |
 | Ejercicio 1: exploración y PCA · Kohonen · Oja · campañas | 2–37 |
 | Ejercicio 2: problema 1 (los cinco QR se parecen) · problema 2 (menú y vinos) · soluciones (desaprendizaje y pseudoinversa) · esquina, daño realista y límites | 38–61 |
-| Apéndice | 62–96 |
+| Apéndice | 62–97 |
 
 ## Dónde se responde cada pregunta de la consigna
 
@@ -53,7 +53,7 @@ La [guía de incorporación y notas](experimentos_hopfield_nuevos.md) resume los
 
 ## Ejercicio 2 compactado y daño realista (26/10)
 
-La parte de Hopfield pasó de 31 a 23 diapositivas. Las fórmulas de la red (Hebb, actualización y energía) quedaron en el apéndice (79). Se agregaron el desaprendizaje en tres pasos (52–54) y la pseudoinversa con un ejemplo de 6 neuronas (56). Las dos redes se presentan como diagnóstico (49) y comparar con los originales como el techo (57). La diapositiva 59 muestra el [daño realista](../reports/ejercicio2/dano_realista_20261026/README.md); el apéndice suma sus curvas y ejemplos (94–96). Los gráficos nuevos salen de `presentation_figures.qr_published`, que solo usa los QR y la evidencia publicada. El 27/10 se agregaron dos comparaciones lado a lado, Hebb contra desaprendizaje (51) y Hebb contra pseudoinversa (55); la diapositiva anterior de la fórmula de la pseudoinversa pasó al apéndice (80).
+La parte de Hopfield pasó de 31 a 23 diapositivas. Las fórmulas de la red (Hebb, actualización y energía) quedaron en el apéndice (79). Se agregaron el desaprendizaje en tres pasos (52–54) y la pseudoinversa con un ejemplo de 6 neuronas (hoy en el apéndice, 81). Las dos redes se presentan como diagnóstico (49) y comparar con los originales como el techo (57). La diapositiva 59 muestra el [daño realista](../reports/ejercicio2/dano_realista_20261026/README.md); el apéndice suma sus curvas y ejemplos (95–97). Los gráficos nuevos salen de `presentation_figures.qr_published`, que solo usa los QR y la evidencia publicada. El 27/10 se agregaron dos comparaciones lado a lado, Hebb contra desaprendizaje (51) y Hebb contra pseudoinversa (55); la diapositiva anterior de la fórmula de la pseudoinversa pasó al apéndice (80). La pseudoinversa sigue ahora el mismo esquema que el desaprendizaje: cuadro comparativo (55) y procedimiento (56).
 
 ## Vecindad uniforme frente a gaussiana
 
@@ -62,7 +62,7 @@ La [guía para presentar](experimentos_kohonen_vecindades.md) resume las dos tan
 ## Material para estudiar y defender
 
 - [Guía de métodos, código, hallazgos y preguntas](guia_estudio.md).
-- [Ensayo de las 96 diapositivas](mapa_estudio_diapositivas.md).
+- [Ensayo de las 97 diapositivas](mapa_estudio_diapositivas.md).
 - [Ejemplos numéricos ejecutables](ejemplos_estudio.py): desde TP4, `python3 presentation/ejemplos_estudio.py`.
 
 Revisión del 25/10 sobre `ca3229f`; incluye matices para explicar oralmente y respaldo local del 22/10, sin modificar las diapositivas.

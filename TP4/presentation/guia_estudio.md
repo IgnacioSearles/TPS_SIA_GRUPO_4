@@ -327,7 +327,7 @@ La capacidad `≈0,15N` del apunte supone patrones adecuados, típicamente aleat
 
 ## 9. Pseudoinversa, explicada con A, B y C
 
-**Diapositivas 55–57, apéndice 80 y material de respaldo. Código:** rama `rule == 'pseudoinverse'` de `Hopfield.__init__`.
+**Diapositivas 55–57, apéndice 80–81 y material de respaldo. Código:** rama `rule == 'pseudoinverse'` de `Hopfield.__init__`.
 
 La matriz de patrones sigue teniendo recuerdos por filas. Se calcula:
 
@@ -448,7 +448,7 @@ Con cinco QR, quitar compartidos **no bastó para Hebb**: cero originales establ
 
 ### Una red por zona
 
-**Diapositiva 45 (mencionada) y apéndice 88–89. Código:** `src/tp4/zoned_hopfield.py`.
+**Diapositiva 45 (mencionada) y apéndice 89–90. Código:** `src/tp4/zoned_hopfield.py`.
 
 Se divide espacialmente el QR. Cada zona almacena los recortes de los cinco recuerdos; si todos son iguales ahí, se repone la zona conocida sin red. Se recupera cada zona y se ensamblan salidas. Zonas distintas pueden corresponder a identidades distintas o a espurios: que cada pieza parezca razonable no garantiza un QR completo válido. El parecido local siguió causando problemas.
 
@@ -515,7 +515,7 @@ La corrección QR por Reed–Solomon trabaja con **codewords de ocho bits**. Los
 
 ### Daño realista
 
-**Diapositiva 59 y apéndice 94–96. Código:** `src/tp4/damage.py`, `analysis/hopfield_qr_dano_realista.py`. Informes: [niveles moderados](../reports/ejercicio2/dano_realista_20261026/README.md) y [extremos](../reports/ejercicio2/dano_realista_extremo_20261026/README.md).
+**Diapositiva 59 y apéndice 95–97. Código:** `src/tp4/damage.py`, `analysis/hopfield_qr_dano_realista.py`. Informes: [niveles moderados](../reports/ejercicio2/dano_realista_20261026/README.md) y [extremos](../reports/ejercicio2/dano_realista_extremo_20261026/README.md).
 
 Siete daños que imitan un QR impreso gastado: desgaste (negro → blanco, nunca al revés), desgaste mayor en un borde, manchas negras y blancas irregulares, rayones que borran tinta, desgaste con mancha y una foto gastada (poco contraste, desenfoque y mancha semitransparente sobre una imagen de 8 píxeles por módulo, binarizada después). Se usaron los métodos congelados y semillas nuevas 200–219: 7.800 consultas en dos corridas. La segunda, con niveles extremos, se agregó después de ver la primera.
 
@@ -648,7 +648,7 @@ Un orden de estudio sugerido, ajustable al tiempo disponible:
 
 ## Fuentes para profundizar sin leer todo el repositorio
 
-- Presentación: [index.html](index.html), notas con la tecla S. El mapa de estudio usa su numeración real de 96 diapositivas.
+- Presentación: [index.html](index.html), notas con la tecla S. El mapa de estudio usa su numeración real de 97 diapositivas.
 - Núcleo matemático: [preprocessing.py](../src/tp4/preprocessing.py), [pca.py](../src/tp4/pca.py), [kohonen.py](../src/tp4/kohonen.py), [oja.py](../src/tp4/oja.py), [hopfield.py](../src/tp4/hopfield.py), [unlearning.py](../src/tp4/unlearning.py).
 - Interpretación y selección: [som_regions.py](../analysis/som_regions.py), [som_campanas.py](../analysis/som_campanas.py).
 - Composición de soluciones QR: [shared_modules.py](../src/tp4/shared_modules.py), [zoned_hopfield.py](../src/tp4/zoned_hopfield.py), [split_hopfield.py](../src/tp4/split_hopfield.py), [qr_bits.py](../analysis/qr_bits.py).
