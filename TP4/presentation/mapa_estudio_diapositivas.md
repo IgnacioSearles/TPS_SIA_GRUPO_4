@@ -1,6 +1,6 @@
 # Ensayo diapositiva por diapositiva
 
-Revisión del 25/10/2026, presentación después del pull a `ca3229f`. Hay 60 diapositivas de relato, una separadora de apéndice y 37 figuras de respaldo: 98 en total. Numeración actualizada el 27/10 con la corrida de manchas y rayones hasta 40–50 %.
+Revisión del 25/10/2026, presentación después del pull a `ca3229f`. Hay 60 diapositivas de relato, una separadora de apéndice y 38 figuras de respaldo: 99 en total. Numeración actualizada el 27/10 con desgaste y mancha en el apéndice.
 
 Los enlaces abren la diapositiva correspondiente en `index.html`. La tecla S muestra las notas originales. Ninguna diapositiva fue editada para esta revisión.
 
@@ -110,4 +110,5 @@ Los enlaces abren la diapositiva correspondiente en `index.html`. La tecla S mue
 | 95 | [Daño realista: los siete tipos](index.html#/94) | §12 | ¿Cómo se genera cada daño y en cuáles el lector solo deja de leer? |
 | 96 | [Daño realista: niveles extremos](index.html#/95) | §12 | ¿Dónde se rompe cada método y por qué ahí conviene saber que el daño solo borra tinta? |
 | 97 | [Daño realista: manchas y rayones hasta 40–50 %](index.html#/96) | §12 | ¿Por qué se agregó esta corrida y qué cambia con manchas negras frente a manchas blancas? |
-| 98 | [Daño realista: un ejemplo de cada tipo](index.html#/97) | §12 | ¿Qué parte de cada daño ve la red? |
+| 98 | [Desgaste con y sin una mancha negra](index.html#/97) | §12 | ¿Por qué la regla que supone que solo se borra tinta sigue ganando aunque la mancha agregue tinta, y cuándo dejaría de hacerlo? |
+| 99 | [Daño realista: un ejemplo de cada tipo](index.html#/98) | §12 | ¿Qué parte de cada daño ve la red? |

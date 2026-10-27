@@ -54,7 +54,7 @@ no se corrió un lector óptico y no se demuestra robustez de detección fotogr�
 
 Mostrar que el lector solo no lee desde **5 %** de módulos alterados y que el
 desaprendizaje recupera el **97 % o más** con hasta un cuarto de los módulos
-alterados, en desgaste, manchas, rayones y foto gastada. Diapositiva 58 (desgaste, manchas y rayones) y apéndice 95–98;
+alterados, en desgaste, manchas, rayones y foto gastada. Diapositiva 58 (desgaste, manchas y rayones) y apéndice 95–99;
 [informe](../reports/ejercicio2/dano_realista_20261026/README.md).
 
 Notas: son simulaciones con métodos congelados y semillas nuevas. La corrida de

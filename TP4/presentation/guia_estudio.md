@@ -515,7 +515,7 @@ La corrección QR por Reed–Solomon trabaja con **codewords de ocho bits**. Los
 
 ### Daño realista
 
-**Diapositiva 58 y apéndice 95–98. Código:** `src/tp4/damage.py`, `analysis/hopfield_qr_dano_realista.py`. Informes: [niveles moderados](../reports/ejercicio2/dano_realista_20261026/README.md) y [extremos](../reports/ejercicio2/dano_realista_extremo_20261026/README.md).
+**Diapositiva 58 y apéndice 95–99. Código:** `src/tp4/damage.py`, `analysis/hopfield_qr_dano_realista.py`. Informes: [niveles moderados](../reports/ejercicio2/dano_realista_20261026/README.md) y [extremos](../reports/ejercicio2/dano_realista_extremo_20261026/README.md).
 
 Siete daños que imitan un QR impreso gastado: desgaste (negro → blanco, nunca al revés), desgaste mayor en un borde, manchas negras y blancas irregulares, rayones que borran tinta, desgaste con mancha y una foto gastada (poco contraste, desenfoque y mancha semitransparente sobre una imagen de 8 píxeles por módulo, binarizada después). Se usaron los métodos congelados y semillas nuevas 200–219: 7.800 consultas en dos corridas. La segunda, con niveles extremos, se agregó después de ver la primera.
 
@@ -648,7 +648,7 @@ Un orden de estudio sugerido, ajustable al tiempo disponible:
 
 ## Fuentes para profundizar sin leer todo el repositorio
 
-- Presentación: [index.html](index.html), notas con la tecla S. El mapa de estudio usa su numeración real de 98 diapositivas.
+- Presentación: [index.html](index.html), notas con la tecla S. El mapa de estudio usa su numeración real de 99 diapositivas.
 - Núcleo matemático: [preprocessing.py](../src/tp4/preprocessing.py), [pca.py](../src/tp4/pca.py), [kohonen.py](../src/tp4/kohonen.py), [oja.py](../src/tp4/oja.py), [hopfield.py](../src/tp4/hopfield.py), [unlearning.py](../src/tp4/unlearning.py).
 - Interpretación y selección: [som_regions.py](../analysis/som_regions.py), [som_campanas.py](../analysis/som_campanas.py).
 - Composición de soluciones QR: [shared_modules.py](../src/tp4/shared_modules.py), [zoned_hopfield.py](../src/tp4/zoned_hopfield.py), [split_hopfield.py](../src/tp4/split_hopfield.py), [qr_bits.py](../analysis/qr_bits.py).

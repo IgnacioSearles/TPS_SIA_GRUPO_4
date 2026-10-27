@@ -421,13 +421,16 @@ def plot_realistic_damage(summary, path, kinds=('desgaste', 'mancha_negra', 'ray
     originales. `summary` puede juntar varias corridas: cada nivel se ubica por la fracción media de módulos
     alterados. Todos los paneles comparten el eje x hasta 50 %, y lo que no se probó queda sombreado, para
     que se vea hasta dónde llegó cada tipo."""
-    titles = {'desgaste': 'Desgaste', 'mancha_negra': 'Manchas negras', 'rayones': 'Rayones'}
+    titles = {'desgaste': 'Desgaste', 'mancha_negra': 'Manchas negras', 'rayones': 'Rayones',
+              'desgaste_y_mancha': 'Desgaste + mancha negra'}
     lines = {'desaprendizaje': ('Hebb + desaprendizaje', 'C1', '-', 'exacta'),
              'pseudoinversa': ('pseudoinversa, QR completo', '#1a9e6e', '-', 'exacta'),
              'vecino': ('sin red: distancia de Hamming a los originales', 'gray', '--', 'exacta'),
              'vecino_asimetrico': ('sin red: sabiendo que solo se borra tinta', 'black', ':', 'exacta')}
     limit = 50
-    fig, axes = plt.subplots(1, len(kinds), figsize=(15, 5.4), sharex=True, sharey=True)
+    fig, axes = plt.subplots(1, len(kinds), figsize=(max(5 * len(kinds), 12), 5.4), sharex=True, sharey=True,
+                             squeeze=False)
+    axes = axes[0]
     for ax, kind in zip(axes, kinds):
         rows = summary[summary.kind == kind]
         damage = (rows[rows.method == 'consulta'].set_index('level').dano / (SIDE * SIDE)).sort_values()
@@ -437,7 +440,7 @@ def plot_realistic_damage(summary, path, kinds=('desgaste', 'mancha_negra', 'ray
             ax.text((tested + 2.5 + limit) / 2, .5, 'no probado', rotation=90, ha='center', va='center',
                     color='0.4', fontsize=17)
         for method, (label, color, style, column) in lines.items():
-            if method == 'vecino_asimetrico' and kind != 'desgaste':
+            if method == 'vecino_asimetrico' and kind not in ('desgaste', 'desgaste_y_mancha'):
                 continue
             values = rows[rows.method == method].set_index('level')[column].reindex(damage.index)
             ax.plot(100 * damage, values, marker='o', markersize=5, lw=3.4, color=color, linestyle=style, label=label)
