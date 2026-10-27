@@ -1,6 +1,22 @@
 # TP4: aprendizaje no supervisado
 
-Base de Kohonen (SOM), Oja, preprocesamiento y experimentos. Las implementaciones de aprendizaje usan NumPy; pandas maneja tablas y matplotlib exporta gráficos.
+- **Ejercicio 1:** catálogo de creadores para campañas de marketing. EDA y PCA, mapa de Kohonen (SOM), índice con la regla de Oja y elección de creadores para cada cliente.
+- **Ejercicio 2:** memoria asociativa de Hopfield para recuperar los cinco QR de la Trattoria Aurora. Hebb, desaprendizaje, pseudoinversa y daño realista.
+
+Las implementaciones de aprendizaje usan NumPy; pandas maneja tablas y matplotlib exporta gráficos.
+
+## Para la entrega
+
+- **Presentación:** abrir [`presentation/index.html`](presentation/index.html). Funciona sin conexión; la tecla S muestra las notas del orador. La [guía de la presentación](presentation/README.md) indica en qué diapositiva se responde cada pregunta de la consigna.
+- **Informes:** [ejercicio 1](reports/ejercicio1/README.md) y [ejercicio 2](reports/ejercicio2/README.md), con sus bitácoras ([1](reports/ejercicio1/bitacora/README.md), [2](reports/ejercicio2/bitacora/README.md)).
+- **Código:** modelos en `src/tp4`, experimentos y análisis en `experiments` y `analysis`, pruebas en `tests`.
+
+## Datos
+
+Los datos no están en Git. Antes de ejecutar, copiar los de la consigna en `data/`:
+
+- `data/creadores.csv`: catálogo del ejercicio 1.
+- `data/hopfield/`: las cinco imágenes del ejercicio 2 (`food_menu_qr.png`, `wine_menu_qr.png`, `dessert_menu_qr.png`, `beverages_menu_qr.png` y `specials_menu_qr.png`).
 
 ## Ejecución
 
@@ -8,24 +24,45 @@ Desde la raíz `TP4`, con Python 3.10 o posterior:
 
 ```bash
 python3 -m pip install -r requirements.txt
-python3 analysis/eda_pca.py
-python3 analysis/hopfield_qr.py
+python3 -m unittest discover -s tests -v
+```
+
+Resultados principales de cada ejercicio, que se escriben en `reports/`:
+
+```bash
+python3 analysis/eda_pca.py                 # EDA y PCA
+python3 -m analysis.som_campanas            # Kohonen: regiones, planos y elección de creadores
+python3 -m analysis.oja_indice              # índice de Oja y comparación con PC1
+python3 analysis/hopfield_qr.py             # Hopfield con Hebb: ruido, iteraciones y energía
+python3 analysis/hopfield_qr_controles.py   # ¿falla la red o fallan los QR?
+python3 analysis/hopfield_qr_variante.py    # sin los módulos que comparten los QR
+python3 analysis/hopfield_qr_mejoras.py     # pseudoinversa, dos redes y daño por zonas
+python3 analysis/hopfield_qr_dano_realista.py --output /tmp/dano_realista  # daño realista
+```
+
+Cada informe detalla sus experimentos adicionales. Para regenerar los gráficos de la presentación, ver [Regenerar](presentation/README.md#regenerar).
+
+El entrenamiento configurable de Kohonen y Oja usa `main.py`:
+
+```bash
 python3 main.py train --config configs/kohonen.json
 python3 main.py train --config configs/kohonen_hexagonal.json
 python3 main.py train --config configs/oja.json
 python3 main.py experiment --config configs/kohonen_experiment.json --dry-run
 python3 main.py experiment --config configs/kohonen_experiment.json
 python3 main.py experiment --config configs/oja_experiment.json
-python3 -m unittest discover -s tests -v
 ```
 
-Se requiere `data/creadores.csv`. Las rutas del JSON son relativas al directorio desde el que se ejecuta el comando. `--dry-run` valida configuraciones y muestra el número de corridas sin entrenar ni crear directorios; no valida el contenido del CSV. Si hay corridas fallidas, se conservan los resultados de las restantes y la CLI termina con código 1. Una pausa con Ctrl+C termina con código 130 y permite reanudar.
+Las rutas del JSON son relativas al directorio desde el que se ejecuta el comando. `--dry-run` valida configuraciones y muestra el número de corridas sin entrenar ni crear directorios; no valida el contenido del CSV. Si hay corridas fallidas, se conservan los resultados de las restantes y la CLI termina con código 1. Una pausa con Ctrl+C termina con código 130 y permite reanudar.
 
 ## Organización y uso desde Python
 
 - `src/tp4`: configuraciones, cálculo numérico, geometría, preprocesamiento, modelos y exportación separados por responsabilidad.
 - `experiments`: expansión de parámetros, ejecución, aislamiento de errores y resúmenes.
-- `configs`: ejemplos editables. `tests`: verificaciones con datos sintéticos. `analysis`: EDA y PCA inicial.
+- `configs`: ejemplos editables. `tests`: verificaciones con datos sintéticos.
+- `analysis`: EDA, PCA, interpretación de Kohonen y Oja, experimentos de Hopfield y gráficos de la presentación.
+- `reports`: informes, bitácoras, tablas agregadas y gráficos de cada ejercicio. `docs`: protocolos de experimentos.
+- `presentation`: la presentación, sus guías de estudio y los gráficos que usa.
 
 Los modelos reciben matrices NumPy; no conocen archivos ni gráficos. Cada `fit` inicia un entrenamiento nuevo usando un generador aleatorio local, salvo que se pase un checkpoint compatible. La CLI guarda automáticamente un único checkpoint por corrida al completar cada época.
 
@@ -240,7 +277,7 @@ Se genera `learning_curves.png` con tres paneles por modelo. Las curvas pueden o
 
 ## Alcance
 
-Esta base sirve para entrenar y comparar implementaciones; falta realizar el estudio de hiperparámetros y la interpretación comercial final. El PCA inicial y sus decisiones se explican en [el informe](reports/ejercicio1/README.md). Los ejemplos cortos verifican funcionamiento, no convergencia definitiva ni superioridad de una topología.
+Los estudios de hiperparámetros, la interpretación comercial y sus decisiones están en el [informe del ejercicio 1](reports/ejercicio1/README.md). Los ejemplos cortos de `configs` verifican funcionamiento, no convergencia definitiva ni superioridad de una topología.
 
 ## Batería amplia de Kohonen
 
@@ -283,4 +320,4 @@ OPENBLAS_NUM_THREADS=1 python3 -m analysis.kohonen_neighborhood_versus --output 
 OPENBLAS_NUM_THREADS=1 python3 -m analysis.summarize_neighborhood_versus /tmp/versus
 ```
 
-El primer experimento verifica y reutiliza las métricas gaussianas previas; el segundo ejecuta su propia calibración. Ambos permiten `--resume` y conservan solo métricas y asignaciones, sin pesos. La presentación no se modifica y sus hashes se comprueban. Después se incorporaron a la presentación: diapositiva 15 y apéndice 68–69 ([guía](presentation/experimentos_kohonen_vecindades.md)).
+El primer experimento verifica y reutiliza las métricas gaussianas previas; el segundo ejecuta su propia calibración. Ambos permiten `--resume` y conservan solo métricas y asignaciones, sin pesos. Los scripts no modifican la presentación y lo comprueban con hashes; los resultados se incorporaron después a mano: diapositiva 15 y apéndice 68–69 ([guía](presentation/experimentos_kohonen_vecindades.md)).

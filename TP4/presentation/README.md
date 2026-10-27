@@ -31,7 +31,7 @@ Abrir `index.html`. Flechas: avanzar. F: pantalla completa. S: notas del orador.
 | 1.4 Fútbol: alcance, descubrimiento o profundidad | 29–30 |
 | 1.4 Comparación con elegir por seguidores | 33–35 |
 | 1.4 Mantenimiento | 36 |
-| 2.1 Ruido, iteraciones y energía | 39–40, 53 |
+| 2.1 Ruido, iteraciones y energía | 39–40, 54 |
 | 2.1 Limitaciones del caso de uso | 41–49 (crosstalk en la 44), 57–59 |
 
 ## Regenerar
