@@ -18,8 +18,8 @@ from src.tp4.queries import make_queries
 from src.tp4.shared_modules import SharedModules
 from src.tp4.split_hopfield import SplitHopfield
 
-MENU_NAMES = {'menu_principal': 'menú principal', 'vinos': 'vinos', 'cocteles_y_bebidas': 'cócteles',
-              'postres': 'postres', 'especiales': 'especiales'}
+MENU_NAMES = {'menu_principal': 'food', 'vinos': 'wine', 'cocteles_y_bebidas': 'beverages',
+              'postres': 'dessert', 'especiales': 'specials'}
 EXAMPLE_NOISE, EXAMPLE_SEED = .1, 0
 CORNER_BLOCK = 11  # el mismo bloque que el ejemplo de mejoras/
 WRONG = np.array([214, 39, 40]) / 255  # módulos mal: rojo
@@ -187,7 +187,7 @@ def plot_similar_pair(results, path, pair=('menu_principal', 'vinos')):
     correct = (triads.category == 'correct').groupby([with_pair, triads.noise]).mean().unstack(0)
     counts = triads.groupby(with_pair).subset.nunique()
     lines = {False: (f'las {counts[False]} ternas sin ese par', 'C0'),
-             True: (f'las {counts[True]} ternas con menú y vinos', 'C3')}
+             True: (f'las {counts[True]} ternas con food y wine', 'C3')}
     fig, ax = plt.subplots(figsize=(11, 5.2))
     for has_pair, (label, color) in lines.items():
         ax.plot(correct.index, correct[has_pair], marker='o', lw=3, color=color, label=label)
@@ -228,7 +228,7 @@ def plot_overlap_before_after(overlaps, path, pair=('menu_principal', 'vinos')):
                 color='C3' if highlighted else 'lightgray', zorder=3 if highlighted else 2)
         if highlighted:
             for x, value in enumerate(values):
-                ax.annotate(f'menú y vinos: {_decimal(round(value, 2))}', (x, value), xytext=(0, 14),
+                ax.annotate(f'food y wine: {_decimal(round(value, 2))}', (x, value), xytext=(0, 14),
                             textcoords='offset points', ha='center', va='bottom', color='C3', fontsize=17)
     ax.axhline(0, color='gray', ls=':', lw=1.5)
     ax.text(.5, .03, 'ortogonales', color='gray', ha='center', fontsize=15)
@@ -271,8 +271,8 @@ def plot_energy_levels(patterns, path, origin=0):
     axes += [fig.add_subplot(grid[0, i], sharey=axes[0]) for i in (1, 2)]
     for ax, noise in zip(axes, noises):
         energies = recall_query(network, find_query(queries, origin, noise, EXAMPLE_SEED)).energies
-        ax.plot(range(len(energies)), energies, marker='o', lw=2.5, ms=8, color='C0', label='consulta de menú')
-        ax.axhline(levels['menú principal'], color='gray', ls='--', lw=1.5, label='menú guardado')
+        ax.plot(range(len(energies)), energies, marker='o', lw=2.5, ms=8, color='C0', label='consulta de food')
+        ax.axhline(levels[MENU_NAMES['menu_principal']], color='gray', ls='--', lw=1.5, label='food guardado')
         ax.axhline(levels['mezcla'], color='C3', ls=':', lw=2, label='mezcla')
         ax.set(title=f'ruido {_decimal(noise * 100)} %', xlabel='Iteración', xticks=range(len(energies)))
     axes[0].set_ylabel('Energía')

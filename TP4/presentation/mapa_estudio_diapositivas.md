@@ -51,8 +51,8 @@ Los enlaces abren la diapositiva correspondiente en `index.html`. La tecla S mue
 | 41 | [Los cinco QR son casi el mismo QR](index.html#/40) | §7–8 | ¿Cómo se define el solapamiento? ¿Por qué las diferencias quedan a la izquierda del QR? |
 | 42 | [Con más de 25 % compartido, los otros QR le ganan al propio](index.html#/41) | §7–8 | ¿De dónde sale 1 − 4 × compartido y por qué vale solo para el peor módulo? |
 | 43 | [Sacar lo común: entran de a tres, pero los cinco juntos siguen en cero](index.html#/42) | §11 | ¿Cómo funcionan strip y restore? ¿Por qué reponer lo común no es comparar con los originales? |
-| 44 | [Problema 2: sin lo común, menú y vinos siguen pareciéndose](index.html#/43) | §8 | ¿Qué problema queda después de retirar las coordenadas comunes? |
-| 45 | [Sacar lo común separa a casi todos los pares, menos a menú y vinos](index.html#/44) | §8 | ¿Por qué los pares negativos no molestan y el par menú-vinos sí? ¿Qué muestran las ternas? |
+| 44 | [Problema 2: sin lo común, food y wine siguen pareciéndose](index.html#/43) | §8 | ¿Qué problema queda después de retirar las coordenadas comunes? |
+| 45 | [Sacar lo común separa a casi todos los pares, menos a food y wine](index.html#/44) | §8 | ¿Por qué los pares negativos no molestan y el par menú-vinos sí? ¿Qué muestran las ternas? |
 | 46 | [Por qué ese par: en los datos difieren en 6 bits](index.html#/45) | §8 | ¿Cómo se llega de 96 módulos distintos a un solapamiento de 0,54? |
 | 47 | [Separado el par, cada red funciona; elegir la red no](index.html#/46) | §11 | ¿Por qué las dos redes son un diagnóstico y no una solución? ¿Por qué elegir por energía sigue midiendo parecido con los QR? |
 | 48 | [Soluciones: una sola red que guarde los cinco](index.html#/47) | §9–10 | ¿Qué tienen en común desaprendizaje y pseudoinversa y en qué se diferencian de las dos redes? |
@@ -65,7 +65,7 @@ Los enlaces abren la diapositiva correspondiente en `index.html`. La tecla S mue
 | 55 | [La esquina rota casi no le llega a la red](index.html#/54) | §12, §14 | ¿Cuántos módulos cubre, altera y ve la red? ¿Hasta qué tamaño se recupera? |
 | 56 | [Con daño realista, la red recupera el QR mucho después de que el lector deja de leer](index.html#/55) | §12 | ¿Cómo se genera cada daño? ¿Por qué el lector solo falla tan pronto y dónde se rompe cada método? |
 | 57 | [Límites del caso de uso](index.html#/56) | §12, §14 | ¿Qué supone que la consulta llegue a 37×37? ¿Qué alternativas solo se proponen? |
-| 58 | [Los cinco QR se parecen. Sin lo común, menú y vinos siguen pareciéndose.](index.html#/57) | §12, §14 | ¿Cómo reformularías la conclusión para no afirmar que sacar lo común basta con cinco QR? |
+| 58 | [Los cinco QR se parecen. Sin lo común, food y wine siguen pareciéndose.](index.html#/57) | §12, §14 | ¿Cómo reformularías la conclusión para no afirmar que sacar lo común basta con cinco QR? |
 
 ## Apéndice
 

@@ -315,7 +315,7 @@
   <p class="number">2</p>
   <h2>Memoria asociativa</h2>
   <p class="lead">Cinco QR gastados en la Trattoria Aurora. ¿Puede una red de Hopfield recuperarlos?</p>
-  <aside class="notes">Los cinco QR son las cartas del restaurante: menú principal, vinos, cócteles, postres y especiales. Las consultas son los QR con ruido: cada módulo se invierte con probabilidad de 0 a 50 %, 20 semillas por nivel y por QR, 1.100 consultas en total. Después probamos daños más realistas: desgaste, manchas, rayones y una foto gastada.</aside>
+  <aside class="notes">Los cinco QR son las cartas del restaurante: food (menú principal), wine (vinos), beverages (cócteles y otras bebidas), dessert (postres) y specials (especiales del día). Las consultas son los QR con ruido: cada módulo se invierte con probabilidad de 0 a 50 %, 20 semillas por nivel y por QR, 1.100 consultas en total. Después probamos daños más realistas: desgaste, manchas, rayones y una foto gastada.</aside>
 </section>
 
 <section class="figure has-take">
@@ -327,9 +327,9 @@
 
 <section class="figure has-take">
   <h2>La energía baja, pero hacia la mezcla</h2>
-  <figure><img src="assets/reports__presentacion__e2_energia_niveles.png" alt="Energía por iteración de una consulta de menú y energía de cada QR y de la mezcla"></figure>
+  <figure><img src="assets/reports__presentacion__e2_energia_niveles.png" alt="Energía por iteración de una consulta de food y energía de cada QR y de la mezcla"></figure>
   <p class="take">La mezcla (−2.173) está más abajo que cualquier QR guardado (−1.790 a −2.077). La red llega en 1 o 2 iteraciones.</p>
-  <aside class="notes">Izquierda: una consulta de menú con 0, 20 y 45 % de ruido. La energía baja en cada iteración y termina en la línea roja, la mezcla, por debajo del menú guardado. Por qué la mezcla está más abajo: con Hebb, la energía de un estado es −N/2 por la suma, sobre los cinco QR, del cuadrado de cuánto se parece a cada uno, más una constante (p/2 = 2,5) que sale de poner la diagonal en cero. El menú se parece 1 a sí mismo y 0,86, 0,60, 0,59 y 0,77 a los otros: suma 3,04. La mezcla se parece 0,90, 0,87, 0,67, 0,67 y 0,85: suma 3,18. Parecerse bastante a los cinco gana a ser igual a uno. Con patrones al azar no pasa: cada patrón suma casi 1 y la mezcla de cinco, 0,70. En promedio la red para en 1 a 2 iteraciones (apéndice). Con actualización sincrónica la energía podría subir; en este barrido no subió nunca, pero es lo observado, no una garantía.</aside>
+  <aside class="notes">Izquierda: una consulta de food con 0, 20 y 45 % de ruido. La energía baja en cada iteración y termina en la línea roja, la mezcla, por debajo del food guardado. Por qué la mezcla está más abajo: con Hebb, la energía de un estado es −N/2 por la suma, sobre los cinco QR, del cuadrado de cuánto se parece a cada uno, más una constante (p/2 = 2,5) que sale de poner la diagonal en cero. Food se parece 1 a sí mismo y 0,86, 0,60, 0,59 y 0,77 a los otros: suma 3,04. La mezcla se parece 0,90, 0,87, 0,67, 0,67 y 0,85: suma 3,18. Parecerse bastante a los cinco gana a ser igual a uno. Con patrones al azar no pasa: cada patrón suma casi 1 y la mezcla de cinco, 0,70. En promedio la red para en 1 a 2 iteraciones (apéndice). Con actualización sincrónica la energía podría subir; en este barrido no subió nunca, pero es lo observado, no una garantía.</aside>
 </section>
 
 <!-- Problema 1: los cinco QR se parecen -->
@@ -362,7 +362,7 @@
       <p>Entre pares, de 0,58 a 0,86. Al azar, 0,03</p>
     </div>
   </main>
-  <aside class="notes">Hebb funciona cuando los patrones son casi ortogonales: cada uno coincide con los otros en la mitad de los módulos. Las URL comparten los primeros 72 caracteres y solo cambia una palabra: food, wine, beverages, dessert, specials. El QR escribe el mensaje desde la esquina inferior derecha, así que el prefijo común queda en la mitad derecha y las diferencias, a la izquierda: 410 de los 414 módulos que difieren. Esquinas, línea de sincronismo y formato son fijos en todo QR. Menú y vinos coinciden en el 93 % de los módulos. Cualquier conjunto de QR de un mismo sitio va a tener este problema.</aside>
+  <aside class="notes">Hebb funciona cuando los patrones son casi ortogonales: cada uno coincide con los otros en la mitad de los módulos. Las URL comparten los primeros 72 caracteres y solo cambia una palabra: food, wine, beverages, dessert, specials. El QR escribe el mensaje desde la esquina inferior derecha, así que el prefijo común queda en la mitad derecha y las diferencias, a la izquierda: 410 de los 414 módulos que difieren. Esquinas, línea de sincronismo y formato son fijos en todo QR. Food y wine coinciden en el 93 % de los módulos. Cualquier conjunto de QR de un mismo sitio va a tener este problema.</aside>
 </section>
 
 <section class="figure has-take">
@@ -379,18 +379,18 @@
   <aside class="notes">Antes probamos cortar el QR en zonas, una red por zona: no alcanza, porque el parecido es el mismo en cada zona (apéndice). Sacar lo común sí cambia algo: con tres QR guardados recupera el 95,7 % con 25 % de ruido. Cuidado al medir: reponer los comunes ya borra el ruido que cayó ahí sin que la red haga nada, así que comparamos contra esa reposición sin red: 103,5 módulos mal contra 2,1 de la red. Y reponer usa los QR guardados, pero solo la parte que comparten los cinco: no aporta nada para elegir cuál es. Con los cinco juntos ninguno queda estable: hay un segundo problema.</aside>
 </section>
 
-<!-- Problema 2: menú y vinos -->
+<!-- Problema 2: food y wine -->
 
 <section class="section">
-  <h2>Problema 2: sin lo común, menú y vinos siguen pareciéndose</h2>
+  <h2>Problema 2: sin lo común, food y wine siguen pareciéndose</h2>
   <p class="roadmap">Problema 1 · <span class="current">Problema 2</span> · Soluciones · Límites</p>
 </section>
 
 <section class="figure has-take">
-  <h2>Sacar lo común separa a casi todos los pares, menos a menú y vinos</h2>
-  <figure class="pair"><img src="assets/reports__presentacion__e2_solapamiento_antes_despues.png" alt="Solapamiento de cada par de QR con el QR completo y sin lo común"><img src="assets/reports__presentacion__e2_par_parecido.png" alt="Recuperación de ternas con y sin el par menú y vinos"></figure>
-  <p class="take">Sin lo común, menú y vinos quedan en <em>0,54</em>; los demás pares, entre −0,40 y 0,23. Con tres QR y 25 % de ruido: 100 % sin el par, 86 % con el par.</p>
-  <aside class="notes">Izquierda: cada línea es un par de QR, con los 1.369 módulos y con los 414 que difieren. Los negativos salen de que cada módulo se reparte 4 contra 1 o 3 contra 2 entre los cinco QR; las ternas con esos pares se recuperan igual de bien, así que el que molesta es el par positivo. Como referencia, cinco patrones al azar de 414 módulos llegan como mucho a 0,08 en valor absoluto. Derecha: red sin lo común guardando tres QR. De las diez ternas, las tres que incluyen a menú y vinos son las tres peores. Con los cinco juntos el par está siempre adentro.</aside>
+  <h2>Sacar lo común separa a casi todos los pares, menos a food y wine</h2>
+  <figure class="pair"><img src="assets/reports__presentacion__e2_solapamiento_antes_despues.png" alt="Solapamiento de cada par de QR con el QR completo y sin lo común"><img src="assets/reports__presentacion__e2_par_parecido.png" alt="Recuperación de ternas con y sin el par food y wine"></figure>
+  <p class="take">Sin lo común, food y wine quedan en <em>0,54</em>; los demás pares, entre −0,40 y 0,23. Con tres QR y 25 % de ruido: 100 % sin el par, 86 % con el par.</p>
+  <aside class="notes">Izquierda: cada línea es un par de QR, con los 1.369 módulos y con los 414 que difieren. Los negativos salen de que cada módulo se reparte 4 contra 1 o 3 contra 2 entre los cinco QR; las ternas con esos pares se recuperan igual de bien, así que el que molesta es el par positivo. Como referencia, cinco patrones al azar de 414 módulos llegan como mucho a 0,08 en valor absoluto. Derecha: red sin lo común guardando tres QR. De las diez ternas, las tres que incluyen a food y wine son las tres peores. Con los cinco juntos el par está siempre adentro.</aside>
 </section>
 
 <section>
@@ -408,8 +408,8 @@
   <p class="tag">Diagnóstico, no solución</p>
   <h2>Separado el par, cada red funciona; elegir la red no</h2>
   <figure><img src="assets/reports__presentacion__e2_dos_redes.png" alt="Recuperación con dos redes según cómo se elige la salida, contra comparar con los originales"></figure>
-  <p class="take">Menú en una red y vinos en otra: cada una recupera sus QR. Pero una consulta de menú, en la red de vinos, cae en vinos (140 de 140). Para elegir hay que comparar con los originales.</p>
-  <aside class="notes">Repartimos los cinco QR en una terna y un par con el menor parecido dentro de cada grupo: sale solo que menú y vinos quedan separados. Si mandamos la consulta a la red que guarda su QR, recupera el 100 % hasta 35 % de ruido: eso confirma que el par es el único obstáculo. Pero en la realidad no sabemos qué QR es la consulta. Con menú, las dos redes devuelven un QR guardado. Sin desempate, el total queda en 80 % (curva roja). Desempatar con la salida más parecida a la consulta es Hamming: nunca le gana (6 consultas mejor, 25 peor). Elegir la red de menor energía no mira los originales, pero con Hebb la energía es −N/2 por la suma de los solapamientos al cuadrado con los QR de la red, más una constante: sigue midiendo parecido, y queda por debajo (3 mejor, 43 peor). Con cinco redes de un QR cada una, esto sería exactamente comparar con los originales. Por eso no la contamos como solución.</aside>
+  <p class="take">Food en una red y wine en otra: cada una recupera sus QR. Pero una consulta de food, en la red de wine, cae en wine (140 de 140). Para elegir hay que comparar con los originales.</p>
+  <aside class="notes">Repartimos los cinco QR en una terna y un par con el menor parecido dentro de cada grupo: sale solo que food y wine quedan separados. Si mandamos la consulta a la red que guarda su QR, recupera el 100 % hasta 35 % de ruido: eso confirma que el par es el único obstáculo. Pero en la realidad no sabemos qué QR es la consulta. Con food, las dos redes devuelven un QR guardado. Sin desempate, el total queda en 80 % (curva roja). Desempatar con la salida más parecida a la consulta es Hamming: nunca le gana (6 consultas mejor, 25 peor). Elegir la red de menor energía no mira los originales, pero con Hebb la energía es −N/2 por la suma de los solapamientos al cuadrado con los QR de la red, más una constante: sigue midiendo parecido, y queda por debajo (3 mejor, 43 peor). Con cinco redes de un QR cada una, esto sería exactamente comparar con los originales. Por eso no la contamos como solución.</aside>
 </section>
 
 <!-- Soluciones: una sola red con los cinco QR -->
@@ -505,7 +505,7 @@ Campo de cada neurona al presentar A:
 </section>
 
 <section class="statement">
-  <h2>Los cinco QR se parecen.<br>Sin lo común, menú y vinos siguen pareciéndose.</h2>
+  <h2>Los cinco QR se parecen.<br>Sin lo común, food y wine siguen pareciéndose.</h2>
   <p class="sub">Sacar lo común reduce el primero. Desaprender o la pseudoinversa resuelven el segundo, cerca del techo de comparar con los originales.</p>
 </section>
 
