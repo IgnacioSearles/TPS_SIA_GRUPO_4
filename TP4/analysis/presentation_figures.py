@@ -23,7 +23,7 @@ from analysis import presentation_qr_figures as qr_figures
 from analysis.eda import TOPICS
 from analysis.hopfield_qr import load_patterns
 from analysis.som_campanas import (
-    catalog_map, criterion_selections, prepare, random_purity_by_count, strategy_selections, train_maps,
+    MODEL, catalog_map, criterion_selections, prepare, random_purity_by_count, strategy_selections, train_maps,
     with_regions,
 )
 from src.tp4.pca import compute_pca
@@ -32,6 +32,9 @@ from src.tp4.shared_modules import SharedModules
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'reports' / 'presentacion'
 QR_REPORTS = ROOT / 'reports' / 'ejercicio2'
+# Vecindades: una ganadora interior y el radio al empezar, en la época 250 y desde la 500 (decae de 2 a 0,5).
+NEIGHBORHOOD_WINNER = 5
+NEIGHBORHOOD_RADII = {2.0: 'al empezar', 1.0: 'época 250', .5: 'desde la época 500'}
 # Letra grande y sin cajas: ni bordes superior y derecho ni marco en las leyendas.
 SLIDE_STYLE = {'font.size': 16, 'axes.titlesize': 18, 'axes.labelsize': 16,
                'axes.spines.top': False, 'axes.spines.right': False, 'legend.frameon': False}
@@ -58,6 +61,7 @@ def catalog(out):
     catalog_figures.plot_followers(raw, out / 'e1_seguidores.png')
     catalog_figures.plot_variance(pca, out / 'e1_varianza.png')
     catalog_figures.plot_occupancy(x, out / 'e1_ocupacion.png')
+    catalog_figures.plot_neighborhoods(MODEL, NEIGHBORHOOD_WINNER, NEIGHBORHOOD_RADII, out / 'e1_vecindades.png')
     catalog_figures.plot_region_merges(som_catalog, out / 'e1_regiones_union.png')
     catalog_figures.plot_region_count(pd.read_csv(ROOT / 'reports' / 'ejercicio1' / 'som' / 'cantidad_regiones.csv'),
                                       random_purity_by_count(soms, x, topics), out / 'e1_regiones_cantidad.png')

@@ -259,6 +259,41 @@ def plot_planes(catalog, planes, columns, path):
     _save_with_colorbar(fig, path)
 
 
+def plot_neighborhoods(model, winner, radii, path):
+    """Cuánto se mueve cada neurona cuando gana `winner`, con vecindad gaussiana y uniforme, a lo largo del radio."""
+    kernels = {'gaussian': 'Gaussiana', 'uniform': 'Uniforme'}
+    normalize = Normalize(0, 1)
+    fig, axes = plt.subplots(len(kernels), len(radii), figsize=(12, 6.6))
+    for row, (kernel, label) in zip(axes, kernels.items()):
+        som = Kohonen(replace(model, neighborhood=kernel))
+        for ax, (radius, moment) in zip(row, radii.items()):
+            influence = som.neighborhood(winner, radius).reshape(model.rows, model.cols)
+            image = ax.imshow(influence, cmap='viridis', norm=normalize)
+            for (cell_row, cell_col), value in np.ndenumerate(influence):
+                ax.text(cell_col, cell_row, _influence_label(value), ha='center', va='center', fontsize=14,
+                        color='black' if value > .55 else 'white')
+            winner_row, winner_col = divmod(winner, model.cols)
+            ax.add_patch(Rectangle((winner_col - .5, winner_row - .5), 1, 1, fill=False, ec='C3', lw=4))
+            ax.axis('off')
+            if kernel == next(iter(kernels)):
+                ax.set_title(f'radio {_decimal(radius)}\n{moment}', fontsize=18)
+        row[0].text(-.9, (model.rows - 1) / 2, label, rotation=90, ha='center', va='center', fontsize=20,
+                    weight='bold')
+    colorbar = fig.colorbar(image, ax=axes, location='right', shrink=.8, pad=.03)
+    colorbar.set_label('peso de la actualización')
+    _save_with_colorbar(fig, path)
+
+
+def _influence_label(value):
+    if value < .005 or value > .995:
+        return f'{value:.0f}'
+    return f'{value:.2f}'.replace('.', ',')
+
+
+def _decimal(value):
+    return f'{value:g}'.replace('.', ',')
+
+
 def plot_region_merges(catalog, path):
     """Cómo se arman las regiones: se unen de a dos las zonas vecinas más parecidas, hasta que quedan cinco."""
     grid, weights = catalog.som.grid, catalog.som.weights_

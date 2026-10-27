@@ -120,6 +120,13 @@
 </section>
 
 <section class="figure has-take">
+  <h2>Cómo se reparte la actualización entre vecinas</h2>
+  <figure><img src="assets/reports__presentacion__e1_vecindades.png" alt="Peso de la actualización en la grilla 4×4 con vecindad gaussiana y uniforme, para radio 2, 1 y 0,5"></figure>
+  <p class="take">Gaussiana: más lejos, menos se mueve. Uniforme: todo dentro del radio, nada afuera.</p>
+  <aside class="notes">El cuadro rojo es la neurona ganadora; cada número es el peso h con el que se acerca cada neurona al creador: w ← w + η · h · (x − w). Gaussiana: h = exp(−d² / 2r²), con d la distancia en la grilla. Uniforme: h = 1 si d ≤ r y 0 si no. El radio baja de 2 a 0,5 en las primeras 500 épocas y después queda fijo. Con radio 0,5 la gaussiana todavía mueve a las vecinas directas con 0,14; la uniforme, desde que el radio baja de 1 (época 251), solo mueve a la ganadora. Por eso el mismo radio no significa lo mismo en las dos.</aside>
+</section>
+
+<section class="figure has-take">
   <h2>Gaussiana o uniforme: mismo error, distinto mapa</h2>
   <figure><img src="assets/reports__ejercicio1__versus_vecindades_20261026__versus_externo.png" alt="QE y TE externos de gaussiana y uniforme calibradas, y diferencia de QE por partición"></figure>
   <p class="take">Error en creadores no vistos: <em>3,73</em> en las dos. Uniforme ordena mejor el mapa; gaussiana repite mejor las regiones.</p>

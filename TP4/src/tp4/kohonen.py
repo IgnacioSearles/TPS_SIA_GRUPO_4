@@ -141,7 +141,8 @@ class Kohonen:
         radius = schedule(config.radius_start, config.radius_end, progress, config.radius_decay)
         return learning_rate, radius
 
-    def _neighborhood(self, winner, radius):
+    def neighborhood(self, winner, radius):
+        """Peso de la actualización de cada neurona cuando gana `winner` con este radio."""
         grid_distances = self.grid.distances[winner]
         if self.config.neighborhood == 'gaussian':
             return np.exp(-grid_distances * grid_distances / (2 * radius * radius))
@@ -149,7 +150,7 @@ class Kohonen:
 
     def _update_sample(self, sample, learning_rate, radius):
         winner = np.square(self.weights_ - sample).sum(axis=1).argmin()
-        influence = self._neighborhood(winner, radius)
+        influence = self.neighborhood(winner, radius)
         self.weights_ += learning_rate * influence[:, None] * (sample - self.weights_)
         if not np.isfinite(self.weights_).all():
             raise FloatingPointError('Kohonen divergió; revisar aprendizaje y datos')
