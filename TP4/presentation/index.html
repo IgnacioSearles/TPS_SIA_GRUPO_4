@@ -457,8 +457,8 @@
 <section class="figure has-take">
   <h2>Después de desaprender, los cinco QR son estables</h2>
   <figure><img src="assets/reports__presentacion__e2_desaprendizaje_entrenamiento.png" alt="Neuronas que rechazan cada QR antes y después, y resultado de los 50 intentos"></figure>
-  <p class="take">En 50 intentos se restaron 20 a 22 estados falsos. Las neuronas que rechazan a cada QR pasan de 16–34 a <em>0</em>; la mezcla deja de ser estable.</p>
-  <aside class="notes">Izquierda: para cada estado, cuántas neuronas tienen el campo con el signo contrario, o sea cuántas lo darían vuelta. Con Hebb ningún QR es estable; después de desaprender, ninguno tiene neuronas en contra, en las tres semillas de entrenamiento. La mezcla pasa de 56 a 40: sigue teniendo neuronas en contra, así que ya no es un pozo. Derecha: de los 50 intentos, en 28 a 30 el estado al azar cayó en un QR guardado o en su inverso y no se tocó; en el resto cayó en un estado falso y se restó. Ninguno terminó en un ciclo.</aside>
+  <p class="take">En 50 intentos se restaron 20 a 22 estados falsos. Las neuronas que rechazan a cada QR pasan de 16–34 a <em>0</em>: los cinco quedan estables.</p>
+  <aside class="notes">Izquierda: para cada estado, cuántas neuronas tienen el campo con el signo contrario, o sea cuántas lo darían vuelta. Con Hebb ningún QR es estable; después de desaprender, ninguno tiene neuronas en contra, en las tres semillas de entrenamiento. La mezcla mayoritaria ya tenía 56 neuronas en contra con Hebb sin lo común, así que tampoco era estable antes; después queda con 40. Los estados falsos que se restan son otros: los estados estables a los que la red llega desde el azar. Derecha: de los 50 intentos, en 28 a 30 el estado al azar cayó en un QR guardado o en su inverso y no se tocó; en el resto cayó en un estado falso y se restó. Ninguno terminó en un ciclo.</aside>
 </section>
 
 <section class="figure has-take">
