@@ -318,19 +318,6 @@
   <aside class="notes">Los cinco QR son las cartas del restaurante: menú principal, vinos, cócteles, postres y especiales. Las consultas son los QR con ruido: cada módulo se invierte con probabilidad de 0 a 50 %, 20 semillas por nivel y por QR, 1.100 consultas en total. Después probamos daños más realistas: desgaste, manchas, rayones y una foto gastada.</aside>
 </section>
 
-<section>
-  <h2>Cómo funciona la red</h2>
-  <div class="eqs tight">
-    <p><b>Cada módulo es una neurona.</b> Un QR de 37×37 son 1.369 neuronas: negro = +1, blanco = −1.</p>
-    <p><b>Guardar, con Hebb:</b> <code>W = (1/N) Σ ξξᵀ</code>, con la diagonal en cero. Cada QR guardado refuerza las conexiones que lo sostienen.</p>
-    <p><b>Recuperar:</b> <code>s ← sign(W s)</code>, todas las neuronas a la vez. Si el campo de una neurona da cero, no cambia.</p>
-    <p><b>Energía:</b> <code>H = −½ Σ wᵢⱼ sᵢ sⱼ</code>. Los QR guardados deberían ser sus pozos.</p>
-    <p><b>Para</b> cuando el estado no cambia, cuando repite uno anterior (ciclo) o a las 100 iteraciones.</p>
-  </div>
-  <p class="take">Medimos dos cosas: si la salida es exactamente el QR guardado y si un lector de QR la puede leer.</p>
-  <aside class="notes">Es la red del apunte, con actualización sincrónica. El lector es el detector de QR de OpenCV, el mismo tipo de lector que usa la cámara de un celular: busca los tres cuadrados de las esquinas, lee los módulos y los verifica con la corrección de errores del propio QR. La consulta ya llega como una matriz de 37×37 alineada: eso es un supuesto, lo retomamos en los límites.</aside>
-</section>
-
 <section class="figure has-take">
   <h2>Le pasamos cualquier QR y devuelve siempre lo mismo</h2>
   <figure><img src="assets/reports__presentacion__e2_consultas_y_salidas.png" alt="Cinco consultas con ruido y cinco salidas iguales"></figure>
@@ -342,7 +329,7 @@
   <h2>La energía baja, pero hacia la mezcla</h2>
   <figure><img src="assets/reports__presentacion__e2_energia_niveles.png" alt="Energía por iteración de una consulta de menú y energía de cada QR y de la mezcla"></figure>
   <p class="take">La mezcla (−2.173) está más abajo que cualquier QR guardado (−1.790 a −2.077). La red llega en 1 o 2 iteraciones.</p>
-  <aside class="notes">Izquierda: una consulta de menú con 0, 20 y 45 % de ruido. La energía baja en cada iteración y termina en la línea roja, la mezcla, por debajo del menú guardado. Por qué la mezcla está más abajo: con Hebb, la energía de un estado es −N/2 por la suma, sobre los cinco QR, del cuadrado de cuánto se parece a cada uno. El menú se parece 1 a sí mismo y 0,86, 0,60, 0,59 y 0,77 a los otros: suma 3,04. La mezcla se parece 0,90, 0,87, 0,67, 0,67 y 0,85: suma 3,18. Parecerse bastante a los cinco gana a ser igual a uno. Con patrones al azar no pasa: cada patrón suma casi 1 y la mezcla de cinco, 0,70. En promedio la red para en 1 a 2 iteraciones (apéndice). Con actualización sincrónica la energía podría subir; en este barrido no subió nunca, pero es lo observado, no una garantía.</aside>
+  <aside class="notes">Izquierda: una consulta de menú con 0, 20 y 45 % de ruido. La energía baja en cada iteración y termina en la línea roja, la mezcla, por debajo del menú guardado. Por qué la mezcla está más abajo: con Hebb, la energía de un estado es −N/2 por la suma, sobre los cinco QR, del cuadrado de cuánto se parece a cada uno, más una constante (p/2 = 2,5) que sale de poner la diagonal en cero. El menú se parece 1 a sí mismo y 0,86, 0,60, 0,59 y 0,77 a los otros: suma 3,04. La mezcla se parece 0,90, 0,87, 0,67, 0,67 y 0,85: suma 3,18. Parecerse bastante a los cinco gana a ser igual a uno. Con patrones al azar no pasa: cada patrón suma casi 1 y la mezcla de cinco, 0,70. En promedio la red para en 1 a 2 iteraciones (apéndice). Con actualización sincrónica la energía podría subir; en este barrido no subió nunca, pero es lo observado, no una garantía.</aside>
 </section>
 
 <!-- Problema 1: los cinco QR se parecen -->
@@ -422,7 +409,7 @@
   <h2>Separado el par, cada red funciona; elegir la red no</h2>
   <figure><img src="assets/reports__presentacion__e2_dos_redes.png" alt="Recuperación con dos redes según cómo se elige la salida, contra comparar con los originales"></figure>
   <p class="take">Menú en una red y vinos en otra: cada una recupera sus QR. Pero una consulta de menú, en la red de vinos, cae en vinos (140 de 140). Para elegir hay que comparar con los originales.</p>
-  <aside class="notes">Repartimos los cinco QR en una terna y un par con el menor parecido dentro de cada grupo: sale solo que menú y vinos quedan separados. Si mandamos la consulta a la red que guarda su QR, recupera el 100 % hasta 35 % de ruido: eso confirma que el par es el único obstáculo. Pero en la realidad no sabemos qué QR es la consulta. Con menú, las dos redes devuelven un QR guardado. Sin desempate, el total queda en 80 % (curva roja). Desempatar con la salida más parecida a la consulta es Hamming: nunca le gana (6 consultas mejor, 25 peor). Elegir la red de menor energía no mira los originales, pero con Hebb la energía es −N/2 por la suma de los solapamientos al cuadrado con los QR de la red: sigue midiendo parecido, y queda por debajo (3 mejor, 43 peor). Con cinco redes de un QR cada una, esto sería exactamente comparar con los originales. Por eso no la contamos como solución.</aside>
+  <aside class="notes">Repartimos los cinco QR en una terna y un par con el menor parecido dentro de cada grupo: sale solo que menú y vinos quedan separados. Si mandamos la consulta a la red que guarda su QR, recupera el 100 % hasta 35 % de ruido: eso confirma que el par es el único obstáculo. Pero en la realidad no sabemos qué QR es la consulta. Con menú, las dos redes devuelven un QR guardado. Sin desempate, el total queda en 80 % (curva roja). Desempatar con la salida más parecida a la consulta es Hamming: nunca le gana (6 consultas mejor, 25 peor). Elegir la red de menor energía no mira los originales, pero con Hebb la energía es −N/2 por la suma de los solapamientos al cuadrado con los QR de la red, más una constante: sigue midiendo parecido, y queda por debajo (3 mejor, 43 peor). Con cinco redes de un QR cada una, esto sería exactamente comparar con los originales. Por eso no la contamos como solución.</aside>
 </section>
 
 <!-- Soluciones: una sola red con los cinco QR -->

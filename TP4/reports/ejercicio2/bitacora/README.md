@@ -27,7 +27,7 @@ Se probaron siete daños que imitan un QR impreso gastado (`src/tp4/damage.py`):
 
 El lector solo no lee desde 5 % de módulos alterados, ni con 2,6 % de desgaste. El desaprendizaje recuperó el 97 % o más con hasta un cuarto de los módulos alterados en los siete tipos y se rompe entre 40 y 47 %; la pseudoinversa completa aguanta más. Con daño que solo borra tinta, Hamming deja de ser el techo: la variante asimétrica acierta 97 % con 49 % alterado, contra 71 %. [Informe](../dano_realista_20261026/README.md) y [niveles extremos](../dano_realista_extremo_20261026/README.md).
 
-La presentación del ejercicio 2 se compactó de 31 a 24 diapositivas en la rama `tp4/hopfield-compacto-dano-realista`: se agregaron el método, el desaprendizaje y la pseudoinversa en detalle, y las dos redes pasaron a presentarse como diagnóstico (elegir la red vuelve a ser comparar con los originales).
+La presentación del ejercicio 2 se compactó de 31 a 23 diapositivas en la rama `tp4/hopfield-compacto-dano-realista`: se agregaron el desaprendizaje y la pseudoinversa en detalle, y las dos redes pasaron a presentarse como diagnóstico (elegir la red vuelve a ser comparar con los originales).
 
 ## 22/10 — Protocolo fijado y selección
 

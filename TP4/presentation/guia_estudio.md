@@ -4,7 +4,7 @@ Revisión del **25/10/2026**, sobre la presentación de `main` después del pull
 
 El objetivo es que puedas hacer cuatro cosas con cada método: explicar qué entra y qué sale, ejecutar mentalmente una actualización, señalar la función que la implementa y defender qué conclusión permiten los experimentos.
 
-Tenés un [mapa de las 92 diapositivas](mapa_estudio_diapositivas.md) y [ejemplos numéricos ejecutables](ejemplos_estudio.py). Desde TP4: `python3 presentation/ejemplos_estudio.py`. Los ejemplos son didácticos y no reentrenan los experimentos ni guardan redes.
+Tenés un [mapa de las 91 diapositivas](mapa_estudio_diapositivas.md) y [ejemplos numéricos ejecutables](ejemplos_estudio.py). Desde TP4: `python3 presentation/ejemplos_estudio.py`. Los ejemplos son didácticos y no reentrenan los experimentos ni guardan redes.
 
 ## 0. Qué estudiar primero
 
@@ -14,11 +14,11 @@ Tenés un [mapa de las 92 diapositivas](mapa_estudio_diapositivas.md) y [ejemplo
 | 1 | Estandarización; PCA frente a Oja; qué representa PC1 | 4–11, 24–25 |
 | 1 | Una actualización de Kohonen; pesos frente a posiciones de grilla | 13–19 |
 | 1 | Matriz U, Ward contiguo y selección comercial posterior | 15–22, 27–34 |
-| 1 | Hebb, campo local, crosstalk, mezcla y estabilidad | 37–43 |
-| 1 | Pseudoinversa y desaprendizaje, con diagonal cero | 50–55; ampliación en esta guía |
-| 1 | Qué es Hopfield y qué hacen máscaras, Hamming y lectores | 37–38, 44–58 |
-| 2 | Diseño de experimentos, porcentajes comparables y límites | 13–14, 41–43, 48–57 |
-| 2 | Por qué menú y vinos difieren tan poco | 46–47 |
+| 1 | Hebb, campo local, crosstalk, mezcla y estabilidad | 37–42 |
+| 1 | Pseudoinversa y desaprendizaje, con diagonal cero | 49–54; ampliación en esta guía |
+| 1 | Qué es Hopfield y qué hacen máscaras, Hamming y lectores | 37, 43–57 |
+| 2 | Diseño de experimentos, porcentajes comparables y límites | 13–14, 40–42, 47–56 |
+| 2 | Por qué menú y vinos difieren tan poco | 45–46 |
 | 3 | Detalle de Reed–Solomon, implementación de checkpoints y barridos | Preguntas de ampliación |
 
 No empieces memorizando los nombres de los doce creadores. Primero entendé por qué se elige una región y después se ordena por costo. Tampoco memorices todos los porcentajes de todos los barridos: aprendé los resultados que justifican una decisión y sus condiciones.
@@ -127,7 +127,7 @@ La inferencia de un creador nuevo no modifica pesos: se escala con la referencia
 
 ### Gaussiana o uniforme
 
-**Diapositiva 14 y apéndice 67–68. Informes:** [vecindad uniforme](../reports/ejercicio1/uniforme_20261026/README.md) y [versus calibrado](../reports/ejercicio1/versus_vecindades_20261026/README.md). Configuración: `neighborhood='uniform'` en el mismo núcleo.
+**Diapositiva 14 y apéndice 66–67. Informes:** [vecindad uniforme](../reports/ejercicio1/uniforme_20261026/README.md) y [versus calibrado](../reports/ejercicio1/versus_vecindades_20261026/README.md). Configuración: `neighborhood='uniform'` en el mismo núcleo.
 
 Con uniforme, toda neurona a distancia `≤ radio` recibe `h=1` y el resto `h=0`. En la grilla la distancia mínima entre neuronas distintas es 1, así que **un radio menor que 1 actualiza solo a la ganadora**. Con el calendario 2 → 0,5 eso ocurre desde la época 251: las últimas 750 épocas no mueven vecinas. Con gaussiana de ancho 0,5, una vecina inmediata todavía recibe `exp(−1/(2·0,5²)) = exp(−2) ≈ 0,135`. El mismo número de radio no significa la misma suavidad.
 
@@ -243,7 +243,7 @@ Para creadores nuevos se conserva el escalador y se busca BMU. Con muchas observ
 
 ## 7. Hopfield con Hebb: almacenar y recuperar son cosas distintas
 
-**Diapositivas 37–43. Código:** `src/tp4/hopfield.py`, `__init__`, `_synchronous`, `recall`, `energy` y `overlaps`.
+**Diapositivas 37–42. Código:** `src/tp4/hopfield.py`, `__init__`, `_synchronous`, `recall`, `energy` y `overlaps`.
 
 Un módulo QR es un cuadrado lógico; no cada píxel de una foto. Se usan imágenes binarias de **37×37 módulos**, aplanadas por filas. Negro es `+1`, blanco `−1`. Los cinco recuerdos forman `Ξ` de **5×1.369**.
 
@@ -305,7 +305,7 @@ Una cuenca de atracción es el conjunto de consultas que termina en un estado. U
 
 ## 8. Por qué estos QR interfieren tanto
 
-**Diapositivas 42 y 46–47. Código:** `analysis/qr_bits.py`; imágenes cargadas por `src/tp4/qr.py`.
+**Diapositivas 41 y 45–46. Código:** `analysis/qr_bits.py`; imágenes cargadas por `src/tp4/qr.py`.
 
 De los 1.369 módulos, **955 son iguales en los cinco QR** y solo **414** cambian entre identidades. El solapamiento completo entre pares va aproximadamente de 0,58 a 0,86. Casi el 70 % común incluye estructuras fijas y datos compartidos: no todo ese 70 % es una obligación estructural de cualquier QR.
 
@@ -327,7 +327,7 @@ La capacidad `≈0,15N` del apunte supone patrones adecuados, típicamente aleat
 
 ## 9. Pseudoinversa, explicada con A, B y C
 
-**Diapositivas 53–55 y material de respaldo. Código:** rama `rule == 'pseudoinverse'` de `Hopfield.__init__`.
+**Diapositivas 52–54 y material de respaldo. Código:** rama `rule == 'pseudoinverse'` de `Hopfield.__init__`.
 
 La matriz de patrones sigue teniendo recuerdos por filas. Se calcula:
 
@@ -403,7 +403,7 @@ Quitar posiciones comunes cambia la matriz de Gram y la dinámica. Aunque no dis
 
 ## 10. Desaprendizaje: qué se penaliza y cuándo se termina
 
-**Diapositivas 50–52. Código:** `src/tp4/unlearning.py`, `UnlearningTrainer.step` y `anti_hebbian_update`.
+**Diapositivas 49–51. Código:** `src/tp4/unlearning.py`, `UnlearningTrainer.step` y `anti_hebbian_update`.
 
 Se parte de **una red de Hebb** y se hacen intentos de encontrar estados espurios. Si un intento llega a un estado estable `a` que no es un original ni su inverso, se aplica:
 
@@ -438,31 +438,31 @@ La versión completa de 1.369 neuronas **no tuvo candidato que conservara los ci
 
 ### Quitar y restaurar compartidos
 
-**Diapositiva 44. Código:** `src/tp4/shared_modules.py`.
+**Diapositiva 43. Código:** `src/tp4/shared_modules.py`.
 
 `differing = ~(patterns == patterns[0]).all(axis=0)` marca posiciones que cambian en algún recuerdo. `strip` conserva esas 414 coordenadas. `restore` copia una plantilla conocida de 1.369 y coloca ahí la salida de la red. Las 955 restantes se reponen directamente.
 
 La consulta ruidosa se genera completa antes del recorte. La red recibe solo la parte variable. Si el daño cae en un módulo común, lo corrige la plantilla, sin inferencia de Hopfield. Eso debe contarse como parte explícita de la solución.
 
-Con cinco QR, quitar compartidos **no bastó para Hebb**: cero originales estables. Mejoró qué subconjuntos de tres pueden almacenarse. Por eso la diapositiva 59 dice que sacar lo común reduce el primer problema, no que lo resuelve solo.
+Con cinco QR, quitar compartidos **no bastó para Hebb**: cero originales estables. Mejoró qué subconjuntos de tres pueden almacenarse. Por eso la diapositiva 58 dice que sacar lo común reduce el primer problema, no que lo resuelve solo.
 
 ### Una red por zona
 
-**Diapositiva 44 (mencionada) y apéndice 84–85. Código:** `src/tp4/zoned_hopfield.py`.
+**Diapositiva 43 (mencionada) y apéndice 83–84. Código:** `src/tp4/zoned_hopfield.py`.
 
 Se divide espacialmente el QR. Cada zona almacena los recortes de los cinco recuerdos; si todos son iguales ahí, se repone la zona conocida sin red. Se recupera cada zona y se ensamblan salidas. Zonas distintas pueden corresponder a identidades distintas o a espurios: que cada pieza parezca razonable no garantiza un QR completo válido. El parecido local siguió causando problemas.
 
 ### Dos redes por grupos de recuerdos
 
-**Diapositiva 48, presentada como diagnóstico. Código:** `src/tp4/split_hopfield.py`; selección en `analysis/hopfield_qr_mejoras.py`, `best_partition`.
+**Diapositiva 47, presentada como diagnóstico. Código:** `src/tp4/split_hopfield.py`; selección en `analysis/hopfield_qr_mejoras.py`, `best_partition`.
 
 Aquí no se cortan posiciones: se reparten **identidades** entre redes. Se enumeran las diez ternas y pares complementarios y se minimiza el máximo **valor absoluto del solapamiento** dentro de los grupos, usando solo los recuerdos almacenados. Resultado: menú/cócteles/postres en una y vinos/especiales en otra, con módulos variables y Hebb.
 
 La consulta pasa por ambas. Se restauran salidas completas y se comprueba cuáles son recuerdos de la propia red. Si hay alguna, se elige entre esas; si hay más de una, se usa menor Hamming a la consulta. Si ninguna es un recuerdo almacenado, se elige la salida más cercana entre todas.
 
-Esto es **redes de Hopfield + selector externo**. El selector conoce los recuerdos y no forma parte de la dinámica recurrente. El código usa Hamming, aunque usar dos redes no obliga teóricamente a elegir ese criterio. Sus resultados hasta 35 % de ruido pertenecen al barrido correspondiente; no están emparejados con las consultas nuevas del gráfico de la diapositiva 55.
+Esto es **redes de Hopfield + selector externo**. El selector conoce los recuerdos y no forma parte de la dinámica recurrente. El código usa Hamming, aunque usar dos redes no obliga teóricamente a elegir ese criterio. Sus resultados hasta 35 % de ruido pertenecen al barrido correspondiente; no están emparejados con las consultas nuevas del gráfico de la diapositiva 54.
 
-**Por qué en la presentación es un diagnóstico y no una solución.** Si la consulta va directo a la red que guarda su QR, recupera el 100 % hasta 35 % de ruido: eso prueba que el par menú-vinos era el único obstáculo. Pero con una consulta de menú las dos redes devuelven un QR guardado (la de vinos, vinos: 140 de 140), así que alguien tiene que elegir. Sin desempate el total queda en 80 %. Desempatar con la salida más cercana a la consulta equivale a Hamming y nunca le gana (6 consultas mejor, 25 peor). Elegir la red de menor energía no mira los originales, pero con Hebb `E = −N/2 Σ m²`: sigue midiendo el parecido con los QR guardados, y queda por debajo (3 mejor, 43 peor). Con cinco redes de un QR cada una, el método sería exactamente comparar con los originales. **Cómo contarlo:** «Separar el par confirma que es el obstáculo; elegir la red nos devuelve a comparar con los originales».
+**Por qué en la presentación es un diagnóstico y no una solución.** Si la consulta va directo a la red que guarda su QR, recupera el 100 % hasta 35 % de ruido: eso prueba que el par menú-vinos era el único obstáculo. Pero con una consulta de menú las dos redes devuelven un QR guardado (la de vinos, vinos: 140 de 140), así que alguien tiene que elegir. Sin desempate el total queda en 80 %. Desempatar con la salida más cercana a la consulta equivale a Hamming y nunca le gana (6 consultas mejor, 25 peor). Elegir la red de menor energía no mira los originales, pero con Hebb `E = −N/2 Σ m² + p/2`: sigue midiendo el parecido con los QR guardados, y queda por debajo (3 mejor, 43 peor). Con cinco redes de un QR cada una, el método sería exactamente comparar con los originales. **Cómo contarlo:** «Separar el par confirma que es el obstáculo; elegir la red nos devuelve a comparar con los originales».
 
 ### Vecino más cercano por Hamming, sin red
 
@@ -515,7 +515,7 @@ La corrección QR por Reed–Solomon trabaja con **codewords de ocho bits**. Los
 
 ### Daño realista
 
-**Diapositiva 57 y apéndice 90–92. Código:** `src/tp4/damage.py`, `analysis/hopfield_qr_dano_realista.py`. Informes: [niveles moderados](../reports/ejercicio2/dano_realista_20261026/README.md) y [extremos](../reports/ejercicio2/dano_realista_extremo_20261026/README.md).
+**Diapositiva 56 y apéndice 89–91. Código:** `src/tp4/damage.py`, `analysis/hopfield_qr_dano_realista.py`. Informes: [niveles moderados](../reports/ejercicio2/dano_realista_20261026/README.md) y [extremos](../reports/ejercicio2/dano_realista_extremo_20261026/README.md).
 
 Siete daños que imitan un QR impreso gastado: desgaste (negro → blanco, nunca al revés), desgaste mayor en un borde, manchas negras y blancas irregulares, rayones que borran tinta, desgaste con mancha y una foto gastada (poco contraste, desenfoque y mancha semitransparente sobre una imagen de 8 píxeles por módulo, binarizada después). Se usaron los métodos congelados y semillas nuevas 200–219: 7.800 consultas en dos corridas. La segunda, con niveles extremos, se agregó después de ver la primera.
 
@@ -531,7 +531,7 @@ No digas que son fotos reales: son simulaciones, y la consulta sigue llegando al
 
 ## 13. Experimentos locales nuevos que todavía no están en las diapositivas
 
-La comparación de vecindades del 26/10 sí entró: diapositiva 14 y apéndice 67–68, explicada en [Gaussiana o uniforme](#gaussiana-o-uniforme).
+La comparación de vecindades del 26/10 sí entró: diapositiva 14 y apéndice 66–67, explicada en [Gaussiana o uniforme](#gaussiana-o-uniforme).
 
 Conviene conocerlos como respaldo y distinguirlos del relato publicado. No hubo que descartar resultados del compañero: los informes subidos son la referencia histórica, y la ausencia local de sus pesos no prueba que una corrida no se hiciera.
 
@@ -564,15 +564,15 @@ Estas son observaciones para estudiar y defender; no se cambiaron las diapositiv
 | 13–17 | Todos los ARI comparan lo mismo | Distinguir asignaciones a neuronas, cinco regiones y configuración/semillas |
 | 21 | Los temas se descubrieron sin información temática | Los porcentajes temáticos entran al SOM; no hay etiquetas objetivo de grupos |
 | 26, 29 | El modelo eligió automáticamente el objetivo del cliente | La región objetivo se decidió interpretando perfiles y se codificó en `TARGET_REGIONS` |
-| 38, 58 | La energía de actualización sincrónica siempre baja | Bajó en los casos observados; la garantía usual corresponde al caso asincrónico |
-| 41 | Un control aleatorio descarta cualquier bug | Apoya la explicación por correlación junto con los otros controles |
-| 41 | 0,15N garantiza esa cantidad de QR | Es una referencia bajo supuestos de patrones/criterio distintos |
-| 43 | Campo exacto = 1 + crosstalk; 25 % universal | Hay corrección de diagonal y una aproximación sobre interferencia en el control |
-| 42 | Todo conjunto de QR de un sitio necesariamente falla | Estos cinco comparten formato, máscara y mucho mensaje; otros diseños pueden diferir |
-| 50–51 | Desaprender protege automáticamente los originales | Se excluyen como objetivos directos y después se verifica su estabilidad |
-| 55 | Todos los métodos, incluida la solución de dos redes, se compararon ahí | La tabla usa consultas nuevas emparejadas; las dos redes tienen otro barrido |
-| 56–57 | Área dañada = bits invertidos; nivel H tolera cualquier 30 % de módulos | Importan color previo, ubicación, codewords y que se detecte el QR |
-| 59 | Sacar compartidos resolvió por sí solo la recuperación | Redujo interferencia y mejoró subconjuntos; Hebb con cinco siguió sin originales estables |
+| 37, 57 | La energía de actualización sincrónica siempre baja | Bajó en los casos observados; la garantía usual corresponde al caso asincrónico |
+| 40 | Un control aleatorio descarta cualquier bug | Apoya la explicación por correlación junto con los otros controles |
+| 40 | 0,15N garantiza esa cantidad de QR | Es una referencia bajo supuestos de patrones/criterio distintos |
+| 42 | Campo exacto = 1 + crosstalk; 25 % universal | Hay corrección de diagonal y una aproximación sobre interferencia en el control |
+| 41 | Todo conjunto de QR de un sitio necesariamente falla | Estos cinco comparten formato, máscara y mucho mensaje; otros diseños pueden diferir |
+| 49–50 | Desaprender protege automáticamente los originales | Se excluyen como objetivos directos y después se verifica su estabilidad |
+| 54 | Todos los métodos, incluida la solución de dos redes, se compararon ahí | La tabla usa consultas nuevas emparejadas; las dos redes tienen otro barrido |
+| 55–56 | Área dañada = bits invertidos; nivel H tolera cualquier 30 % de módulos | Importan color previo, ubicación, codewords y que se detecte el QR |
+| 58 | Sacar compartidos resolvió por sí solo la recuperación | Redujo interferencia y mejoró subconjuntos; Hebb con cinco siguió sin originales estables |
 
 ## 15. Preguntas de defensa con respuestas breves
 

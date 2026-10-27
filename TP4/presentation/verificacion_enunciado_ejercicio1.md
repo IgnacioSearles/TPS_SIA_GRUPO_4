@@ -13,14 +13,14 @@ El PDF pide seleccionar variables, realizar EDA/PCA y justificar si se reduce la
 | Requisito del PDF | Evidencia encontrada | Presentación | Estado |
 | --- | --- | --- | --- |
 | Analizar el catálogo mediante EDA | `analysis/eda_pca.py`, `analysis/eda.py`, informe de ejercicio 1 | 4–10 | Cubierto |
-| Seleccionar y justificar variables | Exclusión de cuatro derivadas, 27 variables, comparación de representaciones y escalado | 4, 7–8 y apéndice 69 | Cubierto; mantener justificación explícita |
-| Realizar PCA e interpretar componentes | SVD, varianza explicada, biplots, interpretación de PC1/PC2/PC3 | 9, 11 y apéndice 63 | Cubierto |
-| Justificar reducción o ausencia de reducción | Comparación con PCA 2/3/6/10, decisión de conservar 27 variables | 11 y apéndice 73 | Cubierto; PCA 10 es aproximación de regiones, no identidad exacta |
+| Seleccionar y justificar variables | Exclusión de cuatro derivadas, 27 variables, comparación de representaciones y escalado | 4, 7–8 y apéndice 68 | Cubierto; mantener justificación explícita |
+| Realizar PCA e interpretar componentes | SVD, varianza explicada, biplots, interpretación de PC1/PC2/PC3 | 9, 11 y apéndice 62 | Cubierto |
+| Justificar reducción o ausencia de reducción | Comparación con PCA 2/3/6/10, decisión de conservar 27 variables | 11 y apéndice 72 | Cubierto; PCA 10 es aproximación de regiones, no identidad exacta |
 | Implementar Kohonen | `src/tp4/kohonen.py`, prototipos y actualización de vecindad | 13–19 | Cubierto |
-| Variar hiperparámetros y justificar performance | Informes de geometría, representación y tasa/radio; vecindad uniforme frente a gaussiana (26/10); QE, TE, ocupación y ARI | 13–14 y apéndice 65–69 | Cubierto por la evidencia informada por el grupo y por la comparación de vecindades del 26/10 |
+| Variar hiperparámetros y justificar performance | Informes de geometría, representación y tasa/radio; vecindad uniforme frente a gaussiana (26/10); QE, TE, ocupación y ARI | 13–14 y apéndice 64–68 | Cubierto por la evidencia informada por el grupo y por la comparación de vecindades del 26/10 |
 | Analizar grilla y distribución de creadores | Ocupación, mapas y perfiles de neuronas/regiones | 13–21 | Cubierto |
 | Analizar matriz U y distancia alta entre vecinas | Media de distancias de prototipos vecinos, interpretación de fronteras | 15–16 | Cubierto |
-| Comparar regiones con PC1/PC2 | Proyección de las regiones sobre biplot y planos de componentes | 18–22 y apéndice 72 | Cubierto |
+| Comparar regiones con PC1/PC2 | Proyección de las regiones sobre biplot y planos de componentes | 18–22 y apéndice 71 | Cubierto |
 | Implementar Oja sobre los mismos datos | Oja recibe las mismas 27 variables estandarizadas | 24–25 | Cubierto |
 | Interpretar índice y discutir máximo universal | Índice visibilidad/profundidad, signo arbitrario, filtro comercial necesario | 24–25 | Cubierto |
 | Comparar Oja con proyección PC1 | Alineación, scores, ranking y varianza explicada | 24 y su informe | Cubierto |
