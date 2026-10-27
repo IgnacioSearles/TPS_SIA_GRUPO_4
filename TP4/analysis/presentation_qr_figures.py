@@ -416,33 +416,45 @@ def plot_rules_by_noise(by_noise, pseudoinverse, path):
     _save(fig, path)
 
 
-def plot_realistic_damage(summary, path, kinds=('desgaste', 'mancha_negra', 'rayones', 'foto')):
+def plot_realistic_damage(summary, path, kinds=('desgaste', 'mancha_negra', 'rayones')):
     """Daño realista: recuperación exacta de las dos reglas que guardan los cinco QR y de comparar con los
     originales. `summary` puede juntar varias corridas: cada nivel se ubica por la fracción media de módulos
-    alterados."""
-    titles = {'desgaste': 'Desgaste: se pierde tinta', 'mancha_negra': 'Manchas negras irregulares',
-              'rayones': 'Rayones', 'foto': 'Foto gastada, binarizada'}
+    alterados. Todos los paneles comparten el eje x hasta 50 %, y lo que no se probó queda sombreado, para
+    que se vea hasta dónde llegó cada tipo."""
+    titles = {'desgaste': 'Desgaste', 'mancha_negra': 'Manchas negras', 'rayones': 'Rayones'}
     lines = {'desaprendizaje': ('Hebb + desaprendizaje', 'C1', '-', 'exacta'),
              'pseudoinversa': ('pseudoinversa, QR completo', '#1a9e6e', '-', 'exacta'),
              'vecino': ('sin red: distancia de Hamming a los originales', 'gray', '--', 'exacta'),
-             'vecino_asimetrico': ('sin red: comparar sabiendo que solo se borra tinta', 'black', ':', 'exacta')}
-    fig, axes = plt.subplots(1, len(kinds), figsize=(17, 5.6), sharey=True)
+             'vecino_asimetrico': ('sin red: sabiendo que solo se borra tinta', 'black', ':', 'exacta')}
+    limit = 50
+    fig, axes = plt.subplots(1, len(kinds), figsize=(15, 5.4), sharex=True, sharey=True)
     for ax, kind in zip(axes, kinds):
         rows = summary[summary.kind == kind]
         damage = (rows[rows.method == 'consulta'].set_index('level').dano / (SIDE * SIDE)).sort_values()
+        tested = 100 * damage.max()
+        if tested < limit - 5:
+            ax.axvspan(tested + 1, limit + 1.5, color='0.92', zorder=0, lw=0)
+            ax.text((tested + 2.5 + limit) / 2, .5, 'no probado', rotation=90, ha='center', va='center',
+                    color='0.4', fontsize=17)
         for method, (label, color, style, column) in lines.items():
             if method == 'vecino_asimetrico' and kind != 'desgaste':
                 continue
             values = rows[rows.method == method].set_index('level')[column].reindex(damage.index)
-            ax.plot(100 * damage, values, marker='o', lw=2.6, color=color, linestyle=style, label=label)
-        ax.set_title(titles[kind], fontsize=16)
+            ax.plot(100 * damage, values, marker='o', markersize=5, lw=3.4, color=color, linestyle=style, label=label)
+        ax.set_title(titles[kind], fontsize=22)
+        ax.set_xlim(0, limit + 1.5)
+        ax.set_xticks(range(0, limit + 1, 20))
         ax.xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(decimals=0, symbol=' %'))
-        _percent_axis(ax, 'Módulos alterados')
+        ax.set_yticks([0, .25, .5, .75, 1])
+        ax.tick_params(labelsize=16)
+        _percent_axis(ax, '')
     for ax in axes[1:]:
         ax.set_ylabel('')
+    axes[0].set_ylabel('Recuperación exacta', fontsize=18)
+    fig.supxlabel('Módulos alterados', fontsize=18)
     handles, labels = axes[0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc='lower center', ncol=2, fontsize=13, bbox_to_anchor=(.5, -.02))
-    fig.tight_layout(rect=(0, .14, 1, 1))
+    fig.legend(handles, labels, loc='upper center', ncol=2, fontsize=16, bbox_to_anchor=(.5, 1.01))
+    fig.tight_layout(rect=(0, 0, 1, .86))
     fig.savefig(path, dpi=160)
     plt.close(fig)
 

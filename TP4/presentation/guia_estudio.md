@@ -327,7 +327,7 @@ La capacidad `≈0,15N` del apunte supone patrones adecuados, típicamente aleat
 
 ## 9. Pseudoinversa, explicada con A, B y C
 
-**Diapositivas 55–57, apéndice 80–81 y material de respaldo. Código:** rama `rule == 'pseudoinverse'` de `Hopfield.__init__`.
+**Diapositivas 55–57, apéndice 79–80 y material de respaldo. Código:** rama `rule == 'pseudoinverse'` de `Hopfield.__init__`.
 
 La matriz de patrones sigue teniendo recuerdos por filas. Se calcula:
 
@@ -444,11 +444,11 @@ La versión completa de 1.369 neuronas **no tuvo candidato que conservara los ci
 
 La consulta ruidosa se genera completa antes del recorte. La red recibe solo la parte variable. Si el daño cae en un módulo común, lo corrige la plantilla, sin inferencia de Hopfield. Eso debe contarse como parte explícita de la solución.
 
-Con cinco QR, quitar compartidos **no bastó para Hebb**: cero originales estables. Mejoró qué subconjuntos de tres pueden almacenarse. Por eso la diapositiva 61 dice que sacar lo común reduce el primer problema, no que lo resuelve solo.
+Con cinco QR, quitar compartidos **no bastó para Hebb**: cero originales estables. Mejoró qué subconjuntos de tres pueden almacenarse. Por eso la diapositiva 60 dice que sacar lo común reduce el primer problema, no que lo resuelve solo.
 
 ### Una red por zona
 
-**Diapositiva 45 (mencionada) y apéndice 89–90. Código:** `src/tp4/zoned_hopfield.py`.
+**Diapositiva 45 (mencionada) y apéndice 88–89. Código:** `src/tp4/zoned_hopfield.py`.
 
 Se divide espacialmente el QR. Cada zona almacena los recortes de los cinco recuerdos; si todos son iguales ahí, se repone la zona conocida sin red. Se recupera cada zona y se ensamblan salidas. Zonas distintas pueden corresponder a identidades distintas o a espurios: que cada pieza parezca razonable no garantiza un QR completo válido. El parecido local siguió causando problemas.
 
@@ -507,7 +507,7 @@ Tres redes de desaprendizaje evaluadas con las mismas 700 consultas producen 2.1
 
 ### Daño espacial y lector
 
-**Diapositiva 58.** Un bloque 11×11 cubre 121 módulos, pero blanquearlo solo altera los que antes eran negros. En el ejemplo promediado hay 65 cambios y solo nueve caen en posiciones variables que ve la red; el resto lo repone la plantilla.
+**Apéndice 92.** Un bloque 11×11 cubre 121 módulos, pero blanquearlo solo altera los que antes eran negros. En el ejemplo promediado hay 65 cambios y solo nueve caen en posiciones variables que ve la red; el resto lo repone la plantilla.
 
 Con el candidato reducido confirmado, esquinas blancas hasta 21×21 y manchas negras hasta 17×17 dieron 100 % en los casos ensayados. A 29×29 hubo fallos: 75 % en esquinas y 91 % en manchas. Esta tanda midió recuperación exacta de módulos; no ejecutó un lector óptico ni evaluó fotos con perspectiva, desenfoque o detección fallida.
 
@@ -515,7 +515,7 @@ La corrección QR por Reed–Solomon trabaja con **codewords de ocho bits**. Los
 
 ### Daño realista
 
-**Diapositiva 59 y apéndice 95–97. Código:** `src/tp4/damage.py`, `analysis/hopfield_qr_dano_realista.py`. Informes: [niveles moderados](../reports/ejercicio2/dano_realista_20261026/README.md) y [extremos](../reports/ejercicio2/dano_realista_extremo_20261026/README.md).
+**Diapositiva 58 y apéndice 95–97. Código:** `src/tp4/damage.py`, `analysis/hopfield_qr_dano_realista.py`. Informes: [niveles moderados](../reports/ejercicio2/dano_realista_20261026/README.md) y [extremos](../reports/ejercicio2/dano_realista_extremo_20261026/README.md).
 
 Siete daños que imitan un QR impreso gastado: desgaste (negro → blanco, nunca al revés), desgaste mayor en un borde, manchas negras y blancas irregulares, rayones que borran tinta, desgaste con mancha y una foto gastada (poco contraste, desenfoque y mancha semitransparente sobre una imagen de 8 píxeles por módulo, binarizada después). Se usaron los métodos congelados y semillas nuevas 200–219: 7.800 consultas en dos corridas. La segunda, con niveles extremos, se agregó después de ver la primera.
 
@@ -571,7 +571,7 @@ Estas son observaciones para estudiar y defender; no se cambiaron las diapositiv
 | 43 | Todo conjunto de QR de un sitio necesariamente falla | Estos cinco comparten formato, máscara y mucho mensaje; otros diseños pueden diferir |
 | 51–52 | Desaprender protege automáticamente los originales | Se excluyen como objetivos directos y después se verifica su estabilidad |
 | 56 | Todos los métodos, incluida la solución de dos redes, se compararon ahí | La tabla usa consultas nuevas emparejadas; las dos redes tienen otro barrido |
-| 57–58 | Área dañada = bits invertidos; nivel H tolera cualquier 30 % de módulos | Importan color previo, ubicación, codewords y que se detecte el QR |
+| 58, apéndice 92 | Área dañada = bits invertidos; nivel H tolera cualquier 30 % de módulos | Importan color previo, ubicación, codewords y que se detecte el QR |
 | 60 | Sacar compartidos resolvió por sí solo la recuperación | Redujo interferencia y mejoró subconjuntos; Hebb con cinco siguió sin originales estables |
 
 ## 15. Preguntas de defensa con respuestas breves
