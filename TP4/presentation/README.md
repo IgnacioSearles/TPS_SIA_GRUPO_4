@@ -1,6 +1,6 @@
 # TP4: presentación
 
-60 diapositivas de relato y un apéndice de 38 diapositivas para preguntas.
+59 diapositivas de relato y un apéndice de 38 diapositivas para preguntas.
 
 Abrir `index.html`. Flechas: avanzar. F: pantalla completa. S: notas del orador. Funciona sin conexión; para compartirla, enviar la carpeta completa.
 

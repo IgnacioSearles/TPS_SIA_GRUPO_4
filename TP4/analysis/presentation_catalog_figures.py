@@ -309,6 +309,14 @@ def plot_region_merges(catalog, path):
     _save(fig, path)
 
 
+def plot_region_map(catalog, path):
+    """Las cinco regiones finales sobre la grilla, chico, para acompañar otro gráfico."""
+    fig, ax = plt.subplots(figsize=(2.8, 2.8))
+    draw_region_map(ax, catalog)
+    ax.axis('off')
+    _save(fig, path)
+
+
 def plot_region_count(table, random_purity, path):
     """Por qué cinco regiones: es la primera cantidad que separa los temas sin dejar regiones minúsculas.
     La pureza se compara con la de regiones del mismo tamaño armadas al azar."""

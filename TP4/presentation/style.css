@@ -66,6 +66,7 @@ body { background: #fff; color: var(--ink); }
 .reveal section.side figure img { width: 100%; height: 100%; object-fit: contain; margin: 0; max-width: none; max-height: none; }
 .reveal .points p { font-size: 30px; line-height: 1.25; margin-bottom: 30px; }
 .reveal .points p:last-child { margin-bottom: 0; }
+.reveal .points img.inset { display: block; width: 200px; height: 200px; margin: 0 0 24px; max-width: none; max-height: none; }
 
 /* Right half of a two-panel figure. */
 .reveal .half { width: 100%; height: 100%; overflow: hidden; display: flex; justify-content: flex-end; }

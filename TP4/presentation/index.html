@@ -126,13 +126,6 @@
   <aside class="notes">El cuadro rojo es la neurona ganadora; cada número es el peso h con el que se acerca cada neurona al creador: w ← w + η · h · (x − w). Gaussiana: h = exp(−d² / 2r²), con d la distancia en la grilla. Uniforme: h = 1 si d ≤ r y 0 si no. El radio baja de 2 a 0,5 en las primeras 500 épocas y después queda fijo. Con radio 0,5 la gaussiana todavía mueve a las vecinas directas con 0,14; la uniforme, desde que el radio baja de 1 (época 251), solo mueve a la ganadora. Por eso el mismo radio no significa lo mismo en las dos.</aside>
 </section>
 
-<section class="figure has-take">
-  <h2>Gaussiana o uniforme: mismo error, distinto mapa</h2>
-  <figure><img src="assets/reports__ejercicio1__versus_vecindades_20261026__versus_externo.png" alt="QE y TE externos de gaussiana y uniforme calibradas, y diferencia de QE por partición"></figure>
-  <p class="take">Error en creadores no vistos: <em>3,73</em> en las dos. Uniforme ordena mejor el mapa; gaussiana repite mejor las regiones.</p>
-  <aside class="notes">Calibramos las dos con el mismo presupuesto: diez candidatos cada una, cinco radios por dos tasas iniciales. En 15 particiones dejamos diez creadores afuera de todo: escalado, entrenamiento y elección de parámetros. El QE de esos excluidos da 3,728 con gaussiana y 3,731 con uniforme, y la diferencia cambia de signo: uniforme gana en 8 de 15 particiones. Uniforme tiene menos error topográfico, 25 % contra 35 %, y gana en 10 de 15. Gaussiana da regiones más repetibles entre semillas: ARI 0,76 contra 0,68. Nos quedamos con gaussiana porque las campañas se apoyan en las regiones. Ojo: el mismo radio no significa lo mismo. Con uniforme, radio menor a 1 actualiza solo a la ganadora; con 2 a 0,5 eso pasa desde la época 251. Con gaussiana de ancho 0,5 una vecina todavía recibe 0,135. Por eso uniforme prefirió terminar en 1 o radio constante. No hay prueba formal de equivalencia: son 50 creadores y las particiones se superponen.</aside>
-</section>
-
 <section class="side">
   <h2>Las fronteras de la matriz U son cambios de perfil</h2>
   <main>
@@ -179,6 +172,7 @@
   <main>
     <figure><img src="assets/reports__ejercicio1__som__regiones_pca.png" alt="Regiones del mapa sobre el plano PC1-PC2"></figure>
     <div class="points">
+      <img class="inset" src="assets/reports__presentacion__e1_regiones_mapa.png" alt="Las cinco regiones en la grilla 4×4">
       <p><em>R5</em> masivos a la izquierda, <em>R1</em> perros de comunidad a la derecha</p>
       <p>El mapa separa lo que el biplot superpone, como R4 y R5</p>
     </div>
@@ -199,7 +193,6 @@
     <figure><div class="half"><img src="assets/reports__ejercicio1__campanas__3_mapa_clientes.png" alt="Plano de audiencia argentina del mapa"></div></figure>
     <div class="points">
       <p>Alta solo en dos esquinas</p>
-      <p>η² = <em>0,08</em>, lo mismo que al azar</p>
       <p>El mapa elige el <em>tipo</em> de creador, no los nombres</p>
     </div>
   </main>

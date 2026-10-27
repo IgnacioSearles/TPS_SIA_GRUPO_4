@@ -63,6 +63,7 @@ def catalog(out):
     catalog_figures.plot_occupancy(x, out / 'e1_ocupacion.png')
     catalog_figures.plot_neighborhoods(MODEL, NEIGHBORHOOD_WINNER, NEIGHBORHOOD_RADII, out / 'e1_vecindades.png')
     catalog_figures.plot_region_merges(som_catalog, out / 'e1_regiones_union.png')
+    catalog_figures.plot_region_map(som_catalog, out / 'e1_regiones_mapa.png')
     catalog_figures.plot_region_count(pd.read_csv(ROOT / 'reports' / 'ejercicio1' / 'som' / 'cantidad_regiones.csv'),
                                       random_purity_by_count(soms, x, topics), out / 'e1_regiones_cantidad.png')
     catalog_figures.plot_planes(som_catalog, planes, catalog_figures.VISIBILITY_PLANES, out / 'e1_planos_eje.png')

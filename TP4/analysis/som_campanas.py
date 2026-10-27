@@ -42,7 +42,7 @@ CRITERIA = {
     'descubrimiento': ('non_follower_reach_pct', True),
     'profundidad': ('content_tutorial_pct', True),
 }
-# Región elegida para cada cliente según el objetivo (diapositivas 31–32).
+# Región elegida para cada cliente según el objetivo (diapositivas 30–31).
 # Las etiquetas R1–R5 ordenan las regiones por mediana de seguidores; revisar si cambia el modelo.
 TARGET_REGIONS = {'football': ['R4', 'R5'], 'makeup': ['R4', 'R5'], 'dogs': ['R1'], 'art': ['R3']}
 
