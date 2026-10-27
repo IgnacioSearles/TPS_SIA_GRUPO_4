@@ -1,6 +1,5 @@
 /data/
 
-enunciado.md
 
 # Resultados regenerables derivados del catálogo local
 /reports/ejercicio1/*.csv
@@ -23,7 +22,6 @@ __pycache__/
 /reports/ejercicio2/ortogonalidad/*.csv
 /reports/ejercicio2/mejoras/*.csv
 # Ejercicio 2: documentos de diseño y tests propios, sólo locales
-/GLOSSARY.md
 /docs/specs/
 /docs/adr/
 /tests/test_hopfield.py
@@ -32,7 +30,11 @@ __pycache__/
 /tests/test_shared_modules.py
 /reports/ejercicio2/dos_redes/*.csv
 /reports/ejercicio2/zonas/*.csv
-/presentation/ejercicio2_guia.md
 /reports/ejercicio1/oja/*.csv
 /reports/ejercicio1/oja/*.json
 /reports/ejercicio1/som/*.csv
+
+# Notas, informes y guías de estudio: sólo locales
+*.md
+!/README.md
+!/presentation/README.md

@@ -1,7 +1,6 @@
 """Barrido de desaprendizaje con consultas emparejadas y checkpoints acumulativos.
 
 Uso: OPENBLAS_NUM_THREADS=1 python3 analysis/hopfield_qr_unlearning.py --config ...
-Ver docs/experimentos_desaprendizaje.md para exploración y confirmación separadas.
 """
 import argparse
 from dataclasses import asdict

@@ -8,7 +8,7 @@ Las implementaciones de aprendizaje usan NumPy; pandas maneja tablas y matplotli
 ## Para la entrega
 
 - **Presentación:** abrir [`presentation/index.html`](presentation/index.html). Funciona sin conexión; la tecla S muestra las notas del orador. La [guía de la presentación](presentation/README.md) indica en qué diapositiva se responde cada pregunta de la consigna.
-- **Informes:** [ejercicio 1](reports/ejercicio1/README.md) y [ejercicio 2](reports/ejercicio2/README.md), con sus bitácoras ([1](reports/ejercicio1/bitacora/README.md), [2](reports/ejercicio2/bitacora/README.md)).
+- **Resultados:** gráficos y tablas agregadas de cada ejercicio en `reports/ejercicio1` y `reports/ejercicio2`.
 - **Código:** modelos en `src/tp4`, experimentos y análisis en `experiments` y `analysis`, pruebas en `tests`.
 
 ## Datos
@@ -40,7 +40,7 @@ python3 analysis/hopfield_qr_mejoras.py     # pseudoinversa, dos redes y daño p
 python3 analysis/hopfield_qr_dano_realista.py --output /tmp/dano_realista  # daño realista
 ```
 
-Cada informe detalla sus experimentos adicionales. Para regenerar los gráficos de la presentación, ver [Regenerar](presentation/README.md#regenerar).
+Los experimentos adicionales tienen su propio script en `analysis`. Para regenerar los gráficos de la presentación, ver [Regenerar](presentation/README.md#regenerar).
 
 El entrenamiento configurable de Kohonen y Oja usa `main.py`:
 
@@ -61,7 +61,7 @@ Las rutas del JSON son relativas al directorio desde el que se ejecuta el comand
 - `experiments`: expansión de parámetros, ejecución, aislamiento de errores y resúmenes.
 - `configs`: ejemplos editables. `tests`: verificaciones con datos sintéticos.
 - `analysis`: EDA, PCA, interpretación de Kohonen y Oja, experimentos de Hopfield y gráficos de la presentación.
-- `reports`: informes, bitácoras, tablas agregadas y gráficos de cada ejercicio. `docs`: protocolos de experimentos.
+- `reports`: tablas agregadas y gráficos de cada ejercicio.
 - `presentation`: la presentación, sus guías de estudio y los gráficos que usa.
 
 Los modelos reciben matrices NumPy; no conocen archivos ni gráficos. Cada `fit` inicia un entrenamiento nuevo usando un generador aleatorio local, salvo que se pase un checkpoint compatible. La CLI guarda automáticamente un único checkpoint por corrida al completar cada época.
@@ -277,7 +277,7 @@ Se genera `learning_curves.png` con tres paneles por modelo. Las curvas pueden o
 
 ## Alcance
 
-Los estudios de hiperparámetros, la interpretación comercial y sus decisiones están en el [informe del ejercicio 1](reports/ejercicio1/README.md). Los ejemplos cortos de `configs` verifican funcionamiento, no convergencia definitiva ni superioridad de una topología.
+Los ejemplos cortos de `configs` verifican funcionamiento, no convergencia definitiva ni superioridad de una topología. Los estudios de hiperparámetros, la interpretación comercial y sus conclusiones están en la presentación.
 
 ## Batería amplia de Kohonen
 
@@ -290,26 +290,19 @@ python3 main.py experiment --config configs/kohonen_suite/01_geometry.json
 python3 -m analysis.kohonen_experiments
 ```
 
-El [protocolo de experimentos](docs/experimentos_kohonen.md) detalla presupuesto, casos acoplados, métricas, reanudación y confirmación con semillas nuevas. El comparador agrega ocupación, estabilidad ARI y cohesión en un espacio común; no ordena globalmente errores de distintas representaciones.
-
-## Bitácora y evidencia publicada
-
-La [bitácora del ejercicio 1](reports/ejercicio1/bitacora/README.md) registra experimentos ejecutados, decisiones y pendientes. Incluye un inventario CSV de estados y enlaza los resultados agregados de las 300 corridas de geometría; los datos y checkpoints permanecen en `results/`, fuera de Git.
+El comparador agrega ocupación, estabilidad ARI y cohesión en un espacio común; no ordena globalmente errores de distintas representaciones. Los datos y checkpoints de las corridas permanecen en `results/`, fuera de Git.
 
 ## Desaprendizaje de Hopfield
 
-Implementación y experimento reproducible de desaprendizaje antihebbiano sobre una única red con los cinco QR completos. Ver [protocolo, métricas y confirmación](docs/experimentos_desaprendizaje.md). Las [pruebas completas](reports/ejercicio2/desaprendizaje/PRUEBAS_COMPLETAS.md) comparan ambas representaciones, confirmación con ruido nuevo y daño espacial. Ver también la [bitácora del ejercicio 2](reports/ejercicio2/bitacora/README.md), la [comparación con pseudoinversa](reports/ejercicio2/desaprendizaje/PSEUDOINVERSA_VS_DESAPRENDIZAJE.md) y la [evidencia liviana publicada](reports/ejercicio2/desaprendizaje/evidencia/README.md). No se publican pesos ni checkpoints.
+Experimento reproducible de desaprendizaje antihebbiano sobre una única red con los cinco QR completos, con exploración y confirmación separadas. La evidencia liviana (métricas, sin pesos ni checkpoints) está en `reports/ejercicio2/desaprendizaje/evidencia/`, con sus hashes en `manifest.json`.
 
 ```bash
 OPENBLAS_NUM_THREADS=1 python3 analysis/hopfield_qr_unlearning.py --config configs/hopfield_unlearning_smoke.json
 ```
 
-## Comparación de vecindades de Kohonen (26/10)
+## Comparación de vecindades de Kohonen
 
-Las nuevas configuraciones individuales son `configs/kohonen_uniform_matched.json` (radio 2 → 0,5) y `configs/kohonen_uniform_neighbors.json` (2 → 1). Conservan el modelo gaussiano existente como referencia.
-
-- [Repetición de finalistas, submuestras y augmentation](reports/ejercicio1/uniforme_20261026/README.md): 1.260 modelos nuevos frente a controles gaussianos verificados.
-- [Versus con calibración equilibrada y confirmación anidada](reports/ejercicio1/versus_vecindades_20261026/README.md): 1.800 calibraciones y 90 confirmaciones; incluye radios constantes.
+`configs/kohonen_uniform_matched.json` (radio 2 → 0,5) y `configs/kohonen_uniform_neighbors.json` (2 → 1) comparan la vecindad uniforme con el modelo gaussiano. Hay dos experimentos: repetición de finalistas, submuestras y augmentation (1.260 modelos), y un versus con calibración equilibrada y confirmación anidada (1.800 calibraciones y 90 confirmaciones). Sus resultados están en la diapositiva 15 y en el apéndice 68–69.
 
 Desde TP4, con directorios de salida nuevos:
 
@@ -320,4 +313,4 @@ OPENBLAS_NUM_THREADS=1 python3 -m analysis.kohonen_neighborhood_versus --output 
 OPENBLAS_NUM_THREADS=1 python3 -m analysis.summarize_neighborhood_versus /tmp/versus
 ```
 
-El primer experimento verifica y reutiliza las métricas gaussianas previas; el segundo ejecuta su propia calibración. Ambos permiten `--resume` y conservan solo métricas y asignaciones, sin pesos. Los scripts no modifican la presentación y lo comprueban con hashes; los resultados se incorporaron después a mano: diapositiva 15 y apéndice 68–69 ([guía](presentation/experimentos_kohonen_vecindades.md)).
+El primer experimento reutiliza las métricas gaussianas previas; el segundo ejecuta su propia calibración. Ambos permiten `--resume` y conservan solo métricas y asignaciones, sin pesos.
