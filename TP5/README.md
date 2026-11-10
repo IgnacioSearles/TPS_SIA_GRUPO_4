@@ -18,6 +18,8 @@ python main.py configs/ej2_vae_nsynth.json --evaluate-only   # rehacer figuras/a
 
 python -m src.analysis.compare results/ej1a_optimizers                     # comparar configuraciones
 python -m src.analysis.compare results/ej1b_denoising --metric denoising_output_mean_error@0.1
+
+python -m src.song "results/ej2_vae_nsynth/base__seed=7"   # tema techno de 1 minuto con el VAE entrenado
 ```
 
 Para el ejercicio 2 hay que descargar una vez el split de test de NSynth (349 MB,
