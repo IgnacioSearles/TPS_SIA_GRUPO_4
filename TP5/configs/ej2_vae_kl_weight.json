@@ -11,7 +11,7 @@
       "duration_seconds": 1.0,
       "fft_size": 1024,
       "hop_length": 256,
-      "mel_bands": 64
+      "mel_bands": 128
     }
   },
   "model": {
