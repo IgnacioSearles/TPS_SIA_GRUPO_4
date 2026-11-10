@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Explorador latente</title>
+<style>
+  :root {
+    --background: #ffffff; --surface: #f4f4f5; --text: #18181b; --muted: #6b7280;
+    --border: #d4d4d8; --accent: #1f77b4; --cursor: #111111;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: #111113; --surface: #1c1c20; --text: #ececee; --muted: #9ca3af;
+      --border: #34343a; --accent: #6fb1e0; --cursor: #ffffff;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--background); color: var(--text);
+    font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  main { display: flex; gap: 16px; padding: 16px; height: 100vh; }
+  /* En pantallas angostas el panel pasa debajo del mapa y la página se desplaza. */
+  @media (max-width: 760px) {
+    main { flex-direction: column; height: auto; }
+    #map-wrapper { height: 70vh; flex: none; }
+  }
+  #map-panel { flex: 1 1 520px; min-width: 0; display: flex; flex-direction: column; min-height: 360px; }
+  #map-wrapper { position: relative; flex: 1; min-height: 0; border: 1px solid var(--border); border-radius: 8px; }
+  #map { width: 100%; height: 100%; display: block; cursor: crosshair; touch-action: none; border-radius: 8px; }
+  #tooltip {
+    position: absolute; pointer-events: none; display: none; padding: 2px 8px; border-radius: 4px;
+    background: var(--text); color: var(--background); font-size: 12px; white-space: nowrap;
+  }
+  #zoom-controls { position: absolute; right: 10px; top: 10px; display: flex; gap: 6px; }
+  #zoom-controls button { min-width: 34px; padding: 4px 9px; }
+  #map.panning { cursor: grabbing; }
+  aside { flex: 0 0 300px; min-height: 0; overflow-x: hidden; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; }
+  h1 { font-size: 16px; margin: 0; }
+  h2 { font-size: 12px; margin: 0 0 6px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+  p { margin: 0; color: var(--muted); }
+  #preview {
+    width: 100%; max-width: 220px; aspect-ratio: 1; image-rendering: pixelated; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 8px;
+  }
+  #preview.tall { width: 60%; aspect-ratio: 5 / 7; }
+  #current { color: var(--text); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  button {
+    font: inherit; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text); cursor: pointer;
+  }
+  button:hover:not(:disabled) { border-color: var(--accent); }
+  button:disabled { opacity: .45; cursor: default; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  #legend { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+  #legend label { display: flex; align-items: center; gap: 5px; cursor: pointer; }
+  #legend span { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  #status { min-height: 1.4em; color: #c2410c; }
+</style>
+</head>
+<body>
+<main>
+  <section id="map-panel">
+    <div id="map-wrapper">
+      <canvas id="map"></canvas>
+      <div id="tooltip"></div>
+      <div id="zoom-controls">
+        <button id="zoom-out" title="Alejar">−</button>
+        <button id="zoom-in" title="Acercar">+</button>
+        <button id="zoom-reset" title="Ver todo el mapa">Ver todo</button>
+      </div>
+    </div>
+  </section>
+  <aside>
+    <div>
+      <h1>Explorador del espacio latente</h1>
+      <p>Clic o arrastre sobre el mapa para decodificar ese punto. Rueda del mouse para
+         hacer zoom; Shift + arrastre (o botón derecho) para desplazar el mapa.</p>
+    </div>
+    <div>
+      <h2>Salida del decodificador</h2>
+      <canvas id="preview"></canvas>
+      <p id="current">—</p>
+    </div>
+    <div class="row">
+      <button id="replay" disabled>▶ Repetir</button>
+      <button id="random">Muestra al azar N(0, I)</button>
+    </div>
+    <div>
+      <h2>Interpolar entre dos puntos</h2>
+      <div class="row">
+        <button id="set-a" disabled>Fijar A</button>
+        <button id="set-b" disabled>Fijar B</button>
+      </div>
+      <input id="morph" type="range" min="0" max="1" step="0.01" value="0" disabled>
+      <p id="morph-label">Elija un punto y fíjelo como A; luego otro como B.</p>
+    </div>
+    <div>
+      <h2>Grupos</h2>
+      <div id="legend"></div>
+    </div>
+    <p id="status"></p>
+  </aside>
+</main>
+<script>
+"use strict";
+// Ciclo de colores por defecto de matplotlib (tab10), como en las figuras del TP.
+const PALETTE = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd",
+                 "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"];
+const MAGMA = [[0, 0, 4], [40, 11, 84], [101, 21, 110], [159, 42, 99],
+               [212, 72, 66], [245, 125, 21], [250, 193, 39], [252, 253, 191]];
+const MAP_MARGIN = 0.08;
+const SNAP_PIXELS = 8;
+const POINT_RADIUS = 3.5;
+const WHEEL_ZOOM_FACTOR = 1.2;
+const BUTTON_ZOOM_FACTOR = 1.5;
+const MAXIMUM_MAGNIFICATION = 60;
+
+const mapCanvas = document.getElementById("map");
+const previewCanvas = document.getElementById("preview");
+const tooltip = document.getElementById("tooltip");
+const elements = Object.fromEntries(
+  ["current", "replay", "random", "set-a", "set-b", "morph", "morph-label", "legend", "status",
+   "zoom-in", "zoom-out", "zoom-reset"]
+    .map((id) => [id, document.getElementById(id)]));
+
+let state = null;          // respuesta de /api/state
+let fullBounds = null;     // {minX, maxX, minY, maxY} de todo el mapa, con margen
+let bounds = null;         // región visible (cambia con el zoom y el desplazamiento)
+let panOrigin = null;      // último píxel del arrastre que desplaza el mapa
+let colors = {};           // grupo -> color
+let hiddenGroups = new Set();
+let cursor = null;         // posición actual en coordenadas del mapa
+let anchorA = null, anchorB = null;
+let dragging = false;
+let busy = false, pending = null;
+let lastAudio = null;
+
+async function start() {
+  state = await (await fetch("/api/state")).json();
+  const groups = [...new Set(state.points.map((point) => point.group))].sort();
+  groups.forEach((group, index) => { colors[group] = PALETTE[index % PALETTE.length]; });
+  const xs = state.points.map((p) => p.x), ys = state.points.map((p) => p.y);
+  const padX = (Math.max(...xs) - Math.min(...xs)) * MAP_MARGIN || 1;
+  const padY = (Math.max(...ys) - Math.min(...ys)) * MAP_MARGIN || 1;
+  fullBounds = { minX: Math.min(...xs) - padX, maxX: Math.max(...xs) + padX,
+                 minY: Math.min(...ys) - padY, maxY: Math.max(...ys) + padY };
+  bounds = { ...fullBounds };
+  previewCanvas.height = state.image_shape[0];
+  previewCanvas.width = state.image_shape[1];
+  previewCanvas.classList.toggle("tall", state.is_binary);
+  buildLegend(groups);
+  if (!state.has_audio) elements.replay.style.display = "none";
+  resizeMap();
+}
+
+function buildLegend(groups) {
+  for (const group of groups) {
+    const label = document.createElement("label");
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox"; checkbox.checked = true;
+    checkbox.addEventListener("change", () => {
+      checkbox.checked ? hiddenGroups.delete(group) : hiddenGroups.add(group);
+      drawMap();
+    });
+    const swatch = document.createElement("span");
+    swatch.style.background = colors[group];
+    label.append(checkbox, swatch, document.createTextNode(group));
+    elements.legend.append(label);
+  }
+}
+
+// --- Coordenadas -----------------------------------------------------------
+function mapSize() { return { width: mapCanvas.clientWidth, height: mapCanvas.clientHeight }; }
+function toPixel(position) {
+  const { width, height } = mapSize();
+  return [ (position[0] - bounds.minX) / (bounds.maxX - bounds.minX) * width,
+           (bounds.maxY - position[1]) / (bounds.maxY - bounds.minY) * height ];
+}
+function toMap(pixel) {
+  const { width, height } = mapSize();
+  return [ bounds.minX + pixel[0] / width * (bounds.maxX - bounds.minX),
+           bounds.maxY - pixel[1] / height * (bounds.maxY - bounds.minY) ];
+}
+function nearestPoint(pixel) {
+  let best = null, bestDistance = SNAP_PIXELS;
+  for (const point of state.points) {
+    if (hiddenGroups.has(point.group)) continue;
+    const [px, py] = toPixel([point.x, point.y]);
+    const distance = Math.hypot(px - pixel[0], py - pixel[1]);
+    if (distance < bestDistance) { best = point; bestDistance = distance; }
+  }
+  return best;
+}
+
+// --- Zoom y desplazamiento ---------------------------------------------------
+// factor > 1 acerca. El punto del mapa bajo `pixel` queda fijo en la pantalla.
+function zoomAt(pixel, factor) {
+  const fullWidth = fullBounds.maxX - fullBounds.minX;
+  const currentWidth = bounds.maxX - bounds.minX;
+  const magnification = Math.min(MAXIMUM_MAGNIFICATION, Math.max(1, fullWidth / currentWidth * factor));
+  if (magnification === 1) { bounds = { ...fullBounds }; drawMap(); return; }
+  const anchor = toMap(pixel);
+  const { width, height } = mapSize();
+  const newWidth = fullWidth / magnification;
+  const newHeight = (fullBounds.maxY - fullBounds.minY) / magnification;
+  const minX = anchor[0] - pixel[0] / width * newWidth;
+  const maxY = anchor[1] + pixel[1] / height * newHeight;
+  bounds = { minX, maxX: minX + newWidth, minY: maxY - newHeight, maxY };
+  drawMap();
+}
+function zoomAtCenter(factor) {
+  const { width, height } = mapSize();
+  zoomAt([width / 2, height / 2], factor);
+}
+function panBy(pixelDelta) {
+  const { width, height } = mapSize();
+  const dx = pixelDelta[0] / width * (bounds.maxX - bounds.minX);
+  const dy = pixelDelta[1] / height * (bounds.maxY - bounds.minY);
+  bounds = { minX: bounds.minX - dx, maxX: bounds.maxX - dx,
+             minY: bounds.minY + dy, maxY: bounds.maxY + dy };
+  drawMap();
+}
+
+// --- Dibujo ----------------------------------------------------------------
+function resizeMap() {
+  const ratio = window.devicePixelRatio || 1;
+  mapCanvas.width = Math.round(mapCanvas.clientWidth * ratio);
+  mapCanvas.height = Math.round(mapCanvas.clientHeight * ratio);
+  drawMap();
+}
+
+function drawMap() {
+  if (!state) return;
+  const ratio = window.devicePixelRatio || 1;
+  const context = mapCanvas.getContext("2d");
+  const style = getComputedStyle(document.documentElement);
+  const { width, height } = mapSize();
+  context.setTransform(ratio, 0, 0, ratio, 0, 0);
+  context.clearRect(0, 0, width, height);
+
+  context.globalAlpha = 0.8;
+  for (const point of state.points) {
+    if (hiddenGroups.has(point.group)) continue;
+    const [x, y] = toPixel([point.x, point.y]);
+    context.fillStyle = colors[point.group];
+    context.beginPath(); context.arc(x, y, POINT_RADIUS, 0, 2 * Math.PI); context.fill();
+  }
+  context.globalAlpha = 1;
+
+  const cursorColor = style.getPropertyValue("--cursor");
+  if (anchorA && anchorB) {
+    context.strokeStyle = cursorColor; context.setLineDash([5, 4]); context.lineWidth = 1;
+    context.beginPath(); context.moveTo(...toPixel(anchorA)); context.lineTo(...toPixel(anchorB));
+    context.stroke(); context.setLineDash([]);
+  }
+  for (const [anchor, name] of [[anchorA, "A"], [anchorB, "B"]]) {
+    if (!anchor) continue;
+    const [x, y] = toPixel(anchor);
+    context.fillStyle = cursorColor; context.font = "bold 13px system-ui";
+    context.fillText(name, x + 9, y - 8);
+    context.strokeStyle = cursorColor; context.lineWidth = 2;
+    context.strokeRect(x - 5, y - 5, 10, 10);
+  }
+  if (cursor) {
+    const [x, y] = toPixel(cursor);
+    context.strokeStyle = cursorColor; context.lineWidth = 2;
+    context.beginPath(); context.arc(x, y, 9, 0, 2 * Math.PI); context.stroke();
+    context.beginPath(); context.moveTo(x - 14, y); context.lineTo(x + 14, y);
+    context.moveTo(x, y - 14); context.lineTo(x, y + 14); context.lineWidth = 1; context.stroke();
+  }
+
+  context.fillStyle = style.getPropertyValue("--muted"); context.font = "12px system-ui";
+  context.fillText(state.axes[0] + " →", width - context.measureText(state.axes[0] + " →").width - 10, height - 10);
+  context.fillText("↑ " + state.axes[1], 10, 18);
+}
+
+function drawPreview(base64Image) {
+  const values = Uint8Array.from(atob(base64Image), (character) => character.charCodeAt(0));
+  const [rows, columns] = state.image_shape;
+  const context = previewCanvas.getContext("2d");
+  const image = context.createImageData(columns, rows);
+  for (let row = 0; row < rows; row++) {
+    // Espectrogramas: frecuencia creciente hacia arriba.
+    const sourceRow = state.is_binary ? row : rows - 1 - row;
+    for (let column = 0; column < columns; column++) {
+      const value = values[sourceRow * columns + column] / 255;
+      const [r, g, b] = state.is_binary ? gray(value) : magma(value);
+      image.data.set([r, g, b, 255], (row * columns + column) * 4);
+    }
+  }
+  context.putImageData(image, 0, 0);
+}
+function gray(value) { const level = Math.round(255 * (1 - value)); return [level, level, level]; }
+function magma(value) {
+  const scaled = Math.min(0.9999, Math.max(0, value)) * (MAGMA.length - 1);
+  const index = Math.floor(scaled), fraction = scaled - index;
+  return MAGMA[index].map((channel, i) => Math.round(channel + fraction * (MAGMA[index + 1][i] - channel)));
+}
+
+// --- Pedidos al servidor ---------------------------------------------------
+// Solo hay un pedido en curso; mientras tanto se recuerda únicamente el último.
+async function decode(body, description) {
+  if (busy) { pending = [body, description]; return; }
+  busy = true;
+  try {
+    const response = await fetch("/api/decode", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || response.statusText);
+    elements.status.textContent = "";
+    cursor = result.position;
+    drawPreview(result.image);
+    elements.current.textContent = description(result.position);
+    if (result.audio) play(result.audio);
+    elements["set-a"].disabled = elements["set-b"].disabled = false;
+    drawMap();
+  } catch (error) {
+    elements.status.textContent = "Error: " + error.message;
+  } finally {
+    busy = false;
+    if (pending) { const next = pending; pending = null; decode(...next); }
+  }
+}
+
+function play(base64Wav) {
+  if (lastAudio) lastAudio.pause();
+  lastAudio = new Audio("data:audio/wav;base64," + base64Wav);
+  lastAudio.play().catch(() => {});
+  elements.replay.disabled = false;
+}
+
+function formatPosition(position) {
+  return `(${position[0].toFixed(2)}, ${position[1].toFixed(2)})`;
+}
+
+function decodeAtPixel(pixel, withAudio) {
+  const point = nearestPoint(pixel);
+  const position = point ? [point.x, point.y] : toMap(pixel);
+  decode({ position, audio: withAudio },
+         (where) => (point ? point.label : "Punto intermedio") + "  " + formatPosition(where));
+}
+
+function decodeMorph(withAudio) {
+  const fraction = Number(elements.morph.value);
+  decode({ from: anchorA, to: anchorB, fraction, audio: withAudio },
+         (where) => `Interpolación A→B: ${Math.round(fraction * 100)} %  ${formatPosition(where)}`);
+}
+
+// --- Interacción -----------------------------------------------------------
+function eventPixel(event) {
+  const box = mapCanvas.getBoundingClientRect();
+  return [event.clientX - box.left, event.clientY - box.top];
+}
+mapCanvas.addEventListener("pointerdown", (event) => {
+  mapCanvas.setPointerCapture(event.pointerId);
+  if (event.shiftKey || event.button !== 0) {
+    panOrigin = eventPixel(event);
+    mapCanvas.classList.add("panning");
+    return;
+  }
+  dragging = true;
+  decodeAtPixel(eventPixel(event), false);
+});
+mapCanvas.addEventListener("pointermove", (event) => {
+  const pixel = eventPixel(event);
+  if (panOrigin) {
+    panBy([pixel[0] - panOrigin[0], pixel[1] - panOrigin[1]]);
+    panOrigin = pixel;
+    return;
+  }
+  if (dragging) decodeAtPixel(pixel, false);
+  const point = nearestPoint(pixel);
+  tooltip.style.display = point ? "block" : "none";
+  if (point) {
+    tooltip.textContent = point.label;
+    tooltip.style.left = Math.min(pixel[0] + 12, mapSize().width - tooltip.offsetWidth - 4) + "px";
+    tooltip.style.top = Math.max(pixel[1] - 28, 4) + "px";
+  }
+});
+mapCanvas.addEventListener("pointerup", (event) => {
+  if (panOrigin) { panOrigin = null; mapCanvas.classList.remove("panning"); return; }
+  if (!dragging) return;
+  dragging = false;
+  decodeAtPixel(eventPixel(event), true);
+});
+mapCanvas.addEventListener("pointerleave", () => { tooltip.style.display = "none"; });
+mapCanvas.addEventListener("wheel", (event) => {
+  event.preventDefault();
+  zoomAt(eventPixel(event), event.deltaY < 0 ? WHEEL_ZOOM_FACTOR : 1 / WHEEL_ZOOM_FACTOR);
+}, { passive: false });
+mapCanvas.addEventListener("contextmenu", (event) => event.preventDefault());
+elements["zoom-in"].addEventListener("click", () => zoomAtCenter(BUTTON_ZOOM_FACTOR));
+elements["zoom-out"].addEventListener("click", () => zoomAtCenter(1 / BUTTON_ZOOM_FACTOR));
+elements["zoom-reset"].addEventListener("click", () => { bounds = { ...fullBounds }; drawMap(); });
+
+elements.replay.addEventListener("click", () => { if (lastAudio) { lastAudio.currentTime = 0; lastAudio.play(); } });
+elements.random.addEventListener("click", () =>
+  decode({ random: true }, (where) => "Muestra de N(0, I)  " + formatPosition(where)));
+
+function setAnchor(name) {
+  if (!cursor) return;
+  if (name === "A") anchorA = [...cursor]; else anchorB = [...cursor];
+  const ready = Boolean(anchorA && anchorB);
+  elements.morph.disabled = !ready;
+  elements["morph-label"].textContent = ready
+    ? "Deslice para recorrer el latente de A a B."
+    : `Punto ${name} fijado. Elija otro punto y fije ${name === "A" ? "B" : "A"}.`;
+  drawMap();
+}
+elements["set-a"].addEventListener("click", () => setAnchor("A"));
+elements["set-b"].addEventListener("click", () => setAnchor("B"));
+elements.morph.addEventListener("input", () => decodeMorph(false));
+elements.morph.addEventListener("change", () => decodeMorph(true));
+
+new ResizeObserver(resizeMap).observe(mapCanvas);
+start().catch((error) => { elements.status.textContent = "No se pudo cargar: " + error.message; });
+</script>
+</body>
+</html>

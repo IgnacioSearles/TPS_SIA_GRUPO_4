@@ -20,7 +20,15 @@ python -m src.analysis.compare results/ej1a_optimizers                     # com
 python -m src.analysis.compare results/ej1b_denoising --metric denoising_output_mean_error@0.1
 
 python -m src.song "results/ej2_vae_nsynth/base__seed=7"   # tema techno de 1 minuto con el VAE entrenado
+python -m src.explorer "results/ej2_vae_nsynth/base__seed=7"   # explorador interactivo del latente
 ```
+
+El explorador abre una página local (solo accesible desde la propia máquina) con
+el mapa del espacio latente de cualquier corrida entrenada. Clic o arrastre para
+decodificar un punto y, si es audio, escucharlo; "Fijar A/B" y el deslizador
+recorren el latente entre dos puntos. Con más de dos dimensiones latentes el
+mapa es el plano de las dos componentes principales, y lo que queda fuera del
+plano se completa interpolando entre las muestras vecinas.
 
 Para el ejercicio 2 hay que descargar una vez el split de test de NSynth (349 MB,
 no se versiona): `python scripts/download_nsynth.py`.

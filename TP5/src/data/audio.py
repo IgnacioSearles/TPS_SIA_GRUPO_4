@@ -7,6 +7,7 @@ que conviene comparar siempre contra el original pasado por el códec.
 
 from __future__ import annotations
 
+import io
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
@@ -137,8 +138,18 @@ def read_waveform(stream: object, expected_sample_rate: int) -> Array:
 
 
 def write_waveform(path: Path, waveform: Array, sample_rate: int) -> None:
-    clipped = np.clip(waveform, -1.0, 1.0)
-    wavfile.write(path, sample_rate, np.round(clipped * _INT16_PEAK).astype(np.int16))
+    wavfile.write(path, sample_rate, _to_int16(waveform))
+
+
+def waveform_to_wav_bytes(waveform: Array, sample_rate: int) -> bytes:
+    """Contenido de un archivo WAV en memoria (para enviarlo sin tocar el disco)."""
+    buffer = io.BytesIO()
+    wavfile.write(buffer, sample_rate, _to_int16(waveform))
+    return buffer.getvalue()
+
+
+def _to_int16(waveform: Array) -> Array:
+    return np.round(np.clip(waveform, -1.0, 1.0) * _INT16_PEAK).astype(np.int16)
 
 
 def _hertz_to_mel(frequency: float | Array) -> float | Array:
