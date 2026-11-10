@@ -1,0 +1,57 @@
+{
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "dataset": {
+    "type": "font"
+  },
+  "model": {
+    "type": "autoencoder",
+    "latent_size": 2,
+    "hidden_layers": [
+      32,
+      16
+    ],
+    "activation": "tanh",
+    "loss": "bce"
+  },
+  "training": {
+    "epochs": 5000,
+    "batch_size": 32,
+    "optimizer": {
+      "type": "adam",
+      "learning_rate": 0.01
+    },
+    "log_every": 100,
+    "noise": {
+      "type": "flip",
+      "level": 0.1
+    }
+  },
+  "grid": {
+    "training.noise.level": [
+      0.0,
+      0.05,
+      0.1,
+      0.2
+    ]
+  },
+  "evaluation": {
+    "reconstruction": {},
+    "latent": {},
+    "denoising": {
+      "type": "flip",
+      "levels": [
+        0,
+        0.05,
+        0.1,
+        0.15,
+        0.2,
+        0.3
+      ],
+      "trials": 50
+    }
+  }
+}

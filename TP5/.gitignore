@@ -1,4 +1,8 @@
 __pycache__/
 *.py[cod]
 .venv/
+.pytest_cache/
 results/
+# Archivo de NSynth (349 MB) y espectrogramas derivados: se regeneran.
+data/nsynth/
+data/cache/

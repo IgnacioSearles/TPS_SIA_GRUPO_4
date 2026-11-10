@@ -1,0 +1,24 @@
+{
+  "seed": 42,
+  "dataset": {"type": "font"},
+  "model": {
+    "type": "autoencoder",
+    "latent_size": 2,
+    "hidden_layers": [16, 8],
+    "activation": "tanh",
+    "loss": "bce"
+  },
+  "training": {
+    "epochs": 5000,
+    "batch_size": 32,
+    "optimizer": {"type": "adam", "learning_rate": 0.01},
+    "log_every": 250
+  },
+  "evaluation": {
+    "reconstruction": {},
+    "latent": {},
+    "latent_grid": {"size": 14},
+    "interpolation": {"pairs": [["a", "e"], ["o", "x"], ["l", "t"]], "steps": 9},
+    "denoising": {"levels": [0, 0.05, 0.1, 0.2], "trials": 20}
+  }
+}

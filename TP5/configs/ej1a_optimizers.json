@@ -1,0 +1,55 @@
+{
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "dataset": {
+    "type": "font"
+  },
+  "model": {
+    "type": "autoencoder",
+    "latent_size": 2,
+    "hidden_layers": [
+      32,
+      16
+    ],
+    "activation": "tanh",
+    "loss": "bce"
+  },
+  "training": {
+    "epochs": 5000,
+    "batch_size": 32,
+    "log_every": 100
+  },
+  "grid": {
+    "training.optimizer": [
+      {
+        "type": "sgd",
+        "learning_rate": 0.01
+      },
+      {
+        "type": "momentum",
+        "learning_rate": 0.01,
+        "momentum": 0.9
+      },
+      {
+        "type": "rmsprop",
+        "learning_rate": 0.001
+      },
+      {
+        "type": "adam",
+        "learning_rate": 0.001
+      },
+      {
+        "type": "adam",
+        "learning_rate": 0.01
+      }
+    ]
+  },
+  "evaluation": {
+    "reconstruction": {}
+  }
+}

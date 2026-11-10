@@ -1,0 +1,41 @@
+{
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "dataset": {
+    "type": "font"
+  },
+  "model": {
+    "type": "autoencoder",
+    "hidden_layers": [
+      32,
+      16
+    ],
+    "activation": "tanh",
+    "loss": "bce"
+  },
+  "training": {
+    "epochs": 5000,
+    "batch_size": 32,
+    "optimizer": {
+      "type": "adam",
+      "learning_rate": 0.01
+    },
+    "log_every": 100
+  },
+  "grid": {
+    "model.latent_size": [
+      1,
+      2,
+      3,
+      5
+    ]
+  },
+  "evaluation": {
+    "reconstruction": {}
+  }
+}

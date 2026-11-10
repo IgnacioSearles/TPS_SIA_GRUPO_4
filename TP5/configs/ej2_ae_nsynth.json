@@ -1,0 +1,52 @@
+{
+  "seed": 7,
+  "dataset": {
+    "type": "nsynth",
+    "pitch_range": [
+      48,
+      72
+    ],
+    "max_per_family": 150,
+    "spectrogram": {
+      "duration_seconds": 1.0,
+      "fft_size": 1024,
+      "hop_length": 256,
+      "mel_bands": 64
+    }
+  },
+  "model": {
+    "type": "autoencoder",
+    "latent_size": 16,
+    "hidden_layers": [
+      512,
+      128
+    ],
+    "activation": "relu",
+    "initializer": "he",
+    "loss": "mse",
+    "precision": "float32"
+  },
+  "training": {
+    "epochs": 200,
+    "batch_size": 64,
+    "optimizer": {
+      "type": "adam",
+      "learning_rate": 0.001
+    },
+    "log_every": 10
+  },
+  "evaluation": {
+    "reconstruction": {
+      "max_examples": 10,
+      "audio_examples": 6
+    },
+    "latent": {},
+    "interpolation": {
+      "random_pairs": 5,
+      "steps": 8
+    },
+    "sampling": {
+      "count": 16
+    }
+  }
+}

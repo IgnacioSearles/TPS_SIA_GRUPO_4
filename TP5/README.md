@@ -1,89 +1,143 @@
-# TP5 — Base del ejercicio 1
+# TP5 — Autoencoders, Denoising Autoencoder y VAE
 
-Implementación pequeña y autónoma con NumPy. Incluye un autoencoder básico y
-su variante denoising, configuraciones y exportación de métricas y figuras.
-Es una base ejecutable para realizar los experimentos; las configuraciones
-iniciales no garantizan alcanzar la meta del TP ni constituyen un estudio terminado.
+Redes, retropropagación y optimizadores implementados solo con NumPy.
+Cada experimento se describe en un archivo JSON; nada se configura por código.
 
-## Ejecutar
+## Uso
 
 Desde `TP5`, con Python 3.10 o posterior:
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python3 -m pip install -r requirements.txt
-python3 -m unittest discover -s tests -v
-# Copiar el font.h original en data/font.h antes de entrenar.
-python3 main.py --config configs/basic.json
-python3 main.py --config configs/denoising.json
+pip install -r requirements.txt
+python -m pytest                                   # tests (incluye chequeo numérico de gradientes)
+
+python main.py configs/ej1a_baseline.json          # una corrida
+python main.py configs/ej1a_*.json                 # varios experimentos
+python main.py configs/ej1a_baseline.json --force  # repetir aunque ya tenga resultados
+python main.py configs/ej2_vae_nsynth.json --evaluate-only   # rehacer figuras/audio sin reentrenar
+
+python -m src.analysis.compare results/ej1a_optimizers                     # comparar configuraciones
+python -m src.analysis.compare results/ej1b_denoising --metric denoising_output_mean_error@0.1
 ```
 
-Las rutas del JSON se resuelven respecto del propio archivo de configuración.
-Cada corrida requiere una salida nueva: cambiar `output` para conservar resultados
-al modificar arquitectura, semilla u optimizador. Los resultados quedan en `results/`.
+Para el ejercicio 2 hay que descargar una vez el split de test de NSynth (349 MB,
+no se versiona): `python scripts/download_nsynth.py`.
+
+## Archivo de configuración
+
+Todas las claves son opcionales; `{}` es un experimento válido (autoencoder
+35‑16‑8‑2‑8‑16‑35 sobre el font). Las claves desconocidas son un error, para que
+un tipeo no pase inadvertido. Las rutas son relativas a `TP5`.
+
+```jsonc
+{
+  "name": "mi_experimento",          // por defecto, el nombre del archivo
+  "seed": 42,                        // o "seeds": [1, 2, 3] para repetir cada configuración
+  "dataset": {
+    "type": "font",                  // "font" | "nsynth"
+    "subset": ["a", "b", "c"]        // opcional: etiquetas o índices
+  },
+  "model": {
+    "type": "autoencoder",           // "autoencoder" | "variational"
+    "latent_size": 2,
+    "hidden_layers": [16, 8],        // capas ocultas del codificador
+    "decoder_hidden_layers": null,   // null = espejo del codificador
+    "activation": "tanh",            // identity | tanh | sigmoid | relu | leaky_relu | softplus
+    "latent_activation": "identity",
+    "output_activation": "sigmoid",
+    "initializer": "xavier",         // xavier | he | small_normal | uniform
+    "loss": "bce",                   // bce | mse (sumada sobre píxeles, promediada sobre muestras)
+    "precision": "float64",          // float32 entrena ~2x más rápido en redes grandes
+    "kl": {"weight": 1.0, "warmup_epochs": 0}   // solo "variational"
+  },
+  "training": {
+    "epochs": 5000,
+    "batch_size": 32,
+    "log_every": 100,
+    "optimizer": {"type": "adam", "learning_rate": 0.001},   // sgd | momentum | rmsprop | adam
+    "noise": {"type": "flip", "level": 0.1}   // su presencia activa el modo denoising
+  },
+  "evaluation": {                    // cada sección presente se ejecuta
+    "reconstruction": {"max_examples": 32, "audio_examples": 4},
+    "latent": {},
+    "latent_grid": {"size": 12, "margin": 0.1},
+    "interpolation": {"pairs": [["a", "e"]], "random_pairs": 0, "steps": 9},
+    "sampling": {"count": 16},
+    "denoising": {"type": "flip", "levels": [0, 0.1, 0.2], "trials": 20}
+  },
+  "grid": {                          // producto cartesiano; rutas con puntos
+    "model.hidden_layers": [[16], [32, 16]],
+    "training.optimizer.type": ["sgd", "adam"]
+  }
+}
+```
+
+Hiperparámetros propios de cada optimizador: `momentum` (momentum), `decay` y
+`epsilon` (rmsprop), `beta1`, `beta2` y `epsilon` (adam).
+Tipos de ruido: `flip`, `mask`, `salt_and_pepper` (el nivel es una probabilidad)
+y `gaussian` (el nivel es el desvío).
+
+Dataset `nsynth`: `families`, `sources` (`acoustic`, `electronic`, `synthetic`),
+`pitch_range` (MIDI), `max_per_family`, `selection_seed` y `spectrogram`
+(`duration_seconds`, `fft_size`, `hop_length`, `mel_bands`, `dynamic_range_db`,
+`griffin_lim_iterations`). La primera lectura recorre el `.tar.gz` y deja los
+espectrogramas en `data/cache/`.
+
+## Resultados
+
+```
+results/<experimento>/summary.csv        una fila por corrida (grilla × semillas)
+results/<experimento>/<corrida>/
+    config.json      configuración exacta de esa corrida
+    model.npz        pesos
+    history.csv      pérdida y métricas cada log_every épocas
+    learning.png
+    training.json    tiempo y pérdida final
+    summary.json     métricas finales de entrenamiento y evaluación
+    ...              CSV, figuras y audio (audio/) de cada evaluación
+```
+
+Las corridas terminadas no se repiten: se puede agregar valores a `grid` o
+semillas y volver a correr el mismo archivo. Métricas principales para el font:
+`max_pixel_errors` (la consigna pide ≤ 1), `patterns_within_target` y
+`first_epoch_within_target` (con la resolución de `log_every`).
+
+Para usar un modelo entrenado desde Python:
+
+```python
+from pathlib import Path
+import numpy as np
+from src.experiments.runner import load_run
+
+model, dataset = load_run(Path("results/ej1a_baseline/base__seed=42"))
+nueva_letra = model.decode(np.array([[0.5, -1.0]])) >= 0.5
+```
 
 ## Organización
 
-| Archivo | Responsabilidad |
+| Módulo | Responsabilidad |
 | --- | --- |
-| `tp5/data.py` | Leer `font.h` y generar ruido por inversión independiente de píxeles |
-| `tp5/model.py` | Encoder, decoder, backpropagation y persistencia de pesos |
-| `tp5/training.py` | Minibatches, SGD/Adam e historial |
-| `tp5/plotting.py` | Gráficos sin lógica de entrenamiento |
-| `main.py` | Coordinar configuración, entrenamiento y exportación |
-| `configs/` | Ejemplos editables para ambas variantes |
-| `tests/` | Gradientes numéricos, aprendizaje, carga de datos y persistencia |
-
-No hay dependencia de TP3 ni jerarquías de clases. `encode`, `decode` y
-`reconstruct` permiten usar el modelo directamente desde Python.
-
-## Decisiones iniciales
-
-La arquitectura básica es `35 → 16 → 8 → 2 → 8 → 16 → 35`.
-`hidden` define la mitad del encoder; el decoder se construye en espejo.
-Las capas ocultas usan tanh; las dos coordenadas latentes son lineales y la
-salida sigmoide representa valores entre cero y uno. Se minimiza entropía cruzada
-binaria media con gradientes implementados a mano. La salida se binariza en 0,5.
-
-El denoising usa inicialmente `35 → 32 → 16 → 2 → 16 → 32 → 35` para dar más
-capacidad de procesamiento manteniendo el cuello de botella comparable. Es una
-hipótesis para evaluar. Se regenera ruido en cada minibatch y el objetivo siempre
-es el patrón limpio. Para aislar el efecto del ruido, comparar además ambas
-variantes con la misma arquitectura y presupuesto de entrenamiento.
+| `src/nn/` | Activaciones, inicializadores, capas densas con backprop, pérdidas y optimizadores |
+| `src/models/` | `Autoencoder`, `VariationalAutoencoder` y su construcción desde la configuración |
+| `src/data/` | Font, ruido, códec audio ↔ espectrograma mel (Griffin‑Lim) y lector de NSynth |
+| `src/training/` | Bucle de entrenamiento por minilotes (limpio o denoising) |
+| `src/evaluation/` | Métricas y evaluaciones que generan CSV, figuras y audio |
+| `src/experiments/` | Expansión de la grilla y ejecución/almacenamiento de corridas |
+| `src/analysis/` | Comparación entre configuraciones de un experimento |
+| `src/options.py` | Lectura estricta de la configuración (defaults y claves desconocidas) |
 
 ## Relación con la consigna
 
-- **1.a.1–2:** cambiar `hidden`, `optimizer` (`sgd` o `adam`), tasa, épocas y semillas.
-  `summary.json` verifica el máximo error por patrón: la meta es **todos ≤ 1 píxel**.
-  `history.csv` y `learning.png` permiten estudiar el entrenamiento.
-- **1.a.3:** `latent.png` y `latent.csv` muestran las dos coordenadas y los índices.
-  `reconstruction.png` y `reconstruction.csv` muestran qué caracteres fallan.
-- **1.a.4:** `interpolation.png` explora once puntos entre los dos primeros patrones
-  seleccionados. `interpolation.npz` guarda coordenadas, muestras y la marca `novel`,
-  comparada contra los 32 originales. Novedad binaria no garantiza que la salida
-  parezca una letra: inspeccionar y elegir manualmente. Puede que no haya ninguna
-  muestra nueva; cambiar el par desde Python o explorar otros puntos latentes.
-- **1.b:** `noise.csv` compara error de entrada y salida con ruido nuevo, en los
-  niveles configurados y con varias repeticiones. Exporta ejemplos de cada nivel.
-  Estas pruebas usan los caracteres entrenados: miden recuperación de patrones
-  conocidos con nuevas corrupciones, no generalización a letras nunca vistas.
+| Punto | Configuración | Qué mirar |
+| --- | --- | --- |
+| 1.a.1 | `ej1a_baseline` | `summary.json`, `reconstruction.png` |
+| 1.a.2 | `ej1a_architectures`, `ej1a_activations`, `ej1a_optimizers`, `ej1a_latent_size` | `summary.csv` y `python -m src.analysis.compare` |
+| 1.a.3 | `ej1a_baseline` | `latent.png` |
+| 1.a.4 | `ej1a_baseline` | `latent_grid.png`, `interpolation.png` e `interpolation.csv` (columna `novel`) |
+| 1.b | `ej1b_denoising`, `ej1b_denoising_latent_size` | `denoising.png`, `denoising_<tipo>_<nivel>.png`, `denoising.csv` |
+| 2 | `ej2_ae_nsynth`, `ej2_vae_nsynth` | `latent.png`, `samples.png`, `interpolation.png`, `audio/` |
 
-`subset: null` usa los 32 patrones. Una lista como `[0, 1, 2, 3]` permite pruebas
-cortas; no demuestra que sea imposible aprender el conjunto completo. Para el
-informe, comparar varias arquitecturas, optimizadores y semillas con el conjunto
-completo antes de justificar un subconjunto. Registrar resultados sin seleccionar
-únicamente la mejor semilla. El estudio y las conclusiones quedan por realizar.
-
-## Uso del modelo guardado
-
-```python
-import numpy as np
-from tp5.model import Autoencoder
-
-model = Autoencoder.load("results/basic/model.npz")
-new_pattern = (model.decode(np.array([[0.2, -0.3]])) >= 0.5).reshape(7, 5)
-```
-
-Los pesos guardados sirven para inferencia; no son checkpoints para reanudar Adam.
-El ejercicio 2 (VAE) queda fuera de esta base.
+Sobre el audio: la red solo ve magnitudes mel; la fase se estima con Griffin‑Lim,
+lo que degrada el sonido aun sin red. Por eso `audio/reconstruction/` trae cada
+ejemplo como `__original.wav` (original pasado por el códec) y `__model.wav`:
+la diferencia entre ambos es lo atribuible al modelo.
