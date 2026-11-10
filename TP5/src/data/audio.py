@@ -1,6 +1,7 @@
 """Conversión entre audio y espectrogramas mel normalizados a [0, 1].
 
-La red solo ve magnitudes; para volver a audio se estima la fase con
+La red solo ve magnitudes en bandas mel; para volver a audio se reconstruye
+el espectro lineal (mínimos cuadrados no negativos) y se estima la fase con
 Griffin-Lim. Ese ida y vuelta pierde calidad aun sin red de por medio, por lo
 que conviene comparar siempre contra el original pasado por el códec.
 """
@@ -8,7 +9,7 @@ que conviene comparar siempre contra el original pasado por el códec.
 from __future__ import annotations
 
 import io
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from functools import cached_property
 from pathlib import Path
 
@@ -24,6 +25,7 @@ _MEL_BREAK_FREQUENCY = 700.0
 _MEL_SCALE = 2595.0
 _GRIFFIN_LIM_PHASE_SEED = 0
 _INT16_PEAK = 32767
+_DECODING_ONLY_FIELDS = ("griffin_lim_iterations", "mel_inversion_iterations")
 
 
 @dataclass(frozen=True)
@@ -35,6 +37,7 @@ class SpectrogramCodec:
     mel_bands: int = 64
     dynamic_range_db: float = 70.0
     griffin_lim_iterations: int = 60
+    mel_inversion_iterations: int = 200
 
     def __post_init__(self) -> None:
         if self.hop_length < 1 or self.fft_size % self.hop_length != 0:
@@ -43,6 +46,12 @@ class SpectrogramCodec:
             raise ConfigurationError("mel_bands debe estar entre 1 y fft_size / 2")
         if self.duration_seconds <= 0 or self.dynamic_range_db <= 0:
             raise ConfigurationError("duration_seconds y dynamic_range_db deben ser positivos")
+        if self.griffin_lim_iterations < 0 or self.mel_inversion_iterations < 0:
+            raise ConfigurationError("Las iteraciones de decodificación no pueden ser negativas")
+
+    def encoding_parameters(self) -> dict[str, int | float]:
+        """Campos que determinan el espectrograma codificado (identifican una caché)."""
+        return {k: v for k, v in asdict(self).items() if k not in _DECODING_ONLY_FIELDS}
 
     @property
     def sample_count(self) -> int:
@@ -68,10 +77,23 @@ class SpectrogramCodec:
         mel_magnitudes = 10.0 ** (decibels / 20.0)
         # El piso del rango dinámico representa silencio, no -dynamic_range dB.
         mel_magnitudes[spectrogram <= 0.0] = 0.0
-        magnitudes = np.maximum(self._inverse_filterbank @ mel_magnitudes, 0.0)
-        waveform = self._griffin_lim(magnitudes)
+        waveform = self._griffin_lim(self._mel_to_linear(mel_magnitudes))
         peak = np.max(np.abs(waveform))
         return waveform / peak if peak > 0 else waveform
+
+    def _mel_to_linear(self, mel_magnitudes: Array) -> Array:
+        """Magnitudes lineales no negativas x que minimizan ||F x - mel||².
+
+        La pseudoinversa recortada en cero llena el espectro de picos y huecos
+        regulares (sonido metálico); las actualizaciones multiplicativas de
+        Lee-Seung preservan la no negatividad y, partiendo de Fᵀ·mel, dan una
+        solución suave.
+        """
+        target = self._filterbank.T @ mel_magnitudes
+        magnitudes = target.copy()
+        for _ in range(self.mel_inversion_iterations):
+            magnitudes *= target / np.maximum(self._filterbank_gram @ magnitudes, _AMPLITUDE_FLOOR)
+        return magnitudes
 
     def _transform(self, waveform: Array) -> Array:
         _, _, spectrum = stft(waveform, nperseg=self.fft_size, noverlap=self._overlap)
@@ -112,8 +134,8 @@ class SpectrogramCodec:
         return np.maximum(0.0, np.minimum(rising, falling))
 
     @cached_property
-    def _inverse_filterbank(self) -> Array:
-        return np.linalg.pinv(self._filterbank)
+    def _filterbank_gram(self) -> Array:
+        return self._filterbank.T @ self._filterbank
 
 
 def build_codec(options: Options) -> SpectrogramCodec:

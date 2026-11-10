@@ -90,7 +90,7 @@ y `gaussian` (el nivel es el desvío).
 Dataset `nsynth`: `families`, `sources` (`acoustic`, `electronic`, `synthetic`),
 `pitch_range` (MIDI), `max_per_family`, `selection_seed` y `spectrogram`
 (`duration_seconds`, `fft_size`, `hop_length`, `mel_bands`, `dynamic_range_db`,
-`griffin_lim_iterations`). La primera lectura recorre el `.tar.gz` y deja los
+`griffin_lim_iterations`, `mel_inversion_iterations`). La primera lectura recorre el `.tar.gz` y deja los
 espectrogramas en `data/cache/`.
 
 ## Resultados

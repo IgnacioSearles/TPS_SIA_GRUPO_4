@@ -62,6 +62,26 @@ def test_codec_preserves_pitch_through_griffin_lim():
     assert dominant == pytest.approx(frequency, abs=30.0)
 
 
+def test_mel_inversion_is_non_negative_and_reproduces_the_mel_bands():
+    codec = SpectrogramCodec(duration_seconds=0.5)
+    time = np.arange(codec.sample_count) / codec.sample_rate
+    harmonic_tone = sum(np.sin(2 * np.pi * 220.0 * k * time) / k for k in range(1, 12))
+    linear = np.abs(codec._transform(harmonic_tone))
+    mel = codec._filterbank @ linear
+
+    recovered = codec._mel_to_linear(mel)
+    assert recovered.min() >= 0.0
+    relative_error = np.linalg.norm(codec._filterbank @ recovered - mel) / np.linalg.norm(mel)
+    assert relative_error < 0.05
+
+
+def test_cache_key_ignores_decoding_only_parameters():
+    base = SpectrogramCodec()
+    tuned = SpectrogramCodec(griffin_lim_iterations=5, mel_inversion_iterations=10)
+    assert base.encoding_parameters() == tuned.encoding_parameters()
+    assert base.encoding_parameters() != SpectrogramCodec(mel_bands=32).encoding_parameters()
+
+
 def test_codec_decodes_silence_without_dividing_by_zero():
     codec = SpectrogramCodec(duration_seconds=0.25, griffin_lim_iterations=2)
     waveform = codec.decode(np.zeros(codec.image_shape))

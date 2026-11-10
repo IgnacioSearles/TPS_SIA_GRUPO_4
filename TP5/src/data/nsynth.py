@@ -137,8 +137,7 @@ def _fingerprint(archive: Path, selection: NoteSelection, codec: SpectrogramCode
     description = {
         "archive": archive.name,
         "selection": asdict(selection),
-        # Griffin-Lim solo afecta la decodificación, no los espectrogramas guardados.
-        "codec": {k: v for k, v in asdict(codec).items() if k != "griffin_lim_iterations"},
+        "codec": codec.encoding_parameters(),
     }
     encoded = json.dumps(description, sort_keys=True).encode("utf-8")
     return hashlib.sha256(encoded).hexdigest()[:12]
