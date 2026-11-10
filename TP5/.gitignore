@@ -2,4 +2,3 @@ __pycache__/
 *.py[cod]
 .venv/
 results/
-data/font.h
