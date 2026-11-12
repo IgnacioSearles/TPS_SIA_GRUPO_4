@@ -128,6 +128,22 @@ def save_line_chart(
     _save(figure, path)
 
 
+def save_curves(
+    curves: dict[str, tuple[Sequence[float], Sequence[float]]],
+    x_label: str,
+    y_label: str,
+    path: Path,
+) -> None:
+    """Como `save_line_chart`, pero cada curva con sus propios valores de x."""
+    figure, axis = plt.subplots(figsize=(5.4, 3.6))
+    for name, (x_values, y_values) in curves.items():
+        axis.plot(x_values, y_values, marker="o", label=name)
+    axis.set(xlabel=x_label, ylabel=y_label)
+    axis.legend(frameon=False, fontsize="small")
+    _hide_outer_spines(axis)
+    _save(figure, path)
+
+
 def _draw_image(axis: plt.Axes, image: Array, is_binary: bool) -> None:
     if is_binary:
         axis.imshow(image, cmap="gray_r", vmin=0.0, vmax=1.0)

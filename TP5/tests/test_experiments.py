@@ -3,6 +3,8 @@ import json
 import numpy as np
 import pytest
 
+from src.data.noise import Noise
+from src.evaluation.denoising import optimal_errors
 from src.experiments import runner
 from src.experiments.grid import expand_runs
 from src.options import ConfigurationError, Options
@@ -158,3 +160,47 @@ def test_divergence_is_recorded_instead_of_aborting(project):
         assert runner.DIVERGED_KEY in _read_summary(output, label)
         assert (output / label / "config.json").is_file()
     assert runner.run_experiment(config_path, evaluate_only=True) == output
+
+
+def test_optimal_decoders_choose_their_best_guess():
+    patterns = np.array([[0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 0.0, 0.0]])
+    # A un píxel de las dos: la entrada no dice cuál era.
+    noisy = np.array([[1.0, 0.0, 0.0, 0.0]] * 2)
+    fewest, within = optimal_errors(noisy, patterns, patterns, Noise("flip", 0.1))
+    # El punto medio queda a 1 píxel de ambas, así que siempre cumple.
+    np.testing.assert_array_equal(within, [1, 1])
+    assert fewest.mean() == 1  # 0 y 2, o 2 y 0: un píxel mal esperado
+
+    # Apagar no prende: con un píxel prendido que solo tiene el segundo patrón, es ese.
+    fewest, within = optimal_errors(
+        np.array([[0.0, 1.0, 0.0, 0.0]]), patterns[1:], patterns, Noise("mask", 0.5)
+    )
+    assert fewest[0] == within[0] == 0
+
+
+def test_denoising_evaluates_several_noise_types(project):
+    config_path = _write_config(
+        project,
+        {
+            "seed": 1,
+            "model": {"hidden_layers": [8]},
+            "training": {"epochs": 50, "noise": {"type": "flip", "level": 0.1}},
+            "evaluation": {
+                "denoising": {
+                    "levels": {"flip": [0.0, 0.1], "gaussian": [0.3]},
+                    "trials": 2,
+                    "examples": False,
+                }
+            },
+        },
+    )
+    output = runner.run_experiment(config_path)
+    summary = _read_summary(output, "base__seed=1")
+    assert set(summary) >= {
+        "denoising_flip_output_mean_error@0",
+        "denoising_flip_output_mean_error@0.1",
+        "denoising_gaussian_output_mean_error@0.3",
+    }
+    rows = (output / "base__seed=1" / "denoising.csv").read_text().splitlines()
+    assert len(rows) == 4 and "optimal_fraction_within_target" in rows[0]
+    assert not list((output / "base__seed=1").glob("denoising_*.png"))

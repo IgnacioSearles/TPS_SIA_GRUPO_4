@@ -48,6 +48,29 @@ def test_noise_rejects_invalid_configuration():
         Noise("desconocido", 0.1)
 
 
+@pytest.mark.parametrize(("kind", "level"), [("flip", 0.2), ("mask", 0.3), ("salt_and_pepper", 0.4)])
+def test_log_likelihood_matches_the_noise_frequencies(kind, level):
+    """P(píxel ruidoso | píxel limpio) de la fórmula contra la frecuencia al aplicar el ruido."""
+    noise = Noise(kind, level)
+    patterns = np.array([[0.0], [1.0]])
+    rng = np.random.default_rng(0)
+    for clean in (0.0, 1.0):
+        noisy = noise.apply(np.full((200_000, 1), clean), rng)
+        for value in (0.0, 1.0):
+            predicted = np.exp(noise.log_likelihood(np.array([[value]]), patterns))[0, int(clean)]
+            assert np.mean(noisy == value) == pytest.approx(predicted, abs=0.005)
+
+
+def test_gaussian_log_likelihood_matches_the_clipped_mass():
+    """En los bordes del recorte, el cociente entre píxel limpio 1 y 0 es el observado."""
+    noise = Noise("gaussian", 0.6)
+    rng = np.random.default_rng(0)
+    ones = noise.apply(np.ones((400_000, 1)), rng)
+    zeros = noise.apply(np.zeros((400_000, 1)), rng)
+    ratio = np.exp(np.diff(noise.log_likelihood(np.array([[0.0]]), np.array([[0.0], [1.0]]))))[0, 0]
+    assert np.mean(ones == 0) / np.mean(zeros == 0) == pytest.approx(ratio, rel=0.03)
+
+
 def test_codec_preserves_pitch_through_griffin_lim():
     codec = SpectrogramCodec(duration_seconds=0.5, griffin_lim_iterations=30)
     time = np.arange(codec.sample_count) / codec.sample_rate
