@@ -1,0 +1,147 @@
+{
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "output": "results/ej1b_busqueda/tanh_64",
+  "dataset": {
+    "type": "font"
+  },
+  "model": {
+    "type": "autoencoder",
+    "hidden_layers": [
+      64
+    ],
+    "activation": "tanh",
+    "initializer": "xavier",
+    "loss": "bce"
+  },
+  "training": {
+    "epochs": 5000,
+    "batch_size": 32,
+    "optimizer": {
+      "type": "adam",
+      "learning_rate": 0.01
+    },
+    "log_every": 100
+  },
+  "grid": {
+    "model.latent_size": [
+      2,
+      4,
+      8,
+      16
+    ],
+    "training.noise": [
+      {
+        "type": "flip",
+        "level": 0.0
+      },
+      {
+        "type": "flip",
+        "level": 0.05
+      },
+      {
+        "type": "flip",
+        "level": 0.1
+      },
+      {
+        "type": "flip",
+        "level": 0.2
+      },
+      {
+        "type": "flip",
+        "level": 0.3
+      },
+      {
+        "type": "mask",
+        "level": 0.15
+      },
+      {
+        "type": "mask",
+        "level": 0.3
+      },
+      {
+        "type": "mask",
+        "level": 0.6
+      },
+      {
+        "type": "mask",
+        "level": 0.91
+      },
+      {
+        "type": "salt_and_pepper",
+        "level": 0.1
+      },
+      {
+        "type": "salt_and_pepper",
+        "level": 0.2
+      },
+      {
+        "type": "salt_and_pepper",
+        "level": 0.4
+      },
+      {
+        "type": "salt_and_pepper",
+        "level": 0.6
+      },
+      {
+        "type": "gaussian",
+        "level": 0.3
+      },
+      {
+        "type": "gaussian",
+        "level": 0.39
+      },
+      {
+        "type": "gaussian",
+        "level": 0.59
+      },
+      {
+        "type": "gaussian",
+        "level": 0.95
+      }
+    ]
+  },
+  "evaluation": {
+    "denoising": {
+      "levels": {
+        "flip": [
+          0.0,
+          0.05,
+          0.1,
+          0.2,
+          0.3
+        ],
+        "mask": [
+          0.15,
+          0.3,
+          0.6,
+          0.91
+        ],
+        "salt_and_pepper": [
+          0.1,
+          0.2,
+          0.4,
+          0.6
+        ],
+        "gaussian": [
+          0.3,
+          0.39,
+          0.59,
+          0.95
+        ]
+      },
+      "trials": 50,
+      "examples": false
+    }
+  }
+}

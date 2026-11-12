@@ -1,0 +1,101 @@
+{
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "output": "results/ej1b_etapa2/tanh",
+  "dataset": {
+    "type": "font"
+  },
+  "model": {
+    "type": "autoencoder",
+    "activation": "tanh",
+    "initializer": "xavier",
+    "loss": "bce"
+  },
+  "training": {
+    "epochs": 5000,
+    "batch_size": 32,
+    "optimizer": {
+      "type": "adam",
+      "learning_rate": 0.01
+    },
+    "log_every": 100,
+    "noise": {
+      "type": "flip",
+      "level": 0.2
+    }
+  },
+  "grid": {
+    "model.hidden_layers": [
+      [
+        32
+      ],
+      [
+        64
+      ],
+      [
+        64,
+        32
+      ],
+      [
+        128,
+        64
+      ]
+    ],
+    "model.latent_size": [
+      8,
+      16
+    ],
+    "training.optimizer.learning_rate": [
+      0.01,
+      0.003,
+      0.001
+    ],
+    "training.epochs": [
+      10000,
+      20000
+    ]
+  },
+  "evaluation": {
+    "denoising": {
+      "levels": {
+        "flip": [
+          0.0,
+          0.05,
+          0.1,
+          0.2,
+          0.3
+        ],
+        "mask": [
+          0.15,
+          0.3,
+          0.6,
+          0.91
+        ],
+        "salt_and_pepper": [
+          0.1,
+          0.2,
+          0.4,
+          0.6
+        ],
+        "gaussian": [
+          0.3,
+          0.39,
+          0.59,
+          0.95
+        ]
+      },
+      "trials": 50,
+      "examples": false
+    }
+  }
+}
