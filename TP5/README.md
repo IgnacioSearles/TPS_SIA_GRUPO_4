@@ -14,6 +14,7 @@ python -m pytest                                   # tests (incluye chequeo num�
 python main.py configs/ej1a_baseline.json          # una corrida
 python main.py configs/ej1a_*.json                 # varios experimentos
 python main.py configs/ej1a_baseline.json --force  # repetir aunque ya tenga resultados
+python main.py configs/ej1a_search_*.json --jobs 10  # corridas en 10 procesos en paralelo
 python main.py configs/ej2_vae_nsynth.json --evaluate-only   # rehacer figuras/audio sin reentrenar
 
 python -m src.analysis.compare results/ej1a_optimizers                     # comparar configuraciones
@@ -55,7 +56,7 @@ un tipeo no pase inadvertido. Las rutas son relativas a `TP5`.
     "activation": "tanh",            // identity | tanh | sigmoid | relu | leaky_relu | softplus
     "latent_activation": "identity",
     "output_activation": "sigmoid",
-    "initializer": "xavier",         // xavier | he | small_normal | uniform
+    "initializer": "xavier",         // xavier | xavier_sigmoid | he | small_normal | uniform
     "loss": "bce",                   // bce | mse (sumada sobre píxeles, promediada sobre muestras)
     "precision": "float64",          // float32 entrena ~2x más rápido en redes grandes
     "kl": {"weight": 1.0, "warmup_epochs": 0}   // solo "variational"
@@ -140,10 +141,10 @@ nueva_letra = model.decode(np.array([[0.5, -1.0]])) >= 0.5
 
 | Punto | Configuración | Qué mirar |
 | --- | --- | --- |
-| 1.a.1 | `ej1a_baseline` | `summary.json`, `reconstruction.png` |
-| 1.a.2 | `ej1a_architectures`, `ej1a_activations`, `ej1a_optimizers`, `ej1a_latent_size` | `summary.csv` y `python -m src.analysis.compare` |
-| 1.a.3 | `ej1a_baseline` | `latent.png` |
-| 1.a.4 | `ej1a_baseline` | `latent_grid.png`, `interpolation.png` e `interpolation.csv` (columna `novel`) |
+| 1.a.1 | `ej1a_final` (relu 32, elegida en la búsqueda) | `summary.json`, `reconstruction.png` |
+| 1.a.2 | `ej1a_search_*`, `ej1a_etapa2/*` | `reports/ej1_busqueda/resumen.md` (y `bitacora.md`) |
+| 1.a.3 | `ej1a_final` | `latent.png` |
+| 1.a.4 | `ej1a_final` | `latent_grid.png`, `interpolation.png` e `interpolation.csv` (columna `novel`) |
 | 1.b | `ej1b_denoising`, `ej1b_denoising_latent_size` | `denoising.png`, `denoising_<tipo>_<nivel>.png`, `denoising.csv` |
 | 2 | `ej2_ae_nsynth`, `ej2_vae_nsynth` | `latent.png`, `samples.png`, `interpolation.png`, `audio/` |
 

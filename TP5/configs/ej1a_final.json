@@ -1,0 +1,24 @@
+{
+  "seed": 1,
+  "dataset": {"type": "font"},
+  "model": {
+    "type": "autoencoder",
+    "latent_size": 2,
+    "hidden_layers": [32],
+    "activation": "relu",
+    "initializer": "he",
+    "loss": "bce"
+  },
+  "training": {
+    "epochs": 10000,
+    "batch_size": 32,
+    "optimizer": {"type": "adam", "learning_rate": 0.01},
+    "log_every": 10
+  },
+  "evaluation": {
+    "reconstruction": {},
+    "latent": {},
+    "latent_grid": {"size": 14},
+    "interpolation": {"pairs": [["a", "e"], ["o", "x"], ["l", "t"]], "steps": 9}
+  }
+}

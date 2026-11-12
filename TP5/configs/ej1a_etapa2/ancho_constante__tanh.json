@@ -1,0 +1,55 @@
+{
+  "output": "results/ej1a_etapa2/ancho_constante__tanh",
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "dataset": {
+    "type": "font"
+  },
+  "model": {
+    "type": "autoencoder",
+    "latent_size": 2,
+    "activation": "tanh",
+    "initializer": "xavier",
+    "loss": "bce"
+  },
+  "training": {
+    "epochs": 10000,
+    "batch_size": 32,
+    "optimizer": {
+      "type": "adam",
+      "learning_rate": 0.01
+    },
+    "log_every": 10
+  },
+  "grid": {
+    "model.hidden_layers": [
+      [
+        64,
+        64
+      ],
+      [
+        64,
+        64,
+        64
+      ]
+    ],
+    "training.optimizer.learning_rate": [
+      0.01,
+      0.003,
+      0.001
+    ]
+  },
+  "evaluation": {
+    "reconstruction": {}
+  }
+}
