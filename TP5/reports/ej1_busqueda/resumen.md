@@ -31,6 +31,8 @@ tres). Optimizador Adam.
 - **Sigmoid se descarta:** aun con la inicialización corregida para ella (xavier × 4) es 2,85×
   más lenta que tanh. Es consistente con que su salida no está centrada en 0.
 
+![Etapa 1: semillas en la meta y pasos según el ancho](figuras/etapa1_ancho_y_activacion.png)
+
 **Etapa 2: cambiar una cosa por vez (1890 corridas).** Sobre las redes 64, 64-32 y 128-64 con
 tanh, relu y leaky_relu. Solo se cruzaron pares con interacción conocida (optimizador × η,
 batch × η).
@@ -43,11 +45,15 @@ batch × η).
 | Pérdida | MSE: 0/90. Los píxeles mal quedan saturados en el valor opuesto y el gradiente se anula | **BCE** |
 | Batch | Con η 0.01 los batches chicos se vuelven inestables (batch 4: 33/90); nunca superan a 32 | **32** |
 
+![Batch × η: semillas en la meta](figuras/etapa2_batch_y_eta.png)
+
 **Profundidad contra angostura (360 corridas).** Con capas que se achican a la mitad, la
 tercera capa era también la más angosta. Separando las dos cosas con ancho 16: **relu falla
 por angostura** (una capa de 4 baja de 37/40 a 14/40, p < 0,0001, con neuronas muertas en parte
 de las semillas). **tanh falla por profundidad** (3 capas: de 16/20 a 7/20, p = 0,01). Con ancho
 64 o más no aparece ninguno de los dos efectos.
+
+![Ancho 16: más capas contra capas que se angostan](figuras/etapa2_profundidad_y_angostura.png)
 
 **relu 32 (210 corridas).** Con las mismas pruebas da las mismas conclusiones, pero tolera peor
 los cambios: con small_normal o con momentum y η bajo cae a 5/10, donde las redes de ancho 64
@@ -68,6 +74,8 @@ cumplen **10/10 sin recaídas relevantes**. Tiempos medidos en un solo núcleo.
 *Entrenamiento hasta la meta* = pasos hasta la meta × tiempo por paso. *Inferencia* = usar la
 red ya entrenada (codificar y decodificar) con 1 letra o con las 32 juntas.
 
+![Pasos hasta la meta de cada semilla en las candidatas](figuras/candidatas_pasos.png)
+
 - **relu 32, la más simple:** la menor cantidad de parámetros y la inferencia más barata.
 - **tanh 64, la más robusta:** con ancho 64 cumplió con todas las activaciones, η e
   inicializadores probados. Además es la que menos tarda en entrenar en tiempo real.
@@ -76,6 +84,27 @@ red ya entrenada (codificar y decodificar) con 1 letra o con las 32 juntas.
 
 Menos pasos no significa menos tiempo: las cuatro entrenan en 55 a 70 ms y hacen inferencia en
 microsegundos. Elegir entre ellas es priorizar simplicidad, robustez o velocidad en pasos.
+
+## Modelo final: relu 32 (`ej1a_final`, consigna 1.a.1, 1.a.3 y 1.a.4)
+
+La más barata de las candidatas. Con la semilla 1 reconstruye las 32 letras sin ningún píxel mal
+(cumple la meta desde la época 590).
+
+![Reconstrucción de las 32 letras](figuras/modelo_final/reconstruction.png)
+
+**Espacio latente (1.a.3).** Las letras de forma parecida quedan cerca. El latente no está
+acotado: la red ubica las letras donde le sirve, sin ninguna regularización.
+
+![Las 32 letras en el espacio latente](figuras/modelo_final/latent.png)
+
+**Letras nuevas (1.a.4).** Decodificando puntos del latente que no son letras del font: una
+grilla regular y la interpolación entre pares de letras. 18 de los 27 puntos interpolados
+(extremos incluidos) dan patrones que no están en el font; de "l" a "t" pasa por formas parecidas
+a "|" e "i".
+
+![Grilla del espacio latente decodificada](figuras/modelo_final/latent_grid.png)
+
+![Interpolación entre pares de letras](figuras/modelo_final/interpolation.png)
 
 ## Limitaciones
 

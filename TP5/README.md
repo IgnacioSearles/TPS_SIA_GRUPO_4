@@ -18,6 +18,7 @@ python main.py configs/ej1a_search_*.json --jobs 10  # corridas en 10 procesos e
 python main.py configs/ej2_vae_nsynth.json --evaluate-only   # rehacer figuras/audio sin reentrenar
 
 python -m src.analysis.compare results/ej1a_optimizers                     # comparar configuraciones
+python scripts/busqueda_figuras.py   # figuras de las búsquedas del 1a y el 1b (en reports/)
 python -m src.analysis.compare results/ej1b_denoising --metric denoising_output_mean_error@0.1
 
 python -m src.song "results/ej2_vae_nsynth/base__seed=7"   # tema techno de 1 minuto con el VAE entrenado
@@ -87,6 +88,10 @@ Hiperparámetros propios de cada optimizador: `momentum` (momentum), `decay` y
 `epsilon` (rmsprop), `beta1`, `beta2` y `epsilon` (adam).
 Tipos de ruido: `flip`, `mask`, `salt_and_pepper` (el nivel es una probabilidad)
 y `gaussian` (el nivel es el desvío).
+En `evaluation.denoising`, `levels` también puede ser un diccionario tipo → niveles
+para evaluar varios tipos de ruido sobre la misma red (sin `type`), y
+`"examples": false` omite las figuras de ejemplo por nivel. En datos binarios,
+`denoising.csv` trae además el error del decodificador óptimo (`optimal_*`).
 
 Dataset `nsynth`: `families`, `sources` (`acoustic`, `electronic`, `synthetic`),
 `pitch_range` (MIDI), `max_per_family`, `selection_seed` y `spectrogram`
@@ -145,7 +150,8 @@ nueva_letra = model.decode(np.array([[0.5, -1.0]])) >= 0.5
 | 1.a.2 | `ej1a_search_*`, `ej1a_etapa2/*` | `reports/ej1_busqueda/resumen.md` (y `bitacora.md`) |
 | 1.a.3 | `ej1a_final` | `latent.png` |
 | 1.a.4 | `ej1a_final` | `latent_grid.png`, `interpolation.png` e `interpolation.csv` (columna `novel`) |
-| 1.b | `ej1b_denoising`, `ej1b_denoising_latent_size` | `denoising.png`, `denoising_<tipo>_<nivel>.png`, `denoising.csv` |
+| 1.b.1 | `ej1b_busqueda/*`, `ej1b_etapa2/*` | `reports/ej1b_busqueda/resumen.md` (y `bitacora.md`) |
+| 1.b.2 | `ej1b_tipos`, `ej1b_final` (relu 128-64, latente 8) | `reports/ej1b_busqueda/tipos.md`; en `ej1b_final`, `denoising.png` y `denoising_<tipo>_<nivel>.png` |
 | 2 | `ej2_ae_nsynth`, `ej2_vae_nsynth` | `latent.png`, `samples.png`, `interpolation.png`, `audio/` |
 
 Sobre el audio: la red solo ve magnitudes mel; la fase se estima con Griffin‑Lim,
