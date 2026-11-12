@@ -51,6 +51,15 @@ def build_training_plan(options: Options) -> TrainingPlan:
     return plan
 
 
+class TrainingDiverged(FloatingPointError):
+    """La pérdida dejó de ser finita; `history` tiene las filas registradas hasta entonces."""
+
+    def __init__(self, epoch: int, history: list[HistoryRow]) -> None:
+        super().__init__(f"La pérdida divergió en la época {epoch}; probar un learning_rate menor")
+        self.epoch = epoch
+        self.history = history
+
+
 class Trainer:
     def __init__(
         self,
@@ -76,13 +85,16 @@ class Trainer:
         history: list[HistoryRow] = []
         for epoch in range(1, self._plan.epochs + 1):
             loss_terms = self._run_epoch(samples, epoch)
+            if loss_terms is None:
+                raise TrainingDiverged(epoch, history)
             if epoch == 1 or epoch % self._plan.log_every == 0 or epoch == self._plan.epochs:
                 row = {"epoch": epoch, **loss_terms, **self._monitor(self._model)}
                 history.append(row)
                 print(_format_progress(row), flush=True)
         return history
 
-    def _run_epoch(self, samples: Array, epoch: int) -> dict[str, float]:
+    def _run_epoch(self, samples: Array, epoch: int) -> dict[str, float] | None:
+        """Términos de la pérdida promediados en la época; None si la pérdida divergió."""
         order = self._shuffle_rng.permutation(len(samples))
         totals: dict[str, float] = {}
         for start in range(0, len(samples), self._plan.batch_size):
@@ -90,9 +102,7 @@ class Trainer:
             inputs = self._corrupt(targets)
             loss_terms, gradients = self._model.loss_and_gradients(inputs, targets, epoch)
             if not np.isfinite(loss_terms["loss"]):
-                raise FloatingPointError(
-                    f"La pérdida divergió en la época {epoch}; probar un learning_rate menor"
-                )
+                return None
             self._plan.optimizer.step(self._model.parameters(), gradients)
             for name, value in loss_terms.items():
                 totals[name] = totals.get(name, 0.0) + value * len(targets)

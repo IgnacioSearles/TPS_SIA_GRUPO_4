@@ -127,3 +127,34 @@ def test_typo_in_config_fails_before_training(project):
     config_path = _write_config(project, {"training": {"epocs": 10}})
     with pytest.raises(ConfigurationError, match="epocs"):
         runner.run_experiment(config_path)
+
+
+def test_parallel_runs_match_serial(tmp_path):
+    # Sin el fixture `project`: los procesos hijos no heredan el monkeypatch,
+    # así que se usa el font real y solo la salida va a tmp_path.
+    config = {"seeds": [1, 2], "training": {"epochs": 30}, "evaluation": {}}
+    outputs = {}
+    for jobs in (1, 2):
+        path = tmp_path / f"jobs{jobs}.json"
+        path.write_text(json.dumps({**config, "output": str(tmp_path / f"jobs{jobs}")}))
+        outputs[jobs] = runner.run_experiment(path, jobs=jobs)
+    for label in ("base__seed=1", "base__seed=2"):
+        serial = _read_summary(outputs[1], label)["final_loss"]
+        assert _read_summary(outputs[2], label)["final_loss"] == serial
+
+
+def test_divergence_is_recorded_instead_of_aborting(project):
+    config_path = _write_config(
+        project,
+        {
+            "seeds": [1, 2],
+            "model": {"precision": "float32"},
+            "training": {"epochs": 50, "log_every": 1, "optimizer": {"type": "sgd", "learning_rate": 1e38}},
+            "evaluation": {},
+        },
+    )
+    output = runner.run_experiment(config_path)
+    for label in ("base__seed=1", "base__seed=2"):
+        assert runner.DIVERGED_KEY in _read_summary(output, label)
+        assert (output / label / "config.json").is_file()
+    assert runner.run_experiment(config_path, evaluate_only=True) == output

@@ -4,6 +4,7 @@ Uso, desde TP5:
     python main.py configs/ej1a_baseline.json
     python main.py configs/ej1a_*.json --force
     python main.py configs/ej2_vae_nsynth.json --evaluate-only
+    python main.py configs/ej1a_search_*.json --jobs 10
 """
 
 from __future__ import annotations
@@ -27,7 +28,12 @@ def parse_arguments() -> argparse.Namespace:
         action="store_true",
         help="no entrenar: recargar los modelos guardados y repetir las evaluaciones",
     )
+    parser.add_argument(
+        "--jobs", type=int, default=1, help="procesos en paralelo (cada corrida usa uno)"
+    )
     arguments = parser.parse_args()
+    if arguments.jobs < 1:
+        parser.error("--jobs debe ser al menos 1")
     if arguments.force and arguments.evaluate_only:
         parser.error("--force y --evaluate-only son excluyentes")
     return arguments
@@ -48,7 +54,9 @@ def main() -> None:
     arguments = parse_arguments()
     for config_path in expand_config_paths(arguments.configs):
         try:
-            run_experiment(config_path, arguments.force, arguments.evaluate_only)
+            run_experiment(
+                config_path, arguments.force, arguments.evaluate_only, arguments.jobs
+            )
         except (ConfigurationError, FileNotFoundError) as error:
             raise SystemExit(f"Error en {config_path}: {error}") from error
 

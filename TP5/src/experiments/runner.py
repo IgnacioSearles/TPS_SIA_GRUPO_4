@@ -10,7 +10,9 @@ Estructura de salida:
 
 from __future__ import annotations
 
+import functools
 import json
+import multiprocessing
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -28,7 +30,7 @@ from src.experiments.grid import RunSpecification, expand_runs
 from src.models.autoencoder import Autoencoder
 from src.models.factory import build_model, load_parameters, save_parameters
 from src.options import ConfigurationError, Options
-from src.training.trainer import Trainer, TrainingPlan, build_training_plan
+from src.training.trainer import Trainer, TrainingDiverged, TrainingPlan, build_training_plan
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CONFIG_FILE = "config.json"
@@ -37,6 +39,7 @@ SUMMARY_FILE = "summary.json"
 TRAINING_SUMMARY_FILE = "training.json"
 HISTORY_FILE = "history.csv"
 EXPERIMENT_SUMMARY_FILE = "summary.csv"
+DIVERGED_KEY = "diverged_at_epoch"
 _INDEPENDENT_STREAMS = 5
 
 
@@ -53,11 +56,15 @@ class PreparedRun:
     evaluation_rng: np.random.Generator
 
 
-def run_experiment(config_path: Path, force: bool = False, evaluate_only: bool = False) -> Path:
+def run_experiment(
+    config_path: Path, force: bool = False, evaluate_only: bool = False, jobs: int = 1
+) -> Path:
     """Corre todas las combinaciones de un archivo de configuración.
 
     Las corridas ya terminadas se saltean salvo `force`. Con `evaluate_only`
     no se entrena: se recargan los pesos guardados y se repiten las evaluaciones.
+    Con `jobs` > 1 las corridas se reparten entre procesos; cada una depende
+    solo de su semilla, así que el resultado es el mismo que en serie.
     Devuelve la carpeta del experimento.
     """
     experiment = json.loads(config_path.read_text(encoding="utf-8"))
@@ -67,16 +74,21 @@ def run_experiment(config_path: Path, force: bool = False, evaluate_only: bool =
     output_directory = PROJECT_ROOT / experiment.pop("output", f"results/{name}")
     runs = expand_runs(experiment)
 
-    rows = []
-    for position, run in enumerate(runs, start=1):
-        run_directory = output_directory / run.label
-        print(f"[{position}/{len(runs)}] {name} / {run.label}", flush=True)
-        summary = _obtain_summary(run, run_directory, force, evaluate_only)
-        rows.append(
-            {"run": run.label, "configuration": run.configuration, "seed": run.seed}
-            | {path: json.dumps(value) for path, value in run.grid_values.items()}
-            | summary
-        )
+    work = functools.partial(
+        _run_with_progress, name, len(runs), output_directory, force, evaluate_only
+    )
+    numbered = list(enumerate(runs, start=1))
+    if jobs == 1:
+        summaries = list(map(work, numbered))
+    else:
+        with multiprocessing.Pool(jobs) as pool:
+            summaries = pool.map(work, numbered, chunksize=1)
+    rows = [
+        {"run": run.label, "configuration": run.configuration, "seed": run.seed}
+        | {path: json.dumps(value) for path, value in run.grid_values.items()}
+        | summary
+        for run, summary in zip(runs, summaries)
+    ]
     write_csv(output_directory / EXPERIMENT_SUMMARY_FILE, rows)
     print(f"Resultados en {output_directory}")
     return output_directory
@@ -90,15 +102,32 @@ def load_run(run_directory: Path) -> tuple[Autoencoder, Dataset]:
     return prepared.model, prepared.dataset
 
 
+def _run_with_progress(
+    name: str,
+    total: int,
+    output_directory: Path,
+    force: bool,
+    evaluate_only: bool,
+    numbered_run: tuple[int, RunSpecification],
+) -> dict[str, Any]:
+    position, run = numbered_run
+    print(f"[{position}/{total}] {name} / {run.label}", flush=True)
+    return _obtain_summary(run, output_directory / run.label, force, evaluate_only)
+
+
 def _obtain_summary(
     run: RunSpecification, run_directory: Path, force: bool, evaluate_only: bool
 ) -> dict[str, Any]:
     summary_path = run_directory / SUMMARY_FILE
+    stored = json.loads(summary_path.read_text(encoding="utf-8")) if summary_path.is_file() else None
     if evaluate_only:
+        # Una corrida que divergió no tiene modelo que evaluar.
+        if stored is not None and DIVERGED_KEY in stored:
+            return stored
         return _reevaluate(run, run_directory)
-    if summary_path.is_file() and not force:
+    if stored is not None and not force:
         print("  ya estaba terminada; se reutiliza (usar --force para repetirla)")
-        return json.loads(summary_path.read_text(encoding="utf-8"))
+        return stored
     return _train_and_evaluate(run, run_directory)
 
 
@@ -112,7 +141,10 @@ def _train_and_evaluate(run: RunSpecification, run_directory: Path) -> dict[str,
         prepared.corruption_rng,
     )
     started = time.perf_counter()
-    history = trainer.train(prepared.dataset.samples)
+    try:
+        history = trainer.train(prepared.dataset.samples)
+    except TrainingDiverged as divergence:
+        return _record_divergence(run, run_directory, divergence)
     training_seconds = time.perf_counter() - started
 
     run_directory.mkdir(parents=True, exist_ok=True)
@@ -130,6 +162,23 @@ def _train_and_evaluate(run: RunSpecification, run_directory: Path) -> dict[str,
         training_summary["first_epoch_within_target"] = _first_epoch_within_target(history)
     _write_json(run_directory / TRAINING_SUMMARY_FILE, training_summary)
     return _evaluate_and_summarize(prepared, run_directory, training_summary)
+
+
+def _record_divergence(
+    run: RunSpecification, run_directory: Path, divergence: TrainingDiverged
+) -> dict[str, Any]:
+    """Una divergencia es un resultado (la configuración falla), no un error del experimento.
+
+    No hay modelo que guardar; queda el historial hasta la divergencia.
+    """
+    print(f"  {divergence}", flush=True)
+    run_directory.mkdir(parents=True, exist_ok=True)
+    _write_json(run_directory / CONFIG_FILE, run.config)
+    if divergence.history:
+        write_csv(run_directory / HISTORY_FILE, divergence.history)
+    summary = {DIVERGED_KEY: divergence.epoch}
+    _write_json(run_directory / SUMMARY_FILE, summary)
+    return summary
 
 
 def _reevaluate(run: RunSpecification, run_directory: Path) -> dict[str, Any]:
