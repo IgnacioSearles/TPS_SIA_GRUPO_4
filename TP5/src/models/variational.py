@@ -90,3 +90,26 @@ class VariationalAutoencoder(Autoencoder):
             "kl_weight": kl_weight,
         }
         return terms, self._gradients()
+
+    def interpolation_loss_and_gradients(self, lower: Array, upper: Array, targets: Array):
+        """Reconstruir el centro desde la media de los códigos de dos vecinos.
+
+        Usa las medias posteriores (sin muestreo ni KL adicional). El gradiente
+        vuelve a ambos extremos con factor 1/2; log-varianza recibe cero directo.
+        La escala es la misma de reconstrucción: suma de características por
+        muestra y promedio sobre el lote.
+        """
+        if (lower.ndim != 2 or lower.shape != upper.shape or lower.shape != targets.shape
+                or len(lower) == 0 or lower.shape[1] != self.input_size):
+            raise ValueError("Se requieren tres lotes no vacíos N x input_size de igual forma")
+        count = len(lower)
+        statistics = self._encoder.forward(np.concatenate([lower, upper]))
+        means = statistics[:, :self.latent_size]
+        logits = self._decoder.forward((means[:count] + means[count:]) * 0.5)
+        loss = float(np.mean(self._reconstruction_loss.per_sample(logits, targets)))
+        latent_gradient = self._backpropagate_reconstruction(logits, targets)
+        encoder_gradient = np.zeros_like(statistics)
+        encoder_gradient[:count, :self.latent_size] = latent_gradient * 0.5
+        encoder_gradient[count:, :self.latent_size] = latent_gradient * 0.5
+        self._encoder.backward(encoder_gradient)
+        return loss, self._gradients()

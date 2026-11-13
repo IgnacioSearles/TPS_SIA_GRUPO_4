@@ -151,3 +151,37 @@ Sobre el audio: la red solo ve magnitudes mel; la fase se estima con Griffin‑L
 lo que degrada el sonido aun sin red. Por eso `audio/reconstruction/` trae cada
 ejemplo como `__original.wav` (original pasado por el códec) y `__model.wav`:
 la diferencia entre ambos es lo atribuible al modelo.
+
+## Experimento de notas omitidas
+
+**Línea cerrada el 13/11/2026.** Se documentan 57 corridas y sus resultados
+negativos de generalización en el [cierre del estudio](reports/ej2_notas_omitidas/cierre.md).
+Los comandos de esta sección son históricos, para reproducibilidad; las pruebas
+finales preparadas no se completaron.
+
+El protocolo de interpolación de alturas no vistas reutiliza el VAE de audio,
+sin cambiar su arquitectura ni su pérdida. Incluye un control sintético y uno
+NSynth, cada uno con y sin notas objetivo y tres semillas (12 modelos).
+Ver [protocolo y comandos](docs/pitch_study.md). Las configuraciones nuevas
+son `configs/ej2_pitch_*.json`; no reemplazan los experimentos anteriores.
+
+La versión ampliada sintética agrega 40 envolventes por altura: 1.000 sonidos
+en el control y 880 al omitir tres alturas completas. Ejecutar por separado
+`python main.py configs/ej2_pitch_expanded_synthetic_*.json`. Son seis corridas
+nuevas; las configuraciones originales siguen representando el estudio pequeño.
+La guía anterior detalla cómo generar el informe sin mezclar ambos datasets.
+
+## Comparación del tamaño latente en audio
+
+La suite `configs/ej2_pitch_latent_validation_*.json` compara 2, 4 y 16 dimensiones
+con KL=0,5, controles y notas finales reservadas: 18 corridas de validación.
+Ver [protocolo y comandos](docs/pitch_latent.md). El comparador
+`python -m src.analysis.pitch_latent --prepare-final` elige con métricas conjuntas
+y prepara seis corridas finales sólo para la dimensión seleccionada.
+
+## Pérdida auxiliar de interpolación
+
+La suite `configs/ej2_pitch_interploss_validation_*.json` compara lambda 0, 0.1 y 1
+con latente 4 y el mismo protocolo reservado: 18 corridas. Ver
+[pérdida, supervisión y comandos](docs/pitch_interploss.md). El comparador es
+`python -m src.analysis.pitch_interploss --prepare-final`.

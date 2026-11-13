@@ -26,6 +26,7 @@ class EvaluationContext:
     dataset: Dataset
     output_directory: Path
     rng: np.random.Generator
+    seed: int = 0
 
     def displayable(self, decoded: Array) -> Array:
         """Salida del decodificador tal como se la juzga: binarizada si el dataset lo es."""

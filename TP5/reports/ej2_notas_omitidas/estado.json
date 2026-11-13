@@ -1,0 +1,45 @@
+{
+  "status": "closed",
+  "closed_on": "2026-11-13",
+  "executed_runs": 57,
+  "executed_experiments": {
+    "ej2_pitch_synthetic_complete": 3,
+    "ej2_pitch_synthetic_omitted": 3,
+    "ej2_pitch_expanded_synthetic_complete": 3,
+    "ej2_pitch_expanded_synthetic_omitted": 3,
+    "ej2_pitch_microtonal_complete": 3,
+    "ej2_pitch_microtonal_omitted": 3,
+    "ej2_pitch_microtonal_strict_omitted": 3,
+    "ej2_pitch_latent_validation_complete": 9,
+    "ej2_pitch_latent_validation_omitted": 9,
+    "ej2_pitch_interploss_validation_complete": 9,
+    "ej2_pitch_interploss_validation_omitted": 9
+  },
+  "final_stage": "no_completed_saved_runs",
+  "final_configs": {
+    "ej2_pitch_interploss_final_complete.json": {
+      "completed_runs": 0,
+      "expected_runs": 3,
+      "status": "no_completed_saved_results"
+    },
+    "ej2_pitch_interploss_final_omitted.json": {
+      "completed_runs": 0,
+      "expected_runs": 3,
+      "status": "no_completed_saved_results"
+    },
+    "ej2_pitch_latent_final_complete.json": {
+      "completed_runs": 0,
+      "expected_runs": 3,
+      "status": "no_completed_saved_results"
+    },
+    "ej2_pitch_latent_final_omitted.json": {
+      "completed_runs": 0,
+      "expected_runs": 3,
+      "status": "no_completed_saved_results"
+    }
+  },
+  "nsynth_pitch_studies": "configured_without_completed_saved_results_in_this_checkout",
+  "selected_auxiliary_weight": 0.0,
+  "conclusion": "No reliable generalization to omitted notes under the tested protocols. Auxiliary interpolation did not improve validation.",
+  "scope": "Synthetic single-timbre audio, linear interpolation of posterior means. Negative finding is limited to tested configurations."
+}

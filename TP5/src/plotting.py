@@ -13,6 +13,39 @@ import numpy as np  # noqa: E402
 
 Array = np.ndarray
 FIGURE_DPI = 150
+
+
+def save_pitch_trajectories(rows, path):
+    targets = sorted({(row["target_pitch"], row.get("variant", "base")) for row in rows})
+    fig, axes = plt.subplots(len(targets), 1, squeeze=False, figsize=(8, 3 * len(targets)))
+    for (target, variant), axis in zip(targets, axes[:, 0]):
+        trajectory = [r for r in rows if r["target_pitch"] == target
+                      and r.get("variant", "base") == variant
+                      and r["method"] == "vae_interpolation"]
+        fractions = [r["fraction"] for r in trajectory]
+        estimates = [np.nan if r["frequency_hz"] is None
+                     else 69 + 12 * np.log2(r["frequency_hz"] / 440) for r in trajectory]
+        axis.plot(fractions, estimates, "o-", label="VAE")
+        invalid = [r["fraction"] for r in trajectory if not r["valid"]]
+        axis.scatter(invalid, [target - 2] * len(invalid), marker="x", color="red",
+                     label="Sin estimación (fallo)")
+        axis.axhline(target, color="black", linestyle="--", label="Objetivo")
+        axis.axhspan(target - 0.5, target + 0.5, alpha=0.1, color="green")
+        for method, marker in [("spectrogram_mix", "s"), ("lower_neighbor", "^"),
+                               ("target_reconstruction", "D")]:
+            for row in rows:
+                if (row["target_pitch"] == target and row["method"] == method
+                        and row.get("variant", "base") == variant):
+                    height = (69 + 12 * np.log2(row["frequency_hz"] / 440)
+                              if row["valid"] else target - 2)
+                    axis.scatter([0.5], [height], marker=marker,
+                                 label=method + (" (inválido)" if not row["valid"] else ""))
+        axis.set(xlabel="Fracción de interpolación", ylabel="Altura estimada (MIDI)",
+                 title=f"Objetivo MIDI {target}" + (f" / {variant}" if variant != "base" else ""))
+        axis.legend(fontsize=7, loc="best")
+    fig.tight_layout()
+    fig.savefig(path, dpi=FIGURE_DPI)
+    plt.close(fig)
 _CELL_INCHES = 0.8
 _MOSAIC_CELL_INCHES = 0.6
 _MOSAIC_MINIMUM_WIDTH_INCHES = 5.0

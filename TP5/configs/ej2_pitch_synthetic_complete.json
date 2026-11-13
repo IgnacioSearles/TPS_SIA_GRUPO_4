@@ -1,0 +1,57 @@
+{
+  "dataset": {
+    "type": "synthetic_notes",
+    "pitch_range": [
+      48,
+      72
+    ],
+    "pitch_study": {
+      "omit_targets": false,
+      "targets": [
+        54,
+        60,
+        66
+      ]
+    },
+    "spectrogram": {
+      "duration_seconds": 1.0,
+      "fft_size": 1024,
+      "hop_length": 256,
+      "mel_bands": 128
+    }
+  },
+  "model": {
+    "type": "variational",
+    "latent_size": 16,
+    "hidden_layers": [
+      512,
+      128
+    ],
+    "activation": "relu",
+    "initializer": "he",
+    "loss": "mse",
+    "kl": {
+      "weight": 0.5,
+      "warmup_epochs": 50
+    },
+    "precision": "float32"
+  },
+  "training": {
+    "epochs": 200,
+    "batch_size": 64,
+    "optimizer": {
+      "type": "adam",
+      "learning_rate": 0.001
+    },
+    "log_every": 10
+  },
+  "evaluation": {
+    "pitch_interpolation": {},
+    "latent": {}
+  },
+  "seeds": [
+    7,
+    17,
+    27
+  ]
+}

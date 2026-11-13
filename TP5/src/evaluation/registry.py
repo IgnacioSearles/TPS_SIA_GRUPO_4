@@ -7,6 +7,7 @@ from typing import Any
 
 from src.evaluation.context import EvaluationContext, Metrics
 from src.evaluation.denoising import evaluate_denoising
+from src.evaluation.pitch_interpolation import evaluate_pitch_interpolation
 from src.evaluation.generation import evaluate_interpolation, evaluate_sampling
 from src.evaluation.reconstruction import (
     evaluate_latent,
@@ -24,6 +25,7 @@ EVALUATIONS: dict[str, Evaluation] = {
     "interpolation": evaluate_interpolation,
     "sampling": evaluate_sampling,
     "denoising": evaluate_denoising,
+    "pitch_interpolation": evaluate_pitch_interpolation,
 }
 DEFAULT_EVALUATIONS: dict[str, dict[str, Any]] = {"reconstruction": {}, "latent": {}}
 

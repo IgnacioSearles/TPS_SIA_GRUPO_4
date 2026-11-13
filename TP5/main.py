@@ -4,16 +4,20 @@ Uso, desde TP5:
     python main.py configs/ej1a_baseline.json
     python main.py configs/ej1a_*.json --force
     python main.py configs/ej2_vae_nsynth.json --evaluate-only
+    python main.py configs/ej2_pitch_microtonal_*.json --jobs 6   # 6 corridas a la vez
 """
 
 from __future__ import annotations
 
 import argparse
 import glob
+import os
 from pathlib import Path
 
-from src.experiments.runner import run_experiment
+from src.experiments.runner import run_experiments
 from src.options import ConfigurationError
+
+BLAS_VARIABLES = ("OPENBLAS_NUM_THREADS", "OMP_NUM_THREADS", "MKL_NUM_THREADS")
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -27,9 +31,19 @@ def parse_arguments() -> argparse.Namespace:
         action="store_true",
         help="no entrenar: recargar los modelos guardados y repetir las evaluaciones",
     )
+    parser.add_argument(
+        "--jobs", type=int, default=1,
+        help="corridas simultáneas, cada una en su proceso (todas las configs comparten el pool)",
+    )
+    parser.add_argument(
+        "--threads", type=int, default=None,
+        help="hilos BLAS por proceso con --jobs (por defecto: núcleos / jobs)",
+    )
     arguments = parser.parse_args()
     if arguments.force and arguments.evaluate_only:
         parser.error("--force y --evaluate-only son excluyentes")
+    if arguments.jobs < 1 or (arguments.threads is not None and arguments.threads < 1):
+        parser.error("--jobs y --threads deben ser positivos")
     return arguments
 
 
@@ -46,11 +60,17 @@ def expand_config_paths(patterns: list[str]) -> list[Path]:
 
 def main() -> None:
     arguments = parse_arguments()
-    for config_path in expand_config_paths(arguments.configs):
-        try:
-            run_experiment(config_path, arguments.force, arguments.evaluate_only)
-        except (ConfigurationError, FileNotFoundError) as error:
-            raise SystemExit(f"Error en {config_path}: {error}") from error
+    if arguments.jobs > 1:
+        # Los procesos hijos heredan estas variables antes de importar numpy:
+        # sin esto cada uno abriría un hilo por núcleo y se pisarían entre sí.
+        threads = arguments.threads or max(1, (os.cpu_count() or 1) // arguments.jobs)
+        for variable in BLAS_VARIABLES:
+            os.environ[variable] = str(threads)
+    paths = expand_config_paths(arguments.configs)
+    try:
+        run_experiments(paths, arguments.force, arguments.evaluate_only, arguments.jobs)
+    except (ConfigurationError, FileNotFoundError) as error:
+        raise SystemExit(f"Error: {error}") from error
 
 
 if __name__ == "__main__":

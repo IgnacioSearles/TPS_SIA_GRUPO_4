@@ -12,7 +12,9 @@ from __future__ import annotations
 
 import json
 import time
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import dataclass
+from multiprocessing import get_context
 from pathlib import Path
 from typing import Any
 
@@ -22,10 +24,13 @@ from src import plotting
 from src.data.dataset import Dataset
 from src.data.factory import build_dataset
 from src.evaluation.context import EvaluationContext, write_csv
+from src.evaluation.pitch_interpolation import validate_pitch_interpolation
 from src.evaluation.metrics import PIXEL_ERROR_TARGET, reconstruction_quality
 from src.evaluation.registry import DEFAULT_EVALUATIONS, run_evaluations, validate_evaluation_names
 from src.experiments.grid import RunSpecification, expand_runs
 from src.models.autoencoder import Autoencoder
+from src.models.variational import VariationalAutoencoder
+from src.training.interpolation import build_interpolation_triplets, triplet_records
 from src.models.factory import build_model, load_parameters, save_parameters
 from src.options import ConfigurationError, Options
 from src.training.trainer import Trainer, TrainingPlan, build_training_plan
@@ -37,7 +42,7 @@ SUMMARY_FILE = "summary.json"
 TRAINING_SUMMARY_FILE = "training.json"
 HISTORY_FILE = "history.csv"
 EXPERIMENT_SUMMARY_FILE = "summary.csv"
-_INDEPENDENT_STREAMS = 5
+_INDEPENDENT_STREAMS = 6
 
 
 @dataclass(frozen=True)
@@ -51,35 +56,69 @@ class PreparedRun:
     shuffle_rng: np.random.Generator
     corruption_rng: np.random.Generator
     evaluation_rng: np.random.Generator
+    seed: int
+    interpolation_triplets: np.ndarray | None = None
+    interpolation_rng: np.random.Generator | None = None
 
 
-def run_experiment(config_path: Path, force: bool = False, evaluate_only: bool = False) -> Path:
+def run_experiment(config_path: Path, force: bool = False, evaluate_only: bool = False,
+                   jobs: int = 1) -> Path:
     """Corre todas las combinaciones de un archivo de configuración.
 
     Las corridas ya terminadas se saltean salvo `force`. Con `evaluate_only`
     no se entrena: se recargan los pesos guardados y se repiten las evaluaciones.
     Devuelve la carpeta del experimento.
     """
-    experiment = json.loads(config_path.read_text(encoding="utf-8"))
-    if not isinstance(experiment, dict):
-        raise ConfigurationError(f"{config_path} debe contener un objeto JSON")
-    name = experiment.pop("name", config_path.stem)
-    output_directory = PROJECT_ROOT / experiment.pop("output", f"results/{name}")
-    runs = expand_runs(experiment)
+    return run_experiments([config_path], force, evaluate_only, jobs)[0]
 
-    rows = []
-    for position, run in enumerate(runs, start=1):
-        run_directory = output_directory / run.label
-        print(f"[{position}/{len(runs)}] {name} / {run.label}", flush=True)
-        summary = _obtain_summary(run, run_directory, force, evaluate_only)
-        rows.append(
+
+def run_experiments(config_paths: list[Path], force: bool = False, evaluate_only: bool = False,
+                    jobs: int = 1) -> list[Path]:
+    """Como run_experiment, pero con todas las corridas de varios archivos en un mismo pool.
+
+    Con `jobs` > 1 cada corrida va a un proceso propio. Las corridas son
+    independientes (cada una tiene su semilla y su carpeta), así que el resultado
+    es el mismo que en serie; sólo cambia el orden en que terminan.
+    """
+    experiments = []
+    for config_path in config_paths:
+        experiment = json.loads(config_path.read_text(encoding="utf-8"))
+        if not isinstance(experiment, dict):
+            raise ConfigurationError(f"{config_path} debe contener un objeto JSON")
+        name = experiment.pop("name", config_path.stem)
+        output_directory = PROJECT_ROOT / experiment.pop("output", f"results/{name}")
+        experiments.append((name, output_directory, expand_runs(experiment)))
+    tasks = [(name, run, output_directory / run.label)
+             for name, output_directory, runs in experiments for run in runs]
+    if type(jobs) is not int or jobs < 1:
+        raise ConfigurationError("jobs debe ser un entero positivo")
+
+    summaries: dict[Path, dict[str, Any]] = {}
+    if jobs == 1:
+        for position, (name, run, run_directory) in enumerate(tasks, start=1):
+            print(f"[{position}/{len(tasks)}] {name} / {run.label}", flush=True)
+            summaries[run_directory] = _obtain_summary(run, run_directory, force, evaluate_only)
+    else:
+        # spawn: procesos limpios que leen OPENBLAS_NUM_THREADS al importar numpy.
+        with ProcessPoolExecutor(min(jobs, len(tasks)), mp_context=get_context("spawn")) as pool:
+            futures = {pool.submit(_obtain_summary, run, run_directory, force, evaluate_only):
+                       (name, run, run_directory) for name, run, run_directory in tasks}
+            print(f"{len(tasks)} corridas en {min(jobs, len(tasks))} procesos", flush=True)
+            for done, future in enumerate(as_completed(futures), start=1):
+                name, run, run_directory = futures[future]
+                summaries[run_directory] = future.result()
+                print(f"[{done}/{len(tasks)}] terminada {name} / {run.label}", flush=True)
+
+    for name, output_directory, runs in experiments:
+        rows = [
             {"run": run.label, "configuration": run.configuration, "seed": run.seed}
             | {path: json.dumps(value) for path, value in run.grid_values.items()}
-            | summary
-        )
-    write_csv(output_directory / EXPERIMENT_SUMMARY_FILE, rows)
-    print(f"Resultados en {output_directory}")
-    return output_directory
+            | summaries[output_directory / run.label]
+            for run in runs
+        ]
+        write_csv(output_directory / EXPERIMENT_SUMMARY_FILE, rows)
+        print(f"Resultados en {output_directory}")
+    return [output_directory for _, output_directory, _ in experiments]
 
 
 def load_run(run_directory: Path) -> tuple[Autoencoder, Dataset]:
@@ -110,6 +149,8 @@ def _train_and_evaluate(run: RunSpecification, run_directory: Path) -> dict[str,
         lambda model: reconstruction_quality(model, prepared.dataset),
         prepared.shuffle_rng,
         prepared.corruption_rng,
+        prepared.interpolation_triplets,
+        prepared.interpolation_rng,
     )
     started = time.perf_counter()
     history = trainer.train(prepared.dataset.samples)
@@ -128,6 +169,11 @@ def _train_and_evaluate(run: RunSpecification, run_directory: Path) -> dict[str,
     }
     if prepared.dataset.is_binary:
         training_summary["first_epoch_within_target"] = _first_epoch_within_target(history)
+    if prepared.interpolation_triplets is not None:
+        training_summary["interpolation_triplets"] = len(prepared.interpolation_triplets)
+        training_summary["interpolation_pitch_supervision"] = prepared.plan.interpolation.weight > 0
+        write_csv(run_directory / "interpolation_triplets.csv",
+                  triplet_records(prepared.dataset, prepared.interpolation_triplets))
     _write_json(run_directory / TRAINING_SUMMARY_FILE, training_summary)
     return _evaluate_and_summarize(prepared, run_directory, training_summary)
 
@@ -147,7 +193,7 @@ def _evaluate_and_summarize(
     prepared: PreparedRun, run_directory: Path, training_summary: dict[str, Any]
 ) -> dict[str, Any]:
     context = EvaluationContext(
-        prepared.model, prepared.dataset, run_directory, prepared.evaluation_rng
+        prepared.model, prepared.dataset, run_directory, prepared.evaluation_rng, prepared.seed
     )
     summary = {
         **training_summary,
@@ -161,7 +207,7 @@ def _evaluate_and_summarize(
 def _prepare(config: dict[str, Any]) -> PreparedRun:
     options = Options(config, "config")
     seed = options.take("seed", 0)
-    initialization, shuffle, corruption, sampling, evaluation = (
+    initialization, shuffle, corruption, sampling, evaluation, interpolation_rng = (
         np.random.default_rng(sequence)
         for sequence in np.random.SeedSequence(seed).spawn(_INDEPENDENT_STREAMS)
     )
@@ -173,7 +219,16 @@ def _prepare(config: dict[str, Any]) -> PreparedRun:
     if not isinstance(evaluations, dict):
         raise ConfigurationError("'evaluation' debe ser un objeto {nombre: opciones}")
     validate_evaluation_names(evaluations)
-    return PreparedRun(dataset, model, plan, evaluations, shuffle, corruption, evaluation)
+    if "pitch_interpolation" in evaluations:
+        validate_pitch_interpolation(dataset, Options(evaluations["pitch_interpolation"],
+                                                     "evaluation.pitch_interpolation"))
+    triplets = None
+    if plan.interpolation is not None:
+        if not isinstance(model, VariationalAutoencoder):
+            raise ConfigurationError("training.interpolation requiere model.type variational")
+        triplets = build_interpolation_triplets(dataset)
+    return PreparedRun(dataset, model, plan, evaluations, shuffle, corruption, evaluation, seed,
+                       triplets, interpolation_rng)
 
 
 def _final_loss_terms(history: list[dict[str, float]], prepared: PreparedRun) -> dict[str, float]:

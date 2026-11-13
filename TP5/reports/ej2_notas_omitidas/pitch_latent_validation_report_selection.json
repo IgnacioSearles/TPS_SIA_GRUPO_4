@@ -1,0 +1,238 @@
+{
+  "phase": "validation",
+  "selected_latent_size": 4,
+  "selection_rule": "maximize joint pitch+spectral hits; then minimize spectral MSE; then latent size",
+  "selection_is_not_evidence_of_success": true,
+  "summary": [
+    {
+      "condition": "complete",
+      "latent_size": 2,
+      "method": "lower_neighbor",
+      "n": 27,
+      "pitch_hits": 0,
+      "spectral_hits": 0,
+      "joint_hits": 0,
+      "spectral_mse": 0.031180409065657354
+    },
+    {
+      "condition": "complete",
+      "latent_size": 2,
+      "method": "spectrogram_mix",
+      "n": 27,
+      "pitch_hits": 27,
+      "spectral_hits": 0,
+      "joint_hits": 0,
+      "spectral_mse": 0.01721700103453106
+    },
+    {
+      "condition": "complete",
+      "latent_size": 2,
+      "method": "target_reconstruction",
+      "n": 27,
+      "pitch_hits": 27,
+      "spectral_hits": 27,
+      "joint_hits": 27,
+      "spectral_mse": 0.0031468345747016615
+    },
+    {
+      "condition": "complete",
+      "latent_size": 2,
+      "method": "vae_interpolation",
+      "n": 27,
+      "pitch_hits": 27,
+      "spectral_hits": 27,
+      "joint_hits": 27,
+      "spectral_mse": 0.003643652951376638
+    },
+    {
+      "condition": "complete",
+      "latent_size": 4,
+      "method": "lower_neighbor",
+      "n": 27,
+      "pitch_hits": 0,
+      "spectral_hits": 0,
+      "joint_hits": 0,
+      "spectral_mse": 0.031180409065657354
+    },
+    {
+      "condition": "complete",
+      "latent_size": 4,
+      "method": "spectrogram_mix",
+      "n": 27,
+      "pitch_hits": 27,
+      "spectral_hits": 0,
+      "joint_hits": 0,
+      "spectral_mse": 0.01721700103453106
+    },
+    {
+      "condition": "complete",
+      "latent_size": 4,
+      "method": "target_reconstruction",
+      "n": 27,
+      "pitch_hits": 27,
+      "spectral_hits": 27,
+      "joint_hits": 27,
+      "spectral_mse": 0.0005708114832080365
+    },
+    {
+      "condition": "complete",
+      "latent_size": 4,
+      "method": "vae_interpolation",
+      "n": 27,
+      "pitch_hits": 27,
+      "spectral_hits": 27,
+      "joint_hits": 27,
+      "spectral_mse": 0.005258030644772451
+    },
+    {
+      "condition": "complete",
+      "latent_size": 16,
+      "method": "lower_neighbor",
+      "n": 27,
+      "pitch_hits": 0,
+      "spectral_hits": 0,
+      "joint_hits": 0,
+      "spectral_mse": 0.031180409065657354
+    },
+    {
+      "condition": "complete",
+      "latent_size": 16,
+      "method": "spectrogram_mix",
+      "n": 27,
+      "pitch_hits": 27,
+      "spectral_hits": 0,
+      "joint_hits": 0,
+      "spectral_mse": 0.01721700103453106
+    },
+    {
+      "condition": "complete",
+      "latent_size": 16,
+      "method": "target_reconstruction",
+      "n": 27,
+      "pitch_hits": 27,
+      "spectral_hits": 27,
+      "joint_hits": 27,
+      "spectral_mse": 0.000278949885250088
+    },
+    {
+      "condition": "complete",
+      "latent_size": 16,
+      "method": "vae_interpolation",
+      "n": 27,
+      "pitch_hits": 16,
+      "spectral_hits": 8,
+      "joint_hits": 8,
+      "spectral_mse": 0.015273429141248891
+    },
+    {
+      "condition": "omitted",
+      "latent_size": 2,
+      "method": "lower_neighbor",
+      "n": 27,
+      "pitch_hits": 0,
+      "spectral_hits": 0,
+      "joint_hits": 0,
+      "spectral_mse": 0.031180409065657354
+    },
+    {
+      "condition": "omitted",
+      "latent_size": 2,
+      "method": "spectrogram_mix",
+      "n": 27,
+      "pitch_hits": 27,
+      "spectral_hits": 0,
+      "joint_hits": 0,
+      "spectral_mse": 0.01721700103453106
+    },
+    {
+      "condition": "omitted",
+      "latent_size": 2,
+      "method": "vae_interpolation",
+      "n": 27,
+      "pitch_hits": 0,
+      "spectral_hits": 3,
+      "joint_hits": 0,
+      "spectral_mse": 0.0712271173786936
+    },
+    {
+      "condition": "omitted",
+      "latent_size": 4,
+      "method": "lower_neighbor",
+      "n": 27,
+      "pitch_hits": 0,
+      "spectral_hits": 0,
+      "joint_hits": 0,
+      "spectral_mse": 0.031180409065657354
+    },
+    {
+      "condition": "omitted",
+      "latent_size": 4,
+      "method": "spectrogram_mix",
+      "n": 27,
+      "pitch_hits": 27,
+      "spectral_hits": 0,
+      "joint_hits": 0,
+      "spectral_mse": 0.01721700103453106
+    },
+    {
+      "condition": "omitted",
+      "latent_size": 4,
+      "method": "vae_interpolation",
+      "n": 27,
+      "pitch_hits": 12,
+      "spectral_hits": 4,
+      "joint_hits": 4,
+      "spectral_mse": 0.02956435489611107
+    },
+    {
+      "condition": "omitted",
+      "latent_size": 16,
+      "method": "lower_neighbor",
+      "n": 27,
+      "pitch_hits": 0,
+      "spectral_hits": 0,
+      "joint_hits": 0,
+      "spectral_mse": 0.031180409065657354
+    },
+    {
+      "condition": "omitted",
+      "latent_size": 16,
+      "method": "spectrogram_mix",
+      "n": 27,
+      "pitch_hits": 27,
+      "spectral_hits": 0,
+      "joint_hits": 0,
+      "spectral_mse": 0.01721700103453106
+    },
+    {
+      "condition": "omitted",
+      "latent_size": 16,
+      "method": "vae_interpolation",
+      "n": 27,
+      "pitch_hits": 22,
+      "spectral_hits": 3,
+      "joint_hits": 3,
+      "spectral_mse": 0.017112423111250115
+    }
+  ],
+  "evidence_sha256": {
+    "results/ej2_pitch_latent_validation_complete/latent_size=4__seed=7/pitch_interpolation.csv": "ca8e4ddee24b7270d648a61638667c3a0cdff8c896c7aa8ced6c52c01484ba08",
+    "results/ej2_pitch_latent_validation_complete/latent_size=4__seed=17/pitch_interpolation.csv": "fbcb14b450b535192c80dd3f1a2b423e15e459b921b3b548326426f45d931a38",
+    "results/ej2_pitch_latent_validation_complete/latent_size=4__seed=27/pitch_interpolation.csv": "6bfa046496db65b2597ead4625ee6d0b3dfcd104b64de2b7c39d8b53149f6972",
+    "results/ej2_pitch_latent_validation_complete/latent_size=2__seed=7/pitch_interpolation.csv": "09f8aed936bc6fd5d4e2db8ed7f83f5ef77e0136f39cca92e32a5fa86d808809",
+    "results/ej2_pitch_latent_validation_complete/latent_size=2__seed=17/pitch_interpolation.csv": "7f80150df1d49c791a8f377f90080bb100e353caa7a0baf24530fed1f9649b51",
+    "results/ej2_pitch_latent_validation_complete/latent_size=2__seed=27/pitch_interpolation.csv": "3914aaf07c7505d307c284ba1cdb3f0e7facce15ca56e6d49619711c28b84e98",
+    "results/ej2_pitch_latent_validation_complete/latent_size=16__seed=7/pitch_interpolation.csv": "5aeb91439b2d9ce4394f63b2768bbc14c7db3853f7725a4815b2c630fba63627",
+    "results/ej2_pitch_latent_validation_complete/latent_size=16__seed=17/pitch_interpolation.csv": "563c9fb7cf73439fe6e7a52f09631c72f2c155160aa0cc2561f755772a12b333",
+    "results/ej2_pitch_latent_validation_complete/latent_size=16__seed=27/pitch_interpolation.csv": "74fd4587ee2a60b2f685ffca1d9a6a301e877191ded18e78e34759bee69469de",
+    "results/ej2_pitch_latent_validation_omitted/latent_size=4__seed=7/pitch_interpolation.csv": "d8409b482e1cdfb3113267a56ea3d34bb040a01d4848b6463bc081f55da712ae",
+    "results/ej2_pitch_latent_validation_omitted/latent_size=4__seed=17/pitch_interpolation.csv": "393e4d6af3d91987e520c7d45d5e20779c071557aba4324082002752c6aecc01",
+    "results/ej2_pitch_latent_validation_omitted/latent_size=4__seed=27/pitch_interpolation.csv": "9f06e2f436b09eaaefe7f29b23824d6381be746073466000c6d468779adbc8ae",
+    "results/ej2_pitch_latent_validation_omitted/latent_size=2__seed=7/pitch_interpolation.csv": "f339d386164e57b3b8e0391e6ead22a7c3d4cf6d9510d43db1dc03ab0c84101e",
+    "results/ej2_pitch_latent_validation_omitted/latent_size=2__seed=17/pitch_interpolation.csv": "53156545de1b4929cdd305c72319f1841bfd7b95f9066e8df1d371a2f5372926",
+    "results/ej2_pitch_latent_validation_omitted/latent_size=2__seed=27/pitch_interpolation.csv": "8d452db0100c02126cde5b630c14f6781d7ecf3b3a15e2661ae3919f35f26ffb",
+    "results/ej2_pitch_latent_validation_omitted/latent_size=16__seed=7/pitch_interpolation.csv": "4d4e88962fb3cb2e1bb8db6dd213edbea9330388253c690033ab71267fcb743c",
+    "results/ej2_pitch_latent_validation_omitted/latent_size=16__seed=17/pitch_interpolation.csv": "3e2bd03c26ebf936b982817d6b1b7c7f4088fc0623b9475dbcd835a73adc45e1",
+    "results/ej2_pitch_latent_validation_omitted/latent_size=16__seed=27/pitch_interpolation.csv": "ad14a8b612b98f7f2b0fe227578087cc75297975cbc7a3d3b9f028cbea9e9f92"
+  }
+}

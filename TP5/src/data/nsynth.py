@@ -21,6 +21,7 @@ import numpy as np
 from src.data.audio import SpectrogramCodec, read_waveform
 from src.data.dataset import Dataset
 from src.options import ConfigurationError, Options
+from src.data.notes import midi_list
 
 _NOTE_PATTERN = re.compile(
     r"(?P<family>[a-z]+)_(?P<source>[a-z]+)_(?P<instrument>\d+)-(?P<pitch>\d+)-(?P<velocity>\d+)\.wav$"
@@ -37,8 +38,20 @@ class NoteSelection:
     pitch_range: tuple[int, int] = _FULL_MIDI_RANGE
     max_per_family: int | None = None
     seed: int = 0
+    instrument: str | None = None
+    velocity: int | None = None
+    exclude_pitches: tuple[int, ...] = ()
 
     def __post_init__(self) -> None:
+        if any(type(p) is not int or not 0 <= p <= 127 for p in self.pitch_range):
+            raise ConfigurationError("pitch_range debe contener límites MIDI entre 0 y 127")
+        midi_list(self.exclude_pitches, "exclude_pitches")
+        if len(self.pitch_range) != 2:
+            raise ConfigurationError("pitch_range necesita dos límites")
+        if self.instrument is not None and not isinstance(self.instrument, str):
+            raise ConfigurationError("instrument debe ser el identificador completo, por ejemplo keyboard_acoustic_001")
+        if self.velocity is not None and (type(self.velocity) is not int or not 0 <= self.velocity <= 127):
+            raise ConfigurationError("velocity debe estar entre 0 y 127")
         low, high = self.pitch_range
         if low > high:
             raise ConfigurationError(f"pitch_range inválido: {self.pitch_range}")
@@ -50,6 +63,7 @@ class NoteSelection:
             (self.families is None or family in self.families)
             and (self.sources is None or source in self.sources)
             and self.pitch_range[0] <= pitch <= self.pitch_range[1]
+            and pitch not in self.exclude_pitches
         )
 
 
@@ -62,6 +76,9 @@ def build_selection(options: Options) -> NoteSelection:
         pitch_range=tuple(options.take("pitch_range", list(_FULL_MIDI_RANGE))),
         max_per_family=options.take("max_per_family", None),
         seed=options.take("selection_seed", 0),
+        instrument=options.take("instrument", None),
+        velocity=options.take("velocity", None),
+        exclude_pitches=midi_list(options.take("exclude_pitches", []), "exclude_pitches"),
     )
     return selection
 
@@ -115,12 +132,19 @@ def _encode_selected_notes(
     return spectrograms, [Path(name).stem for name in chosen]
 
 
+def accepts_note(match, selection: NoteSelection) -> bool:
+    instrument = f"{match['family']}_{match['source']}_{match['instrument']}"
+    return (selection.accepts(match["family"], match["source"], int(match["pitch"]))
+            and (selection.instrument is None or instrument == selection.instrument)
+            and (selection.velocity is None or int(match["velocity"]) == selection.velocity))
+
+
 def _choose_notes(member_names: list[str], selection: NoteSelection) -> list[str]:
     """Notas aceptadas, con tope por familia elegido al azar de forma reproducible."""
     by_family: dict[str, list[str]] = {}
     for name in sorted(member_names):
         match = _NOTE_PATTERN.search(name)
-        if match and selection.accepts(match["family"], match["source"], int(match["pitch"])):
+        if match and accepts_note(match, selection):
             by_family.setdefault(match["family"], []).append(name)
     rng = np.random.default_rng(selection.seed)
     chosen: list[str] = []

@@ -3,6 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.data.notes import PitchStudy
 
 import numpy as np
 
@@ -23,6 +27,7 @@ class Dataset:
     image_shape: tuple[int, int]
     is_binary: bool
     audio_codec: SpectrogramCodec | None = None
+    pitch_study: PitchStudy | None = None
 
     def __post_init__(self) -> None:
         rows, columns = self.image_shape
