@@ -1,0 +1,309 @@
+"""Figuras y audios del ejercicio 2: autoencoder y VAE sobre notas de NSynth.
+
+Cada espectrograma que se escucha en el deck se guarda como una imagen suelta
+(reports/presentacion/espectrogramas/) con su WAV homónimo (audio/), para que
+la diapositiva ponga el rótulo y el botón de reproducción debajo de cada uno.
+"""
+
+from __future__ import annotations
+
+import io
+import re
+import shutil
+import tarfile
+
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.patches import Ellipse
+from scipy.io import wavfile
+from scipy.signal import stft
+
+from scripts.presentacion.common import (
+    AUDIO, RESULTS, ROOT, Array, read_csv, save, save_spectrogram_tile, spectrogram,
+)
+from src.data.audio import SpectrogramCodec, read_waveform, write_waveform
+from src.experiments.runner import load_run
+
+AE_RUN = RESULTS / "ej2_ae_nsynth" / "base__seed=7"
+VAE_RUN = RESULTS / "ej2_vae_nsynth" / "base__seed=7"
+SONG = VAE_RUN / "song" / "techno.wav"
+ARCHIVE = ROOT / "data" / "nsynth" / "nsynth-test.jsonwav.tar.gz"
+
+FAMILIES = ["bass", "brass", "flute", "guitar", "keyboard", "mallet", "organ", "reed", "string", "vocal"]
+FAMILY_COLORS = {family: f"C{index}" for index, family in enumerate(FAMILIES)}
+REPRESENTATION_NOTE = "keyboard_electronic_098-060-100"
+RECONSTRUCTION_NOTES = ["brass_acoustic_016-064-100", "guitar_electronic_022-063-025", "reed_acoustic_023-049-050"]
+# Misma altura (MIDI 60) y timbres opuestos: una nota que se apaga contra una sostenida.
+INTERPOLATION_PAIRS = [
+    ("guitar_acoustic_015-060-050", "organ_electronic_028-060-075"),
+    ("bass_electronic_018-060-075", "vocal_synthetic_003-060-100"),
+]
+INTERPOLATION_STEPS = 8
+SAMPLE_COUNT = 6
+SAMPLE_SEED = 11
+PRIOR_POINTS = 1500
+_PITCH = re.compile(r"-(\d+)-\d+$")
+
+
+class NoteRenderer:
+    """Espectrograma -> imagen suelta + WAV, con la misma decodificación (mel NNLS + Griffin-Lim)."""
+
+    def __init__(self, codec: SpectrogramCodec) -> None:
+        self._codec = codec
+
+    def write(self, spectrogram_values: Array, name: str) -> None:
+        image = np.asarray(spectrogram_values, dtype=float).reshape(self._codec.image_shape)
+        save_spectrogram_tile(image, name)
+        AUDIO.mkdir(parents=True, exist_ok=True)
+        write_waveform(AUDIO / f"{name}.wav", self._codec.decode(image), self._codec.sample_rate)
+
+    def waveform(self, spectrogram_values: Array) -> Array:
+        return self._codec.decode(np.asarray(spectrogram_values, dtype=float).reshape(self._codec.image_shape))
+
+
+def make_all() -> None:
+    autoencoder, dataset = load_run(AE_RUN)
+    variational, _ = load_run(VAE_RUN)
+    renderer = NoteRenderer(dataset.audio_codec)
+    labels = dataset.labels
+    family_examples(dataset, renderer)
+    representation_figure(dataset, renderer)
+    latent_spaces_figure(autoencoder, variational, dataset)
+    posterior_figure(variational, dataset)
+    prior_samples(autoencoder, variational, dataset, renderer)
+    reconstructions(autoencoder, variational, dataset, renderer)
+    reconstruction_error_figure()
+    for index, (origin, destination) in enumerate(INTERPOLATION_PAIRS, start=1):
+        interpolation(variational, dataset, renderer, labels.index(origin), labels.index(destination), index)
+    song_figure()
+
+
+# ----------------------------------------------------------------------------- dataset y representación
+
+def family_examples(dataset, renderer: NoteRenderer) -> None:
+    """Una nota por familia, la más cercana al do central (MIDI 60)."""
+    for family in FAMILIES:
+        candidates = [index for index, group in enumerate(dataset.groups) if group == family]
+        index = min(candidates, key=lambda candidate: abs(_pitch(dataset.labels[candidate]) - 60))
+        renderer.write(dataset.samples[index], f"familia_{family}")
+        print(f"    familia {family}: {dataset.labels[index]}")
+
+
+def representation_figure(dataset, renderer: NoteRenderer) -> None:
+    """Onda -> espectro lineal -> 128 bandas mel en [0, 1]; con el audio original y el pasado por el códec."""
+    codec = dataset.audio_codec
+    waveform = _read_original(REPRESENTATION_NOTE, codec)
+    AUDIO.mkdir(parents=True, exist_ok=True)
+    write_waveform(AUDIO / "representacion_original.wav", waveform, codec.sample_rate)
+    encoded = codec.encode(waveform)
+    write_waveform(AUDIO / "representacion_codec.wav", codec.decode(encoded), codec.sample_rate)
+
+    frequencies, times, spectrum = stft(waveform, fs=codec.sample_rate, nperseg=codec.fft_size,
+                                        noverlap=codec.fft_size - codec.hop_length)
+    decibels = 20 * np.log10(np.maximum(np.abs(spectrum), 1e-10))
+    figure, axes = plt.subplots(1, 3, figsize=(15, 4.2), gridspec_kw={"width_ratios": [1.3, 1, 1]})
+    time = np.arange(len(waveform)) / codec.sample_rate
+    axes[0].plot(time, waveform, lw=0.4, color="C0")
+    axes[0].set_xlabel("tiempo (s)")
+    axes[0].set_title("onda: 16.000 muestras")
+    axes[1].pcolormesh(times, frequencies, decibels, vmin=decibels.max() - 70, vmax=decibels.max(),
+                       cmap="magma", shading="auto")
+    axes[1].set_ylim(0, 4000)
+    axes[1].set_xlabel("tiempo (s)")
+    axes[1].set_ylabel("Hz")
+    axes[1].set_title("espectro: 513 frecuencias")
+    spectrogram(axes[2], encoded)
+    axes[2].set_title("mel: 128 bandas × 64 cuadros")
+    save(figure, "e2_representacion")
+
+
+def _read_original(label: str, codec: SpectrogramCodec) -> Array:
+    with tarfile.open(ARCHIVE, "r|gz") as stream:
+        for member in stream:
+            if member.name.endswith(f"/{label}.wav"):
+                raw = read_waveform(io.BytesIO(stream.extractfile(member).read()), codec.sample_rate)
+                return raw[: codec.sample_count]
+    raise FileNotFoundError(f"{label} no está en {ARCHIVE}")
+
+
+# ----------------------------------------------------------------------------- AE contra VAE
+
+def latent_spaces_figure(autoencoder, variational, dataset) -> None:
+    """Códigos de cada modelo (PCA a 2D) junto a muestras de N(0, I), y sus normas."""
+    rng = np.random.default_rng(0)
+    prior = rng.standard_normal((PRIOR_POINTS, variational.latent_size))
+    codes = {"Autoencoder": autoencoder.encode(dataset.samples), "VAE": variational.encode(dataset.samples)}
+
+    figure, axes = plt.subplots(1, 2, figsize=(14, 6.2), sharex=True, sharey=True)
+    for axis, (name, latent) in zip(axes, codes.items()):
+        center = latent.mean(axis=0)
+        _, _, components = np.linalg.svd(latent - center, full_matrices=False)
+        project = lambda points: (points - center) @ components[:2].T  # noqa: E731
+        axis.scatter(*project(prior).T, s=5, color="0.75", label="z ~ N(0, I)")
+        projected = project(latent)
+        for family in FAMILIES:
+            mask = np.array([group == family for group in dataset.groups])
+            axis.scatter(*projected[mask].T, s=9, color=FAMILY_COLORS[family], label=family)
+        axis.set_title(name)
+        axis.set_xlabel("PC1")
+        axis.set_aspect("equal")
+    axes[0].set_ylabel("PC2")
+    axes[1].legend(loc="center left", bbox_to_anchor=(1.0, 0.5), markerscale=2.5, fontsize=11)
+    save(figure, "e2_latentes")
+
+    figure, axis = plt.subplots(figsize=(9, 4.6))
+    bins = np.linspace(0, 12, 61)
+    axis.hist(np.linalg.norm(prior, axis=1), bins=bins, color="0.6", alpha=0.7, label="z ~ N(0, I)")
+    for color, (name, latent) in zip(("C3", "C0"), codes.items()):
+        norms = np.linalg.norm(latent, axis=1)
+        axis.hist(norms, bins=bins, histtype="step", lw=2.2, color=color, label=f"{name} (media {norms.mean():.1f})")
+    axis.set_xlabel("distancia del código de cada nota al origen (16 dimensiones)")
+    axis.set_ylabel("notas")
+    axis.legend()
+    save(figure, "e2_normas")
+
+
+def posterior_figure(variational, dataset, notes_per_family: int = 2, dimensions: tuple[int, int] = (0, 1)) -> None:
+    """Lo que da el codificador del VAE para algunas notas: una gaussiana chica (elipse de 1σ) dentro de N(0, I)."""
+    mean, log_variance = variational.encode_distribution(dataset.samples)
+    deviation = np.exp(0.5 * log_variance)
+    first, second = dimensions
+    rng = np.random.default_rng(1)
+    figure, axis = plt.subplots(figsize=(8.4, 7.2))
+    for radius, text in ((1, "1σ"), (2, "2σ")):
+        axis.add_patch(Ellipse((0, 0), 2 * radius, 2 * radius, fill=False, ls="--", lw=1.4, color="0.45"))
+        axis.text(radius * 0.72, radius * 0.72, text, color="0.4", fontsize=12)
+    axis.scatter(mean[:, first], mean[:, second], s=4, color="0.8", zorder=1)
+    for family in FAMILIES:
+        members = [index for index, group in enumerate(dataset.groups) if group == family]
+        for count, index in enumerate(rng.choice(members, notes_per_family, replace=False)):
+            axis.add_patch(Ellipse((mean[index, first], mean[index, second]), 2 * deviation[index, first],
+                                   2 * deviation[index, second], color=FAMILY_COLORS[family], alpha=0.7,
+                                   label=family if count == 0 else None, zorder=2))
+    axis.set_xlim(-3.2, 3.2)
+    axis.set_ylim(-3.2, 3.2)
+    axis.set_aspect("equal")
+    axis.set_xlabel(f"z{first + 1}")
+    axis.set_ylabel(f"z{second + 1}")
+    axis.legend(loc="center left", bbox_to_anchor=(1.0, 0.5), fontsize=11)
+    print(f"    desvío mediano de cada nota: {np.median(deviation):.2f}; "
+          f"desvío de las medias entre notas: {mean.std(axis=0).mean():.2f}")
+    save(figure, "e2_posteriores")
+
+
+def prior_samples(autoencoder, variational, dataset, renderer: NoteRenderer) -> None:
+    """Los mismos z ~ N(0, I) por los dos decodificadores, y la nota real más parecida a cada muestra del VAE."""
+    latent = np.random.default_rng(SAMPLE_SEED).standard_normal((SAMPLE_COUNT, variational.latent_size))
+    for name, model in (("ae", autoencoder), ("vae", variational)):
+        for index, values in enumerate(model.decode(latent)):
+            renderer.write(values, f"muestra_{name}_{index}")
+    generated = variational.decode(latent)
+    for index, values in enumerate(generated):
+        distances = np.mean((dataset.samples - values) ** 2, axis=1)
+        nearest = int(np.argmin(distances))
+        renderer.write(dataset.samples[nearest], f"cercana_{index}")
+        print(f"    muestra {index}: más cercana {dataset.labels[nearest]} (MSE {distances[nearest]:.4f})")
+    typical = _typical_nearest_distance(dataset.samples)
+    print(f"    MSE típica entre una nota y su vecina más cercana: {typical:.4f}")
+
+
+def _typical_nearest_distance(samples: Array, count: int = 300) -> float:
+    rng = np.random.default_rng(1)
+    chosen = rng.choice(len(samples), count, replace=False)
+    nearest = []
+    for index in chosen:
+        distances = np.mean((samples - samples[index]) ** 2, axis=1)
+        distances[index] = np.inf
+        nearest.append(distances.min())
+    return float(np.median(nearest))
+
+
+def reconstructions(autoencoder, variational, dataset, renderer: NoteRenderer) -> None:
+    for note_index, label in enumerate(RECONSTRUCTION_NOTES):
+        original = dataset.samples[dataset.labels.index(label)]
+        renderer.write(original, f"reconstruccion_{note_index}_original")
+        for name, model in (("ae", autoencoder), ("vae", variational)):
+            output = model.reconstruct(original[None, :])[0]
+            renderer.write(output, f"reconstruccion_{note_index}_{name}")
+            print(f"    {label} {name}: MSE {np.mean((output - original) ** 2):.4f}")
+
+
+def reconstruction_error_figure() -> None:
+    """Error de reconstrucción por familia: mismo dataset, misma arquitectura, sin y con KL."""
+    errors = {}
+    for name, run in (("Autoencoder", AE_RUN), ("VAE", VAE_RUN)):
+        errors[name] = {row["label"]: float(row["error"]) for row in read_csv(run / "reconstruction.csv")}
+    figure, axis = plt.subplots(figsize=(12, 4.6))
+    positions = np.arange(len(FAMILIES))
+    for offset, (color, (name, by_label)) in zip((-0.2, 0.2), zip(("C3", "C0"), errors.items())):
+        means = [np.mean([error for label, error in by_label.items() if label.startswith(f"{family}_")])
+                 for family in FAMILIES]
+        axis.bar(positions + offset, means, width=0.4, color=color, label=name)
+    axis.set_xticks(positions, FAMILIES)
+    axis.set_ylabel("MSE del espectrograma")
+    axis.legend()
+    autoencoder, variational = (np.array(list(values.values())) for values in errors.values())
+    print(f"    MSE media AE {autoencoder.mean():.5f}, VAE {variational.mean():.5f}; "
+          f"el AE gana en {np.mean(autoencoder < variational):.0%} de las notas")
+    save(figure, "e2_error_familias")
+
+
+# ----------------------------------------------------------------------------- generación
+
+def interpolation(variational, dataset, renderer: NoteRenderer, origin: int, destination: int, number: int) -> None:
+    """Recorrido en línea recta entre dos notas: cada paso como imagen y WAV, más el recorrido entero."""
+    codes = variational.encode(dataset.samples)
+    fractions = np.linspace(0, 1, INTERPOLATION_STEPS)
+    path = codes[origin] + fractions[:, None] * (codes[destination] - codes[origin])
+    decoded = variational.decode(path)
+    pieces = []
+    for step, values in enumerate(decoded):
+        name = f"interpolacion_{number}_{step}"
+        renderer.write(values, name)
+        pieces += [renderer.waveform(values) * 0.9, np.zeros(dataset.audio_codec.sample_rate // 8)]
+    write_waveform(AUDIO / f"interpolacion_{number}_recorrido.wav", np.concatenate(pieces),
+                   dataset.audio_codec.sample_rate)
+    _latent_path_figure(codes, dataset, path, number)
+    print(f"    interpolación {number}: {dataset.labels[origin]} -> {dataset.labels[destination]}")
+
+
+def _latent_path_figure(codes: Array, dataset, path: Array, number: int) -> None:
+    center = codes.mean(axis=0)
+    _, _, components = np.linalg.svd(codes - center, full_matrices=False)
+    projected = (codes - center) @ components[:2].T
+    route = (path - center) @ components[:2].T
+    figure, axis = plt.subplots(figsize=(5, 5))
+    for family in FAMILIES:
+        mask = np.array([group == family for group in dataset.groups])
+        axis.scatter(*projected[mask].T, s=5, color=FAMILY_COLORS[family], alpha=0.35)
+    axis.plot(*route.T, "-o", color="black", lw=2, ms=5)
+    axis.scatter(*route[[0, -1]].T, s=90, color="black", zorder=3)
+    axis.set_aspect("equal")
+    axis.axis("off")
+    save(figure, f"e2_camino_{number}")
+
+
+def song_figure() -> None:
+    """Espectrograma del tema techno compuesto con el decodificador del VAE."""
+    if not SONG.is_file():
+        raise FileNotFoundError(f"Falta {SONG}: python -m src.song {VAE_RUN.relative_to(ROOT)}")
+    shutil.copy2(SONG, AUDIO / "tema.wav")
+    rate, data = wavfile.read(SONG)
+    mono = data.astype(float) if data.ndim == 1 else data.astype(float).mean(axis=1)
+    frequencies, times, spectrum = stft(mono, fs=rate, nperseg=2048, noverlap=1536)
+    decibels = 10 * np.log10(np.abs(spectrum) ** 2 + 1e-12)
+    figure, axis = plt.subplots(figsize=(14, 4))
+    axis.pcolormesh(times, frequencies, decibels, vmin=decibels.max() - 80, vmax=decibels.max(),
+                    cmap="magma", shading="auto")
+    axis.set_yscale("symlog", linthresh=200)
+    axis.set_ylim(30, rate / 2)
+    axis.set_xlabel("tiempo (s)")
+    axis.set_ylabel("Hz")
+    save(figure, "e2_tema")
+
+
+def _pitch(label: str) -> int:
+    match = _PITCH.search(label)
+    if match is None:
+        raise ValueError(f"Etiqueta sin altura: {label}")
+    return int(match.group(1))

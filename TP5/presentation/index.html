@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TP5 · Autoencoders · Grupo 4</title>
+<link rel="stylesheet" href="vendor/reveal/reset.css">
+<link rel="stylesheet" href="vendor/reveal/reveal.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+<!-- ===================================================================== Apertura -->
+
+<section class="cover">
+  <p class="kicker">Sistemas de Inteligencia Artificial · TP5 · Grupo 4</p>
+  <h1>Autoencoders:<br>letras, ruido y sonido</h1>
+  <p class="authors">Ignacio Searles · Ivo Vilamowski · Agustín Galán<br>Nicolás Koron · Toribio Viton Sconza</p>
+  <aside class="notes">Tres partes: un autoencoder que comprime las 32 letras del font en dos números, una variante que limpia ruido y un autoencoder variacional que genera notas de instrumentos. Al final hay un apéndice con los gráficos de respaldo.</aside>
+</section>
+
+<!-- ===================================================================== Ejercicio 1 -->
+
+<section class="divider">
+  <p class="number">1</p>
+  <h2>Autoencoder del font</h2>
+  <p class="lead">32 caracteres de 5×7 píxeles. ¿Entran en dos números?</p>
+</section>
+
+<section class="section">
+  <h2>Aprender las 32 letras</h2>
+  <p class="roadmap"><span class="current">Aprender las 32 letras</span> · Espacio latente · Letras nuevas · Denoising</p>
+</section>
+
+<section class="figure has-take">
+  <h2>El font: 32 caracteres de 5 × 7 píxeles</h2>
+  <figure><img src="assets/reports__presentacion__e1_font.png" alt="Los 32 caracteres de font.h"></figure>
+  <p class="take">Objetivo: reconstruir las 32 con <em>a lo sumo 1 píxel mal</em>, pasando por un latente de 2.</p>
+  <aside class="notes">Son los caracteres 0x60 a 0x7F de font.h: el acento grave, las 26 minúsculas, llaves, barra, virgulilla y DEL, que es el bloque lleno. Cada fila es un número de 5 bits; los aplanamos por filas en un vector de 35 ceros y unos.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>El autoencoder: 35 píxeles, dos números y de vuelta</h2>
+  <figure><img src="assets/reports__presentacion__e1_red.png" alt="Red 35-16-8-2-8-16-35 con una letra a la entrada y su reconstrucción a la salida"></figure>
+  <p class="take">Pérdida: entropía cruzada binaria. Adam, η = 0,01, lotes de 32.</p>
+  <aside class="notes">El decodificador es el espejo del codificador. tanh en las capas ocultas; el latente es lineal, sin activación. La salida sigmoide da la probabilidad de que cada píxel esté prendido; para contar errores binarizamos en 0,5. La pérdida es la entropía cruzada binaria sumada sobre los 35 píxeles: es la natural para datos de 0 y 1 y, a diferencia del error cuadrático, no se frena cuando la sigmoide satura. Todo está hecho con NumPy, con los gradientes verificados contra diferencias finitas.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Entran 32 letras y salen las mismas, salvo 2 píxeles</h2>
+  <figure><img src="assets/reports__presentacion__e1_reconstruccion.png" alt="Cada letra que entra y, debajo, la que devuelve el autoencoder"></figure>
+  <p class="take">En rojo, los píxeles mal: uno en la <em>u</em> y uno en la <em>v</em>. Llega en la época 3.250, en 1,6 segundos.</p>
+  <aside class="notes">Fila de arriba: la letra que entra. Fila de abajo: lo que devuelve el autoencoder después de pasar por los dos números del latente, binarizado en 0,5. Es la corrida de configs/ej1a_baseline.json, semilla 42, 5.000 épocas. La u y la v se parecen y quedan juntas en el latente, por eso comparten el error. Esta red es la que usamos en el resto del ejercicio 1.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Hace falta una capa oculta de al menos 16 neuronas</h2>
+  <figure><img src="assets/reports__presentacion__e1_arquitecturas.png" alt="Semillas que llegan al objetivo según las capas ocultas"></figure>
+  <p class="take">Más capas aprenden <em>antes</em>, no mejor: 64-32-16 llega en 200 épocas, 16 en 2.000.</p>
+  <aside class="notes">Latente 2, tanh, Adam con η = 0,01, 5.000 épocas y 5 semillas por arquitectura. Sin capa oculta el codificador es lineal: proyectar 35 dimensiones a 2 en línea recta no separa 32 letras (12 a 14 píxeles mal en la peor). Con 8 neuronas tampoco: 6 a 8 píxeles. 16-8 y 32-16 fallan en alguna semilla porque η = 0,01 es agresivo para esas redes (ver estabilidad). La época mediana es la primera vez que las 32 letras quedan con a lo sumo un píxel mal, medida cada 100 épocas.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Las redes chicas fallan siempre en las mismas letras</h2>
+  <figure><img src="assets/reports__ej1_pruebas__redes_chicas_letras_que_fallan.png" alt="Letras que no aprende cada red chica, por semilla"></figure>
+  <p class="take">Con 8 neuronas ocultas, <em>f</em> y <em>m</em> fallan en las 5 semillas; con 32-16, casi ninguna.</p>
+  <aside class="notes">Cada celda cuenta en cuántas de 5 semillas esa letra quedó con más de un píxel mal. Sin capas ocultas falla casi todo; con 8 ocultas fallan sobre todo las letras con muchos trazos: f y m en 5 de 5, e, n, r, s en 4 de 5. Con 32-16 y latente 2 cumple 4 de 5 semillas; la que falla erra en n, r, u, v o w, letras parecidas entre sí.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Con un latente de 1 dimensión no alcanza; con 2, sí</h2>
+  <figure><img src="assets/reports__presentacion__e1_latente_tamano.png" alt="Semillas que llegan al objetivo según la dimensión latente"></figure>
+  <p class="take">2 es el mínimo. Con 3 o 5 dimensiones llega igual o un poco antes.</p>
+  <aside class="notes">Ocultas 32-16, tanh, Adam con η = 0,01. Con latente 1 el mejor caso queda con 2 píxeles mal y el peor con 7. La semilla que falla con 2 y con 3 es la misma (semilla 1): con η = 0,01 esa inicialización se traba, no es un límite del latente.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Con una dimensión, la k y la h quedan encimadas</h2>
+  <figure><img src="assets/reports__ej1_pruebas__latente_1d_letras.png" alt="Las 32 letras en un latente de una dimensión"></figure>
+  <p class="take">Cada letra tiene solo dos vecinas. k y h caen a 0,1 de distancia y la red no las separa.</p>
+  <aside class="notes">En una dimensión el orden es lo único que hay: si dos letras parecidas tienen que estar al lado, las demás quedan obligadas a ubicarse en fila. En esta semilla todas las letras salvo h (4 píxeles mal) y k (3) se aprenden. En dos dimensiones cada letra puede tener varias vecinas.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>SGD no llega; con momentum o Adam, sí</h2>
+  <figure><img src="assets/reports__presentacion__e1_optimizacion.png" alt="Letras aprendidas por época según optimizador y activación"></figure>
+  <p class="take">Con momentum, RMSProp o Adam llegan las 32. La activación cambia poco: todas antes de la época 1.000.</p>
+  <aside class="notes">Mediana de 5 semillas, red 32-16 con latente 2. SGD con η = 0,01 termina con 19 a 20 letras: 0 de 5 semillas llegan. Momentum (0,9) llega en la época 1.000, RMSProp y Adam con η = 0,001 entre 1.800 y 2.200, Adam con η = 0,01 en 300. Activaciones con Adam η = 0,01: ReLU y leaky ReLU 5 de 5, tanh y sigmoide 4 de 5; la sigmoide es la más lenta (época mediana 1.000).</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Con η alto, a veces vuelve a fallar</h2>
+  <figure><img src="assets/reports__ej1_pruebas__estabilidad_semillas_en_objetivo.png" alt="Porcentaje de semillas en el objetivo a lo largo de 10.000 épocas"></figure>
+  <p class="take">Con 32-16, η = 0,01 sale del objetivo en el <em>17 %</em> de los controles; con 0,003, en el 2 %.</p>
+  <aside class="notes">10 semillas por curva y 10.000 épocas. Que llegue una vez no alcanza: con η alto la pérdida rebota y alguna letra vuelve a tener 2 píxeles mal. Con η = 0,003 todas las configuraciones terminan 10 de 10. La red más grande, 64-32-16, no sale nunca del objetivo con ningún η.</aside>
+</section>
+
+<section class="statement">
+  <h2>Para aprender las 32 letras</h2>
+  <ol>
+    <li>Una capa oculta de 16 neuronas o más</li>
+    <li>Momentum o un optimizador adaptativo; con η alto, vigilar que no rebote</li>
+    <li>Latente de 2: con 1 no entra</li>
+  </ol>
+</section>
+
+<section class="section">
+  <h2>Espacio latente</h2>
+  <p class="roadmap">Aprender las 32 letras · <span class="current">Espacio latente</span> · Letras nuevas · Denoising</p>
+</section>
+
+<section class="figure has-take">
+  <h2>Las letras parecidas quedan cerca en el latente</h2>
+  <figure><img src="assets/reports__presentacion__e1_latente_letras.png" alt="Cada letra dibujada en su posición del espacio latente"></figure>
+  <p class="take">Vecinas: u–w, m–n, k–h, d–g, i–l. <em>DEL</em>, la única llena, queda sola.</p>
+  <aside class="notes">Cada letra está dibujada donde la pone el codificador (el punto azul es la posición exacta). Arriba quedan las de dos patas y arcos: u, w, v, m, n, r, k, h. A la izquierda las de trazo vertical: i, l, la barra. Abajo a la izquierda, d y g, que comparten el ojo y el palo. Nadie le pidió a la red que agrupe por forma: sale de reconstruir.</aside>
+</section>
+
+<section class="section">
+  <h2>Letras nuevas</h2>
+  <p class="roadmap">Aprender las 32 letras · Espacio latente · <span class="current">Letras nuevas</span> · Denoising</p>
+</section>
+
+<section class="side narrow">
+  <h2>Decodificando todo el plano aparecen letras nuevas</h2>
+  <main>
+    <figure><img src="assets/reports__presentacion__e1_mapa_decodificado.png" alt="Decodificación de una grilla del espacio latente"></figure>
+    <div class="points">
+      <p>Grilla de 18×18 sobre el plano, decodificada</p>
+      <p>Las letras ocupan regiones; entre ellas, mezclas</p>
+      <p>En naranja, lo que no está en el font: <em>63 %</em></p>
+    </div>
+  </main>
+  <aside class="notes">La grilla cubre la caja que contiene a los 32 códigos, con un 8 % de margen. Arriba a la izquierda está la orientación del latente: z1 crece a la derecha y z2 hacia arriba, igual que en el gráfico anterior. Gris quiere decir que la red no está segura de ese píxel (probabilidad cerca de 0,5). Abajo a la derecha está la zona de DEL: bloques casi llenos.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>De una letra a otra se pasa por letras que no existen</h2>
+  <figure><img src="assets/reports__presentacion__e1_interpolacion.png" alt="Interpolación en línea recta entre a y e, o y x, l y t"></figure>
+  <p class="take">Recorrido en línea recta entre los códigos; en naranja, patrones fuera del font: <em>10 de 27</em> pasos.</p>
+  <aside class="notes">Decodificamos 9 puntos equiespaciados entre los dos códigos y binarizamos. De a a e pasa por q y z, que están en el camino, y por cuatro e "abiertas" que no existen en el font. De o a x pasa por mezclas. De l a t pasa por la barra vertical (|), que está entre las dos en el latente.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Algunas letras nuevas son nítidas</h2>
+  <figure><img src="assets/reports__presentacion__e1_letras_nuevas.png" alt="Seis letras nuevas y la letra del font más parecida a cada una"></figure>
+  <p class="take"><em>170</em> patrones distintos a 3 píxeles o más de toda letra, con cada píxel decidido.</p>
+  <aside class="notes">Barrimos el plano con una grilla de 160×160. Nos quedamos con los patrones en que cada píxel está lejos de la duda (probabilidad menor a 0,25 o mayor a 0,75) y que difieren en al menos 3 píxeles de toda letra del font. Mostramos los que ocupan más área del plano, uno por letra parecida y sin los bloques casi llenos cerca de DEL. Es la respuesta a 1.a.4: el decodificador genera caracteres que no estaban en el entrenamiento.</aside>
+</section>
+
+<!-- Denoising -->
+
+<section class="section">
+  <h2>Denoising autoencoder</h2>
+  <p class="roadmap">Aprender las 32 letras · Espacio latente · Letras nuevas · <span class="current">Denoising</span></p>
+</section>
+
+<section class="figure has-take">
+  <h2>Denoising: entra la letra rota, sale la limpia</h2>
+  <figure><img src="assets/reports__presentacion__e1b_red.png" alt="La letra limpia se corrompe, pasa por la red y la salida se compara con la limpia"></figure>
+  <p class="take">Misma red y misma pérdida. El ruido invierte cada píxel con probabilidad p y se sortea de nuevo en cada lote.</p>
+  <aside class="notes">Lo único que cambia respecto del autoencoder es la entrada: la red recibe la letra rota y la pérdida la compara con la letra limpia. Como el ruido se sortea de nuevo en cada lote, la red nunca ve dos veces la misma letra rota y no puede memorizar las corrupciones. Implementamos cuatro ruidos: invertir píxeles, apagarlos, sal y pimienta y gaussiano; el principal es invertir. La red de la figura es la que elegimos: latente 8 (siguiente diapositiva).</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Para limpiar ruido conviene un latente de 8 y no de 2</h2>
+  <figure><img src="assets/reports__presentacion__e1b_latente.png" alt="Error de salida según el ruido de prueba para latentes 2, 4, 8 y 16"></figure>
+  <p class="take">Elegimos <em>35 → 32 → 16 → 8</em>, entrenada con 10 % de ruido: 0,5 píxeles mal con 10 %, contra 3,5 de la entrada.</p>
+  <aside class="notes">Media de 3 semillas, ocultas 32-16, entrenadas invirtiendo el 10 % de los píxeles y probadas con 50 repeticiones del font por nivel. Con latente 2, el que exige 1.a, a 10 % de ruido quedan 0,86 píxeles mal; con 8, 0,54. Además con latente 2 ninguna semilla reconstruye las letras limpias con a lo sumo 1 píxel; con 8, las tres. Con 16 no mejora: sobra capacidad y empieza a copiar parte del ruido. Nuestros compañeros probaron también 64-32 y llegaron a lo mismo (apéndice).</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Con 10 % de ruido acierta; con 20 %, a veces no</h2>
+  <figure><img src="assets/reports__presentacion__e1b_ejemplos.png" alt="Letras originales, con ruido y la salida de la red"></figure>
+  <p class="take">Con 20 %, la m se vuelve otra cosa y la s cae en DEL: la entrada ya se parece más a otra letra.</p>
+  <aside class="notes">Con 20 % se invierten en promedio 7 de los 35 píxeles. La red siempre devuelve algo cercano a una letra que conoce: cuando el ruido acerca la entrada a otra letra, devuelve esa otra, limpia. No es un error de la red sino un límite del problema.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Un autoencoder entrenado sin ruido empeora la letra</h2>
+  <figure><img src="assets/reports__presentacion__e1b_niveles.png" alt="Error de salida según el ruido de prueba para redes entrenadas con distintos niveles"></figure>
+  <p class="take">Con 10 % de ruido: 3,5 píxeles mal a la entrada, <span class="warm">7,8</span> con la red común, <em>0,9</em> con la entrenada con ruido.</p>
+  <aside class="notes">Latente 2 y ocultas 32-16, 3 semillas. La red común (0 %) aprendió a reconstruir letras perfectas y no sabe qué hacer con una rota: la manda a cualquier lugar del latente. Entrenar con 5 o 10 % da casi lo mismo. Con 20 % limpia mejor el ruido fuerte, pero con letras limpias ya comete 1,5 píxeles: aprende a desconfiar de la entrada. 10 % es el compromiso.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Limpia bien solo el ruido con el que se entrenó</h2>
+  <figure><img src="assets/reports__ej1_pruebas__denoising_tipos_de_ruido.png" alt="Error de salida entrenando con un ruido y probando con otro"></figure>
+  <p class="take">Entrenada apagando píxeles, no sabe qué hacer con los que se prenden: <span class="warm">4,8 a 9,2</span> píxeles mal.</p>
+  <aside class="notes">Latente 8, ocultas 32-16, 3 semillas. Invertir es el ruido más general: entrenada así, limpia los cuatro tipos con menos de medio píxel mal. Apagar solo saca píxeles: la red aprende que todo píxel encendido es real, y cuando el ruido prende píxeles los deja.</aside>
+</section>
+
+<!-- ===================================================================== Ejercicio 2 -->
+
+<section class="divider">
+  <p class="number">2</p>
+  <h2>VAE de sonido</h2>
+  <p class="lead">Notas de instrumentos reales. ¿Puede inventar una nueva?</p>
+  <aside class="notes">Elegimos audio en lugar de imágenes porque una muestra generada se puede escuchar y juzgar directamente: si suena a instrumento o no. Y los espectrogramas se pueden mirar como imágenes.</aside>
+</section>
+
+<section class="section">
+  <h2>Los datos</h2>
+  <p class="roadmap"><span class="current">Los datos</span> · Autoencoder contra VAE · Generar</p>
+</section>
+
+<section>
+  <h2>1.108 notas de 10 familias de instrumentos</h2>
+  <div class="tiles five">
+    <figure><img src="assets/reports__presentacion__espectrogramas__familia_bass.png" alt=""><figcaption>bajo</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__familia_bass.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__familia_brass.png" alt=""><figcaption>metal</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__familia_brass.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__familia_flute.png" alt=""><figcaption>flauta</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__familia_flute.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__familia_guitar.png" alt=""><figcaption>guitarra</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__familia_guitar.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__familia_keyboard.png" alt=""><figcaption>teclado</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__familia_keyboard.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__familia_mallet.png" alt=""><figcaption>percusión</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__familia_mallet.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__familia_organ.png" alt=""><figcaption>órgano</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__familia_organ.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__familia_reed.png" alt=""><figcaption>lengüeta</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__familia_reed.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__familia_string.png" alt=""><figcaption>cuerdas</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__familia_string.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__familia_vocal.png" alt=""><figcaption>voz</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__familia_vocal.wav">oír</button></figure>
+  </div>
+  <p class="take">NSynth: un segundo a 16 kHz, notas MIDI 48 a 72, hasta 150 por familia.</p>
+  <aside class="notes">NSynth es un dataset de Google Magenta con notas aisladas de mil instrumentos. Usamos el split de test (4.096 notas, 349 MB), filtramos el registro medio (MIDI 48 a 72, de do3 a do5) y tomamos hasta 150 notas por familia al azar, con semilla fija: quedan 1.108. Todas las de la diapositiva son do central (MIDI 60). Vertical: frecuencia (bandas mel, graves abajo); horizontal: el segundo de duración. Lo que se escucha ya pasó por nuestro códec, como todo lo que sale de la red.</aside>
+</section>
+
+<section class="figure">
+  <h2>Cada nota entra a la red como un espectrograma</h2>
+  <figure style="height: 400px"><img src="assets/reports__presentacion__e2_representacion.png" alt="Onda, espectro lineal y espectrograma mel de una nota"></figure>
+  <div class="players">
+    <button class="play big" data-sound="assets/reports__presentacion__audio__representacion_original.wav">original</button>
+    <button class="play big" data-sound="assets/reports__presentacion__audio__representacion_codec.wav">ida y vuelta por el códec</button>
+    <p class="muted" style="font-size: 26px">8.192 valores en [0, 1]: decibeles con 70 dB de rango</p>
+  </div>
+  <aside class="notes">Transformada de Fourier por ventanas de 1.024 muestras cada 256, pasamos a 128 bandas mel (más resolución en graves, como el oído) y a decibeles; 0 es 70 dB por debajo del máximo posible y 1 el máximo. La red solo ve magnitudes: la fase se pierde. Para volver a audio se reconstruye el espectro lineal desde las bandas y se estima la fase con Griffin-Lim (60 iteraciones). Por eso siempre comparamos lo que sale de la red con el original pasado por el mismo códec.</aside>
+</section>
+
+<section>
+  <h2>Lo metálico venía de pasar a audio, no de la red</h2>
+  <div class="numbers three">
+    <div><p class="value warm">19,8</p><p class="label">dB de distorsión en una nota de voz, sin red de por medio</p></div>
+    <div><p class="value">14,0</p><p class="label">invirtiendo las bandas sin valores negativos (NNLS)</p></div>
+    <div><p class="value">7,3</p><p class="label">con 128 bandas en lugar de 64</p></div>
+  </div>
+  <p class="take">Las notas con muchos armónicos eran las peores: con 64 bandas, una banda aguda abarcaba varios armónicos.</p>
+  <aside class="notes">Distancia log-espectral entre la nota original y la misma nota codificada y decodificada, con piso de 70 dB. Primero sacamos a la red de la ecuación: aun sin red, el audio sonaba metálico. Con fase verdadera el error seguía, así que no era Griffin-Lim (aporta 1 a 3 dB) sino volver de bandas mel al espectro lineal. La pseudoinversa del banco de filtros da valores negativos que recortábamos a cero: el espectro quedaba con picos y huecos regulares, que suenan metálicos. Ahora resolvemos mínimos cuadrados con x ≥ 0 por actualizaciones multiplicativas. Y con 64 bandas, por encima de 1 kHz cada banda tenía 125 a 650 Hz de ancho, más que la separación entre armónicos de estas notas (130 a 520 Hz). Reentrenamos con 128.</aside>
+</section>
+
+<section class="section">
+  <h2>Autoencoder contra VAE</h2>
+  <p class="roadmap">Los datos · <span class="current">Autoencoder contra VAE</span> · Generar</p>
+</section>
+
+<section class="figure has-take">
+  <h2>El VAE: el codificador da una media y un desvío</h2>
+  <figure><img src="assets/reports__presentacion__e2_red.png" alt="VAE: 8192-512-128, luego μ y log σ², z = μ + σ·ε y el decodificador espejo"></figure>
+  <p class="take">Pérdida: error cuadrático + 0,5 · KL. Adam, η = 0,001, 200 épocas: 6 minutos.</p>
+  <aside class="notes">El codificador termina en 32 valores: 16 medias y 16 log-varianzas, una gaussiana por nota. z se sortea de esa gaussiana como μ + σ·ε, con ε de N(0, I): así el sorteo queda afuera de la red y el gradiente pasa por μ y σ (truco de reparametrización). La KL mide cuánto se aleja la gaussiana de cada nota de N(0, I) y es cero solo si μ = 0 y σ = 1. Su peso sube de 0 a 0,5 en las primeras 50 épocas: si arranca entero, la red aprende primero a ignorar la entrada. Usamos error cuadrático porque los espectrogramas son continuos. Para comparar entrenamos el mismo modelo sin la parte variacional: mismos datos, capas, semilla y épocas, con un latente de 16 que sale directo del codificador. Los gradientes del VAE están escritos a mano en src/models/variational.py.</aside>
+</section>
+
+<section class="side">
+  <h2>Cada nota es una nube chica dentro de N(0, I)</h2>
+  <main>
+    <figure><img src="assets/reports__presentacion__e2_posteriores.png" alt="Elipses de un desvío para 20 notas, sobre los círculos de N(0, I)"></figure>
+    <div class="points">
+      <p>Cada elipse: lo que da el codificador para una nota</p>
+      <p>Desvío de cada nota: <em>0,16</em></p>
+      <p>Las medias se reparten con desvío <em>1</em>, como N(0, I)</p>
+    </div>
+  </main>
+  <aside class="notes">Dos de las 16 dimensiones del latente; dos notas por familia. Cada elipse tiene de radio un desvío σ de esa nota; los puntos grises son las medias de las 1.108 notas, y los círculos punteados marcan 1 y 2 desvíos de N(0, I). La reconstrucción empuja a que cada nota tenga su lugar (σ chico); la KL empuja a que todo quede cerca del origen con desvío 1. El resultado: no quedan huecos grandes entre notas, así que un punto sorteado de N(0, I) cae cerca de alguna nota.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>En el VAE, los puntos al azar caen sobre las notas</h2>
+  <figure><img src="assets/reports__presentacion__e2_latentes.png" alt="Códigos de las notas en el autoencoder y en el VAE, con puntos sorteados de N(0, I)"></figure>
+  <p class="take">En color, las notas; en gris, puntos sorteados de N(0, I): lo que recibe el decodificador cuando generamos.</p>
+  <aside class="notes">Proyección a las dos componentes principales de los códigos de cada modelo (16 dimensiones), con la misma escala en los dos paneles. Para generar hay que elegir un z sin tener una nota: lo sorteamos de N(0, I). En el autoencoder nada fija dónde quedan los códigos: ocupan una nube amplia y los sorteos caen en una zona chica, entre notas, donde el decodificador nunca fue entrenado. En el VAE la nube de notas y la de sorteos coinciden. Este es el "problema de la representación en el espacio latente" de la consigna.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>El autoencoder aleja las notas del origen</h2>
+  <figure><img src="assets/reports__presentacion__e2_normas.png" alt="Histograma de la distancia al origen del código de cada nota"></figure>
+  <p class="take">Distancia media al origen: puntos de N(0, I) <em>3,9</em> · VAE <em>4,2</em> · autoencoder <span class="warm">7,2</span>.</p>
+  <aside class="notes">Lo mismo que la diapositiva anterior pero con las 16 dimensiones, sin proyectar: para cada nota medimos la distancia de su código al origen (la norma del vector z). En 16 dimensiones, un punto sorteado de N(0, I) está casi siempre a una distancia cercana a 4. Los códigos del VAE están ahí; los del autoencoder, casi al doble: los sorteos quedan adentro, lejos de las notas. Las 16 dimensiones del VAE se usan: la KL por dimensión va de 1,4 a 2,6, ninguna colapsó a la prior.</aside>
+</section>
+
+<section>
+  <h2>Con los mismos 6 puntos al azar, el AE da ruido y el VAE da notas</h2>
+  <div class="tiles six">
+    <p class="row-label">Autoencoder</p>
+    <figure><img src="assets/reports__presentacion__espectrogramas__muestra_ae_0.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__muestra_ae_0.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__muestra_ae_1.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__muestra_ae_1.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__muestra_ae_2.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__muestra_ae_2.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__muestra_ae_3.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__muestra_ae_3.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__muestra_ae_4.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__muestra_ae_4.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__muestra_ae_5.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__muestra_ae_5.wav">oír</button></figure>
+    <p class="row-label">VAE</p>
+    <figure><img src="assets/reports__presentacion__espectrogramas__muestra_vae_0.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__muestra_vae_0.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__muestra_vae_1.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__muestra_vae_1.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__muestra_vae_2.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__muestra_vae_2.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__muestra_vae_3.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__muestra_vae_3.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__muestra_vae_4.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__muestra_vae_4.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__muestra_vae_5.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__muestra_vae_5.wav">oír</button></figure>
+  </div>
+  <p class="take">El autoencoder llena todas las bandas; el VAE da armónicos limpios, con la energía de los datos.</p>
+  <aside class="notes">Los mismos seis vectores z, sorteados de N(0, I), pasados por los dos decodificadores. Energía media del espectrograma sobre 200 muestras: autoencoder 0,18, VAE 0,15, datos 0,14. La distancia de cada muestra a la nota real más parecida (raíz del error cuadrático) es 0,18 en el autoencoder y 0,13 en el VAE: el autoencoder decodifica puntos que nunca vio.</aside>
+</section>
+
+<section class="side">
+  <h2>A cambio, el VAE reconstruye un poco peor</h2>
+  <main>
+    <div class="tiles three">
+      <span></span><p class="row-label" style="text-align: center">metal</p><p class="row-label" style="text-align: center">guitarra</p><p class="row-label" style="text-align: center">lengüeta</p>
+      <p class="row-label">original</p>
+      <figure><img src="assets/reports__presentacion__espectrogramas__reconstruccion_0_original.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__reconstruccion_0_original.wav">oír</button></figure>
+      <figure><img src="assets/reports__presentacion__espectrogramas__reconstruccion_1_original.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__reconstruccion_1_original.wav">oír</button></figure>
+      <figure><img src="assets/reports__presentacion__espectrogramas__reconstruccion_2_original.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__reconstruccion_2_original.wav">oír</button></figure>
+      <p class="row-label">AE</p>
+      <figure><img src="assets/reports__presentacion__espectrogramas__reconstruccion_0_ae.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__reconstruccion_0_ae.wav">oír</button></figure>
+      <figure><img src="assets/reports__presentacion__espectrogramas__reconstruccion_1_ae.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__reconstruccion_1_ae.wav">oír</button></figure>
+      <figure><img src="assets/reports__presentacion__espectrogramas__reconstruccion_2_ae.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__reconstruccion_2_ae.wav">oír</button></figure>
+      <p class="row-label">VAE</p>
+      <figure><img src="assets/reports__presentacion__espectrogramas__reconstruccion_0_vae.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__reconstruccion_0_vae.wav">oír</button></figure>
+      <figure><img src="assets/reports__presentacion__espectrogramas__reconstruccion_1_vae.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__reconstruccion_1_vae.wav">oír</button></figure>
+      <figure><img src="assets/reports__presentacion__espectrogramas__reconstruccion_2_vae.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__reconstruccion_2_vae.wav">oír</button></figure>
+    </div>
+    <div class="points">
+      <p>Error medio: AE <em>0,0015</em>, VAE 0,0019</p>
+      <p>El AE gana en el <em>89 %</em> de las notas</p>
+      <p class="muted">En las 10 familias, de 1,15 a 1,30 veces</p>
+    </div>
+  </main>
+  <aside class="notes">Error cuadrático medio del espectrograma sobre las 1.108 notas, con los dos modelos entrenados idénticos salvo la parte variacional. El VAE reconstruye desde la media μ, sin sortear. Es lo esperable: la KL le cobra a cada código por alejarse del origen, así que el VAE tiene menos libertad para separar notas parecidas. Es el intercambio: un poco de nitidez a cambio de un espacio donde se puede muestrear. Error por familia en el apéndice.</aside>
+</section>
+
+<section class="section">
+  <h2>Generar</h2>
+  <p class="roadmap">Los datos · Autoencoder contra VAE · <span class="current">Generar</span></p>
+</section>
+
+<section>
+  <h2>El VAE genera notas nuevas, no copias del dataset</h2>
+  <div class="tiles six">
+    <p class="row-label">generada</p>
+    <figure><img src="assets/reports__presentacion__espectrogramas__muestra_vae_0.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__muestra_vae_0.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__muestra_vae_1.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__muestra_vae_1.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__muestra_vae_2.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__muestra_vae_2.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__muestra_vae_3.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__muestra_vae_3.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__muestra_vae_4.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__muestra_vae_4.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__muestra_vae_5.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__muestra_vae_5.wav">oír</button></figure>
+    <p class="row-label">la real más parecida</p>
+    <figure><img src="assets/reports__presentacion__espectrogramas__cercana_0.png" alt=""><figcaption>cuerdas</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__cercana_0.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__cercana_1.png" alt=""><figcaption>cuerdas</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__cercana_1.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__cercana_2.png" alt=""><figcaption>metal</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__cercana_2.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__cercana_3.png" alt=""><figcaption>cuerdas</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__cercana_3.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__cercana_4.png" alt=""><figcaption>metal</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__cercana_4.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__cercana_5.png" alt=""><figcaption>cuerdas</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__cercana_5.wav">oír</button></figure>
+  </div>
+  <p class="take">Cada una está <em>1,6 a 4,6 veces</em> más lejos de su nota más parecida que una nota real de la suya.</p>
+  <aside class="notes">Es la respuesta a 2.c. Son las mismas seis muestras del VAE de antes. Para cada una buscamos la nota del dataset más parecida por error cuadrático: está a 0,0095–0,028, mientras que una nota real típica está a 0,006 de su vecina más cercana (mediana sobre 300 notas). Tienen armónicos, ataque y caída como las notas reales, y se parecen a cuerdas y metales sin ser ninguna de ellas. Que sean sobre todo sostenidas es razonable: es lo más común en el dataset y lo que más energía tiene.</aside>
+</section>
+
+<section>
+  <h2>Interpolación: de un bajo a una voz</h2>
+  <div class="tiles eight">
+    <figure><img src="assets/reports__presentacion__espectrogramas__interpolacion_2_0.png" alt=""><figcaption>bajo</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__interpolacion_2_0.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__interpolacion_2_1.png" alt=""><figcaption>1/7</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__interpolacion_2_1.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__interpolacion_2_2.png" alt=""><figcaption>2/7</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__interpolacion_2_2.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__interpolacion_2_3.png" alt=""><figcaption>3/7</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__interpolacion_2_3.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__interpolacion_2_4.png" alt=""><figcaption>4/7</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__interpolacion_2_4.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__interpolacion_2_5.png" alt=""><figcaption>5/7</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__interpolacion_2_5.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__interpolacion_2_6.png" alt=""><figcaption>6/7</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__interpolacion_2_6.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__interpolacion_2_7.png" alt=""><figcaption>voz</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__interpolacion_2_7.wav">oír</button></figure>
+  </div>
+  <div class="players" style="margin-top: 22px">
+    <img src="assets/reports__presentacion__e2_camino_2.png" alt="El recorrido sobre el plano de las dos componentes principales" style="height: 210px; margin: 0">
+    <button class="play big" data-sound="assets/reports__presentacion__audio__interpolacion_2_recorrido.wav">los 8 seguidos</button>
+    <p class="muted" style="font-size: 26px">Ambas en do central: cambia el timbre, no la altura</p>
+  </div>
+  <aside class="notes">bass_electronic_018 a vocal_synthetic_003, las dos en MIDI 60. Decodificamos 8 puntos equiespaciados entre las dos medias μ. A la izquierda, el recorrido sobre el plano de las dos componentes principales, con las notas coloreadas por familia. El bajo se apaga rápido y tiene pocos armónicos; la voz sintética es sostenida y llena los agudos. A mitad de camino aparecen primero los agudos débiles y después se sostiene la nota: cada paso es un sonido plausible, no una mezcla de los dos extremos superpuestos.</aside>
+</section>
+
+<section>
+  <h2>Interpolación: de una guitarra a un órgano</h2>
+  <div class="tiles eight">
+    <figure><img src="assets/reports__presentacion__espectrogramas__interpolacion_1_0.png" alt=""><figcaption>guitarra</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__interpolacion_1_0.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__interpolacion_1_1.png" alt=""><figcaption>1/7</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__interpolacion_1_1.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__interpolacion_1_2.png" alt=""><figcaption>2/7</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__interpolacion_1_2.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__interpolacion_1_3.png" alt=""><figcaption>3/7</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__interpolacion_1_3.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__interpolacion_1_4.png" alt=""><figcaption>4/7</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__interpolacion_1_4.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__interpolacion_1_5.png" alt=""><figcaption>5/7</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__interpolacion_1_5.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__interpolacion_1_6.png" alt=""><figcaption>6/7</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__interpolacion_1_6.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__interpolacion_1_7.png" alt=""><figcaption>órgano</figcaption><button class="play" data-sound="assets/reports__presentacion__audio__interpolacion_1_7.wav">oír</button></figure>
+  </div>
+  <div class="players" style="margin-top: 22px">
+    <img src="assets/reports__presentacion__e2_camino_1.png" alt="El recorrido sobre el plano de las dos componentes principales" style="height: 210px; margin: 0">
+    <button class="play big" data-sound="assets/reports__presentacion__audio__interpolacion_1_recorrido.wav">los 8 seguidos</button>
+    <p class="muted" style="font-size: 26px">La caída se va alargando paso a paso</p>
+  </div>
+  <aside class="notes">guitar_acoustic_015 a organ_electronic_028, las dos en MIDI 60. Acá el cambio es más sutil: los armónicos agudos de la guitarra se apagan en la primera mitad del segundo; hacia el órgano duran cada vez más y la nota queda sostenida.</aside>
+</section>
+
+<section class="figure has-take">
+  <p class="tag">Extra</p>
+  <h2>Un minuto de techno hecho con sonidos del VAE</h2>
+  <figure style="height: 330px"><img src="assets/reports__presentacion__e2_tema.png" alt="Espectrograma del tema"></figure>
+  <div class="players"><button class="play big" data-sound="assets/reports__presentacion__audio__tema.wav">escuchar el tema</button></div>
+  <p class="take">Todos los sonidos salen del decodificador del VAE. El ritmo, la afinación y los filtros los pusimos nosotros.</p>
+  <aside class="notes">python -m src.song sobre la corrida del VAE. 32 compases a 128 BPM: intro, subida, breakdown sin bombo, drop y salida. Bajo, arpegio y pad son interpolaciones en el latente que avanzan compás a compás: el bajo va de bajo eléctrico a guitarra, el arpegio de teclado a órgano y luego a metal, el pad de voz a cuerdas. El bombo es el bajo decodificado con un barrido de altura; hi-hats y clap son la nota más aguda del dataset, codificada y decodificada por el VAE, y filtrada. Ningún sonido es audio original del dataset. Lo que no hace la red: los cambios de altura (remuestreo), las envolventes, los filtros y el sidechain.</aside>
+</section>
+
+<section class="figure has-take">
+  <p class="tag">Resultado negativo</p>
+  <h2>No logramos generar una altura que no vio</h2>
+  <figure><img src="assets/reports__ej2_notas_omitidas__microtonal.png" alt="Aciertos al interpolar hacia alturas omitidas"></figure>
+  <p class="take">Entre las vecinas de una nota omitida, acierta <span class="warm">5 de 27</span>. Mezclar los dos espectrogramas: 6 de 27.</p>
+  <aside class="notes">Pregunta extra, más allá de la consigna: si sacamos una altura del entrenamiento, ¿el punto medio entre sus dos vecinas genera esa altura? Con un timbre sintético controlado, 57 corridas: microtonos, tamaño latente (2, 4 y 16) y una pérdida auxiliar que enseña a interpolar con ternas conocidas. Con notas que sí vio, interpola bien (19 de 27 en ambos criterios). Con la nota omitida, la afinación sale bien 25 de 27 veces, pero el espectro no se parece al de la nota real: un estimador de altura se engaña con mezclas. La cercanía espectral cae a 5 de 27. Ninguna variante mejoró la generalización. El detalle está en reports/ej2_notas_omitidas/cierre.md y en el apéndice.</aside>
+</section>
+
+<section class="statement">
+  <h2>Conclusiones</h2>
+  <ol>
+    <li>Con una capa oculta, el autoencoder guarda cada letra en 2 números y la recupera casi sin errores</li>
+    <li>Las letras parecidas quedan cerca, y entre ellas el decodificador inventa letras nuevas</li>
+    <li>Para que un autoencoder limpie ruido, hay que entrenarlo con ruido</li>
+    <li>El VAE genera notas nuevas porque ordena el espacio latente; a cambio, reconstruye un poco peor</li>
+  </ol>
+</section>
+
+<!-- ===================================================================== Apéndice -->
+
+<section class="divider">
+  <p class="number">A</p>
+  <h2>Apéndice</h2>
+  <p class="lead">Gráficos de respaldo para preguntas.</p>
+</section>
+
+<section class="figure"><h2>Arquitecturas: curvas de aprendizaje</h2><figure><img src="assets/reports__ej1_resultados__ej1a_architectures__comparison_curves.png" alt="Curvas de aprendizaje por arquitectura"></figure></section>
+
+<section class="figure"><h2>Arquitecturas: píxeles mal al final</h2><figure><img src="assets/reports__ej1_resultados__ej1a_architectures__comparison_max_pixel_errors.png" alt="Máximo de píxeles mal por arquitectura"></figure></section>
+
+<section class="figure"><h2>Optimizadores: píxeles mal al final</h2><figure><img src="assets/reports__ej1_resultados__ej1a_optimizers__comparison_max_pixel_errors.png" alt="Máximo de píxeles mal por optimizador"></figure></section>
+
+<section class="figure"><h2>Activaciones: píxeles mal al final</h2><figure><img src="assets/reports__ej1_resultados__ej1a_activations__comparison_max_pixel_errors.png" alt="Máximo de píxeles mal por activación"></figure></section>
+
+<section class="figure"><h2>Dimensión latente: píxeles mal al final</h2><figure><img src="assets/reports__ej1_resultados__ej1a_latent_size__comparison_max_pixel_errors.png" alt="Máximo de píxeles mal por dimensión latente"></figure></section>
+
+<section class="figure"><h2>Denoising: arquitecturas y latentes</h2><figure><img src="assets/reports__ej1_pruebas__denoising_arquitecturas.png" alt="Error de salida por arquitectura de denoising"></figure></section>
+
+<section class="figure"><h2>VAE contra autoencoder: error por familia</h2><figure><img src="assets/reports__presentacion__e2_error_familias.png" alt="Error de reconstrucción por familia"></figure></section>
+
+<section class="figure"><h2>Notas omitidas: tamaño del latente</h2><figure><img src="assets/reports__ej2_notas_omitidas__latentes.png" alt="Aciertos por tamaño latente en notas omitidas"></figure></section>
+
+<section class="figure"><h2>Notas omitidas: pérdida auxiliar de interpolación</h2><figure><img src="assets/reports__ej2_notas_omitidas__perdida_auxiliar.png" alt="Aciertos según el peso de la pérdida auxiliar"></figure></section>
+
+</div></div>
+<script src="vendor/reveal/reveal.js"></script>
+<script src="vendor/reveal/plugin/notes.js"></script>
+<script>
+  Reveal.initialize({
+    width: 1280,
+    height: 720,
+    margin: 0.025,
+    center: false,
+    hash: true,
+    controls: false,
+    progress: false,
+    slideNumber: "c/t",
+    transition: "none",
+    backgroundTransition: "none",
+    plugins: [RevealNotes],
+  });
+
+  // Un solo sonido a la vez: otro botón, el mismo botón o cambiar de diapositiva lo cortan.
+  const player = new Audio();
+  let playingButton = null;
+
+  function stopSound() {
+    player.pause();
+    if (playingButton) playingButton.classList.remove("playing");
+    playingButton = null;
+  }
+
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest("button.play");
+    if (!button) return;
+    const wasPlaying = button === playingButton;
+    stopSound();
+    if (wasPlaying) return;
+    player.src = button.dataset.sound;
+    player.currentTime = 0;
+    player.play();
+    button.classList.add("playing");
+    playingButton = button;
+  });
+  player.addEventListener("ended", stopSound);
+  Reveal.on("slidechanged", stopSound);
+</script>
+</body>
+</html>
