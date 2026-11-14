@@ -1,0 +1,142 @@
+{
+  "protocol": {
+    "version": 1,
+    "count": 256,
+    "seeds": [
+      7,
+      17,
+      27
+    ],
+    "epsilon_seed": 2026112200,
+    "training_index_seed": 2026112100,
+    "display_indices": [
+      0,
+      32,
+      64,
+      96,
+      128,
+      160,
+      192,
+      224
+    ],
+    "fit_data": "training only",
+    "reserved_final_used": false,
+    "purpose": "Diagnosis of a fixed decoder, not replacement of the trained prior or a new acceptance test."
+  },
+  "methods": [
+    {
+      "seed": 7,
+      "method": "prior",
+      "count": 256,
+      "clean_count": 234,
+      "clean_rate": 0.9140625,
+      "nearest_train_mse": 0.005511100547293896,
+      "pairwise_mse": 0.03477367174591036
+    },
+    {
+      "seed": 7,
+      "method": "moment_gaussian",
+      "count": 256,
+      "clean_count": 241,
+      "clean_rate": 0.94140625,
+      "nearest_train_mse": 0.004980702862189844,
+      "pairwise_mse": 0.031705124828625794
+    },
+    {
+      "seed": 7,
+      "method": "posterior_mixture",
+      "count": 256,
+      "clean_count": 255,
+      "clean_rate": 0.99609375,
+      "nearest_train_mse": 0.0002212146181914561,
+      "pairwise_mse": 0.03381939187742432,
+      "reference_iou": 0.9702684395546555
+    },
+    {
+      "seed": 7,
+      "method": "mean_replay",
+      "count": 256,
+      "clean_count": 255,
+      "clean_rate": 0.99609375,
+      "nearest_train_mse": 0.0001906078924349149,
+      "pairwise_mse": 0.03387414873880945,
+      "reference_iou": 0.9724867569665928
+    },
+    {
+      "seed": 17,
+      "method": "prior",
+      "count": 256,
+      "clean_count": 243,
+      "clean_rate": 0.94921875,
+      "nearest_train_mse": 0.005463555629847052,
+      "pairwise_mse": 0.033994201987812916
+    },
+    {
+      "seed": 17,
+      "method": "moment_gaussian",
+      "count": 256,
+      "clean_count": 253,
+      "clean_rate": 0.98828125,
+      "nearest_train_mse": 0.004853737781615984,
+      "pairwise_mse": 0.03129072052240625
+    },
+    {
+      "seed": 17,
+      "method": "posterior_mixture",
+      "count": 256,
+      "clean_count": 256,
+      "clean_rate": 1.0,
+      "nearest_train_mse": 0.00020816225620397784,
+      "pairwise_mse": 0.03391453962192523,
+      "reference_iou": 0.9702797648306206
+    },
+    {
+      "seed": 17,
+      "method": "mean_replay",
+      "count": 256,
+      "clean_count": 256,
+      "clean_rate": 1.0,
+      "nearest_train_mse": 0.0001806065012241365,
+      "pairwise_mse": 0.03394902400469417,
+      "reference_iou": 0.973901569687613
+    },
+    {
+      "seed": 27,
+      "method": "prior",
+      "count": 256,
+      "clean_count": 241,
+      "clean_rate": 0.94140625,
+      "nearest_train_mse": 0.00534370143419108,
+      "pairwise_mse": 0.03321266199303486
+    },
+    {
+      "seed": 27,
+      "method": "moment_gaussian",
+      "count": 256,
+      "clean_count": 248,
+      "clean_rate": 0.96875,
+      "nearest_train_mse": 0.0047810857485199995,
+      "pairwise_mse": 0.030916683283520638
+    },
+    {
+      "seed": 27,
+      "method": "posterior_mixture",
+      "count": 256,
+      "clean_count": 256,
+      "clean_rate": 1.0,
+      "nearest_train_mse": 0.00021096691572899324,
+      "pairwise_mse": 0.033877367236922876,
+      "reference_iou": 0.9705635894763749
+    },
+    {
+      "seed": 27,
+      "method": "mean_replay",
+      "count": 256,
+      "clean_count": 256,
+      "clean_rate": 1.0,
+      "nearest_train_mse": 0.00017961739500514662,
+      "pairwise_mse": 0.033830611461013876,
+      "reference_iou": 0.974726475504881
+    }
+  ]
+}

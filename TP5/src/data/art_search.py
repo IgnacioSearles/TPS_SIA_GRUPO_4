@@ -75,6 +75,12 @@ CANDIDATES = {
                          'source':'cnn4k_refined_beta002_50','warmup':0,'lr':.0003,'beta':.02,
                          'refinement':True,'refinement_init':'identity','refinement_layers':2,
                          'transfer':'identity_refinement'},
+    'cnn4k_conv2_rebalance_beta002_20': {'count':4096,'epochs':20,'channels':[16,32],'hidden':[256,128],
+                         'source':'cnn4k_lowbeta_conv2_50','warmup':0,'lr':.0001,'beta':.02,
+                         'refinement':True,'refinement_init':'identity','refinement_layers':2},
+    'cnn4k_conv2_rebalance_beta01_20': {'count':4096,'epochs':20,'channels':[16,32],'hidden':[256,128],
+                         'source':'cnn4k_lowbeta_conv2_50','warmup':0,'lr':.0001,'beta':.1,
+                         'refinement':True,'refinement_init':'identity','refinement_layers':2},
 }
 
 

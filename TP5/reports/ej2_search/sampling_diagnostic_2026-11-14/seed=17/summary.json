@@ -1,0 +1,83 @@
+{
+  "inputs": {
+    "model_sha256": "52fe58277d21dfb1abc26bd7cb2e775ee0c76c77da6a5df8a270b2b920d1e044",
+    "config_sha256": "d12743ff20c61b2e4c1a760600db942c15b0bf6ead1f853fd77167784f67f6dd",
+    "training_samples_sha256": "81551a6acd2ba395988d15306f61eff2943f121242a18c797c8abae694a1a50b",
+    "protocol": {
+      "version": 1,
+      "count": 256,
+      "seeds": [
+        7,
+        17,
+        27
+      ],
+      "epsilon_seed": 2026112200,
+      "training_index_seed": 2026112100,
+      "display_indices": [
+        0,
+        32,
+        64,
+        96,
+        128,
+        160,
+        192,
+        224
+      ],
+      "fit_data": "training only",
+      "reserved_final_used": false,
+      "purpose": "Diagnosis of a fixed decoder, not replacement of the trained prior or a new acceptance test."
+    },
+    "code": {
+      "src/analysis/art_sampling_control.py": "a11772f468ea32243e463387ed4610b5cb8f35308c27311bced26e8f32521529",
+      "src/data/art.py": "0865664d6cd9b1c5ce722d9b792d1f57798ea08c864a2fc31af76ce4a89aa50d",
+      "src/nn/spatial.py": "7c694378071a7e834007b456d6f658279d1ee11dc6b8acf278735109014e9fab",
+      "src/models/factory.py": "3e0549d85e9fb9018a2573dcb8ab17c9ce34bbbefaca1ee77c75787a71aff966",
+      "src/evaluation/art_cleanliness.py": "1313427a9baee90af2c43308b0993db96843fe18ec4b77131382992d04665196",
+      "src/evaluation/art_geometry.py": "97e50762149eedeacc16b93130963174d692dcc79181016df0e1170b9d14f58a"
+    }
+  },
+  "seed": 17,
+  "methods": [
+    {
+      "seed": 17,
+      "method": "prior",
+      "count": 256,
+      "clean_count": 243,
+      "clean_rate": 0.94921875,
+      "nearest_train_mse": 0.005463555629847052,
+      "pairwise_mse": 0.033994201987812916
+    },
+    {
+      "seed": 17,
+      "method": "moment_gaussian",
+      "count": 256,
+      "clean_count": 253,
+      "clean_rate": 0.98828125,
+      "nearest_train_mse": 0.004853737781615984,
+      "pairwise_mse": 0.03129072052240625
+    },
+    {
+      "seed": 17,
+      "method": "posterior_mixture",
+      "count": 256,
+      "clean_count": 256,
+      "clean_rate": 1.0,
+      "nearest_train_mse": 0.00020816225620397784,
+      "pairwise_mse": 0.03391453962192523,
+      "reference_iou": 0.9702797648306206
+    },
+    {
+      "seed": 17,
+      "method": "mean_replay",
+      "count": 256,
+      "clean_count": 256,
+      "clean_rate": 1.0,
+      "nearest_train_mse": 0.0001806065012241365,
+      "pairwise_mse": 0.03394902400469417,
+      "reference_iou": 0.973901569687613
+    }
+  ],
+  "weights_modified": false,
+  "training_performed": false,
+  "interpretation": "Prior is the canonical generator. Other samplers are training-fitted diagnostics; mean replay is reconstruction, not new generation. No novelty or heldout claim."
+}

@@ -1,0 +1,35 @@
+{
+  "candidate": "cnn4k_conv2_rebalance_beta01_20",
+  "seed": 7,
+  "inputs": {
+    "model_sha256": "b4e0fe84cca0c1fd6a9e78321a4d620a818ccc789b781d093e080be13810c934",
+    "config_sha256": "851e1b6dc44b8d92c4831500fb7bd88b95e4da6cd6cdac892ae5fc623b7ef2bf",
+    "protocol": {
+      "version": 1,
+      "count": 256,
+      "seed": 2026111800,
+      "distribution": "N(0,I)",
+      "data_manifest_sha256": "bf0d023ffc2b954a54d46c3441935a414f4e1707e832856dd12879f77828c1bd",
+      "primary_criteria_unchanged": true,
+      "final_split_used": false,
+      "purpose": "Additional validation Monte Carlo diagnostic, never a replacement for the primary 64 cases."
+    },
+    "code": {
+      "src/analysis/art_search_audit.py": "99f56381c055ac325f7d6371c1e5bd3afd73c3d38d58cf3328ecddf5580c2048",
+      "src/evaluation/art_cleanliness.py": "1313427a9baee90af2c43308b0993db96843fe18ec4b77131382992d04665196",
+      "src/models/factory.py": "3e0549d85e9fb9018a2573dcb8ab17c9ce34bbbefaca1ee77c75787a71aff966",
+      "src/nn/spatial.py": "7c694378071a7e834007b456d6f658279d1ee11dc6b8acf278735109014e9fab"
+    }
+  },
+  "count": 256,
+  "clean_count": 235,
+  "clean_rate": 0.91796875,
+  "output_directory": "results/art_search/validation_audit/cnn4k_conv2_rebalance_beta01_20/seed=7",
+  "conditional_wilson95": [
+    0.8778558535002986,
+    0.9457228190448214
+  ],
+  "interpretation": "Sampling interval conditional on this fitted model; ignores hyperparameter selection and does not certify semantic shape validity.",
+  "all_cases_saved": true,
+  "corrective_postprocessing": false
+}

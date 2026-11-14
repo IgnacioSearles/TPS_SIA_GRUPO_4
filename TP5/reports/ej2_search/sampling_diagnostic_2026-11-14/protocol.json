@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "count": 256,
+  "seeds": [
+    7,
+    17,
+    27
+  ],
+  "epsilon_seed": 2026112200,
+  "training_index_seed": 2026112100,
+  "display_indices": [
+    0,
+    32,
+    64,
+    96,
+    128,
+    160,
+    192,
+    224
+  ],
+  "fit_data": "training only",
+  "reserved_final_used": false,
+  "purpose": "Diagnosis of a fixed decoder, not replacement of the trained prior or a new acceptance test."
+}
