@@ -15,6 +15,7 @@ Se conserva la fórmula MSE + beta·KL. El calentamiento inicial es de 50 época
 | cnn4k_linear100 | 7 | 32 | 4096 | 100 | 0.5 | 0.8916 | 0.8375 | 0.8636 | 0.0% | No |
 | cnn4k_lowbeta0005_25 | 7 | 32 | 4096 | 100+50+50+25 | 0.005 | 0.9337 | 0.9163 | 0.8966 | 90.6% | Sí |
 | cnn4k_lowbeta_conv2_50 | 7 | 32 | 4096 | 100+50+50+50 | 0.02 | 0.9331 | 0.9164 | 0.8963 | 96.9% | Sí |
+| cnn4k_lowbeta_conv2_50 | 7,17,27 | 32 | 4096 | 100+50+50+50 | 0.02 | 0.9337 | 0.9166 | 0.8991 | 94.8% | Sí |
 | cnn4k_lowbeta_dense50 | 7 | 32 | 4096 | 100+50+50+50 | 0.02 | 0.9334 | 0.9157 | 0.8976 | 92.2% | Sí |
 | cnn4k_lowbeta_more25 | 7 | 32 | 4096 | 100+50+50+25 | 0.02 | 0.9336 | 0.9162 | 0.8970 | 92.2% | Sí |
 | cnn4k_lowbeta_more50 | 7 | 32 | 4096 | 100+50+50+50 | 0.02 | 0.9329 | 0.9160 | 0.8963 | 92.2% | Sí |
@@ -60,6 +61,7 @@ Los recuentos se solapan: una imagen puede fallar por varios motivos. Un 0 % de 
 | cnn4k_linear100 / [7] | 64 | 64 | 6 | 13 | 50 |
 | cnn4k_lowbeta0005_25 / [7] | 64 | 6 | 0 | 0 | 1 |
 | cnn4k_lowbeta_conv2_50 / [7] | 64 | 2 | 0 | 0 | 1 |
+| cnn4k_lowbeta_conv2_50 / [7, 17, 27] | 192 | 9 | 0 | 1 | 2 |
 | cnn4k_lowbeta_dense50 / [7] | 64 | 5 | 0 | 0 | 1 |
 | cnn4k_lowbeta_more25 / [7] | 64 | 5 | 0 | 0 | 1 |
 | cnn4k_lowbeta_more50 / [7] | 64 | 5 | 0 | 0 | 2 |
@@ -94,6 +96,7 @@ Se interrumpieron dos pilotos de refinamiento aleatorio tras registrar 50 época
 - `results/art_search/validation/cnn4k_linear100/seeds_7`
 - `results/art_search/validation/cnn4k_lowbeta0005_25/seeds_7`
 - `results/art_search/validation/cnn4k_lowbeta_conv2_50/seeds_7`
+- `results/art_search/validation/cnn4k_lowbeta_conv2_50/seeds_7_17_27`
 - `results/art_search/validation/cnn4k_lowbeta_dense50/seeds_7`
 - `results/art_search/validation/cnn4k_lowbeta_more25/seeds_7`
 - `results/art_search/validation/cnn4k_lowbeta_more50/seeds_7`

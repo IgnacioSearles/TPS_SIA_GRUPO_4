@@ -110,3 +110,17 @@ cinco casos limpios inequívocos por familia y semilla sigue pendiente.
 Se verificaron los hashes de los 219 archivos de evidencia y la preparación
 de la búsqueda desde un archivo de Git del commit, sin resultados locales.
 Ambas verificaciones pasaron.
+
+
+### Revisión de la confirmación y de la presentación
+
+Terminaron las tres semillas de conv2: IoU media 0,93374, limpieza principal
+182/192 (94,8 %) y auditoría 716/768 (93,2 %). Cumple validación automática,
+pero conserva formas híbridas y aún faltan revisión formal de diversidad y
+prueba final reservada. No se abrieron referencias finales ni se iniciaron más
+corridas en esta revisión. Se integró la presentación remota (`644e2b0`) con el
+merge `83025b8`, sin conflictos ni pérdida de resultados locales.
+
+La [revisión y propuesta](revision_2026-11-14.md) registra estado, límites y
+agregados concretos al deck. La evidencia por semilla se conserva en
+`evidence/2026-11-14_conv2_confirmation/`.

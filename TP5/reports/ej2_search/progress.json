@@ -257,6 +257,38 @@
       "directory": "results/art_search/validation/cnn4k_lowbeta_conv2_50/seeds_7"
     },
     {
+      "candidate": "cnn4k_lowbeta_conv2_50",
+      "seeds": [
+        7,
+        17,
+        27
+      ],
+      "resolution": 32,
+      "train_count": 4096,
+      "epochs": 50,
+      "phase_epochs": [
+        100,
+        50,
+        50,
+        50
+      ],
+      "beta": 0.02,
+      "status_sha256": "dd34c2bdb442837916b1e7edc5c2db4049b67fc49b8153a8ad2e09cff5a10ba5",
+      "macro_iou": 0.9337400197112588,
+      "triangle_iou": 0.9166203917346699,
+      "rectangle_iou": 0.8990795572876539,
+      "clean_rate": 0.9479166666666666,
+      "automatic_pass": true,
+      "failed_counts_nonexclusive": {
+        "edge_band_ratio": 9,
+        "background_rmse": 0,
+        "chromatic_rmse": 1,
+        "interior_rmse": 2
+      },
+      "generated_count": 192,
+      "directory": "results/art_search/validation/cnn4k_lowbeta_conv2_50/seeds_7_17_27"
+    },
+    {
       "candidate": "cnn4k_lowbeta_dense50",
       "seeds": [
         7
