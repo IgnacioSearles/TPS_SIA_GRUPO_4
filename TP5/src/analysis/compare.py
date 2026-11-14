@@ -72,13 +72,14 @@ def _plot_curves(
     for name, runs in runs_by_configuration.items():
         histories = [_read_csv(directory / run["run"] / HISTORY_FILE) for run in runs]
         epochs = [float(row["epoch"]) for row in histories[0]]
-        mean_curve = np.mean(
-            [[float(row[curve]) for row in history] for history in histories], axis=0
-        )
-        axis.plot(epochs, mean_curve, label=name)
+        values = np.array([[float(row[curve]) for row in history] for history in histories])
+        (line,) = axis.plot(epochs, values.mean(axis=0), label=name)
+        # Rango entre semillas en lugar de ± desvío: siempre positivo, así sirve también en escala log.
+        axis.fill_between(epochs, values.min(axis=0), values.max(axis=0), color=line.get_color(), alpha=0.15,
+                          linewidth=0)
     if curve == DEFAULT_CURVE:
         axis.set_yscale("log")
-    axis.set(xlabel="Época", ylabel=f"{curve} (media entre semillas)")
+    axis.set(xlabel="Época", ylabel=f"{curve} (media; sombra: mín–máx entre semillas)")
     axis.legend(frameon=False, fontsize=8)
     _finish(figure, axis, directory / "comparison_curves.png")
 

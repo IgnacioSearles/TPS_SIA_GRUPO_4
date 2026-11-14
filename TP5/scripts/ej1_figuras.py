@@ -86,7 +86,7 @@ def runs(experiment: str) -> list[dict]:
 
 
 def read_csv(path: Path) -> list[dict]:
-    with path.open() as handle:
+    with path.open(encoding="utf-8") as handle:
         return list(csv.DictReader(handle))
 
 
@@ -124,7 +124,12 @@ def stability(report: list[str]) -> None:
             within = np.array(
                 [[int(row["max_pixel_errors"]) <= TARGET for row in history] for history in histories]
             )
-            axis.plot(epochs, within.mean(axis=0) * 100, color=color, label=f"η = {rate:g}")
+            share = within.mean(axis=0)
+            # Banda: ± error estándar de una proporción entre las semillas, sqrt(p (1 - p) / n).
+            spread = np.sqrt(share * (1 - share) / len(histories))
+            axis.plot(epochs, share * 100, color=color, label=f"η = {rate:g}")
+            axis.fill_between(epochs, np.clip(share - spread, 0, 1) * 100, np.clip(share + spread, 0, 1) * 100,
+                              color=color, alpha=0.15, linewidth=0)
 
             reached = [np.flatnonzero(seed) for seed in within]
             first = [int(epochs[hits[0]]) for hits in reached if len(hits)]
@@ -147,7 +152,7 @@ def stability(report: list[str]) -> None:
         axis.set_title(f"Ocultas {hidden_name(list(architecture))}", color=INK)
         axis.set_xlabel("Época")
         axis.set_ylim(-3, 103)
-    axes[0].set_ylabel("Semillas con ≤ 1 píxel mal (%)")
+    axes[0].set_ylabel("Semillas con ≤ 1 píxel mal (%)\nbanda: ± error estándar")
     axes[-1].legend(loc="lower right")
     figure.suptitle(
         "¿Cuántas de las 10 semillas cumplen el objetivo en cada momento? (latente 2, Adam)",
@@ -274,8 +279,8 @@ def denoising_architectures(report: list[str]) -> None:
             noisy_reference = np.mean(
                 [[float(row["input_mean_error"]) for row in table] for table in tables], axis=0
             )
-            axis.plot(levels, output.mean(axis=0), color=color, marker="o", markersize=5,
-                      label=f"latente {latent}")
+            axis.errorbar(levels, output.mean(axis=0), yerr=output.std(axis=0), color=color, marker="o",
+                          markersize=5, capsize=3, label=f"latente {latent}")
             summaries = [json.loads((run["dir"] / "summary.json").read_text()) for run in runs_here]
             at = {level: output[:, i].mean() for i, level in enumerate(levels)}
             rows.append(
@@ -294,7 +299,7 @@ def denoising_architectures(report: list[str]) -> None:
                   label="entrada con ruido (sin red)")
         axis.set_title(f"Ocultas {hidden_name(list(architecture))}", color=INK)
         axis.set_xlabel("Probabilidad de invertir cada píxel")
-    axes[0].set_ylabel("Píxeles mal por letra (promedio)")
+    axes[0].set_ylabel("Píxeles mal por letra\n(media ± desvío entre semillas)")
     axes[-1].legend(loc="upper left")
     figure.suptitle("Denoising: cuánto ruido queda a la salida (entrenado con 10 %, 5 semillas)",
                     color=INK)
@@ -340,14 +345,15 @@ def noise_types(report: list[str]) -> None:
 
     kinds = list(REFERENCE_LEVEL)
     output = np.array([[np.mean([o for _, o in cells[(t, e)]]) for e in kinds] for t in kinds])
+    deviation = np.array([[np.std([o for _, o in cells[(t, e)]]) for e in kinds] for t in kinds])
     noisy = np.array([np.mean([i for i, _ in cells[(kinds[0], e)]]) for e in kinds])
 
     figure, axis = plt.subplots(figsize=(6.4, 4.4))
     image = axis.imshow(output, cmap="Blues", vmin=0, aspect="auto")
     for i in range(len(kinds)):
         for j in range(len(kinds)):
-            axis.text(j, i, f"{output[i, j]:.2f}", ha="center", va="center",
-                      color="white" if output[i, j] > output.max() * 0.55 else INK, fontsize=10)
+            axis.text(j, i, f"{output[i, j]:.2f}\n± {deviation[i, j]:.2f}", ha="center", va="center",
+                      color="white" if output[i, j] > output.max() * 0.55 else INK, fontsize=9)
     axis.set_xticks(
         range(len(kinds)),
         [f"{NOISE_NAMES[k]} {REFERENCE_LEVEL[k]:g}\n(entrada: {noisy[j]:.1f})" for j, k in enumerate(kinds)],
@@ -359,7 +365,7 @@ def noise_types(report: list[str]) -> None:
     axis.grid(False)
     for spine in axis.spines.values():
         spine.set_visible(False)
-    figure.colorbar(image, ax=axis, pad=0.02).set_label("Píxeles mal a la salida", color=INK)
+    figure.colorbar(image, ax=axis, pad=0.02).set_label("Píxeles mal a la salida (media ± desvío)", color=INK)
     axis.set_title("Entrenar con un ruido y probar con otro\n(latente 8, ocultas 32-16, 3 semillas)",
                    color=INK)
     save(figure, "denoising_tipos_de_ruido.png")
@@ -417,7 +423,8 @@ def export_results() -> None:
         "Copia liviana de `results/` (que no se versiona): las comparativas de cada experimento\n"
         "(`<experimento>/comparison_*.png`) y algunas corridas de ejemplo (`<experimento>/<corrida>/`).\n"
         "Los números están en `../ej1_pruebas/resumen.md`.\n\n"
-        "Se regenera con `python scripts/ej1_figuras.py` después de correr las configs `ej1a_*` y `ej1b_*`.\n"
+        "Se regenera con `python scripts/ej1_figuras.py` después de correr las configs `ej1a_*` y `ej1b_*`.\n",
+        encoding="utf-8",
     )
     print(f"  {copied} figuras copiadas a {EXPORT.relative_to(ROOT)}")
 
@@ -427,7 +434,7 @@ def main() -> None:
     report = ["# Ejercicio 1: pruebas extra para la presentación", ""]
     for step in (stability, small_failures, denoising_architectures, noise_types):
         step(report)
-    (OUTPUT / "resumen.md").write_text("\n".join(report))
+    (OUTPUT / "resumen.md").write_text("\n".join(report), encoding="utf-8")
     print(f"  {(OUTPUT / 'resumen.md').relative_to(ROOT)}")
     export_results()
 

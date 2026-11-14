@@ -64,13 +64,15 @@ def read_csv(path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(stream))
 
 
-def seeds_within_target(rows: list[dict[str, str]]) -> int:
-    return sum(int(row["max_pixel_errors"]) <= PIXEL_TARGET for row in rows)
+CONFIDENCE_Z = 1.96  # intervalo de 95 % con aproximación normal
 
 
-def median_epoch_within_target(rows: list[dict[str, str]]) -> float | None:
-    epochs = [int(row["first_epoch_within_target"]) for row in rows if row["first_epoch_within_target"]]
-    return statistics.median(epochs) if epochs else None
+def mean_and_interval(values) -> tuple[float, float]:
+    """Media y semiancho del intervalo de confianza del 95 % de la media (error estándar × 1,96)."""
+    values = np.asarray(values, dtype=float)
+    if len(values) < 2:
+        raise ValueError("Hacen falta al menos dos valores para estimar la dispersión")
+    return float(values.mean()), float(CONFIDENCE_Z * values.std(ddof=1) / np.sqrt(len(values)))
 
 
 def glyph(axis: plt.Axes, pattern: Array, shape: tuple[int, int] = (7, 5)) -> None:

@@ -19,7 +19,7 @@ from scipy.io import wavfile
 from scipy.signal import stft
 
 from scripts.presentacion.common import (
-    AUDIO, RESULTS, ROOT, Array, read_csv, save, save_spectrogram_tile, spectrogram,
+    AUDIO, RESULTS, ROOT, Array, mean_and_interval, read_csv, save, save_spectrogram_tile, spectrogram,
 )
 from src.data.audio import SpectrogramCodec, read_waveform, write_waveform
 from src.experiments.runner import load_run
@@ -30,6 +30,8 @@ SONG = VAE_RUN / "song" / "techno.wav"
 ARCHIVE = ROOT / "data" / "nsynth" / "nsynth-test.jsonwav.tar.gz"
 
 FAMILIES = ["bass", "brass", "flute", "guitar", "keyboard", "mallet", "organ", "reed", "string", "vocal"]
+FAMILY_NAMES = {"bass": "bajo", "brass": "metal", "flute": "flauta", "guitar": "guitarra", "keyboard": "teclado",
+                "mallet": "percusión", "organ": "órgano", "reed": "lengüeta", "string": "cuerdas", "vocal": "voz"}
 FAMILY_COLORS = {family: f"C{index}" for index, family in enumerate(FAMILIES)}
 REPRESENTATION_NOTE = "keyboard_electronic_098-060-100"
 RECONSTRUCTION_NOTES = ["brass_acoustic_016-064-100", "guitar_electronic_022-063-025", "reed_acoustic_023-049-050"]
@@ -72,7 +74,7 @@ def make_all() -> None:
     posterior_figure(variational, dataset)
     prior_samples(autoencoder, variational, dataset, renderer)
     reconstructions(autoencoder, variational, dataset, renderer)
-    reconstruction_error_figure()
+    reconstruction_error_by_family_figure()
     for index, (origin, destination) in enumerate(INTERPOLATION_PAIRS, start=1):
         interpolation(variational, dataset, renderer, labels.index(origin), labels.index(destination), index)
     song_figure()
@@ -203,11 +205,11 @@ def prior_samples(autoencoder, variational, dataset, renderer: NoteRenderer) -> 
         nearest = int(np.argmin(distances))
         renderer.write(dataset.samples[nearest], f"cercana_{index}")
         print(f"    muestra {index}: más cercana {dataset.labels[nearest]} (MSE {distances[nearest]:.4f})")
-    typical = _typical_nearest_distance(dataset.samples)
+    typical = typical_nearest_distance(dataset.samples)
     print(f"    MSE típica entre una nota y su vecina más cercana: {typical:.4f}")
 
 
-def _typical_nearest_distance(samples: Array, count: int = 300) -> float:
+def typical_nearest_distance(samples: Array, count: int = 300) -> float:
     rng = np.random.default_rng(1)
     chosen = rng.choice(len(samples), count, replace=False)
     nearest = []
@@ -228,24 +230,28 @@ def reconstructions(autoencoder, variational, dataset, renderer: NoteRenderer) -
             print(f"    {label} {name}: MSE {np.mean((output - original) ** 2):.4f}")
 
 
-def reconstruction_error_figure() -> None:
-    """Error de reconstrucción por familia: mismo dataset, misma arquitectura, sin y con KL."""
-    errors = {}
-    for name, run in (("Autoencoder", AE_RUN), ("VAE", VAE_RUN)):
-        errors[name] = {row["label"]: float(row["error"]) for row in read_csv(run / "reconstruction.csv")}
-    figure, axis = plt.subplots(figsize=(12, 4.6))
+def reconstruction_error_by_family_figure() -> None:
+    """Versión chica para la diapositiva: media por familia con su intervalo de 95 % entre notas."""
+    errors = {name: _reconstruction_errors(run) for name, run in (("AE", AE_RUN), ("VAE", VAE_RUN))}
+    summary = {name: [mean_and_interval([error for label, error in by_label.items()
+                                         if label.startswith(f"{family}_")]) for family in FAMILIES]
+               for name, by_label in errors.items()}
+    order = np.argsort([mean for mean, _ in summary["VAE"]])
     positions = np.arange(len(FAMILIES))
-    for offset, (color, (name, by_label)) in zip((-0.2, 0.2), zip(("C3", "C0"), errors.items())):
-        means = [np.mean([error for label, error in by_label.items() if label.startswith(f"{family}_")])
-                 for family in FAMILIES]
-        axis.bar(positions + offset, means, width=0.4, color=color, label=name)
-    axis.set_xticks(positions, FAMILIES)
-    axis.set_ylabel("MSE del espectrograma")
-    axis.legend()
-    autoencoder, variational = (np.array(list(values.values())) for values in errors.values())
-    print(f"    MSE media AE {autoencoder.mean():.5f}, VAE {variational.mean():.5f}; "
-          f"el AE gana en {np.mean(autoencoder < variational):.0%} de las notas")
-    save(figure, "e2_error_familias")
+    figure, axis = plt.subplots(figsize=(5.4, 5.6))
+    scaled = {name: 1000 * np.array(values)[order] for name, values in summary.items()}  # milésimas: ticks cortos
+    for offset, name, color in ((0.14, "AE", "C3"), (-0.14, "VAE", "C0")):
+        axis.errorbar(scaled[name][:, 0], positions + offset, xerr=scaled[name][:, 1], fmt="o", markersize=7,
+                      color=color, capsize=3, label=name, zorder=2)
+    axis.set_yticks(positions, [FAMILY_NAMES[FAMILIES[index]] for index in order])
+    axis.set_xlabel("error de reconstrucción (MSE × 1000)\nmedia e intervalo de 95 % entre notas")
+    axis.xaxis.set_major_formatter(plt.FuncFormatter(lambda value, _: f"{value:.1f}".replace(".", ",")))
+    axis.legend(loc="lower right")
+    save(figure, "e2_error_familias_chico")
+
+
+def _reconstruction_errors(run) -> dict[str, float]:
+    return {row["label"]: float(row["error"]) for row in read_csv(run / "reconstruction.csv")}
 
 
 # ----------------------------------------------------------------------------- generación

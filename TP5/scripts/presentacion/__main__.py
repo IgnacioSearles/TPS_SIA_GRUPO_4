@@ -3,16 +3,17 @@
 No entrena nada. Escribe en reports/presentacion/; después,
 `python presentation/sync_assets.py` copia a presentation/assets/ lo que usa el deck.
 
-Uso, desde TP5:  python -m scripts.presentacion [font] [audio] [redes]
+Uso, desde TP5:  python -m scripts.presentacion [font] [audio] [redes] [activaciones] [omitidas]
 """
 
 from __future__ import annotations
 
 import sys
 
-from scripts.presentacion import audio, diagrams, font
+from scripts.presentacion import activations, audio, diagrams, font, omitted_notes
 
-PARTS = {"font": font.make_all, "audio": audio.make_all, "redes": diagrams.make_all}
+PARTS = {"font": font.make_all, "audio": audio.make_all, "redes": diagrams.make_all,
+         "activaciones": activations.make_all, "omitidas": omitted_notes.make_all}
 
 
 def main() -> None:
