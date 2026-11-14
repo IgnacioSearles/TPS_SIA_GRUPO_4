@@ -1,0 +1,31 @@
+{
+  "model_run": "results/ej2_search_art_cnn4k_lowbeta_conv2_50/base__seed=7",
+  "model_sha256": "121cdf2ef55c56545874f4ebc9b0b96161788850c0143a096e81c74e8c2ef4f8",
+  "reference_indices": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "generation_indices": [
+    0,
+    8,
+    16,
+    24,
+    32,
+    40,
+    48,
+    56
+  ],
+  "failure_examples": {
+    "seed": 27,
+    "indices": [
+      13,
+      61
+    ]
+  },
+  "selection_policy": "Main generations use prefixed indices; failures are explicit illustrative selections, not a rate estimate.",
+  "corrective_postprocessing": false,
+  "display_interpolation": "nearest",
+  "data_split": "validation; reserved final not opened"
+}

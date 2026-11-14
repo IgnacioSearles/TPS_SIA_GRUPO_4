@@ -1,6 +1,8 @@
 {
   "seeds": [
-    7
+    7,
+    17,
+    27
   ],
   "dataset": {
     "type": "geometric_art",

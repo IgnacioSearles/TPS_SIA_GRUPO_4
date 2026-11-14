@@ -124,3 +124,32 @@ merge `83025b8`, sin conflictos ni pérdida de resultados locales.
 La [revisión y propuesta](revision_2026-11-14.md) registra estado, límites y
 agregados concretos al deck. La evidencia por semilla se conserva en
 `evidence/2026-11-14_conv2_confirmation/`.
+
+
+### Controles pareados y revisión formal
+
+Se completó una revisión conservadora del asistente sobre las 192 generaciones
+de conv2. Hay 3, 5 y 4 círculos limpios inequívocos por semilla, por debajo
+del mínimo previo de cinco en las semillas 7 y 27. Por eso el candidato pasa
+validación automática, pero **no pasa el criterio completo del estudio**.
+No se congela selección ni se abre la prueba final. Etiquetas de todos los casos
+y mosaicos numerados: `visual_review_2026-11-14/`.
+
+Se iniciaron las semillas 17 y 27 del control `cnn4k_lowbeta_more50`, 50 épocas
+desde sus propios padres, con checkpoints cada diez. La semilla 7 se reutiliza.
+El contraste con conv2 iguala datos, beta, fuente, tasa y número de pasos.
+
+No estaban los pesos NSynth que originaron los assets de la presentación.
+Se prepararon dos reproducciones nuevas, AE y VAE de 200 épocas, semilla 7,
+con checkpoints cada 25, para el control de muestreo. No se sobrescriben los
+audios originales del deck ni se afirma equivalencia de pesos. El protocolo
+está en `../../docs/nsynth_sampling_control.md`; el comparador contrasta AE
+estándar, AE con gaussiana ajustada a entrenamiento y VAE estándar.
+Sus nueve pruebas específicas pasaron, incluyendo las existentes del ajuste
+gaussiano. El entrenamiento y la evaluación integral aún están pendientes
+de terminar al registrar esta entrada.
+
+Se preparó `propuesta_presentacion_fina.md` con ubicaciones, texto visible,
+justificación y guion oral. Las figuras de apoyo en `presentation_evidence/`
+provienen de matrices reales, con índices y hashes declarados. No se editó
+el deck original. La propuesta se completará con los resultados de los controles.

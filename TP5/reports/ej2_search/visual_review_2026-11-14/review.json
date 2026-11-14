@@ -1,0 +1,266 @@
+{
+  "reviewer": "Codex assistant; single non-blind visual reviewer",
+  "candidate": "cnn4k_lowbeta_conv2_50",
+  "split": "validation",
+  "policy": "Conservative recognition of four families. All remaining cases are ambiguous/deformed. Small boundary defects do not prevent recognition, but continuous hybrids are not forced into a family.",
+  "predefined_minimum_clean_each_family_per_seed": 5,
+  "seeds": {
+    "7": {
+      "clean_recognizable_counts": {
+        "circle": 3,
+        "ellipse": 13,
+        "triangle": 18,
+        "rectangle": 12
+      },
+      "clean_recognizable_indices": {
+        "circle": [
+          5,
+          35,
+          55
+        ],
+        "ellipse": [
+          15,
+          16,
+          17,
+          19,
+          23,
+          25,
+          33,
+          38,
+          40,
+          53,
+          54,
+          59,
+          63
+        ],
+        "triangle": [
+          2,
+          6,
+          7,
+          8,
+          14,
+          21,
+          24,
+          27,
+          36,
+          37,
+          39,
+          44,
+          46,
+          48,
+          49,
+          50,
+          52,
+          61
+        ],
+        "rectangle": [
+          0,
+          12,
+          13,
+          26,
+          32,
+          41,
+          43,
+          45,
+          51,
+          57,
+          58,
+          60
+        ]
+      },
+      "ambiguous_indices": [
+        1,
+        3,
+        4,
+        9,
+        10,
+        11,
+        18,
+        20,
+        22,
+        28,
+        29,
+        30,
+        31,
+        34,
+        42,
+        47,
+        56,
+        62
+      ],
+      "source_sha256": "ead6bea1482b15fe446703be0f0fab564b0783e63d22f40348918e899611e3f8"
+    },
+    "17": {
+      "clean_recognizable_counts": {
+        "circle": 5,
+        "ellipse": 11,
+        "triangle": 17,
+        "rectangle": 17
+      },
+      "clean_recognizable_indices": {
+        "circle": [
+          5,
+          6,
+          27,
+          60,
+          61
+        ],
+        "ellipse": [
+          0,
+          8,
+          9,
+          26,
+          38,
+          44,
+          48,
+          50,
+          53,
+          54,
+          62
+        ],
+        "triangle": [
+          12,
+          14,
+          15,
+          16,
+          17,
+          19,
+          24,
+          28,
+          29,
+          30,
+          36,
+          46,
+          52,
+          55,
+          56,
+          59,
+          63
+        ],
+        "rectangle": [
+          2,
+          3,
+          10,
+          11,
+          13,
+          18,
+          20,
+          23,
+          32,
+          33,
+          37,
+          40,
+          41,
+          43,
+          49,
+          51,
+          58
+        ]
+      },
+      "ambiguous_indices": [
+        1,
+        4,
+        7,
+        21,
+        22,
+        25,
+        31,
+        34,
+        35,
+        39,
+        42,
+        45,
+        47,
+        57
+      ],
+      "source_sha256": "6aa309627ab8203079b8522c679c69e66119994f433823cd5fe24152b6ab380d"
+    },
+    "27": {
+      "clean_recognizable_counts": {
+        "circle": 4,
+        "ellipse": 15,
+        "triangle": 12,
+        "rectangle": 9
+      },
+      "clean_recognizable_indices": {
+        "circle": [
+          5,
+          11,
+          19,
+          47
+        ],
+        "ellipse": [
+          0,
+          8,
+          9,
+          14,
+          22,
+          23,
+          26,
+          27,
+          32,
+          34,
+          40,
+          44,
+          53,
+          60,
+          62
+        ],
+        "triangle": [
+          12,
+          17,
+          18,
+          20,
+          28,
+          29,
+          41,
+          50,
+          52,
+          55,
+          58,
+          59
+        ],
+        "rectangle": [
+          2,
+          6,
+          21,
+          31,
+          35,
+          38,
+          48,
+          49,
+          57
+        ]
+      },
+      "ambiguous_indices": [
+        1,
+        3,
+        4,
+        7,
+        10,
+        13,
+        15,
+        16,
+        24,
+        25,
+        30,
+        33,
+        36,
+        37,
+        39,
+        42,
+        43,
+        45,
+        46,
+        51,
+        54,
+        56,
+        61,
+        63
+      ],
+      "source_sha256": "778956288e8978c89d2a052467199b1133a9aa1c0ca270850aa402a51043d7af"
+    }
+  },
+  "final_references_opened": false,
+  "manual_gate_pass": false
+}
