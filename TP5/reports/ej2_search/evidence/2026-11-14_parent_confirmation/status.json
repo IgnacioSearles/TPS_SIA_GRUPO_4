@@ -1,0 +1,60 @@
+{
+  "candidate": "cnn4k_refined_beta002_50",
+  "seeds": [
+    7,
+    17,
+    27
+  ],
+  "inputs": {
+    "sources": [
+      {
+        "seed": 7,
+        "run": "results/ej2_search_art_cnn4k_refined_beta002_50/base__seed=7",
+        "model_sha256": "2194e1fe3f8ad768f7bfcd7a26f29558374e58f174ac3e7ef2ad0119f0059c7b",
+        "config_sha256": "18eabb3f72d62f1b27c4aae792152dc9992f04f4ffbd5cf0229e06fdc1185f2b"
+      },
+      {
+        "seed": 17,
+        "run": "results/ej2_search_art_cnn4k_refined_beta002_50/base__seed=17",
+        "model_sha256": "98c806922e1b4e1510c2c47a5d8c95952071b94367a9e8509fc315373128186c",
+        "config_sha256": "40be88336b77e7cb2872b940a2a1d9b962e6f21fff11015f3a46f4ef0051abf6"
+      },
+      {
+        "seed": 27,
+        "run": "results/ej2_search_art_cnn4k_refined_beta002_50/base__seed=27",
+        "model_sha256": "d9e23c05cc03c73db9906f98dbe87bed66b889d75e4b4bac5aa00ba96605ff9b",
+        "config_sha256": "88e3c1cd300378ed49f1c0123a731276109cc6244998012d7e1b62549b2d40c1"
+      }
+    ],
+    "data_manifest_sha256": "bf0d023ffc2b954a54d46c3441935a414f4e1707e832856dd12879f77828c1bd",
+    "loss_guard": {
+      "src/nn/losses.py": "3ca9f825a76073e4592b3e44c3c664533e23c2aea44ee2236f5392f6fc7b01b0",
+      "src/models/autoencoder.py": "d2c48c19274e5117c7dc5344bd7b3207932e7c3cadc8301b3d4851e4d7f98ec6",
+      "src/models/variational.py": "76b0dd9de5b40c4193ff95b8b898e9d6b8e4aa6dfe8268f1befee25521d62417"
+    },
+    "evaluation_sha256": {
+      "src/evaluation/art_geometry.py": "97e50762149eedeacc16b93130963174d692dcc79181016df0e1170b9d14f58a",
+      "src/evaluation/art_cleanliness.py": "1313427a9baee90af2c43308b0993db96843fe18ec4b77131382992d04665196",
+      "src/nn/spatial.py": "7c694378071a7e834007b456d6f658279d1ee11dc6b8acf278735109014e9fab",
+      "src/models/factory.py": "3e0549d85e9fb9018a2573dcb8ab17c9ce34bbbefaca1ee77c75787a71aff966"
+    },
+    "objective_hyperparameters": {
+      "formula": "MSE + beta * KL",
+      "beta": 0.02,
+      "warmup_epochs": 0
+    }
+  },
+  "split": "validation",
+  "resolution": 32,
+  "macro_iou_mean": 0.9335460261992686,
+  "polygon_iou_mean": 0.9072355584019928,
+  "polygon_iou_means": {
+    "triangle": 0.9164498810880244,
+    "rectangle": 0.8980212357159615
+  },
+  "clean_rate_mean": 0.8541666666666666,
+  "automatic_pass": false,
+  "confirmation_seeds_complete": true,
+  "manual_diversity_review_required": true,
+  "model_samples_filtered": false
+}

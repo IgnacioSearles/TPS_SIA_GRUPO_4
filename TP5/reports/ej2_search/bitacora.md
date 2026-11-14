@@ -79,3 +79,34 @@ resultado se añadirá al terminar; no se la da por aprobada todavía.
 Los pesos, datasets y checkpoints pesados quedan en `results/`, ignorado por Git.
 El snapshot conserva tablas, configuraciones y hashes para identificar lo medido;
 incluye galerías completas de los dos pilotos destacados, sin seleccionar muestras.
+
+
+### Continuación posterior al commit `08ad2ce`
+
+El commit `08ad2ce` registra código, configuraciones y la evidencia histórica de
+la entrada anterior. Después se evaluó la fuente de 200 épocas con las tres
+semillas: IoU media 0,93355 y 164/192 generaciones limpias (85,4 %); no cumple
+el umbral medio del 90 %. Por semilla obtuvo 55/64, 57/64 y 52/64.
+
+Se iniciaron las réplicas 17 y 27 de `cnn4k_lowbeta_conv2_50`, cada una desde su
+padre correspondiente, con 50 épocas y checkpoints cada 10. El piloto 7 se
+reutiliza. `scripts/continue_art_search_refinement.sh` reproduce esta continuación:
+entrena lo pendiente, evalúa las tres semillas, audita 256 muestras por semilla
+y actualiza el resumen. No abre las referencias finales ni declara éxito.
+Repetirlo después de una interrupción reutiliza corridas completas y checkpoints;
+no lanzarlo mientras siga activo, para no duplicar procesos sobre los mismos archivos.
+
+La batería completa terminó con **214 pruebas aprobadas en 287,82 s**. Fue
+recolectada antes de añadir las dos pruebas de protección para clon limpio;
+estas también pasaron dentro de la batería específica de 57 pruebas. El log y
+el alcance preciso quedan en [verificación](verification.json).
+
+La inspección del asistente de las 64 generaciones del piloto conv2 y las 64
+del piloto 8k muestra triángulos y cuadriláteros reconocibles, fondos más limpios
+y también contornos híbridos, esquinas redondeadas o lados cóncavos. La mejoría
+de limpieza automática no elimina esos defectos. La revisión formal de al menos
+cinco casos limpios inequívocos por familia y semilla sigue pendiente.
+
+Se verificaron los hashes de los 219 archivos de evidencia y la preparación
+de la búsqueda desde un archivo de Git del commit, sin resultados locales.
+Ambas verificaciones pasaron.
