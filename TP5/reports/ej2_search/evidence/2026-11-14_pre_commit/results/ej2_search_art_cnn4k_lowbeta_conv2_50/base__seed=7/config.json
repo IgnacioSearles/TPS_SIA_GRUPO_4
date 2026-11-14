@@ -1,0 +1,71 @@
+{
+  "dataset": {
+    "type": "geometric_art",
+    "image_size": 32,
+    "objects": 1,
+    "families": [
+      "circle",
+      "ellipse",
+      "triangle",
+      "rectangle"
+    ],
+    "train_count": 4096,
+    "test_count": 64,
+    "data_seed": 2026111600
+  },
+  "model": {
+    "type": "variational",
+    "latent_size": 8,
+    "hidden_layers": [
+      256,
+      128
+    ],
+    "activation": "relu",
+    "initializer": "he",
+    "loss": "mse",
+    "precision": "float32",
+    "kl": {
+      "weight": 0.02,
+      "warmup_epochs": 0
+    },
+    "architecture": "conv",
+    "image_shape": [
+      32,
+      32,
+      3
+    ],
+    "conv_channels": [
+      16,
+      32
+    ],
+    "conv_refinement": true,
+    "conv_refinement_init": "identity",
+    "conv_refinement_layers": 2
+  },
+  "training": {
+    "epochs": 50,
+    "batch_size": 64,
+    "log_every": 10,
+    "optimizer": {
+      "type": "adam",
+      "learning_rate": 0.0003
+    }
+  },
+  "evaluation": {
+    "generative": {
+      "count": 64,
+      "test_examples": 8,
+      "audio_examples": 0,
+      "seed": 1234
+    },
+    "presentation": {
+      "pairs": 3,
+      "steps": 11
+    }
+  },
+  "initial_parameters": {
+    "path": "results/ej2_search_art_cnn4k_refined_beta002_50/base__seed={seed}/model.npz",
+    "transfer": "identity_refinement"
+  },
+  "seed": 7
+}

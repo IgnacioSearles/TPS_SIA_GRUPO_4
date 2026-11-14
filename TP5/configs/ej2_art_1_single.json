@@ -1,0 +1,63 @@
+{
+  "seeds": [
+    7,
+    17,
+    27
+  ],
+  "dataset": {
+    "type": "geometric_art",
+    "image_size": 32,
+    "objects": 1,
+    "families": [
+      "circle",
+      "ellipse",
+      "triangle",
+      "rectangle"
+    ],
+    "train_count": 1024,
+    "test_count": 256,
+    "data_seed": 20261113
+  },
+  "model": {
+    "type": "variational",
+    "latent_size": 4,
+    "hidden_layers": [
+      128,
+      32
+    ],
+    "activation": "relu",
+    "initializer": "he",
+    "loss": "mse",
+    "precision": "float32",
+    "kl": {
+      "weight": 0.5,
+      "warmup_epochs": 50
+    }
+  },
+  "training": {
+    "epochs": 200,
+    "batch_size": 64,
+    "log_every": 10,
+    "optimizer": {
+      "type": "adam",
+      "learning_rate": 0.001
+    }
+  },
+  "evaluation": {
+    "reconstruction": {
+      "max_examples": 8,
+      "audio_examples": 0
+    },
+    "latent": {},
+    "generative": {
+      "count": 64,
+      "test_examples": 8,
+      "audio_examples": 0,
+      "seed": 1234
+    },
+    "presentation": {
+      "pairs": 3,
+      "steps": 11
+    }
+  }
+}

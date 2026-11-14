@@ -8,6 +8,8 @@ from typing import Any
 from src.evaluation.context import EvaluationContext, Metrics
 from src.evaluation.denoising import evaluate_denoising
 from src.evaluation.pitch_interpolation import evaluate_pitch_interpolation
+from src.evaluation.generative import evaluate_generative
+from src.evaluation.presentation import evaluate_presentation
 from src.evaluation.generation import evaluate_interpolation, evaluate_sampling
 from src.evaluation.reconstruction import (
     evaluate_latent,
@@ -24,6 +26,8 @@ EVALUATIONS: dict[str, Evaluation] = {
     "latent_grid": evaluate_latent_grid,
     "interpolation": evaluate_interpolation,
     "sampling": evaluate_sampling,
+    "generative": evaluate_generative,
+    "presentation": evaluate_presentation,
     "denoising": evaluate_denoising,
     "pitch_interpolation": evaluate_pitch_interpolation,
 }

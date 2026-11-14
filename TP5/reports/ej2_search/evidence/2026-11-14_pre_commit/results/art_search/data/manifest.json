@@ -1,0 +1,45 @@
+{
+  "loss_guard": {
+    "src/nn/losses.py": "3ca9f825a76073e4592b3e44c3c664533e23c2aea44ee2236f5392f6fc7b01b0",
+    "src/models/autoencoder.py": "d2c48c19274e5117c7dc5344bd7b3207932e7c3cadc8301b3d4851e4d7f98ec6",
+    "src/models/variational.py": "76b0dd9de5b40c4193ff95b8b898e9d6b8e4aa6dfe8268f1befee25521d62417"
+  },
+  "partitions": {
+    "validation": {
+      "file_sha256": "82146fa654bf6d92b1e164624e21241a1168ef71f1e676926d87b96934c9c270",
+      "count": 512,
+      "seed": 2026111601
+    },
+    "reserved_final": {
+      "file_sha256": "e7987d57464540c1a4a8d8261f9973e66dab6a8977a336a1710082214bb6d8cf",
+      "count": 512,
+      "seed": 2026111602
+    }
+  },
+  "cleanliness_limits": {
+    "edge_band_ratio": 1.2,
+    "background_rmse": 0.025,
+    "chromatic_rmse": 0.025,
+    "interior_rmse": 0.05,
+    "min_component_fraction": 0.98,
+    "min_foreground_fraction": 0.02,
+    "max_foreground_fraction": 0.45,
+    "min_contrast": 0.25
+  },
+  "original_clean_rate": 1.0,
+  "training_seed": 2026111600,
+  "generation_seeds": {
+    "validation": 2026111603,
+    "reserved_final": 2026111604
+  },
+  "criteria": {
+    "macro_iou_mean": 0.92,
+    "macro_iou_min": 0.9,
+    "polygon_iou_mean": 0.88,
+    "polygon_iou_min": 0.85,
+    "clean_rate_mean": 0.9,
+    "clean_rate_min": 0.85,
+    "manual_min_each_family_per_seed": 5
+  },
+  "interpretation": "Same MSE and beta=0.5 KL; cleanliness is evaluation only. No filtering or analytic renderer in decoded outputs."
+}

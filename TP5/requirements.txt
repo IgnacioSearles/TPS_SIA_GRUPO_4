@@ -3,3 +3,6 @@ matplotlib>=3.7
 # Solo para audio (leer/escribir WAV y STFT); las redes usan únicamente NumPy.
 scipy>=1.10
 pytest>=7.0
+
+# Exportación de recorridos RGB como GIF.
+pillow>=9.1

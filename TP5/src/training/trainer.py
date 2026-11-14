@@ -83,7 +83,7 @@ class Trainer:
                     or np.any(interpolation_triplets < 0)):
                 raise ConfigurationError("Las ternas deben ser una matriz entera N x 3 de índices no negativos")
 
-    def train(self, samples: Array) -> list[HistoryRow]:
+    def train(self, samples: Array, start_epoch=0, history=None, epoch_callback=None) -> list[HistoryRow]:
         """Entrena y devuelve una fila de historial cada `log_every` épocas.
 
         Cada fila tiene los términos de la pérdida promediados en la época y
@@ -92,13 +92,16 @@ class Trainer:
         samples = samples.astype(self._model.precision, copy=False)
         if self._triplets is not None and self._triplets.max() >= len(samples):
             raise ConfigurationError("Una terna referencia muestras fuera del entrenamiento")
-        history: list[HistoryRow] = []
-        for epoch in range(1, self._plan.epochs + 1):
+        if not 0 <= start_epoch <= self._plan.epochs:
+            raise ConfigurationError("Época de reanudación inválida")
+        history = [] if history is None else list(history)
+        for epoch in range(start_epoch+1, self._plan.epochs + 1):
             loss_terms = self._run_epoch(samples, epoch)
             if epoch == 1 or epoch % self._plan.log_every == 0 or epoch == self._plan.epochs:
                 row = {"epoch": epoch, **loss_terms, **self._monitor(self._model)}
                 history.append(row)
                 print(_format_progress(row), flush=True)
+            if epoch_callback is not None:epoch_callback(epoch,history)
         return history
 
     def _run_epoch(self, samples: Array, epoch: int) -> dict[str, float]:

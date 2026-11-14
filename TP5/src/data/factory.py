@@ -11,6 +11,9 @@ from src.data.nsynth import build_selection, load_nsynth
 from src.data.nsynth_study import load_nsynth_study
 from src.data.notes import StudySettings, midi_list
 from src.data.synthetic_notes import load_synthetic_notes
+from src.data.shapes import load_shapes
+from src.data.art import load_art
+from src.data.timbres import load_timbres
 from src.options import ConfigurationError, Options
 
 DEFAULT_FONT_PATH = "data/font.h"
@@ -27,7 +30,7 @@ def build_dataset(options: Options, project_root: Path) -> Dataset:
     subset = options.take("subset", None)
     study_options = options.optional_section("pitch_study")
     study = None if study_options is None else StudySettings.parse(study_options)
-    if study is not None and (dataset_type == "font" or subset is not None):
+    if study is not None and (dataset_type not in ("nsynth", "synthetic_notes") or subset is not None):
         raise ConfigurationError("pitch_study requiere audio y no admite subset")
     if dataset_type == "font":
         dataset = load_font(project_root / options.take("path", DEFAULT_FONT_PATH))
@@ -51,8 +54,14 @@ def build_dataset(options: Options, project_root: Path) -> Dataset:
             microtones_per_semitone=options.take("microtones_per_semitone", 1),
             microtone_variants=options.take("microtone_variants", 10),
         )
+    elif dataset_type == "geometric_art":
+        dataset = load_art(options)
+    elif dataset_type == "geometric_shapes":
+        dataset = load_shapes(options)
+    elif dataset_type == "fixed_pitch_timbres":
+        dataset = load_timbres(options)
     else:
-        raise ConfigurationError(f"dataset.type debe ser 'font', 'nsynth' o 'synthetic_notes', no {dataset_type!r}")
+        raise ConfigurationError(f"dataset.type debe ser 'font', 'nsynth', 'synthetic_notes', 'geometric_shapes', 'geometric_art' o 'fixed_pitch_timbres', no {dataset_type!r}")
     options.ensure_consumed()
     if subset is None:
         return dataset

@@ -1,0 +1,16 @@
+{
+  "samples": 8192,
+  "training_seconds": 1482.61,
+  "final_loss": 1.7413231222145262,
+  "final_reconstruction": 1.159805558156222,
+  "final_kl": 29.07587820291519,
+  "final_kl_weight": 0.020000000000000014,
+  "initial_parameters": {
+    "path": "/home/nicolas/sia/TPS_SIA_GRUPO_4/TP5/results/ej2_search_art_cnn8k_refined_beta002_25/base__seed=7/model.npz",
+    "sha256": "8ab0b0019346e890b3e5f50cf5e03f6e283f23cf9c8016e40e1c8f883f535815",
+    "optimizer_state_restored": false,
+    "rng_states_restored": false,
+    "transfer": "exact",
+    "interpretation": "New optimization phase initialized from saved parameters; not exact resume."
+  }
+}

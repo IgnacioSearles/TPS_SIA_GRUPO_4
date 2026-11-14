@@ -1,0 +1,8 @@
+{
+  "samples": 4096,
+  "training_seconds": 1957.4,
+  "final_loss": 13.32623491436243,
+  "final_reconstruction": 6.493189454078674,
+  "final_kl": 13.666090920567513,
+  "final_kl_weight": 0.5
+}

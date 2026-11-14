@@ -13,7 +13,7 @@ from __future__ import annotations
 import json
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from multiprocessing import get_context
 from pathlib import Path
 from typing import Any
@@ -25,6 +25,8 @@ from src.data.dataset import Dataset
 from src.data.factory import build_dataset
 from src.evaluation.context import EvaluationContext, write_csv
 from src.evaluation.pitch_interpolation import validate_pitch_interpolation
+from src.evaluation.generative import validate_generative
+from src.evaluation.presentation import validate_presentation
 from src.evaluation.metrics import PIXEL_ERROR_TARGET, reconstruction_quality
 from src.evaluation.registry import DEFAULT_EVALUATIONS, run_evaluations, validate_evaluation_names
 from src.experiments.grid import RunSpecification, expand_runs
@@ -34,6 +36,8 @@ from src.training.interpolation import build_interpolation_triplets, triplet_rec
 from src.models.factory import build_model, load_parameters, save_parameters
 from src.options import ConfigurationError, Options
 from src.training.trainer import Trainer, TrainingPlan, build_training_plan
+from src.training.initialization import initialize_from_parameters
+from src.training.checkpoint import Checkpoint, training_signature
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CONFIG_FILE = "config.json"
@@ -59,21 +63,23 @@ class PreparedRun:
     seed: int
     interpolation_triplets: np.ndarray | None = None
     interpolation_rng: np.random.Generator | None = None
+    initial_parameters_metadata: dict | None = None
 
 
 def run_experiment(config_path: Path, force: bool = False, evaluate_only: bool = False,
-                   jobs: int = 1) -> Path:
+                   jobs: int = 1, checkpoint_every: int = 0) -> Path:
     """Corre todas las combinaciones de un archivo de configuración.
 
     Las corridas ya terminadas se saltean salvo `force`. Con `evaluate_only`
     no se entrena: se recargan los pesos guardados y se repiten las evaluaciones.
     Devuelve la carpeta del experimento.
     """
-    return run_experiments([config_path], force, evaluate_only, jobs)[0]
+    runtime={"checkpoint_every":checkpoint_every} if checkpoint_every else {}
+    return run_experiments([config_path], force, evaluate_only, jobs, **runtime)[0]
 
 
 def run_experiments(config_paths: list[Path], force: bool = False, evaluate_only: bool = False,
-                    jobs: int = 1) -> list[Path]:
+                    jobs: int = 1, checkpoint_every: int = 0) -> list[Path]:
     """Como run_experiment, pero con todas las corridas de varios archivos en un mismo pool.
 
     Con `jobs` > 1 cada corrida va a un proceso propio. Las corridas son
@@ -93,15 +99,18 @@ def run_experiments(config_paths: list[Path], force: bool = False, evaluate_only
     if type(jobs) is not int or jobs < 1:
         raise ConfigurationError("jobs debe ser un entero positivo")
 
+    if type(checkpoint_every) is not int or checkpoint_every < 0:
+        raise ConfigurationError("checkpoint_every debe ser un entero no negativo")
+    runtime = {"checkpoint_every":checkpoint_every} if checkpoint_every else {}
     summaries: dict[Path, dict[str, Any]] = {}
     if jobs == 1:
         for position, (name, run, run_directory) in enumerate(tasks, start=1):
             print(f"[{position}/{len(tasks)}] {name} / {run.label}", flush=True)
-            summaries[run_directory] = _obtain_summary(run, run_directory, force, evaluate_only)
+            summaries[run_directory] = _obtain_summary(run, run_directory, force, evaluate_only, **runtime)
     else:
         # spawn: procesos limpios que leen OPENBLAS_NUM_THREADS al importar numpy.
         with ProcessPoolExecutor(min(jobs, len(tasks)), mp_context=get_context("spawn")) as pool:
-            futures = {pool.submit(_obtain_summary, run, run_directory, force, evaluate_only):
+            futures = {pool.submit(_obtain_summary, run, run_directory, force, evaluate_only, **runtime):
                        (name, run, run_directory) for name, run, run_directory in tasks}
             print(f"{len(tasks)} corridas en {min(jobs, len(tasks))} procesos", flush=True)
             for done, future in enumerate(as_completed(futures), start=1):
@@ -124,13 +133,13 @@ def run_experiments(config_paths: list[Path], force: bool = False, evaluate_only
 def load_run(run_directory: Path) -> tuple[Autoencoder, Dataset]:
     """Modelo entrenado y dataset de una corrida guardada, para uso interactivo."""
     config = json.loads((run_directory / CONFIG_FILE).read_text(encoding="utf-8"))
-    prepared = _prepare(config)
+    prepared = _prepare(config, initialize=False)
     load_parameters(prepared.model, run_directory / MODEL_FILE)
     return prepared.model, prepared.dataset
 
 
 def _obtain_summary(
-    run: RunSpecification, run_directory: Path, force: bool, evaluate_only: bool
+    run: RunSpecification, run_directory: Path, force: bool, evaluate_only: bool, checkpoint_every: int = 0
 ) -> dict[str, Any]:
     summary_path = run_directory / SUMMARY_FILE
     if evaluate_only:
@@ -138,11 +147,15 @@ def _obtain_summary(
     if summary_path.is_file() and not force:
         print("  ya estaba terminada; se reutiliza (usar --force para repetirla)")
         return json.loads(summary_path.read_text(encoding="utf-8"))
+    if checkpoint_every:
+        return _train_and_evaluate(run, run_directory, checkpoint_every, resume_checkpoint=not force)
     return _train_and_evaluate(run, run_directory)
 
 
-def _train_and_evaluate(run: RunSpecification, run_directory: Path) -> dict[str, Any]:
-    prepared = _prepare(run.config)
+def _train_and_evaluate(run: RunSpecification, run_directory: Path, checkpoint_every=0, resume_checkpoint=True) -> dict[str, Any]:
+    checkpoint_path=run_directory/"checkpoint.npz"
+    restoring=bool(checkpoint_every and resume_checkpoint and checkpoint_path.exists())
+    prepared = _prepare(run.config, initialize=False) if restoring else _prepare(run.config)
     trainer = Trainer(
         prepared.model,
         prepared.plan,
@@ -153,8 +166,29 @@ def _train_and_evaluate(run: RunSpecification, run_directory: Path) -> dict[str,
         prepared.interpolation_rng,
     )
     started = time.perf_counter()
-    history = trainer.train(prepared.dataset.samples)
-    training_seconds = time.perf_counter() - started
+    state={"epoch":0,"history":[],"elapsed":0.0}
+    store=None
+    if checkpoint_every:
+        rngs={"shuffle":prepared.shuffle_rng,"corruption":prepared.corruption_rng,"evaluation":prepared.evaluation_rng}
+        if hasattr(prepared.model,"_rng"):rngs["sampling"]=prepared.model._rng
+        if prepared.interpolation_rng is not None:rngs["interpolation"]=prepared.interpolation_rng
+        store=Checkpoint(checkpoint_path,prepared.model,prepared.plan.optimizer,rngs,
+                         training_signature(run.config,prepared.dataset.samples,prepared.interpolation_triplets),
+                         {"initial_parameters":prepared.initial_parameters_metadata})
+        if restoring:
+            state=store.load()
+            prepared=replace(prepared,initial_parameters_metadata=store.extra.get("initial_parameters"))
+            print("  checkpoint: reanudando desde época "+str(state["epoch"]),flush=True)
+        else:store.save(0,[],0.0,checkpoint_every)
+    def save_epoch(epoch,history):
+        if store is not None and (epoch % checkpoint_every==0 or epoch==prepared.plan.epochs):
+            store.save(epoch,history,state["elapsed"]+time.perf_counter()-started,checkpoint_every)
+    if store is None:
+        history = trainer.train(prepared.dataset.samples)
+    else:
+        history = trainer.train(prepared.dataset.samples,start_epoch=state["epoch"],history=state["history"],
+                                epoch_callback=save_epoch)
+    training_seconds = state["elapsed"]+time.perf_counter() - started
 
     run_directory.mkdir(parents=True, exist_ok=True)
     _write_json(run_directory / CONFIG_FILE, run.config)
@@ -167,6 +201,8 @@ def _train_and_evaluate(run: RunSpecification, run_directory: Path) -> dict[str,
         "training_seconds": round(training_seconds, 2),
         **_final_loss_terms(history, prepared),
     }
+    if prepared.initial_parameters_metadata is not None:
+        training_summary["initial_parameters"] = prepared.initial_parameters_metadata
     if prepared.dataset.is_binary:
         training_summary["first_epoch_within_target"] = _first_epoch_within_target(history)
     if prepared.interpolation_triplets is not None:
@@ -182,7 +218,7 @@ def _reevaluate(run: RunSpecification, run_directory: Path) -> dict[str, Any]:
     training_summary_path = run_directory / TRAINING_SUMMARY_FILE
     if not training_summary_path.is_file():
         raise FileNotFoundError(f"No hay una corrida entrenada en {run_directory}")
-    prepared = _prepare(run.config)
+    prepared = _prepare(run.config, initialize=False)
     load_parameters(prepared.model, run_directory / MODEL_FILE)
     training_summary = json.loads(training_summary_path.read_text(encoding="utf-8"))
     _write_json(run_directory / CONFIG_FILE, run.config)
@@ -204,7 +240,7 @@ def _evaluate_and_summarize(
     return summary
 
 
-def _prepare(config: dict[str, Any]) -> PreparedRun:
+def _prepare(config: dict[str, Any], initialize: bool = True) -> PreparedRun:
     options = Options(config, "config")
     seed = options.take("seed", 0)
     initialization, shuffle, corruption, sampling, evaluation, interpolation_rng = (
@@ -213,6 +249,9 @@ def _prepare(config: dict[str, Any]) -> PreparedRun:
     )
     dataset = build_dataset(options.section("dataset"), PROJECT_ROOT)
     model = build_model(options.section("model"), dataset.samples.shape[1], initialization, sampling)
+    initial_parameters = options.take("initial_parameters", None)
+    initial_metadata = (initialize_from_parameters(model, initial_parameters, PROJECT_ROOT, seed)
+                        if initialize else None)
     plan = build_training_plan(options.section("training"))
     evaluations = options.take("evaluation", DEFAULT_EVALUATIONS)
     options.ensure_consumed()
@@ -222,13 +261,17 @@ def _prepare(config: dict[str, Any]) -> PreparedRun:
     if "pitch_interpolation" in evaluations:
         validate_pitch_interpolation(dataset, Options(evaluations["pitch_interpolation"],
                                                      "evaluation.pitch_interpolation"))
+    if "generative" in evaluations:
+        validate_generative(dataset, Options(evaluations["generative"], "evaluation.generative"))
+    if "presentation" in evaluations:
+        validate_presentation(dataset, Options(evaluations["presentation"], "evaluation.presentation"))
     triplets = None
     if plan.interpolation is not None:
         if not isinstance(model, VariationalAutoencoder):
             raise ConfigurationError("training.interpolation requiere model.type variational")
         triplets = build_interpolation_triplets(dataset)
     return PreparedRun(dataset, model, plan, evaluations, shuffle, corruption, evaluation, seed,
-                       triplets, interpolation_rng)
+                       triplets, interpolation_rng, initial_metadata)
 
 
 def _final_loss_terms(history: list[dict[str, float]], prepared: PreparedRun) -> dict[str, float]:

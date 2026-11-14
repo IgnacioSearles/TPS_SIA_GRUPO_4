@@ -1,0 +1,46 @@
+{
+  "candidate": "cnn64_tune50",
+  "seeds": [
+    7
+  ],
+  "inputs": {
+    "sources": [
+      {
+        "seed": 7,
+        "run": "results/ej2_search_art_cnn64_tune50/base__seed=7",
+        "model_sha256": "881e0f8dd060091d1c36f2ff48449750dafaa3c017a2b1c7fb9492607ba3bcca",
+        "config_sha256": "051403ce45e2a5509107b390f7cc4269abc9f53edbb05cd8833c7d2098bc4fce"
+      }
+    ],
+    "data_manifest_sha256": "bf0d023ffc2b954a54d46c3441935a414f4e1707e832856dd12879f77828c1bd",
+    "loss_guard": {
+      "src/nn/losses.py": "3ca9f825a76073e4592b3e44c3c664533e23c2aea44ee2236f5392f6fc7b01b0",
+      "src/models/autoencoder.py": "d2c48c19274e5117c7dc5344bd7b3207932e7c3cadc8301b3d4851e4d7f98ec6",
+      "src/models/variational.py": "76b0dd9de5b40c4193ff95b8b898e9d6b8e4aa6dfe8268f1befee25521d62417"
+    },
+    "evaluation_sha256": {
+      "src/evaluation/art_geometry.py": "97e50762149eedeacc16b93130963174d692dcc79181016df0e1170b9d14f58a",
+      "src/evaluation/art_cleanliness.py": "1313427a9baee90af2c43308b0993db96843fe18ec4b77131382992d04665196",
+      "src/nn/spatial.py": "3c35eaaf3347b2cb98df2d7bcf1e01dfe0b96509635850faaa51df21f7e5c338",
+      "src/models/factory.py": "011ab871f64e42357b0143487c2a8cb3022db3a70e4e1fd1b79c6299c51568d5"
+    },
+    "native_reference_transform": {
+      "version": 1,
+      "size": 64,
+      "samples_sha256": "a2c14119308a0fa224219860940c638e416165176d1744fe9884fb709cd1e4f3"
+    }
+  },
+  "split": "validation",
+  "resolution": 64,
+  "macro_iou_mean": 0.9330235527958544,
+  "polygon_iou_mean": 0.9003813072342476,
+  "polygon_iou_means": {
+    "triangle": 0.8985764973839463,
+    "rectangle": 0.9021861170845489
+  },
+  "clean_rate_mean": 0.0,
+  "automatic_pass": false,
+  "confirmation_seeds_complete": false,
+  "manual_diversity_review_required": true,
+  "model_samples_filtered": false
+}

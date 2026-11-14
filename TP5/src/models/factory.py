@@ -30,6 +30,26 @@ def build_model(
 
     `decoder_hidden_layers` omitido (o null) refleja al codificador.
     """
+    architecture = options.take("architecture", "mlp")
+    image_shape = options.take("image_shape", None)
+    conv_channels = options.take("conv_channels", None)
+    conv_refinement = options.take("conv_refinement", False)
+    conv_refinement_init = options.take("conv_refinement_init", "random")
+    conv_refinement_layers = options.take("conv_refinement_layers", None)
+    if conv_refinement_layers is not None and (not conv_refinement or type(conv_refinement_layers) is not int or conv_refinement_layers < 1):
+        raise ConfigurationError("conv_refinement_layers requiere conv_refinement=true y un entero positivo")
+    if conv_refinement_init not in ("random", "identity"):
+        raise ConfigurationError("conv_refinement_init debe ser random o identity")
+    if conv_refinement_init != "random" and not conv_refinement:
+        raise ConfigurationError("conv_refinement_init requiere conv_refinement=true")
+    if type(conv_refinement) is not bool:
+        raise ConfigurationError("conv_refinement debe ser booleano")
+    if architecture != "conv" and conv_refinement:
+        raise ConfigurationError("conv_refinement requiere architecture=conv")
+    if architecture not in ("mlp", "conv"):
+        raise ConfigurationError("model.architecture debe ser mlp o conv")
+    if architecture == "mlp" and (image_shape is not None or conv_channels is not None):
+        raise ConfigurationError("image_shape y conv_channels requieren architecture=conv")
     model_type = options.take("type", AUTOENCODER)
     latent_size = options.take("latent_size", 2)
     encoder_hidden = _layer_list(options.take("hidden_layers", [16, 8]), "hidden_layers")
@@ -57,27 +77,41 @@ def build_model(
 
     is_variational = model_type == VARIATIONAL
     encoder_outputs = 2 * latent_size if is_variational else latent_size
-    encoder = MultilayerPerceptron(
-        [input_size, *encoder_hidden, encoder_outputs],
-        hidden_activation,
-        latent_activation,
-        initializer,
-        initialization_rng,
-        precision,
-    )
-    decoder = MultilayerPerceptron(
-        [latent_size, *decoder_hidden, input_size],
-        hidden_activation,
-        build_activation("identity"),
-        initializer,
-        initialization_rng,
-        precision,
-    )
+    if architecture == "conv":
+        from src.nn.spatial import spatial_networks
+        if not isinstance(image_shape, list) or np.prod(image_shape) != input_size:
+            raise ConfigurationError("image_shape no coincide con el dataset")
+        encoder, decoder = spatial_networks(
+            image_shape, [8,16] if conv_channels is None else conv_channels,
+            encoder_hidden, decoder_hidden, latent_size, encoder_outputs,
+            hidden_activation, latent_activation, build_activation("identity"),
+            initializer, initialization_rng, precision, refinement=conv_refinement, refinement_init=conv_refinement_init, refinement_layers=conv_refinement_layers or 1)
+    else:
+        encoder = MultilayerPerceptron(
+            [input_size, *encoder_hidden, encoder_outputs],
+            hidden_activation,
+            latent_activation,
+            initializer,
+            initialization_rng,
+            precision,
+        )
+        decoder = MultilayerPerceptron(
+            [latent_size, *decoder_hidden, input_size],
+            hidden_activation,
+            build_activation("identity"),
+            initializer,
+            initialization_rng,
+            precision,
+        )
     if not is_variational:
-        return Autoencoder(encoder, decoder, output_activation, loss)
-    return VariationalAutoencoder(
-        encoder, decoder, output_activation, loss, _build_kl_schedule(kl_options), sampling_rng
-    )
+        model = Autoencoder(encoder, decoder, output_activation, loss)
+    else:
+        model = VariationalAutoencoder(
+            encoder, decoder, output_activation, loss, _build_kl_schedule(kl_options), sampling_rng
+        )
+    if architecture == "conv":
+        model.inference_batch_size = 64
+    return model
 
 
 def save_parameters(model: Autoencoder, path: Path) -> None:

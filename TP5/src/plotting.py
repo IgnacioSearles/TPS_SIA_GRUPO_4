@@ -56,7 +56,7 @@ def save_image_rows(
     rows: Sequence[Array],
     row_names: Sequence[str],
     column_titles: Sequence[str],
-    image_shape: tuple[int, int],
+    image_shape: tuple[int, ...],
     is_binary: bool,
     path: Path,
 ) -> None:
@@ -84,7 +84,7 @@ def save_image_rows(
 def save_image_mosaic(
     images: Array,
     grid_shape: tuple[int, int],
-    image_shape: tuple[int, int],
+    image_shape: tuple[int, ...],
     is_binary: bool,
     title: str,
     path: Path,
@@ -162,7 +162,9 @@ def save_line_chart(
 
 
 def _draw_image(axis: plt.Axes, image: Array, is_binary: bool) -> None:
-    if is_binary:
+    if image.ndim == 3:
+        axis.imshow(np.clip(image, 0, 1), origin="upper", aspect="equal")
+    elif is_binary:
         axis.imshow(image, cmap="gray_r", vmin=0.0, vmax=1.0)
     else:
         # Espectrogramas: frecuencia creciente hacia arriba.

@@ -284,10 +284,13 @@ function drawPreview(base64Image) {
   const image = context.createImageData(columns, rows);
   for (let row = 0; row < rows; row++) {
     // Espectrogramas: frecuencia creciente hacia arriba.
-    const sourceRow = state.is_binary ? row : rows - 1 - row;
+    const isRGB = state.image_shape.length === 3;
+    const sourceRow = state.is_binary || isRGB ? row : rows - 1 - row;
     for (let column = 0; column < columns; column++) {
-      const value = values[sourceRow * columns + column] / 255;
-      const [r, g, b] = state.is_binary ? gray(value) : magma(value);
+      const offset = sourceRow * columns + column;
+      const value = values[offset] / 255;
+      const [r, g, b] = isRGB ? values.slice(offset * 3, offset * 3 + 3)
+        : (state.is_binary ? gray(value) : magma(value));
       image.data.set([r, g, b, 255], (row * columns + column) * 4);
     }
   }

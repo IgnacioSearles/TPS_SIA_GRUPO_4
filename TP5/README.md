@@ -185,3 +185,41 @@ La suite `configs/ej2_pitch_interploss_validation_*.json` compara lambda 0, 0.1 
 con latente 4 y el mismo protocolo reservado: 18 corridas. Ver
 [pérdida, supervisión y comandos](docs/pitch_interploss.md). El comparador es
 `python -m src.analysis.pitch_interploss --prepare-final`.
+
+## Experimentos generativos nuevos
+
+`configs/ej2_new_*.json` prepara tres preguntas: figuras geométricas, comparación
+AE–VAE y peso KL con el mismo dataset, y timbres nuevos a frecuencia fija. Son
+18 modelos con conjuntos de entrenamiento/prueba separados y tres semillas.
+Ver [los tres experimentos y comandos](docs/generative_experiments.md).
+Esta suite no reabre el estudio cerrado de notas omitidas.
+
+## Arte geométrico y sonidos para presentar
+
+La nueva etapa `configs/ej2_art_*.json` genera figuras RGB individuales y,
+como extensión, composiciones de dos figuras. Reutiliza el protocolo del
+VAE de timbres y agrega galerías, recorridos animados y soporte RGB en el
+explorador. Ver [protocolo, comandos y guion](docs/art_audio_experiments.md).
+Los resultados se interpretan por aplicación, sin comparar MSE RGB y mel.
+
+## Capacidad del VAE RGB
+
+La comparación de latentes 4, 8 y 16 reutiliza la base, agrega seis
+modelos y evalúa siluetas, contornos y color en particiones nuevas.
+La selección se fija con validación antes de abrir la prueba final.
+Ver [protocolo y comandos](docs/art_capacity_experiments.md).
+
+## Diagnóstico AE/VAE y ancho RGB
+
+La suite `configs/ej2_width_art_*.json` cruza AE/VAE con capas [128,32]
+y [256,128], latente 8. Reutiliza el VAE pequeño, agrega nueve modelos y
+usa particiones nuevas. La generación del AE incluye una gaussiana
+ajustada solo a entrenamiento. Ver [diseño y comandos](docs/art_width_experiments.md).
+
+## Búsqueda de calidad generativa RGB
+
+La suite `configs/ej2_search_art_*.json` explora datos, capacidad, arquitectura convolucional, resolución y el hiperparámetro beta. Conserva la fórmula MSE + beta·KL; no usa pérdidas auxiliares ni postprocesado correctivo. Incluye particiones independientes, galerías completas y confirmación con tres semillas. Ver [protocolo y comandos](reports/ej2_search/plan.md) y [avance de candidatos terminados](reports/ej2_search/progress.md).
+
+Regenerar el resumen sin entrenar ni abrir la prueba reservada: `python -m src.analysis.art_search_report`.
+
+La [bitácora de experimentos](reports/ej2_search/bitacora.md) registra decisiones, resultados y pendientes. El ejecutor admite `--checkpoint-every 10` para guardar y reanudar el estado completo; véanse las condiciones en el protocolo.

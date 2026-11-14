@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "count": 256,
+  "seed": 2026111800,
+  "distribution": "N(0,I)",
+  "data_manifest_sha256": "bf0d023ffc2b954a54d46c3441935a414f4e1707e832856dd12879f77828c1bd",
+  "primary_criteria_unchanged": true,
+  "final_split_used": false,
+  "purpose": "Additional validation Monte Carlo diagnostic, never a replacement for the primary 64 cases."
+}

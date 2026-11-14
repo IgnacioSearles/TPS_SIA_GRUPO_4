@@ -40,6 +40,16 @@ def error_unit(dataset: Dataset) -> str:
 
 def reconstruction_quality(model: Autoencoder, dataset: Dataset) -> dict[str, float]:
     """Resumen de qué tan bien se reconstruyen los datos limpios."""
+    batch_size = getattr(model, "inference_batch_size", None)
+    if batch_size is not None:
+        pieces = [sample_errors(dataset, dataset.samples[i:i+batch_size],
+                               model.reconstruct(dataset.samples[i:i+batch_size]))
+                  for i in range(0, len(dataset), batch_size)]
+        errors = np.concatenate(pieces)
+        if not dataset.is_binary:
+            return {"mean_squared_error": float(errors.mean())}
+        return {"max_pixel_errors": int(errors.max()), "mean_pixel_errors": float(errors.mean()),
+                "patterns_within_target": int(np.count_nonzero(errors <= PIXEL_ERROR_TARGET))}
     reconstructions = model.reconstruct(dataset.samples)
     if not dataset.is_binary:
         return {

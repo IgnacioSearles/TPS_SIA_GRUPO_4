@@ -39,11 +39,14 @@ def parse_arguments() -> argparse.Namespace:
         "--threads", type=int, default=None,
         help="hilos BLAS por proceso con --jobs (por defecto: núcleos / jobs)",
     )
+    parser.add_argument("--checkpoint-every",type=int,default=0,
+                        help="guardar y reanudar el estado completo cada N épocas (0 desactiva)")
     arguments = parser.parse_args()
     if arguments.force and arguments.evaluate_only:
         parser.error("--force y --evaluate-only son excluyentes")
     if arguments.jobs < 1 or (arguments.threads is not None and arguments.threads < 1):
         parser.error("--jobs y --threads deben ser positivos")
+    if arguments.checkpoint_every < 0:parser.error("--checkpoint-every no puede ser negativo")
     return arguments
 
 
@@ -68,7 +71,8 @@ def main() -> None:
             os.environ[variable] = str(threads)
     paths = expand_config_paths(arguments.configs)
     try:
-        run_experiments(paths, arguments.force, arguments.evaluate_only, arguments.jobs)
+        runtime={"checkpoint_every":arguments.checkpoint_every} if arguments.checkpoint_every else {}
+        run_experiments(paths, arguments.force, arguments.evaluate_only, arguments.jobs, **runtime)
     except (ConfigurationError, FileNotFoundError) as error:
         raise SystemExit(f"Error: {error}") from error
 

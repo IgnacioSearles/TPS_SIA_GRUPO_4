@@ -1,0 +1,62 @@
+{
+  "seeds": [
+    7,
+    17,
+    27
+  ],
+  "dataset": {
+    "type": "fixed_pitch_timbres",
+    "frequency_hz": 220.0,
+    "train_count": 1024,
+    "test_count": 256,
+    "data_seed": 20261113,
+    "spectrogram": {
+      "duration_seconds": 1.0,
+      "fft_size": 1024,
+      "hop_length": 256,
+      "mel_bands": 64
+    }
+  },
+  "model": {
+    "type": "variational",
+    "latent_size": 4,
+    "hidden_layers": [
+      128,
+      32
+    ],
+    "activation": "relu",
+    "initializer": "he",
+    "loss": "mse",
+    "precision": "float32",
+    "kl": {
+      "weight": 0.5,
+      "warmup_epochs": 50
+    }
+  },
+  "training": {
+    "epochs": 200,
+    "batch_size": 64,
+    "log_every": 10,
+    "optimizer": {
+      "type": "adam",
+      "learning_rate": 0.001
+    }
+  },
+  "evaluation": {
+    "reconstruction": {
+      "max_examples": 8,
+      "audio_examples": 0
+    },
+    "latent": {},
+    "generative": {
+      "count": 16,
+      "test_examples": 8,
+      "audio_examples": 6,
+      "seed": 1234
+    },
+    "interpolation": {
+      "random_pairs": 2,
+      "steps": 7
+    }
+  }
+}

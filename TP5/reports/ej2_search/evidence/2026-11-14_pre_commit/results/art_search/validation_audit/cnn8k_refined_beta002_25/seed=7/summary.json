@@ -1,0 +1,34 @@
+{
+  "candidate": "cnn8k_refined_beta002_25",
+  "seed": 7,
+  "inputs": {
+    "model_sha256": "8ab0b0019346e890b3e5f50cf5e03f6e283f23cf9c8016e40e1c8f883f535815",
+    "config_sha256": "2a1e4319ef622aa3b14049c8675fd21595fc81c2372c1c24cba6f766fea20b58",
+    "protocol": {
+      "version": 1,
+      "count": 256,
+      "seed": 2026111800,
+      "distribution": "N(0,I)",
+      "data_manifest_sha256": "bf0d023ffc2b954a54d46c3441935a414f4e1707e832856dd12879f77828c1bd",
+      "primary_criteria_unchanged": true,
+      "final_split_used": false,
+      "purpose": "Additional validation Monte Carlo diagnostic, never a replacement for the primary 64 cases."
+    },
+    "code": {
+      "src/analysis/art_search_audit.py": "a956e0c412ae77d623168a14e80c3ac8a7ce2f0a26a0611f127f57c277402280",
+      "src/evaluation/art_cleanliness.py": "1313427a9baee90af2c43308b0993db96843fe18ec4b77131382992d04665196",
+      "src/models/factory.py": "011ab871f64e42357b0143487c2a8cb3022db3a70e4e1fd1b79c6299c51568d5",
+      "src/nn/spatial.py": "3c35eaaf3347b2cb98df2d7bcf1e01dfe0b96509635850faaa51df21f7e5c338"
+    }
+  },
+  "count": 256,
+  "clean_count": 214,
+  "clean_rate": 0.8359375,
+  "conditional_wilson95": [
+    0.7856686878987823,
+    0.8762730489131833
+  ],
+  "interpretation": "Sampling interval conditional on this fitted model; ignores hyperparameter selection and does not certify semantic shape validity.",
+  "all_cases_saved": true,
+  "corrective_postprocessing": false
+}

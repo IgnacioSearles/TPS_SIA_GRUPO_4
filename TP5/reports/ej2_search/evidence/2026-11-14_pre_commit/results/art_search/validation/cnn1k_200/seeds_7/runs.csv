@@ -1,0 +1,2 @@
+seed,clean_rate,samples,empty_predictions,macro_silhouette_iou,macro_boundary_f1,macro_contour_distance_px,macro_mse,macro_foreground_mse,macro_interior_color_mse
+7,0.0,512,0,0.891809243071461,0.9804657653642048,0.2686558621720154,0.003124279094663507,0.010878311557689813,0.0030157684093410353

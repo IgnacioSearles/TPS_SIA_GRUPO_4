@@ -1,0 +1,16 @@
+{
+  "status": "pruned",
+  "configured_epochs": 100,
+  "last_observed_epoch": 50,
+  "reason": "Random full-resolution refinement stagnated; identity-initialized refinement learns faster. No completed model or generation claimed.",
+  "candidates": {
+    "cnn4k_refine100": {
+      "last_observed_reconstruction": 23.41,
+      "last_observed_train_mse": 0.0069306
+    },
+    "cnn4k_refine_beta01_100": {
+      "last_observed_reconstruction": 21.037,
+      "last_observed_train_mse": 0.0067073
+    }
+  }
+}

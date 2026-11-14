@@ -1,0 +1,46 @@
+{
+  "candidate": "cnn4k_lowbeta_more25",
+  "seeds": [
+    7
+  ],
+  "inputs": {
+    "sources": [
+      {
+        "seed": 7,
+        "run": "results/ej2_search_art_cnn4k_lowbeta_more25/base__seed=7",
+        "model_sha256": "a7222a5b565d553e8973fa77a8accde7a2de7f7dd1705fec5901c51c315fa32d",
+        "config_sha256": "23de65d49f2d32e201adb40cf872ea7b3f3685554f6110bbfb904c7b62af63c6"
+      }
+    ],
+    "data_manifest_sha256": "bf0d023ffc2b954a54d46c3441935a414f4e1707e832856dd12879f77828c1bd",
+    "loss_guard": {
+      "src/nn/losses.py": "3ca9f825a76073e4592b3e44c3c664533e23c2aea44ee2236f5392f6fc7b01b0",
+      "src/models/autoencoder.py": "d2c48c19274e5117c7dc5344bd7b3207932e7c3cadc8301b3d4851e4d7f98ec6",
+      "src/models/variational.py": "76b0dd9de5b40c4193ff95b8b898e9d6b8e4aa6dfe8268f1befee25521d62417"
+    },
+    "evaluation_sha256": {
+      "src/evaluation/art_geometry.py": "97e50762149eedeacc16b93130963174d692dcc79181016df0e1170b9d14f58a",
+      "src/evaluation/art_cleanliness.py": "1313427a9baee90af2c43308b0993db96843fe18ec4b77131382992d04665196",
+      "src/nn/spatial.py": "3c35eaaf3347b2cb98df2d7bcf1e01dfe0b96509635850faaa51df21f7e5c338",
+      "src/models/factory.py": "011ab871f64e42357b0143487c2a8cb3022db3a70e4e1fd1b79c6299c51568d5"
+    },
+    "objective_hyperparameters": {
+      "formula": "MSE + beta * KL",
+      "beta": 0.02,
+      "warmup_epochs": 0
+    }
+  },
+  "split": "validation",
+  "resolution": 32,
+  "macro_iou_mean": 0.9335807865772197,
+  "polygon_iou_mean": 0.9066231962156384,
+  "polygon_iou_means": {
+    "triangle": 0.9162415157263739,
+    "rectangle": 0.8970048767049029
+  },
+  "clean_rate_mean": 0.921875,
+  "automatic_pass": true,
+  "confirmation_seeds_complete": false,
+  "manual_diversity_review_required": true,
+  "model_samples_filtered": false
+}

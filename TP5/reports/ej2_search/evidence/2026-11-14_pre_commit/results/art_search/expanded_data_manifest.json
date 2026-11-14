@@ -1,0 +1,20 @@
+{
+  "train_count": 8192,
+  "data_seed": 2026111600,
+  "samples_sha256": "c05d8fc19f9d2ce14a349f70e789ceb44c17f2015eea33e94a38344913a148f3",
+  "generator_sha256": "0865664d6cd9b1c5ce722d9b792d1f57798ea08c864a2fc31af76ce4a89aa50d",
+  "original_data_manifest_sha256": "bf0d023ffc2b954a54d46c3441935a414f4e1707e832856dd12879f77828c1bd",
+  "old_4096_training_samples_preserved": true,
+  "reference_overlaps": {
+    "validation": 0,
+    "reserved_final": 0
+  },
+  "family_counts": {
+    "circle": 2048,
+    "ellipse": 2048,
+    "triangle": 2048,
+    "rectangle": 2048
+  },
+  "old_internal_test_now_in_training": true,
+  "interpretation": "Old internal test was never the search validation. External validation/final remain excluded."
+}
