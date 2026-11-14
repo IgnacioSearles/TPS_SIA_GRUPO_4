@@ -57,15 +57,15 @@
 <section class="figure has-take">
   <h2>Hace falta una capa oculta de al menos 16 neuronas</h2>
   <figure><img src="assets/reports__presentacion__e1_arquitecturas.png" alt="Semillas que llegan al objetivo según las capas ocultas"></figure>
-  <p class="take">Más capas aprenden <em>antes</em>, no mejor: 64-32-16 llega en 200 épocas, 16 en 2.000.</p>
-  <aside class="notes">Latente 2, tanh, Adam con η = 0,01, 5.000 épocas y 5 semillas por arquitectura. Sin capa oculta el codificador es lineal: proyectar 35 dimensiones a 2 en línea recta no separa 32 letras (12 a 14 píxeles mal en la peor). Con 8 neuronas tampoco: 6 a 8 píxeles. 16-8 y 32-16 fallan en alguna semilla porque η = 0,01 es agresivo para esas redes (ver estabilidad). La época mediana es la primera vez que las 32 letras quedan con a lo sumo un píxel mal, medida cada 100 épocas.</aside>
+  <p class="take">Más capas aprenden <em>antes</em> y más parejo: 64-32-16 llega en 200 épocas siempre; 16, en 2.100 ± 1.100.</p>
+  <aside class="notes">Latente 2, tanh, Adam con η = 0,01, 5.000 épocas y 5 semillas por arquitectura. Sin capa oculta el codificador es lineal: proyectar 35 dimensiones a 2 en línea recta no separa 32 letras (12 a 14 píxeles mal en la peor). Con 8 neuronas tampoco: 6 a 8 píxeles. 16-8 y 32-16 fallan en alguna semilla porque η = 0,01 es agresivo para esas redes (ver estabilidad). La barra es la época media en que las 32 letras quedan por primera vez con a lo sumo un píxel mal (medida cada 100 épocas), con su desvío entre las semillas que llegan; los puntos son cada semilla. Las que no llegan no entran en la media: por eso al lado dice cuántas llegan.</aside>
 </section>
 
 <section class="figure has-take">
   <h2>Las redes chicas fallan siempre en las mismas letras</h2>
   <figure><img src="assets/reports__ej1_pruebas__redes_chicas_letras_que_fallan.png" alt="Letras que no aprende cada red chica, por semilla"></figure>
-  <p class="take">Con 8 neuronas ocultas, <em>f</em> y <em>m</em> fallan en las 5 semillas; con 32-16, casi ninguna.</p>
-  <aside class="notes">Cada celda cuenta en cuántas de 5 semillas esa letra quedó con más de un píxel mal. Sin capas ocultas falla casi todo; con 8 ocultas fallan sobre todo las letras con muchos trazos: f y m en 5 de 5, e, n, r, s en 4 de 5. Con 32-16 y latente 2 cumple 4 de 5 semillas; la que falla erra en n, r, u, v o w, letras parecidas entre sí.</aside>
+  <p class="take">Con 8 neuronas ocultas, <em>e</em>, <em>f</em> y <em>m</em> fallan en las 5 semillas; con 32-16, casi ninguna.</p>
+  <aside class="notes">Cada celda cuenta en cuántas de 5 semillas esa letra quedó con más de un píxel mal. Sin capas ocultas falla casi todo; con 8 ocultas fallan sobre todo las letras con muchos trazos: e, f y m en 5 de 5; h, j y n en 4 de 5. Con 32-16 y latente 2 cumplen 4 de 5 semillas; las letras que fallan cambian de semilla en semilla. Con latente 1, aun con 32-16, ninguna semilla cumple.</aside>
 </section>
 
 <section class="figure has-take">
@@ -92,8 +92,8 @@
 <section class="figure has-take">
   <h2>Con η alto, a veces vuelve a fallar</h2>
   <figure><img src="assets/reports__ej1_pruebas__estabilidad_semillas_en_objetivo.png" alt="Porcentaje de semillas en el objetivo a lo largo de 10.000 épocas"></figure>
-  <p class="take">Con 32-16, η = 0,01 sale del objetivo en el <em>17 %</em> de los controles; con 0,003, en el 2 %.</p>
-  <aside class="notes">10 semillas por curva y 10.000 épocas. Que llegue una vez no alcanza: con η alto la pérdida rebota y alguna letra vuelve a tener 2 píxeles mal. Con η = 0,003 todas las configuraciones terminan 10 de 10. La red más grande, 64-32-16, no sale nunca del objetivo con ningún η.</aside>
+  <p class="take">Con 32-16, η = 0,01 sale del objetivo en el <em>14 %</em> de los controles; con 0,003, en el 3 %.</p>
+  <aside class="notes">10 semillas por curva y 10.000 épocas. Que llegue una vez no alcanza: con η alto la pérdida rebota y alguna letra vuelve a tener 2 píxeles mal. Con η = 0,001 todas las configuraciones terminan 10 de 10; con 0,003, solo 32-16 termina con una semilla afuera. La red más grande, 64-32-16, no sale nunca del objetivo con ningún η.</aside>
 </section>
 
 <section class="statement">
@@ -167,7 +167,7 @@
   <h2>Para limpiar ruido conviene un latente de 8 y no de 2</h2>
   <figure><img src="assets/reports__presentacion__e1b_latente.png" alt="Error de salida según el ruido de prueba para latentes 2, 4, 8 y 16"></figure>
   <p class="take">Elegimos <em>35 → 32 → 16 → 8</em>, entrenada con 10 % de ruido: 0,5 píxeles mal con 10 %, contra 3,5 de la entrada.</p>
-  <aside class="notes">Media de 3 semillas, ocultas 32-16, entrenadas invirtiendo el 10 % de los píxeles y probadas con 50 repeticiones del font por nivel. Con latente 2, el que exige 1.a, a 10 % de ruido quedan 0,86 píxeles mal; con 8, 0,54. Además con latente 2 ninguna semilla reconstruye las letras limpias con a lo sumo 1 píxel; con 8, las tres. Con 16 no mejora: sobra capacidad y empieza a copiar parte del ruido. Nuestros compañeros probaron también 64-32 y llegaron a lo mismo (apéndice).</aside>
+  <aside class="notes">Media de 3 semillas, ocultas 32-16, entrenadas invirtiendo el 10 % de los píxeles y probadas con 50 repeticiones del font por nivel. Con latente 2, el que exige 1.a, a 10 % de ruido quedan 0,86 píxeles mal; con 8, 0,54. Además con latente 2 ninguna semilla reconstruye las letras limpias con a lo sumo 1 píxel; con 8, las tres. Con 16 no mejora: sobra capacidad y empieza a copiar parte del ruido. Con 64-32 da lo mismo: 0,48 píxeles mal con latente 8 (apéndice).</aside>
 </section>
 
 <section class="figure has-take">
@@ -187,7 +187,7 @@
 <section class="figure has-take">
   <h2>Limpia bien solo el ruido con el que se entrenó</h2>
   <figure><img src="assets/reports__ej1_pruebas__denoising_tipos_de_ruido.png" alt="Error de salida entrenando con un ruido y probando con otro"></figure>
-  <p class="take">Entrenada apagando píxeles, no sabe qué hacer con los que se prenden: <span class="warm">4,8 a 9,2</span> píxeles mal.</p>
+  <p class="take">Entrenada apagando píxeles, no sabe qué hacer con los que se prenden: <span class="warm">4,5 a 8,5</span> píxeles mal.</p>
   <aside class="notes">Latente 8, ocultas 32-16, 3 semillas. Invertir es el ruido más general: entrenada así, limpia los cuatro tipos con menos de medio píxel mal. Apagar solo saca píxeles: la red aprende que todo píxel encendido es real, y cuando el ruido prende píxeles los deja.</aside>
 </section>
 
@@ -324,13 +324,19 @@
       <figure><img src="assets/reports__presentacion__espectrogramas__reconstruccion_1_vae.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__reconstruccion_1_vae.wav">oír</button></figure>
       <figure><img src="assets/reports__presentacion__espectrogramas__reconstruccion_2_vae.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__reconstruccion_2_vae.wav">oír</button></figure>
     </div>
-    <div class="points">
-      <p>Error medio: AE <em>0,0015</em>, VAE 0,0019</p>
-      <p>El AE gana en el <em>89 %</em> de las notas</p>
-      <p class="muted">En las 10 familias, de 1,15 a 1,30 veces</p>
+    <div class="chart">
+      <img src="assets/reports__presentacion__e2_error_familias_chico.png" alt="Error de reconstrucción por familia, AE contra VAE">
+      <p>El AE gana en las 10 familias y en el <em>89 %</em> de las notas</p>
     </div>
   </main>
-  <aside class="notes">Error cuadrático medio del espectrograma sobre las 1.108 notas, con los dos modelos entrenados idénticos salvo la parte variacional. El VAE reconstruye desde la media μ, sin sortear. Es lo esperable: la KL le cobra a cada código por alejarse del origen, así que el VAE tiene menos libertad para separar notas parecidas. Es el intercambio: un poco de nitidez a cambio de un espacio donde se puede muestrear. Error por familia en el apéndice.</aside>
+  <aside class="notes">Error cuadrático medio del espectrograma sobre las 1.108 notas, con los dos modelos entrenados idénticos salvo la parte variacional. El VAE reconstruye desde la media μ, sin sortear. Es lo esperable: la KL le cobra a cada código por alejarse del origen, así que el VAE tiene menos libertad para separar notas parecidas. Es el intercambio: un poco de nitidez a cambio de un espacio donde se puede muestrear. Error medio: AE 0,0015, VAE 0,0019; el VAE queda entre 1,15 y 1,30 veces peor según la familia.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>ReLU es la mejor activación para el AE y para el VAE</h2>
+  <figure><img src="assets/reports__presentacion__e2_activaciones.png" alt="Reconstrucción, cercanía a notas reales y diversidad de las muestras según la activación"></figure>
+  <p class="take">tanh da ruido; sigmoide, casi siempre la misma nota borrosa. El VAE gana con las cuatro.</p>
+  <aside class="notes">Mismos datos, capas, épocas, optimizador y semilla; cambia solo la activación de las capas ocultas y su inicialización: He para ReLU y leaky ReLU, Xavier para tanh y sigmoide. Las barras de error son intervalos de 95 % entre notas o entre las 200 muestras. Izquierda: error de reconstrucción; ReLU y leaky ReLU empatan (AE 0,0015, VAE 0,0019), tanh es 1,5 veces peor y la sigmoide 4 a 5 veces. Centro: distancia de cada muestra de N(0, I) a la nota real más parecida; el VAE gana con las cuatro activaciones. Derecha: cuánto se distinguen las muestras entre sí, contra 0,07 de las notas reales. tanh queda lejos de toda nota y con diversidad de 0,18 a 0,20: no son notas sino ruido con mucha energía. La sigmoide parece la mejor en el centro, pero solo porque devuelve siempre una nota promedio: diversidad 0,03 y el VAE usa 12 de sus 16 dimensiones. En el apéndice se pueden escuchar.</aside>
 </section>
 
 <section class="section">
@@ -412,7 +418,7 @@
 <section class="figure has-take">
   <p class="tag">Resultado negativo</p>
   <h2>No logramos generar una altura que no vio</h2>
-  <figure><img src="assets/reports__ej2_notas_omitidas__microtonal.png" alt="Aciertos al interpolar hacia alturas omitidas"></figure>
+  <figure><img src="assets/reports__presentacion__e2_omitidas_microtonal.png" alt="Aciertos al interpolar hacia alturas omitidas"></figure>
   <p class="take">Entre las vecinas de una nota omitida, acierta <span class="warm">5 de 27</span>. Mezclar los dos espectrogramas: 6 de 27.</p>
   <aside class="notes">Pregunta extra, más allá de la consigna: si sacamos una altura del entrenamiento, ¿el punto medio entre sus dos vecinas genera esa altura? Con un timbre sintético controlado, 57 corridas: microtonos, tamaño latente (2, 4 y 16) y una pérdida auxiliar que enseña a interpolar con ternas conocidas. Con notas que sí vio, interpola bien (19 de 27 en ambos criterios). Con la nota omitida, la afinación sale bien 25 de 27 veces, pero el espectro no se parece al de la nota real: un estimador de altura se engaña con mezclas. La cercanía espectral cae a 5 de 27. Ninguna variante mejoró la generalización. El detalle está en reports/ej2_notas_omitidas/cierre.md y en el apéndice.</aside>
 </section>
@@ -447,11 +453,36 @@
 
 <section class="figure"><h2>Denoising: arquitecturas y latentes</h2><figure><img src="assets/reports__ej1_pruebas__denoising_arquitecturas.png" alt="Error de salida por arquitectura de denoising"></figure></section>
 
-<section class="figure"><h2>VAE contra autoencoder: error por familia</h2><figure><img src="assets/reports__presentacion__e2_error_familias.png" alt="Error de reconstrucción por familia"></figure></section>
+<section class="figure"><h2>Notas omitidas: tamaño del latente</h2><figure><img src="assets/reports__presentacion__e2_omitidas_latentes.png" alt="Aciertos por tamaño latente en notas omitidas"></figure></section>
 
-<section class="figure"><h2>Notas omitidas: tamaño del latente</h2><figure><img src="assets/reports__ej2_notas_omitidas__latentes.png" alt="Aciertos por tamaño latente en notas omitidas"></figure></section>
+<section class="figure"><h2>Notas omitidas: pérdida auxiliar de interpolación</h2><figure><img src="assets/reports__presentacion__e2_omitidas_perdida.png" alt="Aciertos según el peso de la pérdida auxiliar"></figure></section>
 
-<section class="figure"><h2>Notas omitidas: pérdida auxiliar de interpolación</h2><figure><img src="assets/reports__ej2_notas_omitidas__perdida_auxiliar.png" alt="Aciertos según el peso de la pérdida auxiliar"></figure></section>
+<section>
+  <h2>Activaciones: las mismas 4 muestras del VAE</h2>
+  <div class="tiles activations">
+    <p class="row-label">ReLU</p>
+    <figure><img src="assets/reports__presentacion__espectrogramas__activacion_relu_0.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__activacion_relu_0.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__activacion_relu_1.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__activacion_relu_1.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__activacion_relu_2.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__activacion_relu_2.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__activacion_relu_3.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__activacion_relu_3.wav">oír</button></figure>
+    <p class="row-label">leaky ReLU</p>
+    <figure><img src="assets/reports__presentacion__espectrogramas__activacion_leaky_relu_0.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__activacion_leaky_relu_0.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__activacion_leaky_relu_1.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__activacion_leaky_relu_1.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__activacion_leaky_relu_2.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__activacion_leaky_relu_2.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__activacion_leaky_relu_3.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__activacion_leaky_relu_3.wav">oír</button></figure>
+    <p class="row-label">tanh</p>
+    <figure><img src="assets/reports__presentacion__espectrogramas__activacion_tanh_0.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__activacion_tanh_0.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__activacion_tanh_1.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__activacion_tanh_1.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__activacion_tanh_2.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__activacion_tanh_2.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__activacion_tanh_3.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__activacion_tanh_3.wav">oír</button></figure>
+    <p class="row-label">sigmoide</p>
+    <figure><img src="assets/reports__presentacion__espectrogramas__activacion_sigmoid_0.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__activacion_sigmoid_0.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__activacion_sigmoid_1.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__activacion_sigmoid_1.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__activacion_sigmoid_2.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__activacion_sigmoid_2.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__activacion_sigmoid_3.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__activacion_sigmoid_3.wav">oír</button></figure>
+  </div>
+  <aside class="notes">Los mismos cuatro z sorteados de N(0, I), decodificados por el VAE entrenado con cada activación. ReLU y leaky ReLU dan notas con armónicos limpios; tanh llena bandas de ruido; la sigmoide da casi siempre el mismo sonido apagado.</aside>
+</section>
 
 </div></div>
 <script src="vendor/reveal/reveal.js"></script>

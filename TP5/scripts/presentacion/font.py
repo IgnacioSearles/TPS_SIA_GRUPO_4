@@ -13,8 +13,7 @@ from matplotlib.offsetbox import AnnotationBbox, OffsetImage
 from matplotlib.patches import Rectangle
 
 from scripts.presentacion.common import (
-    PIXEL_TARGET, RESULTS, Array, bare, glyph, median_epoch_within_target, read_csv, read_summary, save,
-    seeds_within_target,
+    PIXEL_TARGET, RESULTS, Array, bare, glyph, read_csv, read_summary, save,
 )
 from src.data.noise import Noise
 from src.evaluation.metrics import binarize
@@ -95,24 +94,38 @@ def reconstruction_figure(model, samples: Array, labels: list[str], per_band: in
 # ----------------------------------------------------------------------------- qué hace falta para aprender
 
 def success_bars(experiment: str, name_of, ylabel: str, output: str) -> None:
-    """Semillas que llegan a ≤ 1 píxel por letra, con la época mediana en que lo logran."""
+    """Época en que cada configuración llega a ≤ 1 píxel por letra: media ± desvío entre las semillas que llegan.
+
+    Al lado, cuántas semillas llegan; las que no llegan no tienen época y no entran en la media.
+    """
     groups = read_summary(experiment)
     names = [name_of(configuration) for configuration in groups]
-    successes = [seeds_within_target(rows) for rows in groups.values()]
     seeds = len(next(iter(groups.values())))
+    epochs = [_epochs_within_target(rows) for rows in groups.values()]
+    means = [np.mean(values) if values else 0.0 for values in epochs]
+    deviations = [np.std(values) if len(values) > 1 else 0.0 for values in epochs]
     figure, axis = plt.subplots(figsize=(9, 0.62 * len(names) + 1.2))
     positions = np.arange(len(names))[::-1]
-    axis.barh(positions, successes, color=["C0" if count else "C7" for count in successes])
-    for position, count, rows in zip(positions, successes, groups.values()):
-        epoch = median_epoch_within_target(rows)
-        text = f"{count}/{seeds}" + (f"   época mediana {epoch:,.0f}".replace(",", ".") if count else "")
-        axis.text(count + 0.08, position, text, va="center", fontsize=12)
+    axis.barh(positions, means, xerr=deviations, color="C0", capsize=4, error_kw={"lw": 1.4})
+    for position, values in zip(positions, epochs):
+        axis.scatter(values, np.full(len(values), position), color="black", s=12, zorder=3)
+    right_edges = [max([mean + deviation, *values]) for mean, deviation, values in zip(means, deviations, epochs)]
+    limit = max(right_edges) * 1.35
+    for position, values, right_edge in zip(positions, epochs, right_edges):
+        text = f"{len(values)}/{seeds} semillas" if values else f"0/{seeds}: no llega"
+        axis.text(right_edge + 0.02 * limit, position, text, va="center", fontsize=12,
+                  color="black" if values else "C3")
     axis.set_yticks(positions, names)
-    axis.set_xlim(0, seeds + 2.2)
-    axis.set_xticks(range(seeds + 1))
-    axis.set_xlabel(f"semillas que aprenden las 32 letras con ≤ {PIXEL_TARGET} píxel mal")
+    axis.set_xlim(0, limit)
+    axis.set_xlabel(f"época en que las 32 letras quedan con ≤ {PIXEL_TARGET} píxel mal\n"
+                    "(barra: media ± desvío; puntos: cada semilla)")
     axis.set_ylabel(ylabel)
     save(figure, output)
+
+
+def _epochs_within_target(rows: list[dict[str, str]]) -> list[int]:
+    return [int(row["first_epoch_within_target"]) for row in rows
+            if row["first_epoch_within_target"] and int(row["max_pixel_errors"]) <= PIXEL_TARGET]
 
 
 def _hidden_layers_name(configuration: str) -> str:
@@ -125,13 +138,13 @@ def _latent_name(configuration: str) -> str:
 
 
 def training_curves() -> None:
-    """Letras aprendidas a lo largo del entrenamiento: mediana de 5 semillas."""
+    """Letras aprendidas a lo largo del entrenamiento: media ± desvío de 5 semillas (banda)."""
     figure, (left, right) = plt.subplots(1, 2, figsize=(13, 4.6), sharey=True)
     _median_curves(left, "ej1a_optimizers", OPTIMIZER_NAMES)
     _median_curves(right, "ej1a_activations", ACTIVATION_NAMES)
     left.set_title("Optimizador (tanh)")
     right.set_title("Activación (Adam, η = 0,01)")
-    left.set_ylabel("letras con ≤ 1 píxel mal")
+    left.set_ylabel("letras con ≤ 1 píxel mal\n(media ± desvío, 5 semillas)")
     for axis in (left, right):
         axis.set_xlabel("época")
         axis.set_ylim(0, 33)
@@ -144,11 +157,11 @@ def _median_curves(axis: plt.Axes, experiment: str, names: dict[str, str]) -> No
     for configuration, rows in read_summary(experiment).items():
         histories = [read_csv(RESULTS / experiment / row["run"] / "history.csv") for row in rows]
         epochs = [int(entry["epoch"]) for entry in histories[0]]
-        learned = [
-            statistics.median(float(history[index]["patterns_within_target"]) for history in histories)
-            for index in range(len(epochs))
-        ]
-        axis.plot(epochs, learned, label=names[configuration], lw=2)
+        learned = np.array([[float(entry["patterns_within_target"]) for entry in history] for history in histories])
+        mean, deviation = learned.mean(axis=0), learned.std(axis=0)
+        (line,) = axis.plot(epochs, mean, label=names[configuration], lw=2)
+        axis.fill_between(epochs, mean - deviation, np.minimum(mean + deviation, 32), color=line.get_color(),
+                          alpha=0.15, linewidth=0)
 
 
 # ----------------------------------------------------------------------------- espacio latente
@@ -309,16 +322,17 @@ def _denoising_curves(experiment: str, parameter: str, name_of, output: str) -> 
     for rows in read_summary(experiment).values():
         tables = [read_csv(RESULTS / experiment / row["run"] / "denoising.csv") for row in rows]
         levels = [float(entry["level"]) for entry in tables[0]]
-        output_error = [statistics.mean(float(table[index]["output_mean_error"]) for table in tables)
-                        for index in range(len(levels))]
-        axis.plot(levels, output_error, marker="o", lw=2, label=name_of(rows[0][parameter]))
+        output_error = np.array([[float(entry["output_mean_error"]) for entry in table] for table in tables])
+        axis.errorbar(levels, output_error.mean(axis=0), yerr=output_error.std(axis=0), marker="o", lw=2,
+                      capsize=4, label=name_of(rows[0][parameter]))
         for index, level in enumerate(levels):
             input_errors.setdefault(level, []).extend(float(table[index]["input_mean_error"]) for table in tables)
     levels = sorted(input_errors)
     axis.plot(levels, [statistics.mean(input_errors[level]) for level in levels], "k--", lw=1.5,
               label="entrada, sin la red")
     axis.set_xlabel("probabilidad de invertir cada píxel en la prueba")
-    axis.set_ylabel("píxeles mal por letra (de 35)")
+    seeds = len(next(iter(read_summary(experiment).values())))
+    axis.set_ylabel(f"píxeles mal por letra\n(media ± desvío, {seeds} semillas)")
     axis.xaxis.set_major_formatter(plt.FuncFormatter(lambda value, _: f"{value:.0%}"))
     axis.legend(fontsize=11)
     save(figure, output)
