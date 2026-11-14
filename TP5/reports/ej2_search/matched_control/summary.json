@@ -1,0 +1,79 @@
+{
+  "candidates": [
+    "cnn4k_lowbeta_more50",
+    "cnn4k_lowbeta_conv2_50"
+  ],
+  "rows": [
+    {
+      "seed": 7,
+      "one_block_clean": 59,
+      "two_blocks_clean": 62,
+      "became_clean": 3,
+      "became_unclean": 0,
+      "one_block_iou": 0.932885898280593,
+      "two_blocks_iou": 0.9331006172559705,
+      "one_block_audit_clean": 223,
+      "two_blocks_audit_clean": 234,
+      "shared_parent_sha256": "2194e1fe3f8ad768f7bfcd7a26f29558374e58f174ac3e7ef2ad0119f0059c7b",
+      "clean_difference_pp": 4.6875,
+      "audit_difference_pp": 4.296875
+    },
+    {
+      "seed": 17,
+      "one_block_clean": 61,
+      "two_blocks_clean": 62,
+      "became_clean": 1,
+      "became_unclean": 0,
+      "one_block_iou": 0.9357379737156376,
+      "two_blocks_iou": 0.9347287634196013,
+      "one_block_audit_clean": 238,
+      "two_blocks_audit_clean": 242,
+      "shared_parent_sha256": "98c806922e1b4e1510c2c47a5d8c95952071b94367a9e8509fc315373128186c",
+      "clean_difference_pp": 1.5625,
+      "audit_difference_pp": 1.5625
+    },
+    {
+      "seed": 27,
+      "one_block_clean": 55,
+      "two_blocks_clean": 58,
+      "became_clean": 3,
+      "became_unclean": 0,
+      "one_block_iou": 0.932151884998885,
+      "two_blocks_iou": 0.9333906784582044,
+      "one_block_audit_clean": 233,
+      "two_blocks_audit_clean": 240,
+      "shared_parent_sha256": "d9e23c05cc03c73db9906f98dbe87bed66b889d75e4b4bac5aa00ba96605ff9b",
+      "clean_difference_pp": 4.6875,
+      "audit_difference_pp": 2.734375
+    }
+  ],
+  "sources": [
+    {
+      "run": "results/ej2_search_art_cnn4k_lowbeta_more50/base__seed=7",
+      "model_sha256": "b451d3bdc966d177e3889fb7ceedf6a68116abad52d6f51cf8df85989ca71ec9"
+    },
+    {
+      "run": "results/ej2_search_art_cnn4k_lowbeta_conv2_50/base__seed=7",
+      "model_sha256": "121cdf2ef55c56545874f4ebc9b0b96161788850c0143a096e81c74e8c2ef4f8"
+    },
+    {
+      "run": "results/ej2_search_art_cnn4k_lowbeta_more50/base__seed=17",
+      "model_sha256": "f72dd989189d6600af08b0b4788034c9fc49b2809c845509c83b4d1c6819f68b"
+    },
+    {
+      "run": "results/ej2_search_art_cnn4k_lowbeta_conv2_50/base__seed=17",
+      "model_sha256": "52fe58277d21dfb1abc26bd7cb2e775ee0c76c77da6a5df8a270b2b920d1e044"
+    },
+    {
+      "run": "results/ej2_search_art_cnn4k_lowbeta_more50/base__seed=27",
+      "model_sha256": "c99eee0a68dc81cf84866c1fb6f9f5b1f056cbe1ae964ba45b781341f2d6c86e"
+    },
+    {
+      "run": "results/ej2_search_art_cnn4k_lowbeta_conv2_50/base__seed=27",
+      "model_sha256": "3ef811c7bc306374a6b3ca4dd45ce68fc83f0f4dd32f13b62a3e8fa1a565eace"
+    }
+  ],
+  "mean_clean_difference_pp": 3.6458333333333335,
+  "mean_audit_difference_pp": 2.8645833333333335,
+  "interpretation": "Three matched model seeds; descriptive paired differences. Shared generation coordinates; no independence claim across all generated images. Cleanliness is not semantic validity."
+}

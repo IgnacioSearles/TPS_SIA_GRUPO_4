@@ -3,23 +3,34 @@
 Esta propuesta conserva el hilo de la presentación actual: aprender una
 representación, reconstruir y generar. Los nuevos resultados no convierten el
 estudio en una competencia entre audio e imágenes. Son aplicaciones separadas
-del mismo mecanismo variacional. Las posiciones se refieren a las 54 diapositivas
+del mismo mecanismo variacional. Las posiciones se refieren a las 55 diapositivas
 actuales, antes de agregar páginas.
 
-Los números definitivos de los controles se registran en el informe de cierre
-de esta tanda. No se edita el deck original mientras se prepara esta propuesta.
+Los controles terminaron. El [informe de resultados](controles_2026-11-14.md)
+conserva las tablas completas. En RGB, el segundo bloque mejora limpieza de
+91,1 a 94,8 % (auditoría: 90,4 a 93,2 %) con geometría prácticamente igual;
+no pasa la revisión completa de diversidad. En audio, ajustar el AE cambia su
+distancia media al entrenamiento de 0.032129 a
+0.017566 (-45.3 %); el VAE estándar obtiene
+0.017087. Son distancias descriptivas, no calidad auditiva.
+No se editó el deck original; estas son propuestas concretas de incorporación.
 
 ## Agregado 1: el efecto de la distribución de muestreo
 
-**Ubicación:** después de la actual diapositiva 36, que compara seis muestras
-del AE y el VAE desde N(0,I).
+**Ubicación:** actualizar la actual diapositiva 36, que compara seis muestras
+del AE y el VAE desde N(0,I), con la comparación completa de los tres métodos.
+La propuesta se refiere a la versión remota `16fd2b5`, con 55 diapositivas,
+incluida la nueva comparación de activaciones. Conviene actualizar esa página
+en lugar de sumar otra comparación casi idéntica.
 
 **Título:** «La distribución de muestreo también importa».
 
 **Qué mostrar:** tres filas de espectrogramas y botones de audio: AE desde
 N(0,I), el mismo AE desde una gaussiana ajustada a sus códigos, y VAE desde
 N(0,I). Usar los tres primeros índices del nuevo control en el cuerpo principal;
-conservar los seis ejemplos y los 256 casos en el respaldo. Indicar «reproducción
+conservar los seis ejemplos y los 256 casos en el respaldo. No pegar solamente
+la fila del AE ajustado debajo de los assets originales: se debe usar el control
+completo nuevo, con sus coordenadas y metadatos comunes. Indicar «reproducción
 nueva, semilla de modelo 7» para distinguirla de los pesos originales del deck.
 
 **Texto visible:**
@@ -59,7 +70,7 @@ Los WAV se deben escuchar antes de elegir qué reproducir en clase.
 
 ## Agregado 2: la misma pregunta con figuras RGB
 
-**Ubicación:** después del estudio de notas omitidas, actual diapositiva 43,
+**Ubicación:** después del estudio de notas omitidas, actual diapositiva 44,
 y antes de las conclusiones. Introducirlo como extensión visual del ejercicio 2.
 
 **Título:** «VAE con figuras RGB».
@@ -107,8 +118,8 @@ los hiperparámetros iguales ni un control que aísle la modalidad.
 
 **Título:** «Limpieza de la imagen y geometría de la figura».
 
-**Qué mostrar:** la comparación pareada `paired_examples.png`, con una y dos
-convoluciones, y dos ejemplos de `clean_but_deformed.png`. Los fallos de la
+**Qué mostrar:** la comparación pareada `paired_examples.png`, con uno y dos
+bloques de refinamiento, y dos ejemplos de `clean_but_deformed.png`. Los fallos de la
 semilla 27, índices 13 y 61, se eligieron expresamente para ilustrar el límite;
 no se usan para estimar una frecuencia. Las tasas se calculan con todos los casos.
 
@@ -175,14 +186,24 @@ de la consigna del ejercicio 2.
   varianzas o una proyección 2D no establece igualdad de distribuciones en 16D.
 - **36, AE frente a VAE:** explicitar «muestreo desde N(0,I)» y enlazar al nuevo
   control. No extrapolar que ningún AE pueda generar.
-- **39, novedad:** título sugerido «Muestras generadas y sus vecinos en el
+- **40, novedad:** título sugerido «Muestras generadas y sus vecinos en el
   dataset». La distancia no nula no descarta memorización aproximada.
 - **7, 9 y 13, capacidad de las letras:** añadir «en las configuraciones
   exploradas». Los resultados con latente 1 y ocultas pequeñas no son cotas
   matemáticas de representación para cualquier red.
-- **44, conclusiones:** sumar «la representación y el muestreo importan, y la
+- **45, conclusiones:** sumar «la representación y el muestreo importan, y la
   métrica debe medir la propiedad que queremos conservar». Mantener el resultado
   negativo de notas omitidas: interpolar un timbre no demuestra descubrir alturas.
+
+### Cómo complementa los nuevos resultados de activaciones
+
+La nueva diapositiva 38 ya compara activaciones e inicializaciones recomendadas,
+por lo que no agregaría otra búsqueda de activaciones. Nuestro control conserva
+ReLU y estudia una pregunta distinta: elegir una distribución adecuada para z.
+La frase «el VAE gana con las cuatro» debe restringirse a la cercanía al dataset
+al muestrear desde N(0,I) en esos ensayos. No incluye al AE con densidad ajustada
+ni demuestra superioridad general. Las barras entre notas o generaciones de un
+modelo no miden variabilidad entre semillas de entrenamiento; aclararlo en notas.
 
 ## Explicación unificadora para cerrar
 
@@ -194,6 +215,6 @@ de la consigna del ejercicio 2.
 > el fondo si la figura deja de ser reconocible. Los controles nos permiten
 > mostrar qué aprendió cada modelo y dónde sigue fallando.
 
-El resultado es una extensión de tres diapositivas principales y dos de respaldo,
+El resultado son dos diapositivas principales nuevas, una comparación actualizada y dos de respaldo,
 con un guion de unos tres minutos. Conserva el alcance del TP y evita presentar
 el experimento visual como una demostración independiente de arte generativo.

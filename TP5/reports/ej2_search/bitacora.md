@@ -153,3 +153,34 @@ Se preparó `propuesta_presentacion_fina.md` con ubicaciones, texto visible,
 justificación y guion oral. Las figuras de apoyo en `presentation_evidence/`
 provienen de matrices reales, con índices y hashes declarados. No se editó
 el deck original. La propuesta se completará con los resultados de los controles.
+
+
+### Resultados de los controles completados
+
+Terminaron las cuatro corridas pendientes de esta tanda y sus evaluaciones.
+El control pareado confirma una mejora modesta: limpieza principal 91,1→94,8 %
+y auditoría 90,4→93,2 %, positiva en cada semilla, con IoU casi igual. La revisión
+visual sigue sin cumplir el criterio completo; las referencias finales permanecen
+cerradas. No se siguen agregando arquitecturas a esta tanda.
+
+En NSynth, la distancia media MSE al vecino de entrenamiento es
+0.032129 para AE estándar,
+0.017566 para AE ajustado y
+0.017087 para VAE estándar. Una semilla; datos de entrenamiento;
+no certifica novedad ni calidad auditiva. Se exportaron todos los casos y WAV
+prefijados sin modificar pesos ni el códec.
+
+Informe completo: `controles_2026-11-14.md`. Guion de tres diapositivas principales
+y dos de respaldo: `propuesta_presentacion_fina.md`. El deck original se conserva.
+
+
+### Actualización remota y propuesta final de exposición
+
+Durante la tanda se subieron `065aef5` y `16fd2b5`; se integraron sin conflictos.
+Agregan activaciones y barras de error a la presentación. La propuesta final
+se actualizó a sus 55 diapositivas: actualizar el contraste AE/VAE con el control
+de muestreo y agregar dos páginas RGB, más dos de respaldo. No se editó el deck.
+
+Tras integrar los cambios remotos, pasaron **17 pruebas específicas en 23,43 s**.
+La evaluación NSynth reutilizó el informe terminado y sus hashes sin reentrenar.
+El alcance de la verificación queda en `verification_controls.json`.

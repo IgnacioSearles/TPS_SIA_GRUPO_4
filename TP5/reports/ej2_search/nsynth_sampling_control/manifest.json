@@ -1,0 +1,71 @@
+{
+  "status": "completed",
+  "inputs": {
+    "version": 1,
+    "count": 256,
+    "generation_seed": 2026111900,
+    "preview_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "training_samples_sha256": "012a6c668d4b66cc9577ce7db13bc105a9239db7cc260d4deef30c4ae4a5fe9d",
+    "model_seed": 7,
+    "covariance": "full sample N-1, fitted to training codes only",
+    "sources": [
+      {
+        "run": "results/ej2_nsynth_sampling_control_ae/base__seed=7",
+        "model_sha256": "545c7a558fd0e8f7967f3baa357dc795a19129f573f57437891887a54823f9cb",
+        "config_sha256": "29f02a896528f2d4f3ece95151f78e946500190f58dc14e09d9491aaf69d18e2"
+      },
+      {
+        "run": "results/ej2_nsynth_sampling_control_vae/base__seed=7",
+        "model_sha256": "de8d9748663e32fcf2cb6c0a698bc40aa2e1a8079270eca0c5df848c86c4f53d",
+        "config_sha256": "a77f486e32575079fa77d1c90da95e0da0ab081d07a4bb9ce9fd64905cfeda19"
+      }
+    ],
+    "code": {
+      "src/analysis/nsynth_sampling.py": "65c47b9ed1273a9e2ecbef4271916d16acaf9a94eb1c09d7764c21090dea230d",
+      "src/analysis/latent_sampling.py": "a12c43a1f7abb2cffc80a8a912fb0b07ebdcad8e18e2c3c7216601eb6c56d9e8",
+      "src/data/audio.py": "a64d06d344df2a043eeac1b7fec524013ba28567ab7a466d5f4469faa0fa39e0"
+    }
+  },
+  "rows": [
+    {
+      "method": "ae_standard",
+      "count": 256,
+      "nearest_train_mse": 0.03212855408984328,
+      "pairwise_mse": 0.0518412461425861,
+      "mean_value": 0.2002047598361969
+    },
+    {
+      "method": "ae_fitted",
+      "count": 256,
+      "nearest_train_mse": 0.017565757480593584,
+      "pairwise_mse": 0.05836287883743242,
+      "mean_value": 0.13812118768692017
+    },
+    {
+      "method": "vae_standard",
+      "count": 256,
+      "nearest_train_mse": 0.017086588939199267,
+      "pairwise_mse": 0.043277648777803365,
+      "mean_value": 0.15918081998825073
+    }
+  ],
+  "training_during_evaluation": false,
+  "train_count": 1108,
+  "independent_model_seeds": 1,
+  "codec": {
+    "sample_rate": 16000,
+    "duration_seconds": 1.0,
+    "fft_size": 1024,
+    "hop_length": 256,
+    "mel_bands": 128,
+    "dynamic_range_db": 70.0
+  },
+  "interpretation": "Distances/diversity are descriptive, not perceptual quality, novelty or generalization. One model seed; a fitted Gaussian can cross low-density latent regions. New reproductions, not the missing original presentation weights."
+}
