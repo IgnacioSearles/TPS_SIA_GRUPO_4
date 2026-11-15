@@ -14,7 +14,6 @@ import tarfile
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.patches import Ellipse
 from scipy.io import wavfile
 from scipy.signal import stft
 
@@ -71,7 +70,6 @@ def make_all() -> None:
     family_examples(dataset, renderer)
     representation_figure(dataset, renderer)
     latent_spaces_figure(autoencoder, variational, dataset)
-    posterior_figure(variational, dataset)
     prior_samples(autoencoder, variational, dataset, renderer)
     reconstructions(autoencoder, variational, dataset, renderer)
     reconstruction_error_by_family_figure()
@@ -145,7 +143,7 @@ def latent_spaces_figure(autoencoder, variational, dataset) -> None:
         projected = project(latent)
         for family in FAMILIES:
             mask = np.array([group == family for group in dataset.groups])
-            axis.scatter(*projected[mask].T, s=9, color=FAMILY_COLORS[family], label=family)
+            axis.scatter(*projected[mask].T, s=9, color=FAMILY_COLORS[family], label=FAMILY_NAMES[family])
         axis.set_title(name)
         axis.set_xlabel("PC1")
         axis.set_aspect("equal")
@@ -163,34 +161,6 @@ def latent_spaces_figure(autoencoder, variational, dataset) -> None:
     axis.set_ylabel("notas")
     axis.legend()
     save(figure, "e2_normas")
-
-
-def posterior_figure(variational, dataset, notes_per_family: int = 2, dimensions: tuple[int, int] = (0, 1)) -> None:
-    """Lo que da el codificador del VAE para algunas notas: una gaussiana chica (elipse de 1σ) dentro de N(0, I)."""
-    mean, log_variance = variational.encode_distribution(dataset.samples)
-    deviation = np.exp(0.5 * log_variance)
-    first, second = dimensions
-    rng = np.random.default_rng(1)
-    figure, axis = plt.subplots(figsize=(8.4, 7.2))
-    for radius, text in ((1, "1σ"), (2, "2σ")):
-        axis.add_patch(Ellipse((0, 0), 2 * radius, 2 * radius, fill=False, ls="--", lw=1.4, color="0.45"))
-        axis.text(radius * 0.72, radius * 0.72, text, color="0.4", fontsize=12)
-    axis.scatter(mean[:, first], mean[:, second], s=4, color="0.8", zorder=1)
-    for family in FAMILIES:
-        members = [index for index, group in enumerate(dataset.groups) if group == family]
-        for count, index in enumerate(rng.choice(members, notes_per_family, replace=False)):
-            axis.add_patch(Ellipse((mean[index, first], mean[index, second]), 2 * deviation[index, first],
-                                   2 * deviation[index, second], color=FAMILY_COLORS[family], alpha=0.7,
-                                   label=family if count == 0 else None, zorder=2))
-    axis.set_xlim(-3.2, 3.2)
-    axis.set_ylim(-3.2, 3.2)
-    axis.set_aspect("equal")
-    axis.set_xlabel(f"z{first + 1}")
-    axis.set_ylabel(f"z{second + 1}")
-    axis.legend(loc="center left", bbox_to_anchor=(1.0, 0.5), fontsize=11)
-    print(f"    desvío mediano de cada nota: {np.median(deviation):.2f}; "
-          f"desvío de las medias entre notas: {mean.std(axis=0).mean():.2f}")
-    save(figure, "e2_posteriores")
 
 
 def prior_samples(autoencoder, variational, dataset, renderer: NoteRenderer) -> None:

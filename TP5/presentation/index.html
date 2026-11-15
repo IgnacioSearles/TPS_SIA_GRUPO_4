@@ -265,30 +265,24 @@
 </section>
 
 <section class="figure has-take">
-  <h2>El VAE: el codificador da una media y un desvío</h2>
-  <figure><img src="assets/reports__presentacion__e2_red.png" alt="VAE: 8192-512-128, luego μ y log σ², z = μ + σ·ε y el decodificador espejo"></figure>
-  <p class="take">Pérdida: error cuadrático + 0,5 · KL. Adam, η = 0,001, 200 épocas: 6 minutos.</p>
-  <aside class="notes">El codificador termina en 32 valores: 16 medias y 16 log-varianzas, una gaussiana por nota. z se sortea de esa gaussiana como μ + σ·ε, con ε de N(0, I): así el sorteo queda afuera de la red y el gradiente pasa por μ y σ (truco de reparametrización). La KL mide cuánto se aleja la gaussiana de cada nota de N(0, I) y es cero solo si μ = 0 y σ = 1. Su peso sube de 0 a 0,5 en las primeras 50 épocas: si arranca entero, la red aprende primero a ignorar la entrada. Usamos error cuadrático porque los espectrogramas son continuos. Para comparar entrenamos el mismo modelo sin la parte variacional: mismos datos, capas, semilla y épocas, con un latente de 16 que sale directo del codificador. Los gradientes del VAE están escritos a mano en src/models/variational.py.</aside>
+  <h2>El autoencoder de sonido: 8.192 valores a 16</h2>
+  <figure><img src="assets/reports__presentacion__e2_red_ae.png" alt="Autoencoder 8192-512-128-16-128-512-8192 con un espectrograma a la entrada y su reconstrucción a la salida"></figure>
+  <p class="take">Pérdida: error cuadrático. Adam, η = 0,001, lotes de 64, 200 épocas: 6 minutos.</p>
+  <aside class="notes">Es la versión de sonido del autoencoder del ejercicio 1: el codificador comprime el espectrograma de una nota (128 bandas × 64 ventanas) a un código de 16 números y el decodificador espejo lo reconstruye. ReLU en las ocultas con inicialización He, latente lineal y salida sigmoide, porque el espectrograma está en [0, 1]. Usamos error cuadrático porque los valores son continuos, no ceros y unos. Es la referencia para el VAE: mismos datos, capas, semilla y épocas; lo único que cambia es el centro. La elección de ReLU está más adelante, cuando comparamos activaciones.</aside>
 </section>
 
-<section class="side">
-  <h2>Cada nota es una nube chica dentro de N(0, I)</h2>
-  <main>
-    <figure><img src="assets/reports__presentacion__e2_posteriores.png" alt="Elipses de un desvío para 20 notas, sobre los círculos de N(0, I)"></figure>
-    <div class="points">
-      <p>Cada elipse: lo que da el codificador para una nota</p>
-      <p>Desvío de cada nota: <em>0,16</em></p>
-      <p>Las medias se reparten con desvío <em>1</em>, como N(0, I)</p>
-    </div>
-  </main>
-  <aside class="notes">Dos de las 16 dimensiones del latente; dos notas por familia. Cada elipse tiene de radio un desvío σ de esa nota; los puntos grises son las medias de las 1.108 notas, y los círculos punteados marcan 1 y 2 desvíos de N(0, I). La reconstrucción empuja a que cada nota tenga su lugar (σ chico); la KL empuja a que todo quede cerca del origen con desvío 1. El resultado: no quedan huecos grandes entre notas, así que un punto sorteado de N(0, I) cae cerca de alguna nota.</aside>
+<section class="figure has-take">
+  <h2>El VAE: el codificador da una media y un desvío</h2>
+  <figure><img src="assets/reports__presentacion__e2_red.png" alt="VAE: 8192-512-128, luego μ y log σ², z = μ + σ·ε y el decodificador espejo"></figure>
+  <p class="take">Misma red que el autoencoder salvo el centro. Pérdida: error cuadrático + 0,5 · KL.</p>
+  <aside class="notes">El codificador termina en 32 valores: 16 medias y 16 log-varianzas, una gaussiana por nota. z se sortea de esa gaussiana como μ + σ·ε, con ε de N(0, I): así el sorteo queda afuera de la red y el gradiente pasa por μ y σ (truco de reparametrización). La KL mide cuánto se aleja la gaussiana de cada nota de N(0, I) y es cero solo si μ = 0 y σ = 1. Su peso sube de 0 a 0,5 en las primeras 50 épocas: si arranca entero, la red aprende primero a ignorar la entrada. Fuera del centro es la misma red que el autoencoder anterior, con la misma pérdida de reconstrucción. Los gradientes del VAE están escritos a mano en src/models/variational.py.</aside>
 </section>
 
 <section class="figure has-take">
   <h2>En el VAE, los puntos al azar caen sobre las notas</h2>
   <figure><img src="assets/reports__presentacion__e2_latentes.png" alt="Códigos de las notas en el autoencoder y en el VAE, con puntos sorteados de N(0, I)"></figure>
   <p class="take">En color, las notas; en gris, puntos sorteados de N(0, I): lo que recibe el decodificador cuando generamos.</p>
-  <aside class="notes">Proyección a las dos componentes principales de los códigos de cada modelo (16 dimensiones), con la misma escala en los dos paneles. Para generar hay que elegir un z sin tener una nota: lo sorteamos de N(0, I). En el autoencoder nada fija dónde quedan los códigos: ocupan una nube amplia y los sorteos caen en una zona chica, entre notas, donde el decodificador nunca fue entrenado. En el VAE la nube de notas y la de sorteos coinciden. Este es el "problema de la representación en el espacio latente" de la consigna.</aside>
+  <aside class="notes">Proyección a las dos componentes principales de los códigos de cada modelo (16 dimensiones), con la misma escala en los dos paneles. Para generar hay que elegir un z sin tener una nota: lo sorteamos de N(0, I). En el autoencoder nada fija dónde quedan los códigos: ocupan una nube amplia y los sorteos caen en una zona chica, entre notas, donde el decodificador nunca fue entrenado. En el VAE la nube de notas y la de sorteos coinciden: su codificador no da un punto por nota sino una zona chica (un centro y un desvío, típicamente 0,16), y el término KL de la pérdida empuja esas zonas a repartirse como los sorteos (los centros quedan con desvío 1,03). Este es el "problema de la representación en el espacio latente" de la consigna.</aside>
 </section>
 
 <section class="figure has-take">
