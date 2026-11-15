@@ -14,7 +14,7 @@
   },
   "grid": {
     "model.latent_size": [1, 2],
-    "model.hidden_layers": [[], [8], [32, 16]]
+    "model.hidden_layers": [[], [8], [64, 32, 16]]
   },
   "evaluation": {
     "reconstruction": {},

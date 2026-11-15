@@ -13,6 +13,7 @@
     "type": "autoencoder",
     "latent_size": 2,
     "hidden_layers": [
+      64,
       32,
       16
     ],

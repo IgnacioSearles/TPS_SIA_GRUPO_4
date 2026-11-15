@@ -42,67 +42,74 @@
 
 <section class="figure has-take">
   <h2>El autoencoder: 35 píxeles, dos números y de vuelta</h2>
-  <figure><img src="assets/reports__presentacion__e1_red.png" alt="Red 35-16-8-2-8-16-35 con una letra a la entrada y su reconstrucción a la salida"></figure>
-  <p class="take">Pérdida: entropía cruzada binaria. Adam, η = 0,01, lotes de 32.</p>
-  <aside class="notes">El decodificador es el espejo del codificador. tanh en las capas ocultas; el latente es lineal, sin activación. La salida sigmoide da la probabilidad de que cada píxel esté prendido; para contar errores binarizamos en 0,5. La pérdida es la entropía cruzada binaria sumada sobre los 35 píxeles: es la natural para datos de 0 y 1 y, a diferencia del error cuadrático, no se frena cuando la sigmoide satura. Todo está hecho con NumPy, con los gradientes verificados contra diferencias finitas.</aside>
+  <figure><img src="assets/reports__presentacion__e1_autoencoder.png" alt="Red 35 → capas ocultas → 2 → capas ocultas → 35 con una letra a la entrada y su reconstrucción a la salida"></figure>
+  <p class="take">Pérdida: entropía cruzada binaria. Las capas ocultas, la activación y el optimizador salen de los experimentos.</p>
+  <aside class="notes">El decodificador es el espejo del codificador. El latente es lineal, sin activación. La salida sigmoide da la probabilidad de que cada píxel esté prendido; para contar errores binarizamos en 0,5. La pérdida es la entropía cruzada binaria sumada sobre los 35 píxeles: es la natural para datos de 0 y 1 y, a diferencia del error cuadrático, no se frena cuando la sigmoide satura. Todo está hecho con NumPy, con los gradientes verificados contra diferencias finitas. En cada experimento cambiamos una sola cosa respecto de la red que terminamos eligiendo (ocultas 64-32-16, tanh, Adam con η = 0,01, lotes de 32, 5.000 épocas) y repetimos con 5 semillas.</aside>
 </section>
 
 <section class="figure has-take">
-  <h2>Entran 32 letras y salen las mismas, salvo 2 píxeles</h2>
-  <figure><img src="assets/reports__presentacion__e1_reconstruccion.png" alt="Cada letra que entra y, debajo, la que devuelve el autoencoder"></figure>
-  <p class="take">En rojo, los píxeles mal: uno en la <em>u</em> y uno en la <em>v</em>. Llega en la época 3.250, en 1,6 segundos.</p>
-  <aside class="notes">Fila de arriba: la letra que entra. Fila de abajo: lo que devuelve el autoencoder después de pasar por los dos números del latente, binarizado en 0,5. Es la corrida de configs/ej1a_baseline.json, semilla 42, 5.000 épocas. La u y la v se parecen y quedan juntas en el latente, por eso comparten el error. Esta red es la que usamos en el resto del ejercicio 1.</aside>
-</section>
-
-<section class="figure has-take">
-  <h2>Hace falta una capa oculta de al menos 16 neuronas</h2>
+  <h2>Con tres capas ocultas aprende siempre y en 200 épocas</h2>
   <figure><img src="assets/reports__presentacion__e1_arquitecturas.png" alt="Semillas que llegan al objetivo según las capas ocultas"></figure>
-  <p class="take">Más capas aprenden <em>antes</em> y más parejo: 64-32-16 llega en 200 épocas siempre; 16, en 2.100 ± 1.100.</p>
+  <p class="take">Hace falta una capa de al menos 16 neuronas. 64-32-16 llega en 200 épocas siempre; 16 sola, en 2.100 ± 1.100.</p>
   <aside class="notes">Latente 2, tanh, Adam con η = 0,01, 5.000 épocas y 5 semillas por arquitectura. Sin capa oculta el codificador es lineal: proyectar 35 dimensiones a 2 en línea recta no separa 32 letras (12 a 14 píxeles mal en la peor). Con 8 neuronas tampoco: 6 a 8 píxeles. 16-8 y 32-16 fallan en alguna semilla porque η = 0,01 es agresivo para esas redes (ver estabilidad). La barra es la época media en que las 32 letras quedan por primera vez con a lo sumo un píxel mal (medida cada 100 épocas), con su desvío entre las semillas que llegan; los puntos son cada semilla. Las que no llegan no entran en la media: por eso al lado dice cuántas llegan.</aside>
 </section>
 
 <section class="figure has-take">
   <h2>Las redes chicas fallan siempre en las mismas letras</h2>
   <figure><img src="assets/reports__ej1_pruebas__redes_chicas_letras_que_fallan.png" alt="Letras que no aprende cada red chica, por semilla"></figure>
-  <p class="take">Con 8 neuronas ocultas, <em>e</em>, <em>f</em> y <em>m</em> fallan en las 5 semillas; con 32-16, casi ninguna.</p>
-  <aside class="notes">Cada celda cuenta en cuántas de 5 semillas esa letra quedó con más de un píxel mal. Sin capas ocultas falla casi todo; con 8 ocultas fallan sobre todo las letras con muchos trazos: e, f y m en 5 de 5; h, j y n en 4 de 5. Con 32-16 y latente 2 cumplen 4 de 5 semillas; las letras que fallan cambian de semilla en semilla. Con latente 1, aun con 32-16, ninguna semilla cumple.</aside>
+  <p class="take">Con 8 neuronas ocultas, <em>e</em>, <em>f</em> y <em>m</em> fallan en las 5 semillas; con 64-32-16, ninguna.</p>
+  <aside class="notes">Cada celda cuenta en cuántas de 5 semillas esa letra quedó con más de un píxel mal. Sin capas ocultas falla casi todo; con 8 ocultas fallan sobre todo las letras con muchos trazos: e, f y m en 5 de 5; h, j y n en 4 de 5. Con 64-32-16 y latente 2 cumplen las 5 semillas. Con latente 1 cumplen 4 de 5: la que falla deja 16 letras mal.</aside>
 </section>
 
 <section class="figure has-take">
-  <h2>Con un latente de 1 dimensión no alcanza; con 2, sí</h2>
+  <h2>Con 64-32-16, un latente de 1 casi alcanza</h2>
   <figure><img src="assets/reports__presentacion__e1_latente_tamano.png" alt="Semillas que llegan al objetivo según la dimensión latente"></figure>
-  <p class="take">2 es el mínimo. Con 3 o 5 dimensiones llega igual o un poco antes.</p>
-  <aside class="notes">Ocultas 32-16, tanh, Adam con η = 0,01. Con latente 1 el mejor caso queda con 2 píxeles mal y el peor con 7. La semilla que falla con 2 y con 3 es la misma (semilla 1): con η = 0,01 esa inicialización se traba, no es un límite del latente.</aside>
+  <p class="take">Con 1, llega en 4 de 5 semillas y 4 veces más lento. Usamos 2, como pide la consigna: 5 de 5 en 200 épocas.</p>
+  <aside class="notes">Ocultas 64-32-16, tanh, Adam con η = 0,01. La semilla que falla con latente 1 llega al objetivo en la época 1.400 y después se cae: termina con 11 píxeles mal en la peor letra. Con 3 o 5 dimensiones llega igual o un poco antes.</aside>
 </section>
 
 <section class="figure has-take">
-  <h2>Con una dimensión, la k y la h quedan encimadas</h2>
-  <figure><img src="assets/reports__ej1_pruebas__latente_1d_letras.png" alt="Las 32 letras en un latente de una dimensión"></figure>
-  <p class="take">Cada letra tiene solo dos vecinas. k y h caen a 0,1 de distancia y la red no las separa.</p>
-  <aside class="notes">En una dimensión el orden es lo único que hay: si dos letras parecidas tienen que estar al lado, las demás quedan obligadas a ubicarse en fila. En esta semilla todas las letras salvo h (4 píxeles mal) y k (3) se aprenden. En dos dimensiones cada letra puede tener varias vecinas.</aside>
+  <h2>En una dimensión, dos letras pueden encimarse</h2>
+  <figure><img src="assets/reports__ej1_pruebas__latente_1d_letras.png" alt="Las 32 letras en un latente de una dimensión, para una semilla que cumple y otra que no"></figure>
+  <p class="take">Cada letra tiene solo dos vecinas. En la semilla 5, <span class="warm">u y v quedan a 0,009</span> y fallan 16 letras.</p>
+  <aside class="notes">Arriba, una semilla que cumple: las 32 letras quedan en fila, separadas por al menos 0,07. Abajo, la semilla 5: u y v caen casi en el mismo punto y el decodificador no las puede distinguir. Para hacerles lugar al resto, la fila se desordena: h queda con 11 píxeles mal, l con 9, w con 8. Esta semilla llegó al objetivo en la época 1.400 y después se cayó. En una recta, si dos letras parecidas tienen que estar al lado, las demás quedan obligadas a acomodarse en fila; en dos dimensiones cada letra puede tener varias vecinas.</aside>
 </section>
 
 <section class="figure has-take">
-  <h2>SGD no llega; con momentum o Adam, sí</h2>
+  <h2>Adam con η = 0,01 y tanh son lo más rápido</h2>
   <figure><img src="assets/reports__presentacion__e1_optimizacion.png" alt="Letras aprendidas por época según optimizador y activación"></figure>
-  <p class="take">Con momentum, RMSProp o Adam llegan las 32. La activación cambia poco: todas antes de la época 1.000.</p>
-  <aside class="notes">Media ± desvío de 5 semillas, red 32-16 con latente 2. SGD con η = 0,01 termina con 19 a 20 letras: 0 de 5 semillas llegan. Momentum (0,9) llega en la época 1.000, RMSProp y Adam con η = 0,001 entre 1.800 y 2.200, Adam con η = 0,01 en 300. Activaciones con Adam η = 0,01: ReLU y leaky ReLU 5 de 5, tanh y sigmoide 4 de 5; la sigmoide es la más lenta (época mediana 1.000).</aside>
+  <p class="take">SGD llega solo en 2 de 5 semillas, cerca del final. Con tanh, las 5 llegan en 200 épocas; con sigmoide, fallan 2.</p>
+  <aside class="notes">Media ± desvío de 5 semillas, red 64-32-16 con latente 2. SGD con η = 0,01 llega en 2 de 5 semillas, en las épocas 4.300 y 4.900. Momentum (0,9) llega en las 5, con época mediana 600; Adam con η = 0,001 en 800 a 1.300; RMSProp con η = 0,001 en 1.300 a 1.600; Adam con η = 0,01 en 200 en las 5. Activaciones con Adam η = 0,01: tanh 5 de 5 en 200 épocas, leaky ReLU 5 de 5 en 200 a 300, ReLU 5 de 5 en 300 a 400; la sigmoide llega en 3 de 5, recién entre las épocas 1.800 y 2.200.</aside>
 </section>
 
 <section class="figure has-take">
-  <h2>Con η alto, a veces vuelve a fallar</h2>
+  <h2>Con η alto, 32-16 a veces recae; 64-32-16, nunca</h2>
   <figure><img src="assets/reports__ej1_pruebas__estabilidad_semillas_en_objetivo.png" alt="Porcentaje de semillas en el objetivo a lo largo de 10.000 épocas"></figure>
-  <p class="take">Con 32-16, η = 0,01 sale del objetivo en el <em>14 %</em> de los controles; con 0,003, en el 3 %.</p>
-  <aside class="notes">10 semillas por curva y 10.000 épocas. Que llegue una vez no alcanza: con η alto la pérdida rebota y alguna letra vuelve a tener 2 píxeles mal. Con η = 0,001 todas las configuraciones terminan 10 de 10; con 0,003, solo 32-16 termina con una semilla afuera. La red más grande, 64-32-16, no sale nunca del objetivo con ningún η.</aside>
+  <p class="take">Con 32-16, η = 0,01 sale del objetivo en el <em>14 %</em> de los controles; 64-32-16 no sale nunca, con ningún η.</p>
+  <aside class="notes">10 semillas por curva y 10.000 épocas, tanh y Adam. Que llegue una vez no alcanza: con η alto la pérdida rebota y alguna letra vuelve a tener 2 píxeles mal. Con η = 0,001 todas las configuraciones terminan 10 de 10; con 0,003, solo 32-16 termina con una semilla afuera. Por eso η = 0,01 sirve con la red de tres capas: es la más rápida y no rebota.</aside>
 </section>
 
 <section class="statement">
   <h2>Para aprender las 32 letras</h2>
   <ol>
-    <li>Una capa oculta de 16 neuronas o más</li>
-    <li>Momentum o un optimizador adaptativo; con η alto, vigilar que no rebote</li>
-    <li>Latente de 2: con 1 no entra</li>
+    <li>Ocultas 64-32-16: llega siempre y en 200 épocas</li>
+    <li>tanh y Adam con η = 0,01: lo más rápido, y con esta red no rebota</li>
+    <li>Latente de 2: lo pide la consigna y llega en todas las semillas</li>
   </ol>
+</section>
+
+<section class="figure has-take">
+  <h2>La red elegida: 35 → 64 → 32 → 16 → 2 y de vuelta</h2>
+  <figure><img src="assets/reports__presentacion__e1_red.png" alt="Red 35-64-32-16-2-16-32-64-35 con una letra a la entrada y su reconstrucción a la salida"></figure>
+  <p class="take">tanh en las ocultas, latente lineal y salida sigmoide. Adam, η = 0,01, lotes de 32.</p>
+  <aside class="notes">Es la red de configs/ej1a_baseline.json. El decodificador repite las capas del codificador en orden inverso. Es la que usamos en el resto del ejercicio 1: el espacio latente y las letras nuevas salen de esta corrida.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Entran 32 letras y salen las mismas, sin un píxel mal</h2>
+  <figure><img src="assets/reports__presentacion__e1_reconstruccion.png" alt="Cada letra que entra y, debajo, la que devuelve el autoencoder"></figure>
+  <p class="take">Llega al objetivo en la época 200. Las 5.000 épocas tardan 2,3 segundos.</p>
+  <aside class="notes">Fila de arriba: la letra que entra. Fila de abajo: lo que devuelve el autoencoder después de pasar por los dos números del latente, binarizado en 0,5; un píxel mal aparecería en rojo y no hay ninguno. Es la corrida de configs/ej1a_baseline.json, semilla 42, 5.000 épocas.</aside>
 </section>
 
 <section class="section">
@@ -113,8 +120,8 @@
 <section class="figure has-take">
   <h2>Las letras parecidas quedan cerca en el latente</h2>
   <figure><img src="assets/reports__presentacion__e1_latente_letras.png" alt="Cada letra dibujada en su posición del espacio latente"></figure>
-  <p class="take">Vecinas: u–w, m–n, k–h, d–g, i–l. <em>DEL</em>, la única llena, queda sola.</p>
-  <aside class="notes">Cada letra está dibujada donde la pone el codificador (el punto azul es la posición exacta). Arriba quedan las de dos patas y arcos: u, w, v, m, n, r, k, h. A la izquierda las de trazo vertical: i, l, la barra. Abajo a la izquierda, d y g, que comparten el ojo y el palo. Nadie le pidió a la red que agrupe por forma: sale de reconstruir.</aside>
+  <p class="take">Vecinas: u–w, h–k, d–q, g–y, l–|. <em>DEL</em>, la única llena, queda en una punta.</p>
+  <aside class="notes">Cada letra está dibujada donde la pone el codificador (el punto azul es la posición exacta). Arriba quedan las de dos patas y arcos: m, n, h, k, r. A la izquierda, w, u y a. A la derecha, las de trazo vertical: l y la barra. Abajo, d y q, que comparten el ojo, y g e y, que comparten la cola. Nadie le pidió a la red que agrupe por forma: sale de reconstruir.</aside>
 </section>
 
 <section class="section">
@@ -129,23 +136,23 @@
     <div class="points">
       <p>Grilla de 18×18 sobre el plano, decodificada</p>
       <p>Las letras ocupan regiones; entre ellas, mezclas</p>
-      <p>En naranja, lo que no está en el font: <em>63 %</em></p>
+      <p>En naranja, lo que no está en el font: <em>30 %</em></p>
     </div>
   </main>
-  <aside class="notes">La grilla cubre la caja que contiene a los 32 códigos, con un 8 % de margen. Arriba a la izquierda está la orientación del latente: z1 crece a la derecha y z2 hacia arriba, igual que en el gráfico anterior. Gris quiere decir que la red no está segura de ese píxel (probabilidad cerca de 0,5). Abajo a la derecha está la zona de DEL: bloques casi llenos.</aside>
+  <aside class="notes">La grilla cubre la caja que contiene a los 32 códigos, con un 8 % de margen. z1 crece a la derecha y z2 hacia arriba, igual que en el gráfico anterior. Gris quiere decir que la red no está segura de ese píxel (probabilidad cerca de 0,5). Abajo a la izquierda está la zona de DEL: bloques casi llenos. Las letras ocupan regiones amplias y las mezclas quedan en los bordes entre ellas.</aside>
 </section>
 
 <section class="figure has-take">
   <h2>De una letra a otra se pasa por letras que no existen</h2>
   <figure><img src="assets/reports__presentacion__e1_interpolacion.png" alt="Interpolación en línea recta entre a y e, o y x, l y t"></figure>
-  <p class="take">Recorrido en línea recta entre los códigos; en naranja, patrones fuera del font: <em>10 de 27</em> pasos.</p>
-  <aside class="notes">Decodificamos 9 puntos equiespaciados entre los dos códigos y binarizamos. De a a e pasa por q y z, que están en el camino, y por cuatro e "abiertas" que no existen en el font. De o a x pasa por mezclas. De l a t pasa por la barra vertical (|), que está entre las dos en el latente.</aside>
+  <p class="take">Recorrido en línea recta entre los códigos; en naranja, patrones fuera del font: <em>7 de 27</em> pasos.</p>
+  <aside class="notes">Decodificamos 9 puntos equiespaciados entre los dos códigos y binarizamos. De a a e pasa por dos mezclas, por la v, que está en el camino, y por una e "abierta" que no existe en el font. De o a x pasa por tres mezclas. De l a t pasa por la llave ({), que está entre las dos en el latente, y por una mezcla justo antes de la t.</aside>
 </section>
 
 <section class="figure has-take">
   <h2>Algunas letras nuevas son nítidas</h2>
   <figure><img src="assets/reports__presentacion__e1_letras_nuevas.png" alt="Seis letras nuevas y la letra del font más parecida a cada una"></figure>
-  <p class="take"><em>170</em> patrones distintos a 3 píxeles o más de toda letra, con cada píxel decidido.</p>
+  <p class="take"><em>60</em> patrones distintos a 3 píxeles o más de toda letra, con cada píxel decidido.</p>
   <aside class="notes">Barrimos el plano con una grilla de 160×160. Nos quedamos con los patrones en que cada píxel está lejos de la duda (probabilidad menor a 0,25 o mayor a 0,75) y que difieren en al menos 3 píxeles de toda letra del font. Mostramos los que ocupan más área del plano, uno por letra parecida y sin los bloques casi llenos cerca de DEL. Es la respuesta a 1.a.4: el decodificador genera caracteres que no estaban en el entrenamiento.</aside>
 </section>
 
@@ -158,16 +165,30 @@
 
 <section class="figure has-take">
   <h2>Denoising: entra la letra rota, sale la limpia</h2>
-  <figure><img src="assets/reports__presentacion__e1b_red.png" alt="La letra limpia se corrompe, pasa por la red y la salida se compara con la limpia"></figure>
-  <p class="take">Misma red y misma pérdida. El ruido invierte cada píxel con probabilidad p y se sortea de nuevo en cada lote.</p>
-  <aside class="notes">Lo único que cambia respecto del autoencoder es la entrada: la red recibe la letra rota y la pérdida la compara con la letra limpia. Como el ruido se sortea de nuevo en cada lote, la red nunca ve dos veces la misma letra rota y no puede memorizar las corrupciones. Implementamos cuatro ruidos: invertir píxeles, apagarlos, sal y pimienta y gaussiano; el principal es invertir. La red de la figura es la que elegimos: latente 8 (siguiente diapositiva).</aside>
+  <figure><img src="assets/reports__presentacion__e1b_denoising.png" alt="La letra limpia se corrompe, pasa por la red y la salida se compara con la limpia"></figure>
+  <p class="take">Misma pérdida. El ruido invierte cada píxel con probabilidad p y se sortea de nuevo en cada lote.</p>
+  <aside class="notes">Lo que cambia respecto del autoencoder es la entrada: la red recibe la letra rota y la pérdida la compara con la letra limpia. Como el ruido se sortea de nuevo en cada lote, la red nunca ve dos veces la misma letra rota y no puede memorizar las corrupciones. Implementamos cuatro ruidos: invertir píxeles, apagarlos, sal y pimienta y gaussiano; el principal es invertir. Las capas ocultas, el latente y el ruido de entrenamiento los elegimos con los experimentos que siguen; la activación y el optimizador son los del autoencoder.</aside>
 </section>
 
 <section class="figure has-take">
-  <h2>Para limpiar ruido conviene un latente de 8 y no de 2</h2>
-  <figure><img src="assets/reports__presentacion__e1b_latente.png" alt="Error de salida según el ruido de prueba para latentes 2, 4, 8 y 16"></figure>
-  <p class="take">Elegimos <em>35 → 32 → 16 → 8</em>, entrenada con 10 % de ruido: 0,5 píxeles mal con 10 %, contra 3,5 de la entrada.</p>
-  <aside class="notes">Media de 3 semillas, ocultas 32-16, entrenadas invirtiendo el 10 % de los píxeles y probadas con 50 repeticiones del font por nivel. Con latente 2, el que exige 1.a, a 10 % de ruido quedan 0,86 píxeles mal; con 8, 0,54. Además con latente 2 ninguna semilla reconstruye las letras limpias con a lo sumo 1 píxel; con 8, las tres. Con 16 no mejora: sobra capacidad y empieza a copiar parte del ruido. Con 64-32 da lo mismo: 0,48 píxeles mal con latente 8 (apéndice).</aside>
+  <h2>Para limpiar ruido conviene 32-16 y latente 8</h2>
+  <figure><img src="assets/reports__ej1_pruebas__denoising_arquitecturas.png" alt="Error de salida según el ruido de prueba para ocultas 32-16 y 64-32-16 con latentes 2, 4 y 8"></figure>
+  <p class="take">La red del autoencoder, 64-32-16, limpia peor: con 10 % de ruido deja <span class="warm">0,68</span> píxeles mal; 32-16, <em>0,49</em>.</p>
+  <aside class="notes">5 semillas por configuración, entrenadas invirtiendo el 10 % de los píxeles y probadas con 50 repeticiones del font por nivel. 32-16 limpia mejor que 64-32-16 con los tres latentes. Con latente 2, el que exige 1.a, quedan 0,80 píxeles mal y solo 1 de 5 semillas reconstruye las letras limpias con a lo sumo un píxel; con 8, 4 de 5. Con latente 16 no mejora: 0,67 contra 0,54 de latente 8 en otra tanda de 3 semillas (apéndice). Por eso el denoising no usa la misma red que el autoencoder: cada una es la mejor en su tarea.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Un autoencoder entrenado sin ruido empeora la letra</h2>
+  <figure><img src="assets/reports__presentacion__e1b_niveles.png" alt="Error de salida según el ruido de prueba para redes entrenadas con distintos niveles"></figure>
+  <p class="take">Con 10 % de ruido: 3,5 píxeles mal a la entrada, <span class="warm">4,0</span> con la red común, <em>0,5</em> con la entrenada con 10 %.</p>
+  <aside class="notes">Ocultas 32-16 y latente 8, 3 semillas. La red común (0 %) aprendió a reconstruir letras perfectas y no sabe qué hacer con una rota: la manda a cualquier lugar del latente. Entrenar con 5 % deja 0,9 píxeles mal. Con 20 % limpia mejor el ruido fuerte (6,7 contra 8,0 con 30 % de ruido), pero con letras limpias deja la peor letra con 2 o 3 píxeles mal en las tres semillas: aprende a desconfiar de la entrada. 10 % es el compromiso.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Red para denoising: 35 → 32 → 16 → 8 y de vuelta</h2>
+  <figure><img src="assets/reports__presentacion__e1b_red.png" alt="Red 35-32-16-8-16-32-35 entrenada con la letra rota y comparada con la limpia"></figure>
+  <p class="take">Entrenada con 10 % de ruido: deja 0,5 píxeles mal con 10 %, contra 3,5 de la entrada.</p>
+  <aside class="notes">tanh en las ocultas, latente lineal, salida sigmoide, entropía cruzada binaria y Adam con η = 0,01, como el autoencoder. Lo único distinto son las capas ocultas y el latente, elegidos con los dos experimentos anteriores. Los ejemplos y la prueba con otros ruidos que siguen usan esta red.</aside>
 </section>
 
 <section class="figure has-take">
@@ -175,13 +196,6 @@
   <figure><img src="assets/reports__presentacion__e1b_ejemplos.png" alt="Letras originales, con ruido y la salida de la red"></figure>
   <p class="take">Con 20 %, la m se vuelve otra cosa y la s cae en DEL: la entrada ya se parece más a otra letra.</p>
   <aside class="notes">Con 20 % se invierten en promedio 7 de los 35 píxeles. La red siempre devuelve algo cercano a una letra que conoce: cuando el ruido acerca la entrada a otra letra, devuelve esa otra, limpia. No es un error de la red sino un límite del problema.</aside>
-</section>
-
-<section class="figure has-take">
-  <h2>Un autoencoder entrenado sin ruido empeora la letra</h2>
-  <figure><img src="assets/reports__presentacion__e1b_niveles.png" alt="Error de salida según el ruido de prueba para redes entrenadas con distintos niveles"></figure>
-  <p class="take">Con 10 % de ruido: 3,5 píxeles mal a la entrada, <span class="warm">7,8</span> con la red común, <em>0,9</em> con la entrenada con ruido.</p>
-  <aside class="notes">Latente 2 y ocultas 32-16, 3 semillas. La red común (0 %) aprendió a reconstruir letras perfectas y no sabe qué hacer con una rota: la manda a cualquier lugar del latente. Entrenar con 5 o 10 % da casi lo mismo. Con 20 % limpia mejor el ruido fuerte, pero con letras limpias ya comete 1,5 píxeles: aprende a desconfiar de la entrada. 10 % es el compromiso.</aside>
 </section>
 
 <section class="figure has-take">
@@ -426,7 +440,7 @@
 <section class="statement">
   <h2>Conclusiones</h2>
   <ol>
-    <li>Con una capa oculta, el autoencoder guarda cada letra en 2 números y la recupera casi sin errores</li>
+    <li>Con tres capas ocultas, el autoencoder guarda cada letra en 2 números y la recupera sin errores</li>
     <li>Las letras parecidas quedan cerca, y entre ellas el decodificador inventa letras nuevas</li>
     <li>Para que un autoencoder limpie ruido, hay que entrenarlo con ruido</li>
     <li>El VAE genera notas nuevas porque ordena el espacio latente; a cambio, reconstruye un poco peor</li>
@@ -451,7 +465,7 @@
 
 <section class="figure"><h2>Dimensión latente: píxeles mal al final</h2><figure><img src="assets/reports__ej1_resultados__ej1a_latent_size__comparison_max_pixel_errors.png" alt="Máximo de píxeles mal por dimensión latente"></figure></section>
 
-<section class="figure"><h2>Denoising: arquitecturas y latentes</h2><figure><img src="assets/reports__ej1_pruebas__denoising_arquitecturas.png" alt="Error de salida por arquitectura de denoising"></figure></section>
+<section class="figure"><h2>Denoising: tamaño del latente con ocultas 32-16</h2><figure><img src="assets/reports__presentacion__e1b_latente.png" alt="Error de salida según el ruido de prueba para latentes 2, 4, 8 y 16"></figure></section>
 
 <section class="figure"><h2>Notas omitidas: tamaño del latente</h2><figure><img src="assets/reports__presentacion__e2_omitidas_latentes.png" alt="Aciertos por tamaño latente en notas omitidas"></figure></section>
 
