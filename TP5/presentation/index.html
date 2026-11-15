@@ -311,7 +311,14 @@
     <figure><img src="assets/reports__presentacion__espectrogramas__muestra_vae_5.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__muestra_vae_5.wav">oír</button></figure>
   </div>
   <p class="take">El autoencoder llena todas las bandas; el VAE da armónicos limpios, con la energía de los datos.</p>
-  <aside class="notes">Los mismos seis vectores z, sorteados de N(0, I), pasados por los dos decodificadores. Energía media del espectrograma sobre 200 muestras: autoencoder 0,18, VAE 0,15, datos 0,14. La distancia de cada muestra a la nota real más parecida (raíz del error cuadrático) es 0,18 en el autoencoder y 0,13 en el VAE: el autoencoder decodifica puntos que nunca vio.</aside>
+  <aside class="notes">Los mismos seis vectores z, sorteados de N(0, I), pasados por los dos decodificadores. El autoencoder llena todas las bandas de ruido; el VAE da armónicos limpios. La diapositiva siguiente lo mide con 200 puntos.</aside>
+</section>
+
+<section class="figure has-take">
+  <h2>Las muestras del VAE quedan más cerca de notas reales</h2>
+  <figure><img src="assets/reports__presentacion__e2_distancia_muestras.png" alt="Diferencia de cada muestra con la nota real más parecida: referencia, VAE y autoencoder"></figure>
+  <p class="take">Cada punto, una muestra comparada con la nota real más parecida. Mediana: VAE <em>16</em>, autoencoder <span class="warm">31</span>.</p>
+  <aside class="notes">Para cada muestra generada buscamos, entre las notas del dataset, la más parecida, y medimos la diferencia (error cuadrático medio entre espectrogramas, por mil). Arriba, la referencia: tomamos 300 notas reales y, para cada una, medimos la diferencia con la otra nota real más parecida del dataset; no es un número fijo, va de casi 0 a unos 30, con mediana 6. Las muestras del VAE caen en el mismo rango que esa referencia, con mediana 16; las del autoencoder empiezan donde termina la referencia, con mediana 31: casi el doble de lejos que el VAE y cinco veces más que dos notas reales parecidas. Que el VAE no baje hasta la referencia es esperable: si lo hiciera, estaría copiando notas del dataset.</aside>
 </section>
 
 <section class="side">
@@ -425,10 +432,10 @@
 
 <section class="figure has-take">
   <p class="tag">Resultado negativo</p>
-  <h2>No logramos generar una altura que no vio</h2>
-  <figure><img src="assets/reports__presentacion__e2_omitidas_microtonal.png" alt="Aciertos al interpolar hacia alturas omitidas"></figure>
-  <p class="take">Entre las vecinas de una nota omitida, acierta <span class="warm">5 de 27</span>. Mezclar los dos espectrogramas: 6 de 27.</p>
-  <aside class="notes">Pregunta extra, más allá de la consigna: si sacamos una altura del entrenamiento, ¿el punto medio entre sus dos vecinas genera esa altura? Con un timbre sintético controlado, 57 corridas: microtonos, tamaño latente (2, 4 y 16) y una pérdida auxiliar que enseña a interpolar con ternas conocidas. Con notas que sí vio, interpola bien (19 de 27 en ambos criterios). Con la nota omitida, la afinación sale bien 25 de 27 veces, pero el espectro no se parece al de la nota real: un estimador de altura se engaña con mezclas. La cercanía espectral cae a 5 de 27. Ninguna variante mejoró la generalización. El detalle está en reports/ej2_notas_omitidas/cierre.md y en el apéndice.</aside>
+  <h2>No logramos generar una nota que no vio</h2>
+  <figure><img src="assets/reports__presentacion__e2_omitidas_microtonal.png" alt="Aciertos al interpolar hacia notas sacadas del entrenamiento"></figure>
+  <p class="take">27 intentos = 3 notas sacadas × 3 envolventes × 3 semillas. La nota sacada sale bien <span class="warm">5 de 27</span>; mezclar sus vecinas, 6.</p>
+  <aside class="notes">Pregunta extra, más allá de la consigna. Altura es qué tan aguda o grave es la nota (su frecuencia). Sacamos del entrenamiento tres notas (MIDI 54, 60 y 66) y le pedimos al VAE cada una en el punto medio entre los códigos de sus dos vecinas. Cada nota se prueba con 3 envolventes y 3 semillas: 27 intentos por barra. Dos preguntas por intento: ¿está afinada (a menos de medio semitono)?, ¿su espectrograma se parece más al de la nota real que al de cualquiera de las dos vecinas? Con notas que sí vio, interpola bien: 19 de 27 cumplen las dos. Con la nota sacada, la afinación sale bien 25 de 27, pero eso engaña: una mezcla de las dos vecinas también suena a una altura intermedia. El espectro solo acierta 5 de 27, y mezclar los dos espectrogramas sin red da 6 de 27. Si las vecinas quedan más lejos (1 semitono), cae a 2 de 27. Probamos 57 corridas (microtonos, latente 2, 4 y 16, y una pérdida auxiliar que enseña a interpolar) y ninguna mejoró. Detalle en reports/ej2_notas_omitidas/cierre.md y en el apéndice.</aside>
 </section>
 
 <section class="statement">

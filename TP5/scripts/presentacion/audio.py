@@ -42,6 +42,8 @@ INTERPOLATION_PAIRS = [
 INTERPOLATION_STEPS = 8
 SAMPLE_COUNT = 6
 SAMPLE_SEED = 11
+DISTANCE_SAMPLES = 200
+DISTANCE_SEED = 0
 PRIOR_POINTS = 1500
 _PITCH = re.compile(r"-(\d+)-\d+$")
 
@@ -71,6 +73,7 @@ def make_all() -> None:
     representation_figure(dataset, renderer)
     latent_spaces_figure(autoencoder, variational, dataset)
     prior_samples(autoencoder, variational, dataset, renderer)
+    prior_distance_figure(autoencoder, variational, dataset)
     reconstructions(autoencoder, variational, dataset, renderer)
     reconstruction_error_by_family_figure()
     for index, (origin, destination) in enumerate(INTERPOLATION_PAIRS, start=1):
@@ -175,19 +178,50 @@ def prior_samples(autoencoder, variational, dataset, renderer: NoteRenderer) -> 
         nearest = int(np.argmin(distances))
         renderer.write(dataset.samples[nearest], f"cercana_{index}")
         print(f"    muestra {index}: más cercana {dataset.labels[nearest]} (MSE {distances[nearest]:.4f})")
-    typical = typical_nearest_distance(dataset.samples)
-    print(f"    MSE típica entre una nota y su vecina más cercana: {typical:.4f}")
 
 
-def typical_nearest_distance(samples: Array, count: int = 300) -> float:
-    rng = np.random.default_rng(1)
-    chosen = rng.choice(len(samples), count, replace=False)
+def prior_distance_figure(autoencoder, variational, dataset) -> None:
+    """Qué tan lejos cae cada muestra al azar de la nota real más parecida, contra dos notas reales vecinas."""
+    latent = np.random.default_rng(DISTANCE_SEED).standard_normal((DISTANCE_SAMPLES, variational.latent_size))
+    rows = [
+        ("autoencoder\n200 puntos al azar", "C3", nearest_distances(dataset.samples, autoencoder.decode(latent))),
+        ("VAE\n200 puntos al azar", "C0", nearest_distances(dataset.samples, variational.decode(latent))),
+        ("referencia: una nota real\ny su vecina más parecida", "0.45", real_neighbor_distances(dataset.samples)),
+    ]
+    figure, axis = plt.subplots(figsize=(10, 4.4))
+    jitter = np.random.default_rng(0)
+    for position, (label, color, distances) in enumerate(rows):
+        scaled = 1000 * distances  # milésimas: ticks cortos
+        axis.scatter(scaled, position + jitter.uniform(-0.18, 0.18, len(scaled)), s=14, alpha=0.45, color=color,
+                     edgecolors="none")
+        median = np.median(scaled)
+        axis.plot([median, median], [position - 0.3, position + 0.3], color="black", lw=2.5)
+        axis.text(median, position + 0.34, f"mediana {median:.0f}", ha="center", va="bottom", fontsize=11)
+        print(f"    {label.splitlines()[0]}: mediana MSE {median / 1000:.4f}")
+    axis.set_yticks(range(len(rows)), [label for label, _, _ in rows])
+    axis.set_ylim(-0.5, len(rows) - 0.2)
+    axis.set_xlim(left=0)
+    axis.set_xlabel("diferencia con la nota real más parecida del dataset (MSE × 1000)")
+    save(figure, "e2_distancia_muestras")
+
+
+def nearest_distances(samples: Array, outputs: Array) -> Array:
+    return np.array([np.mean((samples - values) ** 2, axis=1).min() for values in outputs])
+
+
+def typical_nearest_distance(samples: Array) -> float:
+    return float(np.median(real_neighbor_distances(samples)))
+
+
+def real_neighbor_distances(samples: Array, count: int = 300) -> Array:
+    """Para notas reales al azar, la distancia a la nota real más parecida que no sea ella misma."""
+    chosen = np.random.default_rng(1).choice(len(samples), count, replace=False)
     nearest = []
     for index in chosen:
         distances = np.mean((samples - samples[index]) ** 2, axis=1)
         distances[index] = np.inf
         nearest.append(distances.min())
-    return float(np.median(nearest))
+    return np.array(nearest)
 
 
 def reconstructions(autoencoder, variational, dataset, renderer: NoteRenderer) -> None:

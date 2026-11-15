@@ -33,9 +33,9 @@ def _flag(row: Row, column: str) -> bool:
 
 
 CRITERIA = [
-    Criterion("afinación ≤ 50 cents", lambda row: _flag(row, "hit")),
-    Criterion("cercanía espectral", lambda row: _flag(row, "spectral_hit")),
-    Criterion("ambos", lambda row: _flag(row, "hit") and _flag(row, "spectral_hit")),
+    Criterion("afinada\n(a menos de ½ semitono)", lambda row: _flag(row, "hit")),
+    Criterion("espectro más parecido\nal de la nota real\nque al de sus vecinas", lambda row: _flag(row, "spectral_hit")),
+    Criterion("las dos cosas", lambda row: _flag(row, "hit") and _flag(row, "spectral_hit")),
 ]
 
 
@@ -48,9 +48,9 @@ class Group:
 
 def make_all() -> None:
     rows = _read_study()
-    hit_rate_figure(rows, [Group("Control completo", "ej2_pitch_microtonal_complete"),
-                           Group("Omisión normal", "ej2_pitch_microtonal_omitted"),
-                           Group("Omisión estricta", "ej2_pitch_microtonal_strict_omitted")],
+    hit_rate_figure(rows, [Group("nota vista\nen el entrenamiento", "ej2_pitch_microtonal_complete"),
+                           Group("nota sacada,\nvecinas a ¾ de semitono", "ej2_pitch_microtonal_omitted"),
+                           Group("nota sacada,\nvecinas a 1 semitono", "ej2_pitch_microtonal_strict_omitted")],
                     "e2_omitidas_microtonal")
     hit_rate_figure(rows, [Group(f"Latente {size}", "ej2_pitch_latent_validation_omitted", f"latent_size={size}")
                            for size in (2, 4, 16)], "e2_omitidas_latentes")
@@ -87,7 +87,7 @@ def hit_rate_figure(rows: list[Row], groups: list[Group], name: str) -> None:
     axis.set_xticks(positions, [group.label for group in groups])
     axis.set_ylim(0, 112)
     axis.set_ylabel(f"aciertos (%)\nmedia ± desvío, {seeds} semillas")
-    axis.legend(loc="upper center", bbox_to_anchor=(0.5, -0.1), ncol=len(CRITERIA))
+    axis.legend(loc="upper left", bbox_to_anchor=(1.02, 1), fontsize=11, labelspacing=1.2, frameon=False)
     save(figure, name)
 
 

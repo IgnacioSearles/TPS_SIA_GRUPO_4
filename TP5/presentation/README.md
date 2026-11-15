@@ -17,10 +17,10 @@ Abrir `index.html` en el navegador. Funciona sin conexión: reveal.js está en `
 | 1.b.1 Arquitectura para denoising y por qué | 22–23, 25 |
 | 1.b.2 Distintos niveles de ruido | 24, 26–27 |
 | 2.a Conjunto de datos nuevo (NSynth) | 30–32 |
-| 2.b Esquema variacional, el problema de la representación y activaciones | 34–40 |
-| 2.c Generar muestras nuevas | 42–44 |
-| Extras: tema de techno y notas omitidas | 45–46 |
-| Apéndice | 49–57 |
+| 2.b Esquema variacional, el problema de la representación y activaciones | 34–41 |
+| 2.c Generar muestras nuevas | 43–45 |
+| Extras: tema de techno y notas omitidas | 46–47 |
+| Apéndice | 50–58 |
 
 ## Regenerar
 
