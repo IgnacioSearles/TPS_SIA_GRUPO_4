@@ -9,7 +9,7 @@
   },
   "model": {
     "type": "autoencoder",
-    "latent_size": 2,
+    "latent_size": 8,
     "hidden_layers": [
       32,
       16

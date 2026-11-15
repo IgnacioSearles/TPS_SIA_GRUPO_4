@@ -4,7 +4,7 @@
   "model": {
     "type": "autoencoder",
     "latent_size": 2,
-    "hidden_layers": [16, 8],
+    "hidden_layers": [64, 32, 16],
     "activation": "tanh",
     "loss": "bce"
   },
@@ -12,7 +12,7 @@
     "epochs": 5000,
     "batch_size": 32,
     "optimizer": {"type": "adam", "learning_rate": 0.01},
-    "log_every": 250
+    "log_every": 100
   },
   "evaluation": {
     "reconstruction": {},

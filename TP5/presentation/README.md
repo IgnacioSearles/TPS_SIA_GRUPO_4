@@ -10,17 +10,17 @@ Abrir `index.html` en el navegador. Funciona sin conexión: reveal.js está en `
 
 | Consigna | Diapositivas |
 |---|---|
-| 1.a.1 Arquitectura con latente 2D | 5–6 |
-| 1.a.2 Arquitecturas y optimización estudiadas | 7–13 |
-| 1.a.3 Las letras en el espacio latente | 15 |
-| 1.a.4 Generar una letra nueva | 17–19 |
-| 1.b.1 Arquitectura para denoising y por qué | 21–22 |
-| 1.b.2 Distintos niveles de ruido | 23–25 |
-| 2.a Conjunto de datos nuevo (NSynth) | 28–30 |
-| 2.b Esquema variacional, el problema de la representación y activaciones | 32–38 |
-| 2.c Generar muestras nuevas | 40–42 |
-| Extras: tema de techno y notas omitidas | 43–44 |
-| Apéndice | 46–55 |
+| 1.a.1 Arquitectura con latente 2D | 5, 12–14 |
+| 1.a.2 Arquitecturas y optimización estudiadas | 6–11 |
+| 1.a.3 Las letras en el espacio latente | 16 |
+| 1.a.4 Generar una letra nueva | 18–20 |
+| 1.b.1 Arquitectura para denoising y por qué | 22–23, 25 |
+| 1.b.2 Distintos niveles de ruido | 24, 26–27 |
+| 2.a Conjunto de datos nuevo (NSynth) | 30–32 |
+| 2.b Esquema variacional, el problema de la representación y activaciones | 34–41 |
+| 2.c Generar muestras nuevas | 43–45 |
+| Extras: tema de techno y notas omitidas | 46–47 |
+| Apéndice | 50–58 |
 
 ## Regenerar
 

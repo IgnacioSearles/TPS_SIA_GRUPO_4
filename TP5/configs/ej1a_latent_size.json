@@ -12,6 +12,7 @@
   "model": {
     "type": "autoencoder",
     "hidden_layers": [
+      64,
       32,
       16
     ],

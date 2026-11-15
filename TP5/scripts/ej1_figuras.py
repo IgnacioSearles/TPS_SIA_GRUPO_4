@@ -38,7 +38,7 @@ SELECTED_FIGURES = {
         "reconstruction.png", "latent.png", "latent_grid.png", "interpolation.png", "learning.png",
     ],
     "ej1a_small_failures/latent_size=2__hidden_layers=8__seed=1": ["reconstruction.png", "latent.png"],
-    "ej1a_small_failures/latent_size=1__hidden_layers=32-16__seed=1": ["reconstruction.png"],
+    "ej1a_small_failures/latent_size=1__hidden_layers=64-32-16__seed=1": ["reconstruction.png"],
     "ej1b_denoising/level=0__seed=2": ["denoising_flip_0.1.png"],
     "ej1b_denoising/level=0.1__seed=3": ["denoising_flip_0.1.png", "denoising_flip_0.2.png"],
     "ej1b_denoising_architectures/latent_size=8__hidden_layers=32-16__seed=1": [
@@ -219,41 +219,55 @@ def small_failures(report: list[str]) -> None:
 
 
 def _latent_strip(by_config: dict, labels: list[str]) -> None:
-    """Latente de 1 dimensión: dónde cae cada letra y cuáles salen mal."""
-    key = next(k for k in by_config if k[0] == 1 and len(k[1]) == 2)
-    run = by_config[key][0]
+    """Latente de 1 dimensión con la red más grande: una semilla que cumple y una que no, una arriba de la otra.
+
+    En una recta cada letra tiene solo dos vecinas; cuando dos letras caen casi en el mismo punto,
+    el decodificador no las puede separar.
+    """
+    key = max((k for k in by_config if k[0] == 1), key=lambda k: (len(k[1]), k[1]))
+    runs_here = sorted(by_config[key], key=lambda run: run["config"]["seed"])
+    worst_errors = [max(float(row["error"]) for row in read_csv(run["dir"] / "reconstruction.csv"))
+                    for run in runs_here]
+    passing = [run for run, worst in zip(runs_here, worst_errors) if worst <= TARGET]
+    failing = [run for run, worst in zip(runs_here, worst_errors) if worst > TARGET]
+    shown = passing[:1] + failing[:1]
+
+    figure, axes = plt.subplots(len(shown), 1, figsize=(12, 2.6 * len(shown) + 0.6), sharex=True,
+                                layout="constrained", squeeze=False)
+    for axis, run in zip(axes[:, 0], shown):
+        _draw_strip(axis, run, labels)
+    axes[-1, 0].set_xlabel("z1 (única coordenada del latente)")
+    axes[-1, 0].scatter([], [], color=SERIES[0], label="≤ 1 píxel mal")
+    axes[-1, 0].scatter([], [], color=SERIES[1], label="> 1 píxel mal (entre paréntesis, cuántos)")
+    axes[-1, 0].legend(loc="upper center", bbox_to_anchor=(0.5, -0.45), ncol=2)
+    figure.suptitle(f"Latente de 1 dimensión, ocultas {hidden_name(list(key[1]))}: "
+                    "todas las letras en una sola recta", color=INK)
+    save(figure, "latente_1d_letras.png")
+
+
+# Alturas de las etiquetas, alternadas: letras muy juntas no se pisan.
+LABEL_OFFSETS = (10, -20, 24, -34)
+
+
+def _draw_strip(axis: plt.Axes, run: dict, labels: list[str]) -> None:
     codes = {row["label"]: float(row["z1"]) for row in read_csv(run["dir"] / "latent.csv")}
     errors = {row["label"]: float(row["error"]) for row in read_csv(run["dir"] / "reconstruction.csv")}
-
     ordered = sorted(labels, key=codes.get)
-    figure, axis = plt.subplots(figsize=(12, 2.2))
     for index, label in enumerate(ordered):
         bad = errors[label] > TARGET
         axis.scatter(codes[label], 0, s=60, color=SERIES[1] if bad else SERIES[0], zorder=3,
                      edgecolors="white", linewidths=2)
-        axis.annotate(
-            label if not bad else f"{label} ({errors[label]:.0f})",
-            (codes[label], 0),
-            xytext=(0, 12 if index % 2 == 0 else -18),
-            textcoords="offset points",
-            ha="center",
-            fontsize=9,
-            color=INK,
-        )
+        axis.annotate(label if not bad else f"{label} ({errors[label]:.0f})", (codes[label], 0),
+                      xytext=(0, LABEL_OFFSETS[index % len(LABEL_OFFSETS)]), textcoords="offset points",
+                      ha="center", fontsize=9, color=INK)
+    gap, first, second = min((codes[b] - codes[a], a, b) for a, b in zip(ordered, ordered[1:]))
+    wrong = sum(error > TARGET for error in errors.values())
+    verdict = "cumple" if wrong == 0 else f"{wrong} letras mal"
+    axis.set_title(f"Semilla {run['config']['seed']}: {verdict}; las más cercanas, "
+                   f"{first} y {second}, a {gap:.3f}".replace(".", ","), color=INK, fontsize=10, loc="left")
     axis.set_yticks([])
     axis.spines["left"].set_visible(False)
     axis.grid(axis="y", visible=False)
-    axis.set_xlabel("z1 (única coordenada del latente)")
-    axis.scatter([], [], color=SERIES[0], label="≤ 1 píxel mal")
-    axis.scatter([], [], color=SERIES[1], label="> 1 píxel mal (entre paréntesis, cuántos)")
-    axis.legend(loc="upper center", bbox_to_anchor=(0.5, -0.38), ncol=2)
-    seed = run["config"]["seed"]
-    axis.set_title(
-        f"Latente de 1 dimensión (ocultas {hidden_name(list(key[1]))}, semilla {seed}): "
-        "todas las letras en una sola recta",
-        color=INK,
-    )
-    save(figure, "latente_1d_letras.png")
 
 
 # ---------------------------------------------- 3) arquitectura del denoising

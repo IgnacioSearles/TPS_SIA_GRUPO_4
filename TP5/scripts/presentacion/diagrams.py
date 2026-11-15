@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import json
+from dataclasses import dataclass, replace
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -16,9 +18,13 @@ from src.experiments.runner import load_run
 AUTOENCODER_RUN = RESULTS / "ej1a_baseline" / "base__seed=42"
 DENOISING_RUN = RESULTS / "ej1b_denoising_latent_size" / "latent_size=8__seed=1"
 VARIATIONAL_RUN = RESULTS / "ej2_vae_nsynth" / "base__seed=7"
+AUDIO_AUTOENCODER_RUN = RESULTS / "ej2_ae_nsynth" / "base__seed=7"
 EXAMPLE_LETTER = "a"
 EXAMPLE_NOTE = "keyboard_electronic_098-060-100"
 DENOISING_LEVEL = 0.1
+FONT_PIXELS = 35
+AUDIO_NODES_SHOWN = 12  # las capas del audio tienen cientos de neuronas: se dibujan 12 con una elipsis
+AUDIO_LATENT_NODES_SHOWN = 4
 
 MAX_NODES = 16  # capas más anchas se dibujan con una elipsis en el medio
 NODE_SPACING = 1.0
@@ -28,6 +34,9 @@ EDGE_COLOR = "0.82"
 HIDDEN_COLOR = "C0"
 LATENT_COLOR = "C1"
 TEXT_SIZE = 17
+WIDE_NETWORK_LAYERS = 7  # con más capas que esto se juntan un poco para que entren en la diapositiva
+ACTIVATION_NAMES = {"tanh": "tanh", "sigmoid": "sigmoide", "relu": "ReLU", "leaky_relu": "leaky ReLU",
+                    "identity": "lineal"}
 
 
 @dataclass(frozen=True)
@@ -38,6 +47,7 @@ class Layer:
     shown: int | None = None  # nodos a dibujar; por defecto min(size, MAX_NODES)
     name: str = ""
     labeled: bool = True  # tamaño y nombre debajo de la capa
+    size_label: str = ""  # reemplaza al tamaño, para capas que todavía no están decididas
 
     @property
     def nodes(self) -> int:
@@ -45,9 +55,42 @@ class Layer:
 
 
 def make_all() -> None:
-    autoencoder_figure()
-    denoising_figure()
+    autoencoder_figure(generic_font_layers(Layer(2, "lineal", latent=True)), "e1_autoencoder")
+    autoencoder_figure(font_network_layers(AUTOENCODER_RUN), "e1_red")
+    denoising_figure(generic_font_layers(Layer(4, name="latente", latent=True, size_label="?")), "e1b_denoising")
+    denoising_figure(font_network_layers(DENOISING_RUN), "e1b_red")
+    audio_autoencoder_figure()
     variational_figure()
+
+
+# ----------------------------------------------------------------------------- capas
+
+def font_network_layers(run_directory: Path) -> list[Layer]:
+    """Las capas de un autoencoder del font tal como las fija el config.json de la corrida."""
+    return network_layers(run_directory, FONT_PIXELS)
+
+
+def network_layers(run_directory: Path, inputs: int, shown: int | None = None,
+                   latent_shown: int | None = None) -> list[Layer]:
+    """Las capas de un autoencoder (codificador, latente y decodificador espejo) según su config.json."""
+    model = json.loads((run_directory / "config.json").read_text(encoding="utf-8"))["model"]
+    if model["type"] != "autoencoder":
+        raise ValueError(f"{run_directory}: el diagrama de capas es para autoencoders, no para '{model['type']}'")
+    if model.get("decoder_hidden_layers") is not None:
+        raise ValueError(f"{run_directory}: el diagrama supone un decodificador espejo del codificador")
+    activation = ACTIVATION_NAMES[model["activation"]]
+    hidden = [Layer(size, activation, shown=shown) for size in model["hidden_layers"]]
+    latent = Layer(model["latent_size"], ACTIVATION_NAMES[model.get("latent_activation", "identity")], latent=True,
+                   shown=latent_shown)
+    output = ACTIVATION_NAMES[model.get("output_activation", "sigmoid")]
+    return [Layer(inputs, "entrada", shown=shown), *hidden, latent, *reversed(hidden),
+            Layer(inputs, output, shown=shown)]
+
+
+def generic_font_layers(latent: Layer) -> list[Layer]:
+    """La forma del autoencoder antes de elegir capas ocultas: lo que se decide con los experimentos."""
+    hidden = Layer(8, name="ocultas", size_label="?")
+    return [Layer(FONT_PIXELS, "entrada"), hidden, latent, hidden, Layer(FONT_PIXELS, "sigmoide")]
 
 
 # ----------------------------------------------------------------------------- piezas
@@ -70,7 +113,7 @@ def draw_layer(axis: plt.Axes, layer: Layer, x: float, center: float = 0.0) -> A
     if not layer.labeled:
         return np.column_stack([np.full(count, x), offsets])
     bottom = offsets.min() - 0.9
-    axis.text(x, bottom, f"{layer.size:,}".replace(",", "."), ha="center", va="top",
+    axis.text(x, bottom, layer.size_label or f"{layer.size:,}".replace(",", "."), ha="center", va="top",
               fontsize=TEXT_SIZE, fontweight="bold", color=color if layer.latent else "black")
     caption = layer.name or layer.activation
     if caption:
@@ -136,24 +179,33 @@ def _glyph_image(pattern: Array) -> Array:
 
 # ----------------------------------------------------------------------------- figuras
 
-def autoencoder_figure() -> None:
+def autoencoder_figure(layers: list[Layer], output_name: str) -> None:
     model, dataset = load_run(AUTOENCODER_RUN)
     letter = dataset.samples[dataset.labels.index(EXAMPLE_LETTER)]
     output = model.reconstruct(letter[None, :])[0]
-    layers = [Layer(35, "entrada"), Layer(16, "tanh"), Layer(8, "tanh"), Layer(2, "lineal", latent=True),
-              Layer(8, "tanh"), Layer(16, "tanh"), Layer(35, "sigmoide")]
 
     figure, axis = plt.subplots(figsize=(15, 7.2))
-    positions = draw_stack(axis, layers, first_x=0.0, spacing=4.4)
+    positions = draw_stack(axis, layers, first_x=0.0, spacing=_spacing(layers, 4.4))
     _letters_at_ends(axis, positions, letter, output, input_caption="entrada", output_caption="salida")
     top = max(position[:, 1].max() for position in positions) + 1.2
-    brace(axis, positions[0][0, 0], positions[3][0, 0], top, "codificador")
-    brace(axis, positions[3][0, 0], positions[-1][0, 0], top, "decodificador")
-    latent = positions[3]
+    latent = positions[_latent_index(layers)]
+    brace(axis, positions[0][0, 0], latent[0, 0], top, "codificador")
+    brace(axis, latent[0, 0], positions[-1][0, 0], top, "decodificador")
     axis.text(latent[0, 0] + 0.55, latent[:, 1].max() + 0.9, "(z₁, z₂)", ha="center", fontsize=TEXT_SIZE,
               color=LATENT_COLOR, fontweight="bold")
     _finish(axis)
-    save(figure, "e1_red")
+    save(figure, output_name)
+
+
+def _spacing(layers: list[Layer], spacing: float) -> float:
+    return spacing if len(layers) <= WIDE_NETWORK_LAYERS else spacing * 0.8
+
+
+def _latent_index(layers: list[Layer]) -> int:
+    latent = [index for index, layer in enumerate(layers) if layer.latent]
+    if len(latent) != 1:
+        raise ValueError("El diagrama necesita exactamente una capa latente")
+    return latent[0]
 
 
 def _letters_at_ends(axis: plt.Axes, positions: list[Array], letter: Array, output: Array,
@@ -166,17 +218,14 @@ def _letters_at_ends(axis: plt.Axes, positions: list[Array], letter: Array, outp
     return left, right
 
 
-def denoising_figure() -> None:
+def denoising_figure(layers: list[Layer], output_name: str) -> None:
     """Entrenamiento del denoising: entra la letra con ruido y la pérdida la compara con la limpia."""
     model, dataset = load_run(DENOISING_RUN)
     clean = dataset.samples[dataset.labels.index(EXAMPLE_LETTER)]
     noisy = Noise("flip", DENOISING_LEVEL).apply(clean[None, :], np.random.default_rng(4))[0]
     output = model.reconstruct(noisy[None, :])[0]
-    layers = [Layer(35), Layer(32, shown=14), Layer(16, shown=14), Layer(8, latent=True),
-              Layer(16, shown=14), Layer(32, shown=14), Layer(35)]
-
     figure, axis = plt.subplots(figsize=(15, 8.4))
-    positions = draw_stack(axis, layers, first_x=0.0, spacing=3.8)
+    positions = draw_stack(axis, layers, first_x=0.0, spacing=_spacing(layers, 3.8))
     left, right = _letters_at_ends(axis, positions, noisy, output,
                                    input_caption="con 10 % de ruido", output_caption="salida",
                                    distance=4.4)
@@ -198,7 +247,43 @@ def denoising_figure() -> None:
     axis.text(right[1] + 0.4, (clean_right[2] + right[3]) / 2, "pérdida", ha="left", va="center",
               fontsize=TEXT_SIZE - 1, color="C3")
     _finish(axis)
-    save(figure, "e1b_red")
+    save(figure, output_name)
+
+
+def audio_autoencoder_figure() -> None:
+    """Autoencoder de audio: el mismo codificador y decodificador que el VAE, con el latente directo."""
+    model, dataset = load_run(AUDIO_AUTOENCODER_RUN)
+    note = dataset.samples[dataset.labels.index(EXAMPLE_NOTE)]
+    output = model.reconstruct(note[None, :])[0]
+    layers = network_layers(AUDIO_AUTOENCODER_RUN, note.size, shown=AUDIO_NODES_SHOWN,
+                            latent_shown=AUDIO_LATENT_NODES_SHOWN)
+
+    middle = _latent_index(layers)
+    latent_layer = replace(layers[middle], labeled=False)
+
+    figure, axis = plt.subplots(figsize=(16, 8.4))
+    encoder = draw_stack(axis, layers[:middle], first_x=0.0)
+    latent_x = encoder[-1][0, 0] + 1.4 * LAYER_SPACING
+    latent = draw_layer(axis, latent_layer, latent_x)
+    decoder = draw_stack(axis, layers[middle + 1 :], first_x=latent_x + 1.4 * LAYER_SPACING)
+    connect_dense(axis, encoder[-1], latent)
+    connect_dense(axis, latent, decoder[0])
+    _latent_label(axis, latent_x, latent[:, 1].max() + 0.7, f"z: {latent_layer.size}", above=True)
+    axis.text(latent_x, latent[:, 1].min() - 0.7, latent_layer.activation, ha="center", va="top",
+              fontsize=TEXT_SIZE - 3, color="0.35")
+    positions = [*encoder, latent, *decoder]
+    first_x, last_x = positions[0][0, 0], positions[-1][0, 0]
+    left = picture(axis, note.reshape(dataset.image_shape), (first_x - 4.0, 0.0), 8.0, SPECTROGRAM_CMAP,
+                   origin="lower", caption="entrada")
+    right = picture(axis, output.reshape(dataset.image_shape), (last_x + 4.0, 0.0), 8.0, SPECTROGRAM_CMAP,
+                    origin="lower", caption="salida")
+    arrow(axis, (left[1] + 0.2, 0.0), (first_x - 1.0, 0.0))
+    arrow(axis, (last_x + 1.0, 0.0), (right[0] - 0.2, 0.0))
+    top = max(position[:, 1].max() for position in positions) + 1.2
+    brace(axis, first_x, latent_x, top, "codificador")
+    brace(axis, latent_x, last_x, top, "decodificador")
+    _finish(axis)
+    save(figure, "e2_red_ae")
 
 
 def variational_figure() -> None:
@@ -251,3 +336,4 @@ def variational_figure() -> None:
 def _latent_label(axis: plt.Axes, x: float, y: float, text: str, above: bool) -> None:
     axis.text(x, y, text, ha="center", va="bottom" if above else "top", fontsize=TEXT_SIZE,
               fontweight="bold", color=LATENT_COLOR)
+

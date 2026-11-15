@@ -14,7 +14,6 @@ import tarfile
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.patches import Ellipse
 from scipy.io import wavfile
 from scipy.signal import stft
 
@@ -43,6 +42,8 @@ INTERPOLATION_PAIRS = [
 INTERPOLATION_STEPS = 8
 SAMPLE_COUNT = 6
 SAMPLE_SEED = 11
+DISTANCE_SAMPLES = 500
+DISTANCE_SEED = 0
 PRIOR_POINTS = 1500
 _PITCH = re.compile(r"-(\d+)-\d+$")
 
@@ -71,8 +72,8 @@ def make_all() -> None:
     family_examples(dataset, renderer)
     representation_figure(dataset, renderer)
     latent_spaces_figure(autoencoder, variational, dataset)
-    posterior_figure(variational, dataset)
     prior_samples(autoencoder, variational, dataset, renderer)
+    prior_distance_figure(autoencoder, variational, dataset)
     reconstructions(autoencoder, variational, dataset, renderer)
     reconstruction_error_by_family_figure()
     for index, (origin, destination) in enumerate(INTERPOLATION_PAIRS, start=1):
@@ -145,7 +146,7 @@ def latent_spaces_figure(autoencoder, variational, dataset) -> None:
         projected = project(latent)
         for family in FAMILIES:
             mask = np.array([group == family for group in dataset.groups])
-            axis.scatter(*projected[mask].T, s=9, color=FAMILY_COLORS[family], label=family)
+            axis.scatter(*projected[mask].T, s=9, color=FAMILY_COLORS[family], label=FAMILY_NAMES[family])
         axis.set_title(name)
         axis.set_xlabel("PC1")
         axis.set_aspect("equal")
@@ -165,34 +166,6 @@ def latent_spaces_figure(autoencoder, variational, dataset) -> None:
     save(figure, "e2_normas")
 
 
-def posterior_figure(variational, dataset, notes_per_family: int = 2, dimensions: tuple[int, int] = (0, 1)) -> None:
-    """Lo que da el codificador del VAE para algunas notas: una gaussiana chica (elipse de 1σ) dentro de N(0, I)."""
-    mean, log_variance = variational.encode_distribution(dataset.samples)
-    deviation = np.exp(0.5 * log_variance)
-    first, second = dimensions
-    rng = np.random.default_rng(1)
-    figure, axis = plt.subplots(figsize=(8.4, 7.2))
-    for radius, text in ((1, "1σ"), (2, "2σ")):
-        axis.add_patch(Ellipse((0, 0), 2 * radius, 2 * radius, fill=False, ls="--", lw=1.4, color="0.45"))
-        axis.text(radius * 0.72, radius * 0.72, text, color="0.4", fontsize=12)
-    axis.scatter(mean[:, first], mean[:, second], s=4, color="0.8", zorder=1)
-    for family in FAMILIES:
-        members = [index for index, group in enumerate(dataset.groups) if group == family]
-        for count, index in enumerate(rng.choice(members, notes_per_family, replace=False)):
-            axis.add_patch(Ellipse((mean[index, first], mean[index, second]), 2 * deviation[index, first],
-                                   2 * deviation[index, second], color=FAMILY_COLORS[family], alpha=0.7,
-                                   label=family if count == 0 else None, zorder=2))
-    axis.set_xlim(-3.2, 3.2)
-    axis.set_ylim(-3.2, 3.2)
-    axis.set_aspect("equal")
-    axis.set_xlabel(f"z{first + 1}")
-    axis.set_ylabel(f"z{second + 1}")
-    axis.legend(loc="center left", bbox_to_anchor=(1.0, 0.5), fontsize=11)
-    print(f"    desvío mediano de cada nota: {np.median(deviation):.2f}; "
-          f"desvío de las medias entre notas: {mean.std(axis=0).mean():.2f}")
-    save(figure, "e2_posteriores")
-
-
 def prior_samples(autoencoder, variational, dataset, renderer: NoteRenderer) -> None:
     """Los mismos z ~ N(0, I) por los dos decodificadores, y la nota real más parecida a cada muestra del VAE."""
     latent = np.random.default_rng(SAMPLE_SEED).standard_normal((SAMPLE_COUNT, variational.latent_size))
@@ -205,19 +178,52 @@ def prior_samples(autoencoder, variational, dataset, renderer: NoteRenderer) -> 
         nearest = int(np.argmin(distances))
         renderer.write(dataset.samples[nearest], f"cercana_{index}")
         print(f"    muestra {index}: más cercana {dataset.labels[nearest]} (MSE {distances[nearest]:.4f})")
-    typical = typical_nearest_distance(dataset.samples)
-    print(f"    MSE típica entre una nota y su vecina más cercana: {typical:.4f}")
 
 
-def typical_nearest_distance(samples: Array, count: int = 300) -> float:
-    rng = np.random.default_rng(1)
-    chosen = rng.choice(len(samples), count, replace=False)
+def prior_distance_figure(autoencoder, variational, dataset) -> None:
+    """Qué tan lejos cae cada muestra al azar de la nota real más parecida, contra dos notas reales vecinas."""
+    latent = np.random.default_rng(DISTANCE_SEED).standard_normal((DISTANCE_SAMPLES, variational.latent_size))
+    rows = [
+        (f"autoencoder\n{DISTANCE_SAMPLES} puntos al azar", "C3",
+         nearest_distances(dataset.samples, autoencoder.decode(latent))),
+        (f"VAE\n{DISTANCE_SAMPLES} puntos al azar", "C0", nearest_distances(dataset.samples, variational.decode(latent))),
+        ("referencia: una nota real\ny su vecina más parecida", "0.45",
+         real_neighbor_distances(dataset.samples, DISTANCE_SAMPLES)),
+    ]
+    figure, axis = plt.subplots(figsize=(10, 4.4))
+    jitter = np.random.default_rng(0)
+    for position, (label, color, distances) in enumerate(rows):
+        scaled = 1000 * distances  # milésimas: ticks cortos
+        axis.scatter(scaled, position + jitter.uniform(-0.18, 0.18, len(scaled)), s=14, alpha=0.45, color=color,
+                     edgecolors="none")
+        median = np.median(scaled)
+        axis.plot([median, median], [position - 0.3, position + 0.3], color="black", lw=2.5)
+        axis.text(median, position + 0.34, f"mediana {median:.0f}", ha="center", va="bottom", fontsize=11)
+        print(f"    {label.splitlines()[0]}: mediana MSE {median / 1000:.4f}")
+    axis.set_yticks(range(len(rows)), [label for label, _, _ in rows])
+    axis.set_ylim(-0.5, len(rows) - 0.2)
+    axis.set_xlim(left=0)
+    axis.set_xlabel("diferencia con la nota real más parecida del dataset (MSE × 1000)")
+    save(figure, "e2_distancia_muestras")
+
+
+def nearest_distances(samples: Array, outputs: Array) -> Array:
+    return np.array([np.mean((samples - values) ** 2, axis=1).min() for values in outputs])
+
+
+def typical_nearest_distance(samples: Array) -> float:
+    return float(np.median(real_neighbor_distances(samples)))
+
+
+def real_neighbor_distances(samples: Array, count: int = 300) -> Array:
+    """Para notas reales al azar, la distancia a la nota real más parecida que no sea ella misma."""
+    chosen = np.random.default_rng(1).choice(len(samples), count, replace=False)
     nearest = []
     for index in chosen:
         distances = np.mean((samples - samples[index]) ** 2, axis=1)
         distances[index] = np.inf
         nearest.append(distances.min())
-    return float(np.median(nearest))
+    return np.array(nearest)
 
 
 def reconstructions(autoencoder, variational, dataset, renderer: NoteRenderer) -> None:
