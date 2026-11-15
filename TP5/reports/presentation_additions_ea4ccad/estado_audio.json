@@ -1,0 +1,22 @@
+{
+  "expected_runs": 12,
+  "finished": [],
+  "checkpoints": [
+    {
+      "seed": 7,
+      "saved_epoch": 130,
+      "elapsed_seconds": 5784.994828824998
+    },
+    {
+      "seed": 17,
+      "saved_epoch": 120,
+      "elapsed_seconds": 5409.026917244999
+    },
+    {
+      "seed": 27,
+      "saved_epoch": 130,
+      "elapsed_seconds": 5747.900115517001
+    }
+  ],
+  "interpretation": "Training only; no architecture superiority conclusion yet"
+}

@@ -1,0 +1,45 @@
+{
+  "source_run": "results/ej2_search_art_cnn4k_lowbeta_conv2_50/base__seed=7",
+  "model_sha256": "121cdf2ef55c56545874f4ebc9b0b96161788850c0143a096e81c74e8c2ef4f8",
+  "config_sha256": "fae3228e71bfe43a672961b215b073f21b239f07b01b3847ed48e12e5544cda1",
+  "code_sha256": "92aae3525747f6b8cb4b6f93de8ce17a73731408c91ba16bceb6514ca66a650b",
+  "reference_split": "validation",
+  "reference_indices": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "display_reference_index": 2,
+  "display_channels": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "encoder_shapes": [
+    [
+      4,
+      16,
+      16,
+      16
+    ],
+    [
+      4,
+      8,
+      8,
+      32
+    ]
+  ],
+  "encoder_common_maxima": [
+    2.048837900161743,
+    1.1718816757202148
+  ],
+  "parameters_modified": false,
+  "training_performed": false,
+  "interpretation": "Deterministic post-ReLU feature maps. Not attention, semantic masks or proof of understanding. Brightness comparable within each layer, not across layers."
+}

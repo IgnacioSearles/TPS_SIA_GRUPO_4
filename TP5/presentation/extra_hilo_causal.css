@@ -1,0 +1,11 @@
+/* New causal bridge only; all original sections and styles remain untouched. */
+.reveal .figura-causal .context{font-size:21px;color:var(--muted);line-height:1.3;margin-bottom:15px}
+.reveal .figura-causal .lead{font-size:28px;line-height:1.3;margin-bottom:20px}
+.reveal .figura-causal h3{font-size:28px;margin:0 0 18px}.reveal .figura-causal img{display:block;margin:0;object-fit:contain;max-width:100%}
+.reveal .figura-causal .take{font-size:26px}.reveal .figura-causal .baseline{display:grid;grid-template-columns:790px 1fr;gap:28px;align-items:center}
+.reveal .figura-causal .baseline img{width:790px;height:420px}.reveal .figura-causal .baseline p{font-size:27px;line-height:1.35;margin:22px 0}
+.reveal .figura-causal .baseline .small{font-size:21px;color:var(--muted)}
+.reveal .figura-causal figure{margin:0;height:325px}.reveal .figura-causal figure img{width:1160px;height:100%}
+.reveal .figura-causal.conv-bridge figure{height:260px}
+.reveal .figura-causal .paths p{font-size:28px;line-height:1.45;margin:8px 0}
+.reveal .figura-causal .bridge{font-size:27px;line-height:1.3;margin-top:18px}

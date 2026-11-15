@@ -1,0 +1,6 @@
+{
+  "sample": 0,
+  "nearest_label": "vocal_acoustic_000-065-100",
+  "mse": 0.026493518035723723,
+  "source": "new NSynth control, seed 7; not original deck weights"
+}

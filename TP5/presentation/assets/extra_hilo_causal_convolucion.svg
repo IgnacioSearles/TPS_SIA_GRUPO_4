@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 300">
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#176a98"/></marker></defs>
+<image href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAABPklEQVR4nGPkE1ZkoCVgoqnpoxaMWoAGuNi5Epxjs70ySLKAhUijfUw8vU09udm5GBgYVh1d8/rjGyItYCSY0cKsg+FGQ8Cp22e61vURaQE+Hzjo2IXZBIvxi6KJm6maaMtpXn10nRgLcMaBt4lnjncGpukQEGYdQozp+CzYf/ng15/fcMlqy2lqy2lSZMG3n9+2nt6ORyeRnsCXTLec2Y7fE6aqJhRZ8O3nt1VH1uJRkOgcS5EFDAwMW89sf/XxNS5ZMX5RBx07iixgYGDA74kwm2BKLThw5RAlniCqLJq/dzFW8a8/v606svbAlUN49BJVFp2+febqo+vICf/rz29bT2/fcmb7N9zJjAQLGBgYVh1d0yhXC2UfWUuM0aRZcPXR9auPrr/6+JqkopSBmNKUQjCYarRRC0YtGCgLAEreb5pc7SkMAAAAAElFTkSuQmCC" x="15" y="18" width="240" height="240" style="image-rendering:pixelated"/>
+<rect x="82.5" y="78" width="22.5" height="22.5" fill="none" stroke="#ffcc55" stroke-width="4"/>
+<line x1="108" y1="90" x2="345" y2="90" stroke="#176a98" stroke-width="3" marker-end="url(#arrow)"/>
+<text x="242" y="70" text-anchor="middle" font-family="Arial" font-size="23" fill="#176a98">Una ventana local</text>
+<rect x="365" y="35" width="144" height="144" fill="#eef4f7" stroke="#176a98" stroke-width="3"/>
+<path d="M413,35v144 M461,35v144 M365,83h144 M365,131h144" stroke="#176a98" stroke-width="2"/>
+<text x="437" y="217" text-anchor="middle" font-family="Arial" font-size="26" fill="#182b3a">Filtro 3×3 aprendido</text>
+<line x1="540" y1="105" x2="675" y2="105" stroke="#176a98" stroke-width="3" marker-end="url(#arrow)"/>
+<text x="760" y="55" font-family="Arial" font-size="27" fill="#182b3a">Los mismos pesos</text>
+<text x="760" y="95" font-family="Arial" font-size="27" fill="#182b3a">se aplican en distintas zonas.</text>
+<text x="760" y="155" font-family="Arial" font-size="25" fill="#d4602a">No le damos reglas</text>
+<text x="760" y="190" font-family="Arial" font-size="25" fill="#d4602a">para dibujar figuras.</text>
+<text x="135" y="290" text-anchor="middle" font-family="Arial" font-size="23" fill="#5d7180">Imagen RGB</text>
+</svg>
