@@ -311,14 +311,14 @@
     <figure><img src="assets/reports__presentacion__espectrogramas__muestra_vae_5.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__muestra_vae_5.wav">oír</button></figure>
   </div>
   <p class="take">El autoencoder llena todas las bandas; el VAE da armónicos limpios, con la energía de los datos.</p>
-  <aside class="notes">Los mismos seis vectores z, sorteados de N(0, I), pasados por los dos decodificadores. El autoencoder llena todas las bandas de ruido; el VAE da armónicos limpios. La diapositiva siguiente lo mide con 200 puntos.</aside>
+  <aside class="notes">Los mismos seis vectores z, sorteados de N(0, I), pasados por los dos decodificadores. El autoencoder llena todas las bandas de ruido; el VAE da armónicos limpios. La diapositiva siguiente lo mide con 500 puntos.</aside>
 </section>
 
 <section class="figure has-take">
   <h2>Las muestras del VAE quedan más cerca de notas reales</h2>
   <figure><img src="assets/reports__presentacion__e2_distancia_muestras.png" alt="Diferencia de cada muestra con la nota real más parecida: referencia, VAE y autoencoder"></figure>
   <p class="take">Cada punto, una muestra comparada con la nota real más parecida. Mediana: VAE <em>16</em>, autoencoder <span class="warm">31</span>.</p>
-  <aside class="notes">Para cada muestra generada buscamos, entre las notas del dataset, la más parecida, y medimos la diferencia (error cuadrático medio entre espectrogramas, por mil). Arriba, la referencia: tomamos 300 notas reales y, para cada una, medimos la diferencia con la otra nota real más parecida del dataset; no es un número fijo, va de casi 0 a unos 30, con mediana 6. Las muestras del VAE caen en el mismo rango que esa referencia, con mediana 16; las del autoencoder empiezan donde termina la referencia, con mediana 31: casi el doble de lejos que el VAE y cinco veces más que dos notas reales parecidas. Que el VAE no baje hasta la referencia es esperable: si lo hiciera, estaría copiando notas del dataset.</aside>
+  <aside class="notes">Para cada muestra generada buscamos, entre las notas del dataset, la más parecida, y medimos la diferencia (error cuadrático medio entre espectrogramas, por mil). Arriba, la referencia: tomamos 500 notas reales y, para cada una, medimos la diferencia con la otra nota real más parecida del dataset; no es un número fijo: la mayoría queda entre 0 y 30, con mediana 6, y unas pocas notas raras no tienen ninguna parecida. Las muestras del VAE caen en el mismo rango que esa referencia, con mediana 16; las del autoencoder empiezan donde termina la referencia, con mediana 31: casi el doble de lejos que el VAE y cinco veces más que dos notas reales parecidas. Que el VAE no baje hasta la referencia es esperable: si lo hiciera, estaría copiando notas del dataset.</aside>
 </section>
 
 <section class="side">

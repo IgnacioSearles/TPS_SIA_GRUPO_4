@@ -42,7 +42,7 @@ INTERPOLATION_PAIRS = [
 INTERPOLATION_STEPS = 8
 SAMPLE_COUNT = 6
 SAMPLE_SEED = 11
-DISTANCE_SAMPLES = 200
+DISTANCE_SAMPLES = 500
 DISTANCE_SEED = 0
 PRIOR_POINTS = 1500
 _PITCH = re.compile(r"-(\d+)-\d+$")
@@ -184,9 +184,11 @@ def prior_distance_figure(autoencoder, variational, dataset) -> None:
     """Qué tan lejos cae cada muestra al azar de la nota real más parecida, contra dos notas reales vecinas."""
     latent = np.random.default_rng(DISTANCE_SEED).standard_normal((DISTANCE_SAMPLES, variational.latent_size))
     rows = [
-        ("autoencoder\n200 puntos al azar", "C3", nearest_distances(dataset.samples, autoencoder.decode(latent))),
-        ("VAE\n200 puntos al azar", "C0", nearest_distances(dataset.samples, variational.decode(latent))),
-        ("referencia: una nota real\ny su vecina más parecida", "0.45", real_neighbor_distances(dataset.samples)),
+        (f"autoencoder\n{DISTANCE_SAMPLES} puntos al azar", "C3",
+         nearest_distances(dataset.samples, autoencoder.decode(latent))),
+        (f"VAE\n{DISTANCE_SAMPLES} puntos al azar", "C0", nearest_distances(dataset.samples, variational.decode(latent))),
+        ("referencia: una nota real\ny su vecina más parecida", "0.45",
+         real_neighbor_distances(dataset.samples, DISTANCE_SAMPLES)),
     ]
     figure, axis = plt.subplots(figsize=(10, 4.4))
     jitter = np.random.default_rng(0)
