@@ -1,0 +1,4 @@
+architecture,condition,seed,samples,training_seconds,train_mse,pitch_midpoint_hit_rate,pitch_midpoint_spectral_hit_rate,pitch_midpoint_spectral_mse,pitch_mix_spectral_hit_rate,pitch_mix_spectral_mse,pitch_codec_hit_rate,pitch_calibration_reliable
+conv,complete,7,1420,8857.17,0.0002839022912071584,0.1111111111111111,0.0,0.020293533288734743,0.0,0.01721700103453106,1.0,True
+conv,complete,17,1420,8945.23,0.0003314063829810556,1.0,0.8888888888888888,0.012152633031525936,0.0,0.01721700103453106,1.0,True
+conv,complete,27,1420,8780.25,0.00026842389170387627,0.5555555555555556,0.3333333333333333,0.014094168096340124,0.0,0.01721700103453106,1.0,True

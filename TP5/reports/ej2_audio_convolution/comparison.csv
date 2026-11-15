@@ -1,0 +1,5 @@
+architecture,condition,method,trials,pitch_hits,pitch_rate,spectral_hits,spectral_rate,joint_hits,valid_rate,spectral_mse
+conv,complete,vae_interpolation,27,15,0.5555555555555556,11,0.4074074074074074,11,1.0,0.015513444805533601
+conv,complete,spectrogram_mix,27,27,1.0,0,0.0,0,1.0,0.01721700103453106
+conv,complete,lower_neighbor,27,0,0.0,0,0.0,0,1.0,0.031180409065657354
+conv,complete,target_reconstruction,27,27,1.0,27,1.0,27,1.0,0.0002677638251069735

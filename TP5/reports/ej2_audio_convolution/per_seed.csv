@@ -1,0 +1,13 @@
+architecture,condition,method,seed,trials,pitch_hits,pitch_rate,spectral_hits,spectral_rate,joint_hits,valid_rate,spectral_mse
+conv,complete,vae_interpolation,7,9,1,0.1111111111111111,0,0.0,0,1.0,0.020293533288734743
+conv,complete,vae_interpolation,17,9,9,1.0,8,0.8888888888888888,8,1.0,0.012152633031525936
+conv,complete,vae_interpolation,27,9,5,0.5555555555555556,3,0.3333333333333333,3,1.0,0.014094168096340124
+conv,complete,spectrogram_mix,7,9,9,1.0,0,0.0,0,1.0,0.01721700103453106
+conv,complete,spectrogram_mix,17,9,9,1.0,0,0.0,0,1.0,0.01721700103453106
+conv,complete,spectrogram_mix,27,9,9,1.0,0,0.0,0,1.0,0.01721700103453106
+conv,complete,lower_neighbor,7,9,0,0.0,0,0.0,0,1.0,0.03118040906565735
+conv,complete,lower_neighbor,17,9,0,0.0,0,0.0,0,1.0,0.03118040906565735
+conv,complete,lower_neighbor,27,9,0,0.0,0,0.0,0,1.0,0.03118040906565735
+conv,complete,target_reconstruction,7,9,9,1.0,9,1.0,9,1.0,0.0002771724442929998
+conv,complete,target_reconstruction,17,9,9,1.0,9,1.0,9,1.0,0.0002637714958928015
+conv,complete,target_reconstruction,27,9,9,1.0,9,1.0,9,1.0,0.0002623475351351192
