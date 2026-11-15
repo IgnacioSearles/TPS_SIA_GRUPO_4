@@ -1,0 +1,129 @@
+{
+  "protocol": {
+    "version": 1,
+    "components": [
+      1,
+      4,
+      8
+    ],
+    "model_seeds": [
+      7,
+      17,
+      27
+    ],
+    "count": 256,
+    "posterior_draw_seed": 2026112300,
+    "fit_seed": 2026112500,
+    "epsilon_seed": 2026112200,
+    "component_uniform_seed": 2026112400,
+    "restarts": 3,
+    "iterations": 100,
+    "ridge": 1e-05,
+    "tolerance": 1e-05,
+    "fit_data": "one posterior sample per training image; no labels",
+    "restart_selection": "training likelihood only",
+    "reserved_final_used": false,
+    "display_indices": [
+      0,
+      32,
+      64,
+      96,
+      128,
+      160,
+      192,
+      224
+    ]
+  },
+  "methods": [
+    {
+      "seed": 7,
+      "components": 1,
+      "count": 256,
+      "clean_count": 243,
+      "nearest_train_mse": 0.005028914481331678,
+      "pairwise_mse": 0.03193403938323806,
+      "train_log_likelihood": -10.642295146027156,
+      "fit_iterations": 3
+    },
+    {
+      "seed": 7,
+      "components": 4,
+      "count": 256,
+      "clean_count": 251,
+      "nearest_train_mse": 0.004210735424987115,
+      "pairwise_mse": 0.03267792708381522,
+      "train_log_likelihood": -9.694508157129702,
+      "fit_iterations": 40
+    },
+    {
+      "seed": 7,
+      "components": 8,
+      "count": 256,
+      "clean_count": 251,
+      "nearest_train_mse": 0.004191203574352369,
+      "pairwise_mse": 0.03328748884328353,
+      "train_log_likelihood": -9.25355122908834,
+      "fit_iterations": 90
+    },
+    {
+      "seed": 17,
+      "components": 1,
+      "count": 256,
+      "clean_count": 251,
+      "nearest_train_mse": 0.004905986451523542,
+      "pairwise_mse": 0.031093049314246106,
+      "train_log_likelihood": -10.611964282052814,
+      "fit_iterations": 3
+    },
+    {
+      "seed": 17,
+      "components": 4,
+      "count": 256,
+      "clean_count": 255,
+      "nearest_train_mse": 0.0040917060814148875,
+      "pairwise_mse": 0.032253542789506415,
+      "train_log_likelihood": -9.619531191406242,
+      "fit_iterations": 54
+    },
+    {
+      "seed": 17,
+      "components": 8,
+      "count": 256,
+      "clean_count": 255,
+      "nearest_train_mse": 0.003956560803210328,
+      "pairwise_mse": 0.033632011329988096,
+      "train_log_likelihood": -9.277940240558229,
+      "fit_iterations": 100
+    },
+    {
+      "seed": 27,
+      "components": 1,
+      "count": 256,
+      "clean_count": 244,
+      "nearest_train_mse": 0.004696609586608197,
+      "pairwise_mse": 0.030925640833783914,
+      "train_log_likelihood": -10.721738351439352,
+      "fit_iterations": 3
+    },
+    {
+      "seed": 27,
+      "components": 4,
+      "count": 256,
+      "clean_count": 250,
+      "nearest_train_mse": 0.004078314061875576,
+      "pairwise_mse": 0.03180011671994447,
+      "train_log_likelihood": -9.825376029914814,
+      "fit_iterations": 54
+    },
+    {
+      "seed": 27,
+      "components": 8,
+      "count": 256,
+      "clean_count": 253,
+      "nearest_train_mse": 0.0038140020524280362,
+      "pairwise_mse": 0.032113050902302716,
+      "train_log_likelihood": -9.369148358527337,
+      "fit_iterations": 86
+    }
+  ]
+}

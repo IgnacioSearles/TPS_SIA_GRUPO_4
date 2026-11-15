@@ -1,0 +1,83 @@
+{
+  "inputs": {
+    "model_sha256": "52fe58277d21dfb1abc26bd7cb2e775ee0c76c77da6a5df8a270b2b920d1e044",
+    "config_sha256": "d12743ff20c61b2e4c1a760600db942c15b0bf6ead1f853fd77167784f67f6dd",
+    "posterior_sha256": "f75b7e6dda5d0faaa15724e4a8a1d9b14a793892e8cc41066cd6e0a3129d3636",
+    "protocol": {
+      "version": 1,
+      "components": [
+        1,
+        4,
+        8
+      ],
+      "model_seeds": [
+        7,
+        17,
+        27
+      ],
+      "count": 256,
+      "posterior_draw_seed": 2026112300,
+      "fit_seed": 2026112500,
+      "epsilon_seed": 2026112200,
+      "component_uniform_seed": 2026112400,
+      "restarts": 3,
+      "iterations": 100,
+      "ridge": 1e-05,
+      "tolerance": 1e-05,
+      "fit_data": "one posterior sample per training image; no labels",
+      "restart_selection": "training likelihood only",
+      "reserved_final_used": false,
+      "display_indices": [
+        0,
+        32,
+        64,
+        96,
+        128,
+        160,
+        192,
+        224
+      ]
+    },
+    "code": {
+      "src/analysis/art_latent_mixture.py": "2eb8c933a1e8958958b7606618ec842236054537c12364faf36306dffaa6780e",
+      "src/analysis/gaussian_mixture.py": "efb414bb51cae18187c5c1a4be77616b346e37a34f2db24c3e3b11061ccdc5af",
+      "src/nn/spatial.py": "7c694378071a7e834007b456d6f658279d1ee11dc6b8acf278735109014e9fab",
+      "src/models/factory.py": "3e0549d85e9fb9018a2573dcb8ab17c9ce34bbbefaca1ee77c75787a71aff966",
+      "src/evaluation/art_cleanliness.py": "1313427a9baee90af2c43308b0993db96843fe18ec4b77131382992d04665196"
+    }
+  },
+  "methods": [
+    {
+      "seed": 17,
+      "components": 1,
+      "count": 256,
+      "clean_count": 251,
+      "nearest_train_mse": 0.004905986451523542,
+      "pairwise_mse": 0.031093049314246106,
+      "train_log_likelihood": -10.611964282052814,
+      "fit_iterations": 3
+    },
+    {
+      "seed": 17,
+      "components": 4,
+      "count": 256,
+      "clean_count": 255,
+      "nearest_train_mse": 0.0040917060814148875,
+      "pairwise_mse": 0.032253542789506415,
+      "train_log_likelihood": -9.619531191406242,
+      "fit_iterations": 54
+    },
+    {
+      "seed": 17,
+      "components": 8,
+      "count": 256,
+      "clean_count": 255,
+      "nearest_train_mse": 0.003956560803210328,
+      "pairwise_mse": 0.033632011329988096,
+      "train_log_likelihood": -9.277940240558229,
+      "fit_iterations": 100
+    }
+  ],
+  "training_neural_network": false,
+  "interpretation": "Post-training latent density fitting. Not canonical-prior generation or proof of novelty."
+}

@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "components": [
+    1,
+    4,
+    8
+  ],
+  "model_seeds": [
+    7,
+    17,
+    27
+  ],
+  "count": 256,
+  "posterior_draw_seed": 2026112300,
+  "fit_seed": 2026112500,
+  "epsilon_seed": 2026112200,
+  "component_uniform_seed": 2026112400,
+  "restarts": 3,
+  "iterations": 100,
+  "ridge": 1e-05,
+  "tolerance": 1e-05,
+  "fit_data": "one posterior sample per training image; no labels",
+  "restart_selection": "training likelihood only",
+  "reserved_final_used": false,
+  "display_indices": [
+    0,
+    32,
+    64,
+    96,
+    128,
+    160,
+    192,
+    224
+  ]
+}
