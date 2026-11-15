@@ -6,7 +6,11 @@ Abrir `index.html` en el navegador. Funciona sin conexión: reveal.js está en `
 - `F`: pantalla completa. `Esc`: vista general.
 - Los botones ▶ reproducen un sonido por vez; cambiar de diapositiva lo corta.
 
-## Consigna → diapositivas
+La versión vigente tiene **69 diapositivas**, incluidos los agregados de audio y figuras. Reemplaza a las propuestas alternativas; `index.html` es el único archivo de presentación. Los 80 botones de audio conservan sus recursos.
+
+La tabla siguiente conserva la numeración de la base de 58 diapositivas, anterior a los agregados.
+
+## Consigna → diapositivas de la base original
 
 | Consigna | Diapositivas |
 |---|---|

@@ -12,3 +12,7 @@ solo agregar».
   de reemplazar la diapositiva AE/VAE queda descartada.
 - Distinguir cambios propios de los incorporados desde el remoto. No revertir
   trabajo de otros para deshacer una edición propia inexistente.
+
+## Actualización explícita del usuario, 15/11/2026
+
+El usuario autorizó reemplazar también la presentación original por la anteúltima propuesta, que ya contiene toda la base, y borrar las demás alternativas. La presentación consolidada es `index.html` (69 diapositivas), idéntica a la antigua `con_agregados_hilo_completo.html`. Esta autorización permite esa sustitución concreta.
