@@ -11,6 +11,6 @@ mosaicos grandes en Git; se regeneran con `python -m src.analysis.nsynth_samplin
 desde las corridas completas. La copia de lectura en Windows también los conserva.
 La evaluación reutiliza el informe terminado si los hashes coinciden.
 
-Un AE con densidad ajustada conserva los mismos pesos y objetivo. Estas distancias
+Hay cuatro métodos: N(0,I) y gaussiana ajustada, para AE y para VAE. Un AE con densidad ajustada conserva los mismos pesos y objetivo. Estas distancias
 no son calidad auditiva ni pruebas de novedad o generalización. Una semilla de
 modelo y notas de entrenamiento: ver el informe de controles para el alcance.

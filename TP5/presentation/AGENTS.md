@@ -20,3 +20,7 @@ El usuario autorizó reemplazar también la presentación original por la anteú
 ## Actualización explícita del usuario, 15/11/2026 (2)
 
 El usuario autorizó quitar la diapositiva «Una salida diferente no demuestra novedad» y mover su salvedad a las notas de «El VAE genera notas nuevas, no copias del dataset». `index.html` queda con 68 diapositivas. Para todo lo demás se mantiene la regla de solo agregar.
+
+## Actualización explícita del usuario, 15/11/2026 (3)
+
+El usuario autorizó rehacer «Otro sorteo acerca el AE a notas conocidas»: ahora es «Sortear de una gaussiana ajustada acerca a los dos», con la gaussiana ajustada aplicada también al VAE.

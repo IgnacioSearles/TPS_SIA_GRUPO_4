@@ -1,7 +1,7 @@
 {
   "status": "completed",
   "inputs": {
-    "version": 1,
+    "version": 2,
     "count": 256,
     "generation_seed": 2026111900,
     "preview_indices": [
@@ -12,48 +12,55 @@
       4,
       5
     ],
-    "training_samples_sha256": "012a6c668d4b66cc9577ce7db13bc105a9239db7cc260d4deef30c4ae4a5fe9d",
+    "training_samples_sha256": "02f8bf31fc4fd7215b6b13b4903a68a3b4cc90511b4f94df593bc680508ee046",
     "model_seed": 7,
-    "covariance": "full sample N-1, fitted to training codes only",
+    "covariance": "full sample N-1, fitted to the training codes of each model (VAE: posterior means)",
     "sources": [
       {
-        "run": "results/ej2_nsynth_sampling_control_ae/base__seed=7",
-        "model_sha256": "545c7a558fd0e8f7967f3baa357dc795a19129f573f57437891887a54823f9cb",
-        "config_sha256": "29f02a896528f2d4f3ece95151f78e946500190f58dc14e09d9491aaf69d18e2"
+        "run": "results\\ej2_nsynth_sampling_control_ae\\base__seed=7",
+        "model_sha256": "d1c32fa2199c4612835c4129608c755bcb9a3ea157d9bec3a9c00fce29cdecae",
+        "config_sha256": "ed7423721792445731dd6d6f788e6e4b54f4c59ab756f5e6cd76a91fb28d0b8a"
       },
       {
-        "run": "results/ej2_nsynth_sampling_control_vae/base__seed=7",
-        "model_sha256": "de8d9748663e32fcf2cb6c0a698bc40aa2e1a8079270eca0c5df848c86c4f53d",
-        "config_sha256": "a77f486e32575079fa77d1c90da95e0da0ab081d07a4bb9ce9fd64905cfeda19"
+        "run": "results\\ej2_nsynth_sampling_control_vae\\base__seed=7",
+        "model_sha256": "ae0da7fd74f844f4bdd19efdeddbb54631859f8a28cc947999cc63b518bf876f",
+        "config_sha256": "322cb325f5fb29a3eecbbcd2ccc9bfd2bfb22ba0bbbcc7976b6cc67a9895e6ef"
       }
     ],
     "code": {
-      "src/analysis/nsynth_sampling.py": "65c47b9ed1273a9e2ecbef4271916d16acaf9a94eb1c09d7764c21090dea230d",
-      "src/analysis/latent_sampling.py": "a12c43a1f7abb2cffc80a8a912fb0b07ebdcad8e18e2c3c7216601eb6c56d9e8",
-      "src/data/audio.py": "a64d06d344df2a043eeac1b7fec524013ba28567ab7a466d5f4469faa0fa39e0"
+      "src/analysis/nsynth_sampling.py": "10b008019e9deccca695053b40c5e28b028bcbeddf93f11e53ca56e148ca1696",
+      "src/analysis/latent_sampling.py": "8b04a16e9fb81bf51b60749d0c7bdf6f27216ac9af369ed51cfaa006ea17ccf4",
+      "src/data/audio.py": "a3cc79370464eb000db43378a5ed67220fdc754c97d7d4b62c544d5827286963"
     }
   },
   "rows": [
     {
       "method": "ae_standard",
       "count": 256,
-      "nearest_train_mse": 0.03212855408984328,
-      "pairwise_mse": 0.0518412461425861,
-      "mean_value": 0.2002047598361969
+      "nearest_train_mse": 0.03280651306838774,
+      "pairwise_mse": 0.053334597061987454,
+      "mean_value": 0.21218270063400269
     },
     {
       "method": "ae_fitted",
       "count": 256,
-      "nearest_train_mse": 0.017565757480593584,
-      "pairwise_mse": 0.05836287883743242,
-      "mean_value": 0.13812118768692017
+      "nearest_train_mse": 0.01733056027365122,
+      "pairwise_mse": 0.057389391462583206,
+      "mean_value": 0.13720494508743286
     },
     {
       "method": "vae_standard",
       "count": 256,
-      "nearest_train_mse": 0.017086588939199267,
-      "pairwise_mse": 0.043277648777803365,
-      "mean_value": 0.15918081998825073
+      "nearest_train_mse": 0.01716647045141079,
+      "pairwise_mse": 0.04400990453814473,
+      "mean_value": 0.1628645360469818
+    },
+    {
+      "method": "vae_fitted",
+      "count": 256,
+      "nearest_train_mse": 0.014623813288306677,
+      "pairwise_mse": 0.050304891348193166,
+      "mean_value": 0.15608501434326172
     }
   ],
   "training_during_evaluation": false,
@@ -67,5 +74,5 @@
     "mel_bands": 128,
     "dynamic_range_db": 70.0
   },
-  "interpretation": "Distances/diversity are descriptive, not perceptual quality, novelty or generalization. One model seed; a fitted Gaussian can cross low-density latent regions. New reproductions, not the missing original presentation weights."
+  "interpretation": "Distances/diversity are descriptive, not perceptual quality, novelty or generalization. One model seed; a fitted Gaussian can cross low-density latent regions. Both models get the same fitted-Gaussian treatment, so the comparison is symmetric. New reproductions, not the missing original presentation weights."
 }

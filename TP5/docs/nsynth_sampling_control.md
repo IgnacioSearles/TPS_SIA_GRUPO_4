@@ -4,7 +4,8 @@
 
 ¿Cuánto del contraste AE/VAE al generar desde N(0,I) proviene de que esa
 distribución coincide mejor con los códigos del VAE? Se agrega una tercera
-alternativa: ajustar una gaussiana global a los códigos de entrenamiento del AE.
+alternativa: ajustar una gaussiana global a los códigos de entrenamiento, y se
+aplica a los dos modelos (AE y VAE) para que la comparación sea simétrica.
 
 Los pesos usados para crear los audios originales de la presentación no estaban
 en este checkout. Se reproducen sus configuraciones en dos corridas nuevas, con
@@ -28,6 +29,7 @@ El evaluador usa 256 vectores normales base, semilla 2026111900:
 - AE ajustado: z = media + raíz(covarianza) · epsilon. Media y covarianza muestral
   completa se ajustan exclusivamente a los códigos de entrenamiento del AE.
 - VAE estándar: z = epsilon.
+- VAE ajustado: igual que el AE ajustado, sobre las medias de q(z|x) del VAE.
 
 El ajuste usa raíz simétrica por autovalores; solo recorta negativos de redondeo.
 No se ajustan hiperparámetros sobre las generaciones. Los códigos de cada modelo
