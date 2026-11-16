@@ -1,0 +1,65 @@
+{
+  "real_notes": [
+    {
+      "note": "bass_electronic_018-060-075",
+      "distortion_db": {
+        "actual": 0.9084442348133586,
+        "pghi": 0.8130289532090078,
+        "256_bandas": 0.9190867737422205,
+        "256_bandas_pghi": 0.8274957944797832
+      }
+    },
+    {
+      "note": "brass_acoustic_006-060-100",
+      "distortion_db": {
+        "actual": 6.664339076813491,
+        "pghi": 6.5790958578769345,
+        "256_bandas": 3.7931310429179845,
+        "256_bandas_pghi": 3.564684899619892
+      }
+    },
+    {
+      "note": "guitar_acoustic_010-060-100",
+      "distortion_db": {
+        "actual": 2.675688056587904,
+        "pghi": 2.4954007423237066,
+        "256_bandas": 1.4448738638172496,
+        "256_bandas_pghi": 0.9997721150881257
+      }
+    },
+    {
+      "note": "keyboard_electronic_002-060-050",
+      "distortion_db": {
+        "actual": 2.287644036687559,
+        "pghi": 2.126773879901078,
+        "256_bandas": 1.7712673062505058,
+        "256_bandas_pghi": 1.4454884867905737
+      }
+    },
+    {
+      "note": "string_acoustic_014-060-025",
+      "distortion_db": {
+        "actual": 0.9681398689117121,
+        "pghi": 0.9342173221765935,
+        "256_bandas": 1.1606710715427817,
+        "256_bandas_pghi": 1.0864893520182999
+      }
+    },
+    {
+      "note": "vocal_acoustic_000-060-050",
+      "distortion_db": {
+        "actual": 3.9479236297142433,
+        "pghi": 3.825219140938022,
+        "256_bandas": 2.828716316543738,
+        "256_bandas_pghi": 2.6753164280254813
+      }
+    }
+  ],
+  "generated": [
+    "vae_muestra_0",
+    "vae_muestra_1",
+    "vae_muestra_2"
+  ],
+  "refinement_iterations": 60,
+  "distortion": "log-spectral distance to the original, 70 dB floor, mean over frames"
+}

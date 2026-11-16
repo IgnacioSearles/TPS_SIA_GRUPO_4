@@ -1,0 +1,234 @@
+<title>Codec Listening Test</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one column of listening tables, rows = notes, columns = ways of turning a spectrogram back into audio. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --fg: #1b2330; --muted: #5d6878; --line: #dde2e9;
+  --accent: #2a62c9; --accent-soft: #e5edfb; --playing: #c2410c;
+  --sans: "IBM Plex Sans", system-ui, sans-serif; --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12161d; --surface: #1a2029; --fg: #e4e8ee; --muted: #9aa4b2; --line: #2c3442;
+  --accent: #7ea6f0; --accent-soft: #1f2d47; --playing: #f08a4b; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #12161d; --surface: #1a2029; --fg: #e4e8ee; --muted: #9aa4b2; --line: #2c3442;
+  --accent: #7ea6f0; --accent-soft: #1f2d47; --playing: #f08a4b; color-scheme: dark }
+body { background: var(--bg); color: var(--fg); font: 15px/1.5 var(--sans);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 48px; }
+main { max-width: 980px; margin: 0 auto; display: grid; gap: 28px; }
+h1 { font-size: 26px; font-weight: 600; margin: 0; text-wrap: balance; }
+h2 { font-size: 18px; font-weight: 600; margin: 0 0 4px; }
+p { margin: 0; max-width: 68ch; }
+.muted { color: var(--muted); }
+header { display: grid; gap: 10px; }
+.methods { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+.method { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; min-width: 0; }
+.method b { display: block; font-weight: 600; }
+.method span { color: var(--muted); font-size: 13px; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+button { font: inherit; cursor: pointer; border-radius: 5px; }
+.toggle { border: 1px solid var(--line); background: var(--surface); color: var(--fg); padding: 6px 12px; }
+.toggle[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+table { border-collapse: collapse; width: 100%; min-width: 640px; }
+th, td { padding: 9px 10px; text-align: center; border-bottom: 1px solid var(--line); }
+tr:last-child td { border-bottom: 0; }
+th { font-size: 13px; font-weight: 500; color: var(--muted); }
+th:first-child, td:first-child { text-align: left; }
+.note { font-family: var(--mono); font-size: 13px; }
+.note small { display: block; color: var(--muted); font-family: var(--sans); }
+.play { border: 1px solid var(--accent); background: transparent; color: var(--accent); padding: 4px 12px; min-width: 64px; }
+.play.on { background: var(--playing); border-color: var(--playing); color: var(--surface); }
+.db { display: block; font-family: var(--mono); font-size: 12px; color: var(--muted); margin-top: 3px; font-variant-numeric: tabular-nums; }
+.cell-label { display: none; font-size: 12px; font-weight: 600; color: var(--fg); margin-top: 3px; }
+.shuffled .db { visibility: hidden; }
+.shuffled .label-real { display: none; }
+.label-blind { display: none; }
+.shuffled .label-blind { display: inline; }
+.shuffled.revealed .db { visibility: visible; }
+.shuffled.revealed .cell-label { display: block; }
+@media (prefers-reduced-motion: no-preference) { .play { transition: background .12s, color .12s; } }
+</style>
+
+<main>
+  <header>
+    <h1>Codec listening test</h1>
+    <p class="muted">The same spectrogram turned back into audio in four ways. Real notes at middle C (MIDI 60), one per family, plus three samples from the control VAE. Headphones help. Listen for a buzzy, metallic ring on steady notes.</p>
+    <div class="methods">
+      <div class="method"><b>Current</b><span>128 bands · NNLS · Griffin-Lim 60, random start</span></div>
+      <div class="method"><b>PGHI</b><span>128 bands · NNLS · phase from PGHI, then 60 Griffin-Lim steps</span></div>
+      <div class="method"><b>256 bands</b><span>Twice the mel bands · current phase method · needs retraining</span></div>
+      <div class="method"><b>256 + PGHI</b><span>Both changes together · needs retraining</span></div>
+    </div>
+    <div class="controls">
+      <button class="toggle" id="blind-toggle" type="button" aria-pressed="false">Start blind test</button>
+      <button class="toggle" id="reveal-toggle" type="button" aria-pressed="false" hidden>Reveal</button>
+      <span class="muted" id="blind-hint">The number under each button is the distortion against the original, in dB (lower is closer).</span>
+    </div>
+  </header>
+
+  <section>
+    <h2>Real notes</h2>
+    <p class="muted">Each row starts with the original recording, so you can tell what the codec adds.</p>
+    <div class="table-wrap" style="margin-top:10px"><table id="real"></table></div>
+  </section>
+
+  <section>
+    <h2>Generated by the VAE</h2>
+    <p class="muted">These only exist in 128 bands, so only the phase method can change. There is no original to compare against.</p>
+    <div class="table-wrap" style="margin-top:10px"><table id="generated"></table></div>
+  </section>
+</main>
+
+<script>
+const METHODS = [
+  { key: "actual", label: "Current" },
+  { key: "pghi", label: "PGHI" },
+  { key: "256_bandas", label: "256 bands" },
+  { key: "256_bandas_pghi", label: "256 + PGHI" },
+];
+const FAMILY = { bass: "bass", brass: "brass", guitar: "guitar", keyboard: "keyboard", string: "strings", vocal: "voice" };
+const REAL_NOTES = [
+  ["bass_electronic_018-060-075", { actual: 0.9, pghi: 0.8, "256_bandas": 0.9, "256_bandas_pghi": 0.8 }],
+  ["brass_acoustic_006-060-100", { actual: 6.7, pghi: 6.6, "256_bandas": 3.8, "256_bandas_pghi": 3.6 }],
+  ["guitar_acoustic_010-060-100", { actual: 2.7, pghi: 2.5, "256_bandas": 1.4, "256_bandas_pghi": 1.0 }],
+  ["keyboard_electronic_002-060-050", { actual: 2.3, pghi: 2.1, "256_bandas": 1.8, "256_bandas_pghi": 1.4 }],
+  ["string_acoustic_014-060-025", { actual: 1.0, pghi: 0.9, "256_bandas": 1.2, "256_bandas_pghi": 1.1 }],
+  ["vocal_acoustic_000-060-050", { actual: 3.9, pghi: 3.8, "256_bandas": 2.8, "256_bandas_pghi": 2.7 }],
+];
+const GENERATED = ["vae_muestra_0", "vae_muestra_1", "vae_muestra_2"];
+const GENERATED_METHODS = METHODS.slice(0, 2);
+
+const player = new Audio();
+let activeButton = null;
+
+function stopPlaying() {
+  player.pause();
+  if (activeButton) { activeButton.classList.remove("on"); activeButton.textContent = "play"; }
+  activeButton = null;
+}
+
+function playButton(file) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "play";
+  button.textContent = "play";
+  button.addEventListener("click", () => {
+    const wasActive = activeButton === button;
+    stopPlaying();
+    if (wasActive) return;
+    player.src = file;
+    player.currentTime = 0;
+    player.play().catch(() => stopPlaying());
+    activeButton = button;
+    button.classList.add("on");
+    button.textContent = "stop";
+  });
+  return button;
+}
+player.addEventListener("ended", stopPlaying);
+
+function cell(file, distortion, label) {
+  const td = document.createElement("td");
+  td.append(playButton(file));
+  if (label) {
+    const name = document.createElement("span");
+    name.className = "cell-label";
+    name.textContent = label;
+    td.append(name);
+  }
+  if (distortion !== undefined) {
+    const db = document.createElement("span");
+    db.className = "db";
+    db.textContent = `${distortion.toFixed(1)} dB`;
+    td.append(db);
+  }
+  return td;
+}
+
+function headerRow(columns) {
+  const tr = document.createElement("tr");
+  for (const text of columns) {
+    const th = document.createElement("th");
+    th.innerHTML = text;
+    tr.append(th);
+  }
+  return tr;
+}
+
+function noteCell(name) {
+  const td = document.createElement("td");
+  td.className = "note";
+  const family = FAMILY[name.split("_")[0]];
+  td.innerHTML = family ? `${family}<small>${name}</small>` : name.replace("vae_muestra_", "sample ");
+  return td;
+}
+
+function shuffled(items, seed) {
+  const copy = items.slice();
+  let state = seed;
+  for (let index = copy.length - 1; index > 0; index--) {
+    state = (state * 1103515245 + 12345) % 2147483648;
+    const other = state % (index + 1);
+    [copy[index], copy[other]] = [copy[other], copy[index]];
+  }
+  return copy;
+}
+
+function methodHeader(method, letter) {
+  return `<span class="label-real">${method.label}</span><span class="label-blind">${letter}</span>`;
+}
+
+function render(blind) {
+  stopPlaying();
+  document.body.classList.toggle("shuffled", blind);
+  document.body.classList.remove("revealed");
+  const letters = "ABCD";
+  const real = document.getElementById("real");
+  real.replaceChildren(headerRow(["Note", "Original", ...METHODS.map((m, i) => methodHeader(m, letters[i]))]));
+  REAL_NOTES.forEach(([name, distortion], row) => {
+    const tr = document.createElement("tr");
+    tr.append(noteCell(name), cell(`${name}__original.wav`));
+    const order = blind ? shuffled(METHODS, row + 7) : METHODS;
+    for (const method of order) tr.append(cell(`${name}__${method.key}.wav`, distortion[method.key], method.label));
+    real.append(tr);
+  });
+  const generated = document.getElementById("generated");
+  generated.replaceChildren(headerRow(["Sample", ...GENERATED_METHODS.map((m, i) => methodHeader(m, letters[i]))]));
+  GENERATED.forEach((name, row) => {
+    const tr = document.createElement("tr");
+    tr.append(noteCell(name));
+    const order = blind ? shuffled(GENERATED_METHODS, row + 3) : GENERATED_METHODS;
+    for (const method of order) tr.append(cell(`${name}__${method.key}.wav`, undefined, method.label));
+    generated.append(tr);
+  });
+}
+
+const NORMAL_HINT = "The number under each button is the distortion against the original, in dB (lower is closer).";
+const BLIND_HINT = "Columns are shuffled in every row and the numbers are hidden. Pick your favourite in each row, then press Reveal.";
+const REVEALED_HINT = "Each button now shows which method it was. The order stays as you heard it.";
+const toggle = document.getElementById("blind-toggle");
+const reveal = document.getElementById("reveal-toggle");
+const hint = document.getElementById("blind-hint");
+toggle.addEventListener("click", () => {
+  const blind = toggle.getAttribute("aria-pressed") !== "true";
+  toggle.setAttribute("aria-pressed", String(blind));
+  toggle.textContent = blind ? "End blind test" : "Start blind test";
+  reveal.hidden = !blind;
+  reveal.setAttribute("aria-pressed", "false");
+  hint.textContent = blind ? BLIND_HINT : NORMAL_HINT;
+  render(blind);
+});
+reveal.addEventListener("click", () => {
+  const revealed = !document.body.classList.contains("revealed");
+  document.body.classList.toggle("revealed", revealed);
+  reveal.setAttribute("aria-pressed", String(revealed));
+  reveal.textContent = revealed ? "Hide again" : "Reveal";
+  hint.textContent = revealed ? REVEALED_HINT : BLIND_HINT;
+});
+render(false);
+</script>

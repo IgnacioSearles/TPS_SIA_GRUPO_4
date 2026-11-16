@@ -1,8 +1,8 @@
 """Conversión entre audio y espectrogramas mel normalizados a [0, 1].
 
 La red solo ve magnitudes en bandas mel; para volver a audio se reconstruye
-el espectro lineal (mínimos cuadrados no negativos) y se estima la fase con
-Griffin-Lim. Ese ida y vuelta pierde calidad aun sin red de por medio, por lo
+el espectro lineal (mínimos cuadrados no negativos) y se estima la fase: un punto
+de partida por PGHI (src/data/phase.py), refinado con Griffin-Lim. Ese ida y vuelta pierde calidad aun sin red de por medio, por lo
 que conviene comparar siempre contra el original pasado por el códec.
 """
 
@@ -17,6 +17,7 @@ import numpy as np
 from scipy.io import wavfile
 from scipy.signal import istft, stft
 
+from src.data.phase import phase_from_magnitude
 from src.options import ConfigurationError, Options
 
 Array = np.ndarray
@@ -25,7 +26,9 @@ _MEL_BREAK_FREQUENCY = 700.0
 _MEL_SCALE = 2595.0
 _GRIFFIN_LIM_PHASE_SEED = 0
 _INT16_PEAK = 32767
-_DECODING_ONLY_FIELDS = ("griffin_lim_iterations", "mel_inversion_iterations")
+_DECODING_ONLY_FIELDS = ("griffin_lim_iterations", "mel_inversion_iterations", "phase_initialization")
+# "pghi": fase coherente entre cuadros, sin el timbre metálico; "random": la de Griffin-Lim clásico.
+_PHASE_INITIALIZATIONS = ("pghi", "random")
 
 
 @dataclass(frozen=True)
@@ -38,6 +41,7 @@ class SpectrogramCodec:
     dynamic_range_db: float = 70.0
     griffin_lim_iterations: int = 60
     mel_inversion_iterations: int = 200
+    phase_initialization: str = "pghi"
 
     def __post_init__(self) -> None:
         if self.hop_length < 1 or self.fft_size % self.hop_length != 0:
@@ -48,6 +52,8 @@ class SpectrogramCodec:
             raise ConfigurationError("duration_seconds y dynamic_range_db deben ser positivos")
         if self.griffin_lim_iterations < 0 or self.mel_inversion_iterations < 0:
             raise ConfigurationError("Las iteraciones de decodificación no pueden ser negativas")
+        if self.phase_initialization not in _PHASE_INITIALIZATIONS:
+            raise ConfigurationError(f"phase_initialization debe ser uno de {_PHASE_INITIALIZATIONS}")
 
     def encoding_parameters(self) -> dict[str, int | float]:
         """Campos que determinan el espectrograma codificado (identifican una caché)."""
@@ -104,12 +110,16 @@ class SpectrogramCodec:
         return self._fit_duration(waveform)
 
     def _griffin_lim(self, magnitudes: Array) -> Array:
-        rng = np.random.default_rng(_GRIFFIN_LIM_PHASE_SEED)
-        spectrum = magnitudes * np.exp(2j * np.pi * rng.random(magnitudes.shape))
+        spectrum = magnitudes * np.exp(1j * self._initial_phase(magnitudes))
         for _ in range(self.griffin_lim_iterations):
             estimate = self._transform(self._inverse_transform(spectrum))
             spectrum = magnitudes * np.exp(1j * np.angle(estimate))
         return self._inverse_transform(spectrum)
+
+    def _initial_phase(self, magnitudes: Array) -> Array:
+        if self.phase_initialization == "pghi":
+            return phase_from_magnitude(magnitudes, self.hop_length, self.fft_size, seed=_GRIFFIN_LIM_PHASE_SEED)
+        return 2 * np.pi * np.random.default_rng(_GRIFFIN_LIM_PHASE_SEED).random(magnitudes.shape)
 
     def _fit_duration(self, waveform: Array) -> Array:
         fitted = np.zeros(self.sample_count)
