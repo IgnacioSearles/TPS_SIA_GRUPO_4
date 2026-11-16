@@ -58,6 +58,8 @@ body { background: #fff; color: var(--ink); }
 /* Figure: the conclusion as title, the evidence below, optional take line. */
 .reveal section.figure figure { margin: 0; height: 500px; display: flex; align-items: center; justify-content: center; }
 .reveal section.figure.has-take figure { height: 440px; }
+.reveal section.figure .definition { font-size: 24px; color: var(--muted); margin: 0 0 8px; }
+.reveal section.figure.has-take .definition + figure { height: 400px; }
 .reveal section.figure figure img { width: 100%; height: 100%; object-fit: contain; margin: 0; max-width: none; max-height: none; }
 
 /* Side: figure on the left, two or three big points on the right. */
