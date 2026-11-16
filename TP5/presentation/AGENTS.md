@@ -16,3 +16,7 @@ solo agregar».
 ## Actualización explícita del usuario, 15/11/2026
 
 El usuario autorizó reemplazar también la presentación original por la anteúltima propuesta, que ya contiene toda la base, y borrar las demás alternativas. La presentación consolidada es `index.html` (69 diapositivas), idéntica a la antigua `con_agregados_hilo_completo.html`. Esta autorización permite esa sustitución concreta.
+
+## Actualización explícita del usuario, 15/11/2026 (2)
+
+El usuario autorizó quitar la diapositiva «Una salida diferente no demuestra novedad» y mover su salvedad a las notas de «El VAE genera notas nuevas, no copias del dataset». `index.html` queda con 68 diapositivas. Para todo lo demás se mantiene la regla de solo agregar.

@@ -1,4 +1,4 @@
-"""Control AE ajustado vs. prior estándar sobre las mismas notas NSynth.
+"""Prior estándar vs. gaussiana ajustada, para AE y VAE, sobre las mismas notas NSynth.
 
 No mide generalización ni calidad perceptual: los datos son los de entrenamiento
 del protocolo original. No cambia pesos, pérdida ni el códec.
@@ -25,8 +25,8 @@ from src.experiments.runner import load_run
 from src.options import ConfigurationError
 
 ROOT=Path(__file__).resolve().parents[2]
-METHODS=('ae_standard','ae_fitted','vae_standard')
-LABELS=('AE: N(0,I)','AE: gaussiana ajustada','VAE: N(0,I)')
+METHODS=('ae_standard','ae_fitted','vae_standard','vae_fitted')
+LABELS=('AE: N(0,I)','AE: gaussiana ajustada','VAE: N(0,I)','VAE: gaussiana ajustada')
 
 
 def validate_pair(configs,datasets):
@@ -62,9 +62,9 @@ def compare(root=ROOT):
             metadata=json.loads(str(checkpoint['metadata']))
         if metadata['signature']['samples']!=fingerprint:
             raise ConfigurationError('Las notas actuales difieren de las usadas al entrenar')
-    inputs={'version':1,'count':256,'generation_seed':2026111900,'preview_indices':list(range(6)),
+    inputs={'version':2,'count':256,'generation_seed':2026111900,'preview_indices':list(range(6)),
             'training_samples_sha256':fingerprint,
-            'model_seed':7,'covariance':'full sample N-1, fitted to training codes only',
+            'model_seed':7,'covariance':'full sample N-1, fitted to the training codes of each model (VAE: posterior means)',
             'sources':[{'run':str(p.relative_to(root)),
                         'model_sha256':file_hash(p/'model.npz'),
                         'config_sha256':file_hash(p/'config.json')} for p in sources],
@@ -77,17 +77,18 @@ def compare(root=ROOT):
         return old
     if data.audio_codec is None:raise ConfigurationError('El control requiere audio')
     epsilon=np.random.default_rng(inputs['generation_seed']).standard_normal((inputs['count'],ae.latent_size))
-    codes=ae.encode(data.samples.astype(ae.precision))
-    mean,covariance,square_root=fit_gaussian(codes)
-    coordinates=[epsilon.astype(ae.precision),
-                 (epsilon@square_root.T+mean).astype(ae.precision),epsilon.astype(vae.precision)]
-    samples=[ae.decode(coordinates[0]),ae.decode(coordinates[1]),vae.decode(coordinates[2])]
     output.mkdir(parents=True,exist_ok=True)
-    np.savez_compressed(output/'fitted_gaussian.npz',mean=mean,covariance=covariance,
-                        square_root=square_root,epsilon=epsilon)
+    coordinates,samples=[],[]
+    for name,model in (('ae',ae),('vae',vae)):
+        mean,covariance,square_root=fit_gaussian(model.encode(data.samples.astype(model.precision)))
+        np.savez_compressed(output/f'fitted_gaussian_{name}.npz',mean=mean,covariance=covariance,
+                            square_root=square_root,epsilon=epsilon)
+        for z in (epsilon,epsilon@square_root.T+mean):
+            coordinates.append(z.astype(model.precision))
+            samples.append(model.decode(coordinates[-1]))
     rows=[]
     shape=data.image_shape
-    figure,axes=plt.subplots(3,6,figsize=(13,7))
+    figure,axes=plt.subplots(len(METHODS),6,figsize=(13,9))
     for method_index,(method,label,generated,z) in enumerate(zip(METHODS,LABELS,samples,coordinates)):
         directory=output/method;directory.mkdir(exist_ok=True)
         distances,indices=nearest_training(generated,data.samples)
@@ -122,6 +123,7 @@ def compare(root=ROOT):
             'codec':data.audio_codec.encoding_parameters(),
             'interpretation':'Distances/diversity are descriptive, not perceptual quality, novelty or generalization. '
                              'One model seed; a fitted Gaussian can cross low-density latent regions. '
+                             'Both models get the same fitted-Gaussian treatment, so the comparison is symmetric. '
                              'New reproductions, not the missing original presentation weights.'}
     (output/'manifest.json').write_text(json.dumps(result,indent=2,ensure_ascii=False)+'\n')
     return result
