@@ -1,0 +1,9 @@
+{
+  "pid": 531465,
+  "jobs": 6,
+  "threads_per_worker": 1,
+  "expected_runs": 9,
+  "command": "bash scripts/run_audio_conv_beta_pilot.sh 6",
+  "status": "cancelled_by_user",
+  "cancelled_at": "2026-11-16T01:56:39.813430+00:00"
+}

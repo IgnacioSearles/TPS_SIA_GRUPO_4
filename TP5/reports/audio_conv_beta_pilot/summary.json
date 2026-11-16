@@ -1,0 +1,73 @@
+{
+  "status": "incomplete",
+  "missing": [
+    "results/ej2_audio_conv_beta_pilot_beta005/base__seed=7",
+    "results/ej2_audio_conv_beta_pilot_beta005/base__seed=17",
+    "results/ej2_audio_conv_beta_pilot_beta005/base__seed=27",
+    "results/ej2_audio_conv_beta_pilot_beta050/base__seed=7",
+    "results/ej2_audio_conv_beta_pilot_beta050/base__seed=17",
+    "results/ej2_audio_conv_beta_pilot_beta050/base__seed=27",
+    "results/ej2_audio_conv_beta_pilot_beta100/base__seed=7",
+    "results/ej2_audio_conv_beta_pilot_beta100/base__seed=17",
+    "results/ej2_audio_conv_beta_pilot_beta100/base__seed=27"
+  ],
+  "completed_runs": 0,
+  "expected_runs": 9,
+  "codec_reliable": null,
+  "aggregates": [],
+  "protocol": {
+    "protocol": "audio_conv_beta_pilot_v1",
+    "seeds": [
+      7,
+      17,
+      27
+    ],
+    "arms": {
+      "beta005": 0.05,
+      "beta050": 0.5,
+      "beta100": 1.0
+    },
+    "parents": [
+      {
+        "seed": 7,
+        "parent": "results/ej2_audio_conv_conv_omitted/base__seed=7/checkpoint.npz",
+        "parent_epoch": 160,
+        "weights": "results/audio_conv_beta_pilot/parents/seed=7/model.npz",
+        "weights_sha256": "a85d226968d27c794d16c8c4187631f2aba2070dbec169a7e877c2271d2a8536",
+        "parent_elapsed_seconds": 5463.011528730996
+      },
+      {
+        "seed": 17,
+        "parent": "results/ej2_audio_conv_conv_omitted/base__seed=17/checkpoint.npz",
+        "parent_epoch": 150,
+        "weights": "results/audio_conv_beta_pilot/parents/seed=17/model.npz",
+        "weights_sha256": "b422cfebd18996fca2d58e381a874aa951a4f029c85bf6aa9ce4c721b1d69f68",
+        "parent_elapsed_seconds": 5115.848077561997
+      },
+      {
+        "seed": 27,
+        "parent": "results/ej2_audio_conv_conv_omitted/base__seed=27/checkpoint.npz",
+        "parent_epoch": 160,
+        "weights": "results/audio_conv_beta_pilot/parents/seed=27/model.npz",
+        "weights_sha256": "58b5ba8f552147e294a637e8cc7723765c99a1d2f928f36c80faf987261d1232",
+        "parent_elapsed_seconds": 5360.533287911003
+      }
+    ],
+    "epochs_per_arm": 20,
+    "learning_rate": 0.0003,
+    "optimizer_reset": true,
+    "rng_reset_identical_across_arms": true,
+    "same_training_data_across_arms": true,
+    "targets_validation": [
+      51,
+      57,
+      63
+    ],
+    "reserved_not_used": [
+      55,
+      61,
+      67
+    ],
+    "interpretation": "Exploratory continuation from the same frozen weights per seed. Parent epochs can differ across seeds because snapshots come from a running study; all beta arms within a seed use exactly the same parent. Not equivalent to training each beta from scratch, nor to exact Adam resume. Compare with beta0.5 fork, not main epoch200 run. No automatic final-test selection."
+  }
+}

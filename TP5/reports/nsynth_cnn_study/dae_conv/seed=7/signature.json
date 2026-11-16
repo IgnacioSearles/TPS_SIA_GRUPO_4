@@ -1,0 +1,13 @@
+{
+  "protocol": "nsynth_cnn_evaluation_v1",
+  "weights_sha256": "d08bab8773beea761a77a055f61333a0433bdb10bdc2519dcc17ea9386bd33cf",
+  "data_sha256": "210a721c8533bf8532a47bce5909c9f8e059666c78a5e51ee3a5ad79cf99368b",
+  "noise_levels": [
+    0.0,
+    0.05,
+    0.1,
+    0.2
+  ],
+  "generation_count": 64,
+  "seed": 7
+}

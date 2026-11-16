@@ -1,0 +1,56 @@
+{
+  "old_limit": 100,
+  "new_limit": 200,
+  "resumed": [
+    {
+      "condition": "ej2_nsynth_cnn_dae_conv",
+      "seed": 7,
+      "resumed_epoch": 5,
+      "arrays_sha256": "096358e781605b0193019ca1e04cd30f2abc5d1df4074e9ec045ff3608990b89",
+      "optimizer_rng_history_unchanged": true,
+      "backup": "results/nsynth_cnn_study/before_epoch_extension/ej2_nsynth_cnn_dae_conv_seed=7.npz"
+    },
+    {
+      "condition": "ej2_nsynth_cnn_dae_mlp",
+      "seed": 7,
+      "resumed_epoch": 30,
+      "arrays_sha256": "eecbf4aace8310e31e70290b1be6e3fc221ef843ca1c2f574ea2710102c603d0",
+      "optimizer_rng_history_unchanged": true,
+      "backup": "results/nsynth_cnn_study/before_epoch_extension/ej2_nsynth_cnn_dae_mlp_seed=7.npz"
+    },
+    {
+      "condition": "ej2_nsynth_cnn_vae_conv",
+      "seed": 7,
+      "resumed_epoch": 5,
+      "arrays_sha256": "400bd6286af066102ff6c15035a5c9ac38fb866bb6b93806a93d95b311cd6775",
+      "optimizer_rng_history_unchanged": true,
+      "backup": "results/nsynth_cnn_study/before_epoch_extension/ej2_nsynth_cnn_vae_conv_seed=7.npz"
+    },
+    {
+      "condition": "ej2_nsynth_cnn_vae_mlp",
+      "seed": 7,
+      "resumed_epoch": 30,
+      "arrays_sha256": "0e000f10a4756bb3ccf08bdcc754505ebeff2764b5cf25081f71bb3037abad7a",
+      "optimizer_rng_history_unchanged": true,
+      "backup": "results/nsynth_cnn_study/before_epoch_extension/ej2_nsynth_cnn_vae_mlp_seed=7.npz"
+    },
+    {
+      "condition": "ej2_nsynth_cnn_vae_conv",
+      "seed": 17,
+      "resumed_epoch": 5,
+      "arrays_sha256": "e7e089eed736af932daa2819ddf5fd85c85b360f60fae3385531e9e260f2f3a9",
+      "optimizer_rng_history_unchanged": true,
+      "backup": "results/nsynth_cnn_study/before_epoch_extension/ej2_nsynth_cnn_vae_conv_seed=17.npz"
+    },
+    {
+      "condition": "ej2_nsynth_cnn_vae_mlp",
+      "seed": 17,
+      "resumed_epoch": 30,
+      "arrays_sha256": "71eeb370bf94dcb2a265eebb7de113c886dba47b892d7075cd5ee68b233f7893",
+      "optimizer_rng_history_unchanged": true,
+      "backup": "results/nsynth_cnn_study/before_epoch_extension/ej2_nsynth_cnn_vae_mlp_seed=17.npz"
+    }
+  ],
+  "reference_configs_epochs": 200,
+  "loss_optimizer_schedule_and_rng_unchanged": true
+}

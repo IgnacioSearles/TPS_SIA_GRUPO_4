@@ -1,5 +1,15 @@
 architecture,condition,method,trials,pitch_hits,pitch_rate,spectral_hits,spectral_rate,joint_hits,valid_rate,spectral_mse
+mlp,complete,vae_interpolation,27,16,0.5925925925925926,8,0.2962962962962963,8,1.0,0.015273429141248887
+mlp,complete,spectrogram_mix,27,27,1.0,0,0.0,0,1.0,0.01721700103453106
+mlp,complete,lower_neighbor,27,0,0.0,0,0.0,0,1.0,0.031180409065657354
+mlp,complete,target_reconstruction,27,27,1.0,27,1.0,27,1.0,0.000278949885250088
+mlp,omitted,vae_interpolation,27,22,0.8148148148148148,3,0.1111111111111111,3,1.0,0.017112423111250115
+mlp,omitted,spectrogram_mix,27,27,1.0,0,0.0,0,1.0,0.01721700103453106
+mlp,omitted,lower_neighbor,27,0,0.0,0,0.0,0,1.0,0.031180409065657354
 conv,complete,vae_interpolation,27,15,0.5555555555555556,11,0.4074074074074074,11,1.0,0.015513444805533601
 conv,complete,spectrogram_mix,27,27,1.0,0,0.0,0,1.0,0.01721700103453106
 conv,complete,lower_neighbor,27,0,0.0,0,0.0,0,1.0,0.031180409065657354
 conv,complete,target_reconstruction,27,27,1.0,27,1.0,27,1.0,0.0002677638251069735
+conv,omitted,vae_interpolation,27,11,0.4074074074074074,0,0.0,0,1.0,0.017510178389776414
+conv,omitted,spectrogram_mix,27,27,1.0,0,0.0,0,1.0,0.01721700103453106
+conv,omitted,lower_neighbor,27,0,0.0,0,0.0,0,1.0,0.031180409065657354

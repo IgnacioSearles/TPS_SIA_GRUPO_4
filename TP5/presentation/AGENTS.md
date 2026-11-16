@@ -32,3 +32,7 @@ Se agregan dos diapositivas después de «Sortear de una gaussiana ajustada acer
 ## Actualización explícita del usuario, 15/11/2026 (5)
 
 El usuario autorizó quitar «Las muestras del VAE quedan más cerca de notas reales»: la comparación con N(0,I) ya está en «Sortear de una gaussiana ajustada acerca a los dos», con la medida relativa a la energía. `index.html` queda con 69 diapositivas.
+
+## Agregado NSynth CNN, 16/11/2026
+
+A pedido del usuario se agregaron siete diapositivas58–64 con los resultados NSynth deCNN, manteniendo intactas las69 anteriores del remoto9744710. index.html es la única presentación; reports/nsynth_cnn_listening/index.html es una página de escucha, no otra presentación.

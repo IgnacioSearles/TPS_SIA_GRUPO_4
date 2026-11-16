@@ -1,0 +1,266 @@
+{
+  "runs": [
+    {
+      "architecture": "mlp",
+      "seed": 7,
+      "status": "complete",
+      "model_sha256": "e380c910d8fa973a217c3aa04cfd2a873274c7f76455e9eee3b5161910f7a4d8"
+    },
+    {
+      "architecture": "mlp",
+      "seed": 17,
+      "status": "complete",
+      "model_sha256": "6e6470fa9c827ef2fd601feb88360aed51f904dc3612251548041636a838d32e"
+    },
+    {
+      "architecture": "mlp",
+      "seed": 27,
+      "status": "complete",
+      "model_sha256": "fc33e057e47faea5a20b02c572992bf0f296f7e0077a5e1319f480bf8199e789"
+    },
+    {
+      "architecture": "conv",
+      "seed": 7,
+      "status": "complete",
+      "model_sha256": "4ac1700c90190ac2b694591f7473fa75ad8507065fcb83b8e448d1ff72eb2b00"
+    },
+    {
+      "architecture": "conv",
+      "seed": 17,
+      "status": "complete",
+      "model_sha256": "328a84b0d7d34bc4c46f2e3e38d165bead570d437bef27d0879303cf46d85ef3"
+    },
+    {
+      "architecture": "conv",
+      "seed": 27,
+      "status": "complete",
+      "model_sha256": "dcb257d0c00a76b41c6e4871077da58ce49af4df1f1ae908eea9bb0dd41dce16"
+    }
+  ],
+  "aggregates": [
+    {
+      "architecture": "conv",
+      "method": "decoded_neighbor_mix",
+      "fraction": 0.25,
+      "trials": 27,
+      "spectral_hits": 0,
+      "spectral_mse": 0.020803345329842723,
+      "pitch_trials": 0,
+      "pitch_hits": 0,
+      "invalid": 0,
+      "joint_hits": 0
+    },
+    {
+      "architecture": "conv",
+      "method": "decoded_neighbor_mix",
+      "fraction": 0.5,
+      "trials": 27,
+      "spectral_hits": 0,
+      "spectral_mse": 0.01740901174094358,
+      "pitch_trials": 27,
+      "pitch_hits": 27,
+      "invalid": 0,
+      "joint_hits": 0
+    },
+    {
+      "architecture": "conv",
+      "method": "decoded_neighbor_mix",
+      "fraction": 0.75,
+      "trials": 27,
+      "spectral_hits": 0,
+      "spectral_mse": 0.021031956547157112,
+      "pitch_trials": 0,
+      "pitch_hits": 0,
+      "invalid": 0,
+      "joint_hits": 0
+    },
+    {
+      "architecture": "conv",
+      "method": "latent_mix",
+      "fraction": 0.25,
+      "trials": 27,
+      "spectral_hits": 0,
+      "spectral_mse": 0.027583324686092484,
+      "pitch_trials": 0,
+      "pitch_hits": 0,
+      "invalid": 0,
+      "joint_hits": 0
+    },
+    {
+      "architecture": "conv",
+      "method": "latent_mix",
+      "fraction": 0.5,
+      "trials": 27,
+      "spectral_hits": 11,
+      "spectral_mse": 0.01551344419937758,
+      "pitch_trials": 27,
+      "pitch_hits": 15,
+      "invalid": 0,
+      "joint_hits": 11
+    },
+    {
+      "architecture": "conv",
+      "method": "latent_mix",
+      "fraction": 0.75,
+      "trials": 27,
+      "spectral_hits": 0,
+      "spectral_mse": 0.02763469044446558,
+      "pitch_trials": 0,
+      "pitch_hits": 0,
+      "invalid": 0,
+      "joint_hits": 0
+    },
+    {
+      "architecture": "conv",
+      "method": "spectrogram_mix",
+      "fraction": 0.25,
+      "trials": 27,
+      "spectral_hits": 0,
+      "spectral_mse": 0.02064876410085674,
+      "pitch_trials": 0,
+      "pitch_hits": 0,
+      "invalid": 0,
+      "joint_hits": 0
+    },
+    {
+      "architecture": "conv",
+      "method": "spectrogram_mix",
+      "fraction": 0.5,
+      "trials": 27,
+      "spectral_hits": 0,
+      "spectral_mse": 0.017217001050979786,
+      "pitch_trials": 27,
+      "pitch_hits": 27,
+      "invalid": 0,
+      "joint_hits": 0
+    },
+    {
+      "architecture": "conv",
+      "method": "spectrogram_mix",
+      "fraction": 0.75,
+      "trials": 27,
+      "spectral_hits": 0,
+      "spectral_mse": 0.020885120002949956,
+      "pitch_trials": 0,
+      "pitch_hits": 0,
+      "invalid": 0,
+      "joint_hits": 0
+    },
+    {
+      "architecture": "mlp",
+      "method": "decoded_neighbor_mix",
+      "fraction": 0.25,
+      "trials": 27,
+      "spectral_hits": 0,
+      "spectral_mse": 0.021292159749239422,
+      "pitch_trials": 0,
+      "pitch_hits": 0,
+      "invalid": 0,
+      "joint_hits": 0
+    },
+    {
+      "architecture": "mlp",
+      "method": "decoded_neighbor_mix",
+      "fraction": 0.5,
+      "trials": 27,
+      "spectral_hits": 0,
+      "spectral_mse": 0.017664238992062486,
+      "pitch_trials": 27,
+      "pitch_hits": 27,
+      "invalid": 0,
+      "joint_hits": 0
+    },
+    {
+      "architecture": "mlp",
+      "method": "decoded_neighbor_mix",
+      "fraction": 0.75,
+      "trials": 27,
+      "spectral_hits": 0,
+      "spectral_mse": 0.021279407121869244,
+      "pitch_trials": 0,
+      "pitch_hits": 0,
+      "invalid": 0,
+      "joint_hits": 0
+    },
+    {
+      "architecture": "mlp",
+      "method": "latent_mix",
+      "fraction": 0.25,
+      "trials": 27,
+      "spectral_hits": 0,
+      "spectral_mse": 0.025594640413065004,
+      "pitch_trials": 0,
+      "pitch_hits": 0,
+      "invalid": 0,
+      "joint_hits": 0
+    },
+    {
+      "architecture": "mlp",
+      "method": "latent_mix",
+      "fraction": 0.5,
+      "trials": 27,
+      "spectral_hits": 8,
+      "spectral_mse": 0.01527342841699372,
+      "pitch_trials": 27,
+      "pitch_hits": 16,
+      "invalid": 0,
+      "joint_hits": 8
+    },
+    {
+      "architecture": "mlp",
+      "method": "latent_mix",
+      "fraction": 0.75,
+      "trials": 27,
+      "spectral_hits": 0,
+      "spectral_mse": 0.027261271338122613,
+      "pitch_trials": 0,
+      "pitch_hits": 0,
+      "invalid": 0,
+      "joint_hits": 0
+    },
+    {
+      "architecture": "mlp",
+      "method": "spectrogram_mix",
+      "fraction": 0.25,
+      "trials": 27,
+      "spectral_hits": 0,
+      "spectral_mse": 0.02064876410085674,
+      "pitch_trials": 0,
+      "pitch_hits": 0,
+      "invalid": 0,
+      "joint_hits": 0
+    },
+    {
+      "architecture": "mlp",
+      "method": "spectrogram_mix",
+      "fraction": 0.5,
+      "trials": 27,
+      "spectral_hits": 0,
+      "spectral_mse": 0.017217001050979786,
+      "pitch_trials": 27,
+      "pitch_hits": 27,
+      "invalid": 0,
+      "joint_hits": 0
+    },
+    {
+      "architecture": "mlp",
+      "method": "spectrogram_mix",
+      "fraction": 0.75,
+      "trials": 27,
+      "spectral_hits": 0,
+      "spectral_mse": 0.020885120002949956,
+      "pitch_trials": 0,
+      "pitch_hits": 0,
+      "invalid": 0,
+      "joint_hits": 0
+    }
+  ],
+  "fractions": [
+    0.25,
+    0.5,
+    0.75
+  ],
+  "pitch_only_at_midpoint": true,
+  "no_training": true,
+  "scope": "validation only; target notes were present during complete-control training"
+}

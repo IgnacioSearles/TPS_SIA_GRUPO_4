@@ -1,0 +1,15 @@
+{
+  "condition": "dae_conv",
+  "seed": 27,
+  "status": "complete",
+  "train_count": 884,
+  "test_count": 224,
+  "model_sha256": "d0dfcd9995879e23b74d39243bf3e679ff3aff4d3877bf4c3ef410c07ec4d134",
+  "data_sha256": "210a721c8533bf8532a47bce5909c9f8e059666c78a5e51ee3a5ad79cf99368b",
+  "corrupted_inputs_sha256": {
+    "0.0": "720367717321aeb1dc914b28c989e7535d97a3cca9d154155735a5b706d3a5c2",
+    "0.05": "9894ace6714f6e5853c0d2820c2b3f3b7118cdfa1726660761911251025a1d7f",
+    "0.1": "d933420082fd1564009b0391b255ba9fe084a821278d1b017b98f53fc980cdce",
+    "0.2": "4512d6e7f10a4d15f9621cf0a2f7874a79ca55aa137de3fcddae5c69c80c4cca"
+  }
+}

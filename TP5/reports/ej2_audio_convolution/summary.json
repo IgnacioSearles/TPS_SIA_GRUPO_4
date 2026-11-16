@@ -1,24 +1,203 @@
 {
-  "status": "incomplete",
-  "completed_runs": 3,
+  "status": "complete",
+  "completed_runs": 12,
   "expected_runs": 12,
-  "missing_runs": [
-    "results/ej2_audio_conv_mlp_complete/base__seed=7",
-    "results/ej2_audio_conv_mlp_complete/base__seed=17",
-    "results/ej2_audio_conv_mlp_complete/base__seed=27",
-    "results/ej2_audio_conv_mlp_omitted/base__seed=7",
-    "results/ej2_audio_conv_mlp_omitted/base__seed=17",
-    "results/ej2_audio_conv_mlp_omitted/base__seed=27",
-    "results/ej2_audio_conv_conv_omitted/base__seed=7",
-    "results/ej2_audio_conv_conv_omitted/base__seed=17",
-    "results/ej2_audio_conv_conv_omitted/base__seed=27"
-  ],
+  "missing_runs": [],
   "codec_reliable": true,
   "favorable_pitch_criterion": {
-    "mlp": null,
-    "conv": null
+    "mlp": false,
+    "conv": false
   },
   "aggregates": [
+    {
+      "architecture": "mlp",
+      "condition": "complete",
+      "method": "vae_interpolation",
+      "trials": 27,
+      "pitch_hits": 16,
+      "pitch_rate": 0.5925925925925926,
+      "spectral_hits": 8,
+      "spectral_rate": 0.2962962962962963,
+      "joint_hits": 8,
+      "valid_rate": 1.0,
+      "spectral_mse": 0.015273429141248887,
+      "per_variant": {
+        "v00": {
+          "hits": 4,
+          "total": 9
+        },
+        "v20": {
+          "hits": 7,
+          "total": 9
+        },
+        "v39": {
+          "hits": 5,
+          "total": 9
+        }
+      }
+    },
+    {
+      "architecture": "mlp",
+      "condition": "complete",
+      "method": "spectrogram_mix",
+      "trials": 27,
+      "pitch_hits": 27,
+      "pitch_rate": 1.0,
+      "spectral_hits": 0,
+      "spectral_rate": 0.0,
+      "joint_hits": 0,
+      "valid_rate": 1.0,
+      "spectral_mse": 0.01721700103453106,
+      "per_variant": {
+        "v00": {
+          "hits": 9,
+          "total": 9
+        },
+        "v20": {
+          "hits": 9,
+          "total": 9
+        },
+        "v39": {
+          "hits": 9,
+          "total": 9
+        }
+      }
+    },
+    {
+      "architecture": "mlp",
+      "condition": "complete",
+      "method": "lower_neighbor",
+      "trials": 27,
+      "pitch_hits": 0,
+      "pitch_rate": 0.0,
+      "spectral_hits": 0,
+      "spectral_rate": 0.0,
+      "joint_hits": 0,
+      "valid_rate": 1.0,
+      "spectral_mse": 0.031180409065657354,
+      "per_variant": {
+        "v00": {
+          "hits": 0,
+          "total": 9
+        },
+        "v20": {
+          "hits": 0,
+          "total": 9
+        },
+        "v39": {
+          "hits": 0,
+          "total": 9
+        }
+      }
+    },
+    {
+      "architecture": "mlp",
+      "condition": "complete",
+      "method": "target_reconstruction",
+      "trials": 27,
+      "pitch_hits": 27,
+      "pitch_rate": 1.0,
+      "spectral_hits": 27,
+      "spectral_rate": 1.0,
+      "joint_hits": 27,
+      "valid_rate": 1.0,
+      "spectral_mse": 0.000278949885250088,
+      "per_variant": {
+        "v00": {
+          "hits": 9,
+          "total": 9
+        },
+        "v20": {
+          "hits": 9,
+          "total": 9
+        },
+        "v39": {
+          "hits": 9,
+          "total": 9
+        }
+      }
+    },
+    {
+      "architecture": "mlp",
+      "condition": "omitted",
+      "method": "vae_interpolation",
+      "trials": 27,
+      "pitch_hits": 22,
+      "pitch_rate": 0.8148148148148148,
+      "spectral_hits": 3,
+      "spectral_rate": 0.1111111111111111,
+      "joint_hits": 3,
+      "valid_rate": 1.0,
+      "spectral_mse": 0.017112423111250115,
+      "per_variant": {
+        "v00": {
+          "hits": 8,
+          "total": 9
+        },
+        "v20": {
+          "hits": 7,
+          "total": 9
+        },
+        "v39": {
+          "hits": 7,
+          "total": 9
+        }
+      }
+    },
+    {
+      "architecture": "mlp",
+      "condition": "omitted",
+      "method": "spectrogram_mix",
+      "trials": 27,
+      "pitch_hits": 27,
+      "pitch_rate": 1.0,
+      "spectral_hits": 0,
+      "spectral_rate": 0.0,
+      "joint_hits": 0,
+      "valid_rate": 1.0,
+      "spectral_mse": 0.01721700103453106,
+      "per_variant": {
+        "v00": {
+          "hits": 9,
+          "total": 9
+        },
+        "v20": {
+          "hits": 9,
+          "total": 9
+        },
+        "v39": {
+          "hits": 9,
+          "total": 9
+        }
+      }
+    },
+    {
+      "architecture": "mlp",
+      "condition": "omitted",
+      "method": "lower_neighbor",
+      "trials": 27,
+      "pitch_hits": 0,
+      "pitch_rate": 0.0,
+      "spectral_hits": 0,
+      "spectral_rate": 0.0,
+      "joint_hits": 0,
+      "valid_rate": 1.0,
+      "spectral_mse": 0.031180409065657354,
+      "per_variant": {
+        "v00": {
+          "hits": 0,
+          "total": 9
+        },
+        "v20": {
+          "hits": 0,
+          "total": 9
+        },
+        "v39": {
+          "hits": 0,
+          "total": 9
+        }
+      }
+    },
     {
       "architecture": "conv",
       "condition": "complete",
@@ -123,6 +302,87 @@
         },
         "v39": {
           "hits": 9,
+          "total": 9
+        }
+      }
+    },
+    {
+      "architecture": "conv",
+      "condition": "omitted",
+      "method": "vae_interpolation",
+      "trials": 27,
+      "pitch_hits": 11,
+      "pitch_rate": 0.4074074074074074,
+      "spectral_hits": 0,
+      "spectral_rate": 0.0,
+      "joint_hits": 0,
+      "valid_rate": 1.0,
+      "spectral_mse": 0.017510178389776414,
+      "per_variant": {
+        "v00": {
+          "hits": 3,
+          "total": 9
+        },
+        "v20": {
+          "hits": 4,
+          "total": 9
+        },
+        "v39": {
+          "hits": 4,
+          "total": 9
+        }
+      }
+    },
+    {
+      "architecture": "conv",
+      "condition": "omitted",
+      "method": "spectrogram_mix",
+      "trials": 27,
+      "pitch_hits": 27,
+      "pitch_rate": 1.0,
+      "spectral_hits": 0,
+      "spectral_rate": 0.0,
+      "joint_hits": 0,
+      "valid_rate": 1.0,
+      "spectral_mse": 0.01721700103453106,
+      "per_variant": {
+        "v00": {
+          "hits": 9,
+          "total": 9
+        },
+        "v20": {
+          "hits": 9,
+          "total": 9
+        },
+        "v39": {
+          "hits": 9,
+          "total": 9
+        }
+      }
+    },
+    {
+      "architecture": "conv",
+      "condition": "omitted",
+      "method": "lower_neighbor",
+      "trials": 27,
+      "pitch_hits": 0,
+      "pitch_rate": 0.0,
+      "spectral_hits": 0,
+      "spectral_rate": 0.0,
+      "joint_hits": 0,
+      "valid_rate": 1.0,
+      "spectral_mse": 0.031180409065657354,
+      "per_variant": {
+        "v00": {
+          "hits": 0,
+          "total": 9
+        },
+        "v20": {
+          "hits": 0,
+          "total": 9
+        },
+        "v39": {
+          "hits": 0,
           "total": 9
         }
       }

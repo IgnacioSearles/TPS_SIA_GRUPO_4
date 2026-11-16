@@ -1,0 +1,84 @@
+{
+  "dataset": {
+    "type": "synthetic_notes",
+    "pitch_range": [
+      48,
+      72
+    ],
+    "pitch_study": {
+      "omit_targets": true,
+      "targets": [
+        51,
+        57,
+        63
+      ],
+      "evaluation_variants": [
+        "v00",
+        "v20",
+        "v39"
+      ],
+      "exclusion_radius": 0.75,
+      "reserved_targets": [
+        55,
+        61,
+        67
+      ]
+    },
+    "spectrogram": {
+      "duration_seconds": 1.0,
+      "fft_size": 1024,
+      "hop_length": 256,
+      "mel_bands": 128
+    },
+    "variants_per_pitch": 40,
+    "microtones_per_semitone": 4,
+    "microtone_variants": 10
+  },
+  "model": {
+    "type": "variational",
+    "latent_size": 16,
+    "hidden_layers": [
+      512,
+      128
+    ],
+    "activation": "relu",
+    "initializer": "he",
+    "loss": "mse",
+    "kl": {
+      "weight": 0.5,
+      "warmup_epochs": 0
+    },
+    "precision": "float32",
+    "architecture": "conv",
+    "image_shape": [
+      128,
+      64,
+      1
+    ],
+    "conv_channels": [
+      8,
+      16
+    ]
+  },
+  "training": {
+    "epochs": 20,
+    "batch_size": 64,
+    "optimizer": {
+      "type": "adam",
+      "learning_rate": 0.0003
+    },
+    "log_every": 5
+  },
+  "evaluation": {
+    "pitch_interpolation": {},
+    "latent": {}
+  },
+  "seeds": [
+    7,
+    17,
+    27
+  ],
+  "name": "ej2_audio_conv_beta_pilot_beta050",
+  "output": "results/ej2_audio_conv_beta_pilot_beta050",
+  "initial_parameters": "results/audio_conv_beta_pilot/parents/seed={seed}/model.npz"
+}

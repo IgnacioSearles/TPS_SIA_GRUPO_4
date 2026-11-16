@@ -1,0 +1,73 @@
+{
+  "calibration": [
+    {
+      "architecture": "mlp",
+      "seed": 7,
+      "reliable": true,
+      "by_variant": {
+        "v00": 1.0,
+        "v20": 1.0,
+        "v39": 1.0
+      }
+    },
+    {
+      "architecture": "mlp",
+      "seed": 17,
+      "reliable": true,
+      "by_variant": {
+        "v00": 1.0,
+        "v20": 1.0,
+        "v39": 1.0
+      }
+    },
+    {
+      "architecture": "mlp",
+      "seed": 27,
+      "reliable": true,
+      "by_variant": {
+        "v00": 1.0,
+        "v20": 1.0,
+        "v39": 1.0
+      }
+    },
+    {
+      "architecture": "conv",
+      "seed": 7,
+      "reliable": true,
+      "by_variant": {
+        "v00": 1.0,
+        "v20": 1.0,
+        "v39": 1.0
+      }
+    },
+    {
+      "architecture": "conv",
+      "seed": 17,
+      "reliable": true,
+      "by_variant": {
+        "v00": 1.0,
+        "v20": 1.0,
+        "v39": 1.0
+      }
+    },
+    {
+      "architecture": "conv",
+      "seed": 27,
+      "reliable": true,
+      "by_variant": {
+        "v00": 1.0,
+        "v20": 1.0,
+        "v39": 1.0
+      }
+    }
+  ],
+  "all_codec_calibrations_reliable": true,
+  "comparisons": 54,
+  "same_pitch_hits": true,
+  "same_pitch_validity": true,
+  "same_spectral_hits": true,
+  "max_spectral_mse_absolute_difference": 9.469552891827604e-09,
+  "max_frequency_difference_hz": 4.66063019075591e-05,
+  "codec_exactly_deterministic_on_repeated_input": true,
+  "codec_waveform_sha256": "9c66c09dae4f68627802feca8c4d97185982e3383ca77151081fc59bccf24f16"
+}

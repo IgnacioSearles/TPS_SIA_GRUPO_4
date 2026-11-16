@@ -1,0 +1,16 @@
+{
+  "condition": "vae_conv",
+  "seed": 7,
+  "status": "complete",
+  "train_count": 884,
+  "test_count": 224,
+  "model_sha256": "4eb2cf6ee151c5356c6cce993fbd4f67ff8eb6cd5600d1cd1e037578fd27ec17",
+  "data_sha256": "210a721c8533bf8532a47bce5909c9f8e059666c78a5e51ee3a5ad79cf99368b",
+  "generation_count": 64,
+  "generation_train_mse": 0.014130525336501536,
+  "generation_test_mse": 0.02128947520578205,
+  "generation_pairwise_mse": 0.03783716533544778,
+  "generation_distinct_train_neighbors": 62,
+  "generation_distinct_test_neighbors": 45,
+  "generation_codes_sha256": "8ad63615ccf211344892c34e31ba730a052d8d350a0e2515efa07ac283c281c5"
+}

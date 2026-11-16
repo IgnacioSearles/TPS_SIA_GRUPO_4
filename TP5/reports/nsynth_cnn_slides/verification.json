@@ -1,0 +1,23 @@
+{
+  "base_commit": "9744710",
+  "base_sections": 69,
+  "new_sections": 7,
+  "slides": 76,
+  "all_previous_sections_and_notes_exact": true,
+  "protected_files_unchanged": 298,
+  "added_pages": [
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64
+  ],
+  "same_audio_phase": "pghi",
+  "generation_relative_medians": {
+    "mlp": 0.39331741410299714,
+    "conv": 0.3682673374719121
+  },
+  "source_base_sha256": "bb90193dbe656a70a909b1774b502dda91cdec354baa85f0994b610eba9b0da1"
+}

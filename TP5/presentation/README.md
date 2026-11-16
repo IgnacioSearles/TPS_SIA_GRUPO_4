@@ -36,3 +36,7 @@ python presentation/sync_assets.py      # copia a assets/ lo que usa index.html
 ```
 
 `python -m scripts.presentacion font`, `audio`, `redes`, `activaciones` u `omitidas` regenera una sola parte. `activaciones` necesita antes las corridas de `configs/ej2_{ae,vae}_activations_he.json` (leaky ReLU) y `configs/ej2_{ae,vae}_activations_xavier.json` (tanh y sigmoide), que se entrenan con `python main.py <config>`. Los gráficos de `reports/ej1_pruebas/` salen de `python -m scripts.ej1_figuras` sobre los experimentos `ej1a_stability`, `ej1a_small_failures`, `ej1b_denoising_architectures` y `ej1b_noise_types`; `omitidas` lee la evidencia guardada en `reports/ej2_notas_omitidas/puntos_medios.csv`. Al reentrenar en otra máquina los números pueden moverse un poco (redondeo de punto flotante), sin cambiar las conclusiones. `FUENTES.json` indica de qué archivo sale cada asset.
+
+## Extensión NSynth con CNN — 16/11/2026
+
+La presentación vigente tiene76 diapositivas. Las páginas58–64 agregan protocolo, arquitectura exacta, reconstrucción, escucha pareada, generación, denoising y conclusiones. Las69 secciones pulleadas de9744710 se conservaron literalmente. Guion: docs/nsynth_cnn_conclusiones.md. Comparador autónomo de las mismas notas: reports/nsynth_cnn_listening/index.html. Regeneración del bloque: python -m scripts.build_nsynth_cnn_slides.

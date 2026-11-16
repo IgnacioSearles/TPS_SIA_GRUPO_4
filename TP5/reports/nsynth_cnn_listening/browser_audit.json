@@ -1,0 +1,33 @@
+{
+  "structure": {
+    "notes": 6,
+    "audio": 24,
+    "embedded": true
+  },
+  "selection": {
+    "seed_changes_models": true,
+    "seed_keeps_references": true,
+    "phase_changes_both_models_and_codec": true,
+    "phase_keeps_raw_original": true
+  },
+  "playback": {
+    "first": {
+      "time": 0.46829,
+      "paused": false,
+      "duration": 1,
+      "error": null
+    },
+    "next": {
+      "time": 0.027262,
+      "previousPaused": true,
+      "previousTime": 0,
+      "error": null
+    },
+    "allStopped": true
+  },
+  "mobile": {
+    "width": 390,
+    "bodyWidth": 390,
+    "players": 24
+  }
+}
