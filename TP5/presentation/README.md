@@ -40,3 +40,7 @@ python presentation/sync_assets.py      # copia a assets/ lo que usa index.html
 ## Extensión NSynth con CNN — 16/11/2026
 
 La presentación vigente tiene76 diapositivas. Las páginas58–64 agregan protocolo, arquitectura exacta, reconstrucción, escucha pareada, generación, denoising y conclusiones. Las69 secciones pulleadas de9744710 se conservaron literalmente. Guion: docs/nsynth_cnn_conclusiones.md. Comparador autónomo de las mismas notas: reports/nsynth_cnn_listening/index.html. Regeneración del bloque: python -m scripts.build_nsynth_cnn_slides.
+
+## Versión compacta vigente — 16/11/2026
+
+La presentación tiene71diapositivas. Por pedido del usuario, el bloque NSynth CNN de siete páginas se redujo a dos:50explica qué probamos y51muestra denoising completo, incluidos todos los niveles y audios comparables. Queda antes de las figuras, dentro del tramo de sonido. La escucha ampliada está en `reports/nsynth_denoising_listening/index.html`.

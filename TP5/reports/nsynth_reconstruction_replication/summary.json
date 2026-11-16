@@ -1,0 +1,218 @@
+{
+  "protocol": "nsynth_reconstruction_nine_seed_v1",
+  "status": "incomplete",
+  "expected_models": 18,
+  "evaluated_models": 8,
+  "paired_seeds": 3,
+  "expected_paired_seeds": 9,
+  "runs": [
+    {
+      "architecture": "mlp",
+      "seed": 7,
+      "status": "evaluated",
+      "epoch": 200,
+      "signature": {
+        "protocol": "nsynth_reconstruction_nine_seed_v1",
+        "model_sha256": "4b2f29fbeb55577797970ca1cfb3d5adc4523c50d321adfb05833e77ac68c879",
+        "data_sha256": "210a721c8533bf8532a47bce5909c9f8e059666c78a5e51ee3a5ad79cf99368b"
+      },
+      "mse": 0.01582762223139621,
+      "notes": 224,
+      "families": 10,
+      "invalid": 0,
+      "source": "reused_existing_per_note_csv"
+    },
+    {
+      "architecture": "conv",
+      "seed": 7,
+      "status": "evaluated",
+      "epoch": 200,
+      "signature": {
+        "protocol": "nsynth_reconstruction_nine_seed_v1",
+        "model_sha256": "4eb2cf6ee151c5356c6cce993fbd4f67ff8eb6cd5600d1cd1e037578fd27ec17",
+        "data_sha256": "210a721c8533bf8532a47bce5909c9f8e059666c78a5e51ee3a5ad79cf99368b"
+      },
+      "mse": 0.014692198490503997,
+      "notes": 224,
+      "families": 10,
+      "invalid": 0,
+      "source": "reused_existing_per_note_csv"
+    },
+    {
+      "architecture": "mlp",
+      "seed": 17,
+      "status": "evaluated",
+      "epoch": 200,
+      "signature": {
+        "protocol": "nsynth_reconstruction_nine_seed_v1",
+        "model_sha256": "78dddd86f9a062d41789b799608003e8774efe0809cc987d169973867d3657d4",
+        "data_sha256": "210a721c8533bf8532a47bce5909c9f8e059666c78a5e51ee3a5ad79cf99368b"
+      },
+      "mse": 0.014750106786924167,
+      "notes": 224,
+      "families": 10,
+      "invalid": 0,
+      "source": "reused_existing_per_note_csv"
+    },
+    {
+      "architecture": "conv",
+      "seed": 17,
+      "status": "evaluated",
+      "epoch": 200,
+      "signature": {
+        "protocol": "nsynth_reconstruction_nine_seed_v1",
+        "model_sha256": "3dc3bb30859a843c623f1fe02c17b82e6ae6990d8edf57579e0c5550ae9a79f8",
+        "data_sha256": "210a721c8533bf8532a47bce5909c9f8e059666c78a5e51ee3a5ad79cf99368b"
+      },
+      "mse": 0.014800771522030165,
+      "notes": 224,
+      "families": 10,
+      "invalid": 0,
+      "source": "reused_existing_per_note_csv"
+    },
+    {
+      "architecture": "mlp",
+      "seed": 27,
+      "status": "evaluated",
+      "epoch": 200,
+      "signature": {
+        "protocol": "nsynth_reconstruction_nine_seed_v1",
+        "model_sha256": "121df52e1d92b414f90d75e356a09b1a2108fe957b00403871b97af4228dfd30",
+        "data_sha256": "210a721c8533bf8532a47bce5909c9f8e059666c78a5e51ee3a5ad79cf99368b"
+      },
+      "mse": 0.016514902176742834,
+      "notes": 224,
+      "families": 10,
+      "invalid": 0,
+      "source": "reused_existing_per_note_csv"
+    },
+    {
+      "architecture": "conv",
+      "seed": 27,
+      "status": "evaluated",
+      "epoch": 200,
+      "signature": {
+        "protocol": "nsynth_reconstruction_nine_seed_v1",
+        "model_sha256": "688c3d48f385ad47aaa5d7d9b5be57167610f5ee89943db1cd4961ef37c99ac9",
+        "data_sha256": "210a721c8533bf8532a47bce5909c9f8e059666c78a5e51ee3a5ad79cf99368b"
+      },
+      "mse": 0.014990904388340233,
+      "notes": 224,
+      "families": 10,
+      "invalid": 0,
+      "source": "reused_existing_per_note_csv"
+    },
+    {
+      "architecture": "mlp",
+      "seed": 37,
+      "status": "evaluated",
+      "epoch": 200,
+      "signature": {
+        "protocol": "nsynth_reconstruction_nine_seed_v1",
+        "model_sha256": "d9af5cd3f848db40387f325ff6314e410bce9aa04f97f0881a2d1fb95a775bac",
+        "data_sha256": "210a721c8533bf8532a47bce5909c9f8e059666c78a5e51ee3a5ad79cf99368b"
+      },
+      "mse": 0.015907891490939595,
+      "notes": 224,
+      "families": 10,
+      "invalid": 0,
+      "source": "reused_existing_per_note_csv"
+    },
+    {
+      "architecture": "conv",
+      "seed": 37,
+      "status": "training_pending",
+      "epoch": 105
+    },
+    {
+      "architecture": "mlp",
+      "seed": 47,
+      "status": "evaluated",
+      "epoch": 200,
+      "signature": {
+        "protocol": "nsynth_reconstruction_nine_seed_v1",
+        "model_sha256": "17c7592cdd154cfa57646e32a4f873a9d60e5a8de027445906d1dbd9d37ac024",
+        "data_sha256": "210a721c8533bf8532a47bce5909c9f8e059666c78a5e51ee3a5ad79cf99368b"
+      },
+      "mse": 0.01499920049436337,
+      "notes": 224,
+      "families": 10,
+      "invalid": 0,
+      "source": "reused_existing_per_note_csv"
+    },
+    {
+      "architecture": "conv",
+      "seed": 47,
+      "status": "training_pending",
+      "epoch": 25
+    },
+    {
+      "architecture": "mlp",
+      "seed": 57,
+      "status": "training_pending",
+      "epoch": 75
+    },
+    {
+      "architecture": "conv",
+      "seed": 57,
+      "status": "queued",
+      "epoch": 0
+    },
+    {
+      "architecture": "mlp",
+      "seed": 67,
+      "status": "training_pending",
+      "epoch": 5
+    },
+    {
+      "architecture": "conv",
+      "seed": 67,
+      "status": "training_pending",
+      "epoch": 0
+    },
+    {
+      "architecture": "mlp",
+      "seed": 77,
+      "status": "training_pending",
+      "epoch": 5
+    },
+    {
+      "architecture": "conv",
+      "seed": 77,
+      "status": "queued",
+      "epoch": 0
+    },
+    {
+      "architecture": "mlp",
+      "seed": 87,
+      "status": "queued",
+      "epoch": 0
+    },
+    {
+      "architecture": "conv",
+      "seed": 87,
+      "status": "queued",
+      "epoch": 0
+    }
+  ],
+  "pairs": [
+    {
+      "seed": 7,
+      "mlp_mse": 0.01582762223139621,
+      "conv_mse": 0.014692198490503997,
+      "difference_conv_minus_mlp": -0.0011354237408922139
+    },
+    {
+      "seed": 17,
+      "mlp_mse": 0.014750106786924167,
+      "conv_mse": 0.014800771522030165,
+      "difference_conv_minus_mlp": 5.066473510599752e-05
+    },
+    {
+      "seed": 27,
+      "mlp_mse": 0.016514902176742834,
+      "conv_mse": 0.014990904388340233,
+      "difference_conv_minus_mlp": -0.001523997788402601
+    }
+  ]
+}

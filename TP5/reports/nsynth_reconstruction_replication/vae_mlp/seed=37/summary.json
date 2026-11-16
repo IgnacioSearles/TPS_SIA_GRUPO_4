@@ -1,0 +1,16 @@
+{
+  "architecture": "mlp",
+  "seed": 37,
+  "status": "evaluated",
+  "epoch": 200,
+  "signature": {
+    "protocol": "nsynth_reconstruction_nine_seed_v1",
+    "model_sha256": "d9af5cd3f848db40387f325ff6314e410bce9aa04f97f0881a2d1fb95a775bac",
+    "data_sha256": "210a721c8533bf8532a47bce5909c9f8e059666c78a5e51ee3a5ad79cf99368b"
+  },
+  "mse": 0.015907891490939595,
+  "notes": 224,
+  "families": 10,
+  "invalid": 0,
+  "source": "reused_existing_per_note_csv"
+}

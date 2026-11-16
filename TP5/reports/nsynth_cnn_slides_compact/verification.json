@@ -1,0 +1,22 @@
+{
+  "base_sections": 69,
+  "slides": 71,
+  "replacement_sections": 2,
+  "added_pages": [
+    50,
+    51
+  ],
+  "old_seven_slide_block_removed": true,
+  "all_other_sections_notes_and_order_exact": true,
+  "new_order": "audio through omitted notes -> CNN protocol -> complete denoising -> figures -> conclusions -> appendix",
+  "noise_levels": [
+    0,
+    0.05,
+    0.1,
+    0.2
+  ],
+  "same_audio_phase": "pghi",
+  "fixed_audio_example": "bass_electronic_027-048-025",
+  "seed": 7,
+  "all_previous_assets_preserved": true
+}

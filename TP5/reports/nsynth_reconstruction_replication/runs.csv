@@ -1,0 +1,19 @@
+architecture,seed,status,epoch,signature,mse,notes,families,invalid,source
+mlp,7,evaluated,200,"{'protocol': 'nsynth_reconstruction_nine_seed_v1', 'model_sha256': '4b2f29fbeb55577797970ca1cfb3d5adc4523c50d321adfb05833e77ac68c879', 'data_sha256': '210a721c8533bf8532a47bce5909c9f8e059666c78a5e51ee3a5ad79cf99368b'}",0.01582762223139621,224,10,0,reused_existing_per_note_csv
+conv,7,evaluated,200,"{'protocol': 'nsynth_reconstruction_nine_seed_v1', 'model_sha256': '4eb2cf6ee151c5356c6cce993fbd4f67ff8eb6cd5600d1cd1e037578fd27ec17', 'data_sha256': '210a721c8533bf8532a47bce5909c9f8e059666c78a5e51ee3a5ad79cf99368b'}",0.014692198490503997,224,10,0,reused_existing_per_note_csv
+mlp,17,evaluated,200,"{'protocol': 'nsynth_reconstruction_nine_seed_v1', 'model_sha256': '78dddd86f9a062d41789b799608003e8774efe0809cc987d169973867d3657d4', 'data_sha256': '210a721c8533bf8532a47bce5909c9f8e059666c78a5e51ee3a5ad79cf99368b'}",0.014750106786924167,224,10,0,reused_existing_per_note_csv
+conv,17,evaluated,200,"{'protocol': 'nsynth_reconstruction_nine_seed_v1', 'model_sha256': '3dc3bb30859a843c623f1fe02c17b82e6ae6990d8edf57579e0c5550ae9a79f8', 'data_sha256': '210a721c8533bf8532a47bce5909c9f8e059666c78a5e51ee3a5ad79cf99368b'}",0.014800771522030165,224,10,0,reused_existing_per_note_csv
+mlp,27,evaluated,200,"{'protocol': 'nsynth_reconstruction_nine_seed_v1', 'model_sha256': '121df52e1d92b414f90d75e356a09b1a2108fe957b00403871b97af4228dfd30', 'data_sha256': '210a721c8533bf8532a47bce5909c9f8e059666c78a5e51ee3a5ad79cf99368b'}",0.016514902176742834,224,10,0,reused_existing_per_note_csv
+conv,27,evaluated,200,"{'protocol': 'nsynth_reconstruction_nine_seed_v1', 'model_sha256': '688c3d48f385ad47aaa5d7d9b5be57167610f5ee89943db1cd4961ef37c99ac9', 'data_sha256': '210a721c8533bf8532a47bce5909c9f8e059666c78a5e51ee3a5ad79cf99368b'}",0.014990904388340233,224,10,0,reused_existing_per_note_csv
+mlp,37,evaluated,200,"{'protocol': 'nsynth_reconstruction_nine_seed_v1', 'model_sha256': 'd9af5cd3f848db40387f325ff6314e410bce9aa04f97f0881a2d1fb95a775bac', 'data_sha256': '210a721c8533bf8532a47bce5909c9f8e059666c78a5e51ee3a5ad79cf99368b'}",0.015907891490939595,224,10,0,reused_existing_per_note_csv
+conv,37,training_pending,105,,,,,,
+mlp,47,evaluated,200,"{'protocol': 'nsynth_reconstruction_nine_seed_v1', 'model_sha256': '17c7592cdd154cfa57646e32a4f873a9d60e5a8de027445906d1dbd9d37ac024', 'data_sha256': '210a721c8533bf8532a47bce5909c9f8e059666c78a5e51ee3a5ad79cf99368b'}",0.01499920049436337,224,10,0,reused_existing_per_note_csv
+conv,47,training_pending,25,,,,,,
+mlp,57,training_pending,75,,,,,,
+conv,57,queued,0,,,,,,
+mlp,67,training_pending,5,,,,,,
+conv,67,training_pending,0,,,,,,
+mlp,77,training_pending,5,,,,,,
+conv,77,queued,0,,,,,,
+mlp,87,queued,0,,,,,,
+conv,87,queued,0,,,,,,

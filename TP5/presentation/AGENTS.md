@@ -36,3 +36,7 @@ El usuario autorizó quitar «Las muestras del VAE quedan más cerca de notas re
 ## Agregado NSynth CNN, 16/11/2026
 
 A pedido del usuario se agregaron siete diapositivas58–64 con los resultados NSynth deCNN, manteniendo intactas las69 anteriores del remoto9744710. index.html es la única presentación; reports/nsynth_cnn_listening/index.html es una página de escucha, no otra presentación.
+
+## Revisión explícita del usuario: solo dos slides CNN — 16/11/2026
+
+El usuario autorizó rehacer el bloque propio de siete slides como solo dos: qué probamos con CNN y resultado completo de denoising, además de revisar su orden. Se reemplazó ese bloque y se ubicó después de notas omitidas, antes de las figuras (páginas50–51). Se mantienen las69secciones ajenas y su orden relativo. Total:71diapositivas. No regenerar el antiguo agregado de siete páginas.

@@ -1,0 +1,16 @@
+{
+  "architecture": "conv",
+  "seed": 27,
+  "status": "evaluated",
+  "epoch": 200,
+  "signature": {
+    "protocol": "nsynth_reconstruction_nine_seed_v1",
+    "model_sha256": "688c3d48f385ad47aaa5d7d9b5be57167610f5ee89943db1cd4961ef37c99ac9",
+    "data_sha256": "210a721c8533bf8532a47bce5909c9f8e059666c78a5e51ee3a5ad79cf99368b"
+  },
+  "mse": 0.014990904388340233,
+  "notes": 224,
+  "families": 10,
+  "invalid": 0,
+  "source": "reused_existing_per_note_csv"
+}

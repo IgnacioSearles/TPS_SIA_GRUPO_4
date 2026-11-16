@@ -1,0 +1,120 @@
+{
+  "structure": {
+    "notes": 6,
+    "audio": 24,
+    "embedded": true
+  },
+  "coverage": [
+    {
+      "seed": "7",
+      "sigma": "0.0",
+      "count": 24,
+      "embedded": true,
+      "zero_has_identical_clean_and_input": true
+    },
+    {
+      "seed": "7",
+      "sigma": "0.05",
+      "count": 24,
+      "embedded": true,
+      "zero_has_identical_clean_and_input": true
+    },
+    {
+      "seed": "7",
+      "sigma": "0.1",
+      "count": 24,
+      "embedded": true,
+      "zero_has_identical_clean_and_input": true
+    },
+    {
+      "seed": "7",
+      "sigma": "0.2",
+      "count": 24,
+      "embedded": true,
+      "zero_has_identical_clean_and_input": true
+    },
+    {
+      "seed": "17",
+      "sigma": "0.0",
+      "count": 24,
+      "embedded": true,
+      "zero_has_identical_clean_and_input": true
+    },
+    {
+      "seed": "17",
+      "sigma": "0.05",
+      "count": 24,
+      "embedded": true,
+      "zero_has_identical_clean_and_input": true
+    },
+    {
+      "seed": "17",
+      "sigma": "0.1",
+      "count": 24,
+      "embedded": true,
+      "zero_has_identical_clean_and_input": true
+    },
+    {
+      "seed": "17",
+      "sigma": "0.2",
+      "count": 24,
+      "embedded": true,
+      "zero_has_identical_clean_and_input": true
+    },
+    {
+      "seed": "27",
+      "sigma": "0.0",
+      "count": 24,
+      "embedded": true,
+      "zero_has_identical_clean_and_input": true
+    },
+    {
+      "seed": "27",
+      "sigma": "0.05",
+      "count": 24,
+      "embedded": true,
+      "zero_has_identical_clean_and_input": true
+    },
+    {
+      "seed": "27",
+      "sigma": "0.1",
+      "count": 24,
+      "embedded": true,
+      "zero_has_identical_clean_and_input": true
+    },
+    {
+      "seed": "27",
+      "sigma": "0.2",
+      "count": 24,
+      "embedded": true,
+      "zero_has_identical_clean_and_input": true
+    }
+  ],
+  "selection": {
+    "seed_changes_models": true,
+    "seed_keeps_clean_reference": true,
+    "seed_changes_noise": true,
+    "level_changes_both_models_and_input": true,
+    "level_keeps_clean_reference": true
+  },
+  "playback": {
+    "first": {
+      "time": 0.232238,
+      "paused": false,
+      "duration": 1,
+      "error": null
+    },
+    "next": {
+      "time": 0.009755,
+      "previousPaused": true,
+      "previousTime": 0,
+      "error": null
+    },
+    "allStopped": true
+  },
+  "mobile": {
+    "width": 390,
+    "bodyWidth": 390,
+    "players": 24
+  }
+}

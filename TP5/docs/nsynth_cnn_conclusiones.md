@@ -26,17 +26,16 @@ Con ruido melσ0.1, la entrada tiene MSE0.007413; después del AE denso queda0.0
 
 Una interpretación compatible con los datos es que la reconstrucción pierde detalles que aún eran útiles cuando el deterioro era pequeño. Con deterioro fuerte, reconstruir una aproximación aprendida puede ser preferible a dejar la entrada como está. Esta interpretación no prueba un mecanismo único. El experimento es sobre corrupción de espectrogramas mel, no ruido ambiente agregado a una grabación.
 
-## Cómo explicar las slides nuevas
+## Presentación compacta: dos slides y orden revisado
 
-Se agregan siete páginas,58–64, después de la conclusión de figuras que dice que volvemos al audio. Las69 secciones remotas se conservan con sus notas, assets y orden relativo. `presentation/index.html` sigue siendo la única presentación del repositorio.
+Por pedido del usuario se sustituyó el agregado de siete slides por solo dos. La presentación queda en71páginas. Se conserva el contenido de las69secciones originales y su orden relativo.
 
-- **58:** establece pregunta, datos y controles. Evita introducir una CNN como si el público ya conociera el protocolo de audio.
-- **59:** muestra las estructuras exactas. Explica que la compresión sigue en16 valores y que cambia la forma de procesar la vecindad.
-- **60:** cuantifica reconstrucción y muestra cada semilla, incluida la que empeora.
-- **61:** permite comparar los mismos sonidos y distinguir red/códec.
-- **62:** usa la medida relativa actual del repositorio para generación, sin convertir cercanía en prueba de novedad.
-- **63:** exhibe el cruce entre dejar la entrada intacta y reconstruirla, incluyendo el fracaso con ruido moderado.
-- **64:** separa lo observado en reconstrucción y denoising del objetivo aún no resuelto de notas omitidas sintéticas.
+- **50 — Qué probamos:** diagrama de CNN sobre mel, latente de16valores y las tareas ensayadas. La arquitectura literal y los parámetros quedan en notas, sin llenar la slide de texto.
+- **51 — Resultado completo de denoising:** se muestran todos los niveles de ruido evaluados (0,0.05,0.1,0.2), el control de devolver la entrada intacta, AE denso y AE CNN. Los puntos muestran las tres semillas y las líneas sus medias. Se incluyen audios del mismo bajo limpio y las tres versiones enσ0.1yσ0.2.
+
+El orden pasa a ser: audio y notas omitidas, CNN y denoising, figuras, conclusiones generales y apéndice. El bloque de CNN queda dentro del tramo de sonido y ya no aparece después de la conclusión de las figuras.
+
+La página `reports/nsynth_denoising_listening/index.html` amplía la escucha a seis notas, cuatro niveles y tres semillas. Todos los audios de un caso comparten el mismo códec PGHI. La página de reconstrucción anterior sigue disponible por separado, pero sus gráficas y los resultados de generación ya no ocupan slides propias.
 
 ## Cambio remoto de fase y trazabilidad
 

@@ -1,207 +1,165 @@
-"""Append evidence-backed NSynth CNN slides to the current remote-style deck."""
+"""Two slides only: CNN protocol and the complete denoising comparison."""
 from pathlib import Path
-import csv,hashlib,json,re,shutil
+import csv,hashlib,json,re,shutil,subprocess
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 ROOT=Path(__file__).resolve().parents[1]
-P=ROOT/'presentation';R=ROOT/'reports/nsynth_cnn_slides'
-PREFIX='extra_nsynth_cnn_';BLUE='#176a98';ORANGE='#d4602a';INK='#182b3a'
-plt.rcParams.update({'font.family':'DejaVu Sans','font.size':14,'text.color':INK,'axes.labelcolor':INK})
+P=ROOT/'presentation';R=ROOT/'reports/nsynth_cnn_slides_compact'
+PREFIX='extra_nsynth_denoise_'
+BLUE='#176a98';ORANGE='#d4602a';INK='#182b3a'
 
-def rows(path):
-    with path.open() as stream:return list(csv.DictReader(stream))
 def asset(name):return f'assets/{PREFIX}{name}'
-def image(name,alt,cls=''):return f'<img class="{cls}" src="{asset(name)}" alt="{alt}">'
-def button(name,label='Escuchar'):return f'<button class="play" data-sound="{asset(name)}">{label}</button>'
+def img(name,alt):return f'<img src="{asset(name)}" alt="{alt}">'
+def btn(name,label='Escuchar'):return f'<button class="play" data-sound="{asset(name)}">{label}</button>'
 def sec(title,body,take,notes):
-    return f'<section class="nsynth-cnn-add"><h2>{title}</h2>{body}<p class="take">{take}</p><aside class="notes">{notes}</aside></section>'
+    return f'<section class="nsynth-denoise-add"><h2>{title}</h2>{body}<p class="take">{take}</p><aside class="notes">{notes}</aside></section>'
 
-def save(fig,name):
-    fig.savefig(P/asset(name),dpi=165,bbox_inches='tight',facecolor='white');plt.close(fig)
+def spectrum(values,name):
+    fig,ax=plt.subplots(figsize=(2.3,1.6))
+    ax.imshow(values.reshape(128,64),origin='lower',aspect='auto',vmin=0,vmax=1,cmap='magma')
+    ax.axis('off');fig.subplots_adjust(0,0,1,1)
+    fig.savefig(P/asset(name),dpi=140);plt.close(fig)
 
-def make_charts():
-    per=rows(ROOT/'reports/nsynth_cnn_study/per_seed.csv')
-    rec=[r for r in per if r['task']=='reconstruction']
-    fig,ax=plt.subplots(figsize=(8.2,3.7),constrained_layout=True)
-    for marker,seed in zip(('o','s','^'),(7,17,27)):
-        values=[float(next(r['mse'] for r in rec if r['condition']==c and int(r['seed'])==seed)) for c in ('vae_mlp','vae_conv')]
-        ax.plot([0,1],values,marker=marker,color='#91a5b3',lw=1.8,ms=8,label=f'Semilla {seed}')
-    means=[np.mean([float(r['mse']) for r in rec if r['condition']==c]) for c in ('vae_mlp','vae_conv')]
-    ax.scatter([0,1],means,color=[BLUE,ORANGE],s=160,zorder=5)
-    for x,value in enumerate(means):ax.text(x-.08,.00075,f'Media {value:.5f}'.replace('.',','),ha='center',color=[BLUE,ORANGE][x],fontsize=14)
-    ax.set_xticks([0,1],['VAE denso','VAE convolucional']);ax.set_xlim(-.35,1.52);ax.set_ylim(0,.018)
-    ax.set_ylabel('MSE en instrumentos no vistos');ax.grid(axis='y',alpha=.18)
-    ax.legend(loc='center right',frameon=False,fontsize=12)
-    ax.spines[['top','right']].set_visible(False)
-    save(fig,'reconstruction.png')
-    # Same relative-energy distance used by the newly pulled sampling slides.
-    generation=[]
-    for architecture in ('mlp','conv'):
-        for seed in (7,17,27):
-            folder=ROOT/f'reports/nsynth_cnn_study/vae_{architecture}/seed={seed}'
-            with np.load(folder/'generated.npz',allow_pickle=False) as data:
-                samples=data['samples'].astype(float)
-            source=rows(folder/'generation.csv')
-            for i,row in enumerate(source):
-                energy=float(np.mean(samples[i]**2))
-                generation.append({'architecture':architecture,'seed':seed,'sample':i,
-                                   'relative_difference':float(row['train_mse'])/energy,
-                                   'train_mse':float(row['train_mse']),'sample_energy':energy})
-    fig,ax=plt.subplots(figsize=(9.1,3.1),constrained_layout=True);jitter=np.random.default_rng(16)
-    medians={}
-    for position,(a,label,color) in enumerate((('mlp','Denso',BLUE),('conv','CNN',ORANGE))):
-        values=np.array([r['relative_difference'] for r in generation if r['architecture']==a])
-        ax.scatter(values,position+jitter.uniform(-.17,.17,len(values)),s=17,color=color,alpha=.4)
-        medians[a]=float(np.median(values));ax.plot([medians[a]]*2,[position-.25,position+.25],color=INK,lw=3)
-        ax.text(medians[a],position+.31,f'Mediana {medians[a]:.3f}'.replace('.',','),ha='center',fontsize=13)
-    ax.set_yticks([0,1],['Denso','CNN']);ax.set_ylim(-.4,1.6);ax.invert_yaxis()
-    ax.set_xlim(left=0);ax.set_xlabel('Diferencia con la nota de entrenamiento más parecida / energía de la muestra')
-    ax.spines[['top','right','left']].set_visible(False);ax.grid(axis='x',alpha=.17)
-    save(fig,'generation_relative.png')
-    fig,ax=plt.subplots(figsize=(9.2,3.7),constrained_layout=True)
+def chart():
+    with (ROOT/'reports/nsynth_cnn_study/per_seed.csv').open() as stream:rows=list(csv.DictReader(stream))
+    plt.rcParams.update({'font.family':'DejaVu Sans','font.size':13,'text.color':INK,'axes.labelcolor':INK})
+    fig,ax=plt.subplots(figsize=(7.6,3.15),constrained_layout=True)
     levels=(0.,.05,.1,.2)
-    for condition,method,label,color,style in [('dae_mlp','input','Entrada sin limpiar',INK,'--'),('dae_mlp','model','AE denso',BLUE,'-'),('dae_conv','model','AE convolucional',ORANGE,'-')]:
+    definitions=[('dae_mlp','input','Entrada sin limpiar',INK,'--'),('dae_mlp','model','AE denso',BLUE,'-'),('dae_conv','model','AE CNN',ORANGE,'-')]
+    output=[]
+    for condition,method,label,color,style in definitions:
         means=[]
         for level in levels:
-            values=[float(r['mse']) for r in per if r['condition']==condition and r['method']==method and float(r['noise_level'])==level]
-            means.append(np.mean(values));ax.scatter([level]*len(values),values,color=color,s=20,alpha=.4)
-        ax.plot(levels,means,style,color=color,lw=2.5,marker='o',label=label)
-    ax.axvline(.1,color='#a3b1ba',ls=':',lw=1);ax.text(.103,.028,'Ruido de entrenamiento',fontsize=11,color='#5d7180')
-    ax.set_xticks(levels,['0','0,05','0,10','0,20']);ax.set_ylim(0,.031)
-    ax.set_xlabel('Desvío del ruido gaussiano sobre el espectrograma mel');ax.set_ylabel('MSE respecto de la nota limpia')
-    ax.legend(loc='upper left',frameon=False,fontsize=12);ax.grid(axis='y',alpha=.17);ax.spines[['top','right']].set_visible(False)
-    save(fig,'denoising.png')
-    with (R/'generation_relative.csv').open('w',newline='') as stream:
-        writer=csv.DictWriter(stream,fieldnames=list(generation[0]));writer.writeheader();writer.writerows(generation)
-    return means,medians
-
-def spec_image(values,name):
-    fig,ax=plt.subplots(figsize=(3.3,1.65),constrained_layout=True)
-    ax.imshow(values.reshape(128,64),origin='lower',aspect='auto',extent=[0,1,0,128],cmap='magma',vmin=0,vmax=1)
-    ax.set_xticks([0,.5,1],['0','0,5','1 s']);ax.set_yticks([0,64,128]);ax.tick_params(labelsize=9)
-    save(fig,name)
-
-def make_examples():
-    data=ROOT/'results/nsynth_cnn_study/data'
-    manifest=json.loads((data/'manifest.json').read_text())
-    labels=manifest['eval_example_labels'];selected=[0,2]
-    spectra={}
-    for a in ('mlp','conv'):
-        with np.load(ROOT/f'reports/nsynth_cnn_study/vae_{a}/seed=7/examples.npz',allow_pickle=False) as stored:
-            assert list(stored['labels'])==labels
-            spectra[a]=stored['reconstructed_examples'].copy()
-            if a=='mlp':spectra['codec']=stored['clean_examples'].copy()
-    for i in selected:
-        for a in ('codec','mlp','conv'):spec_image(spectra[a][i],f'{a}_{i}.png')
-    # Audio copies are produced by the common listening export, all with PGHI.
-    kinds={'original':'original','codec':'codec','mlp':'dense','conv':'cnn'}
-    for i in selected:
-        for key,kind in kinds.items():
-            source=ROOT/f'reports/nsynth_cnn_listening/audio/pghi/seed=7/{kind}/{labels[i]}.wav'
-            if not source.exists():raise FileNotFoundError(f'Waiting for shared listening export: {source}')
-            shutil.copy2(source,P/asset(f'{key}_{i}.wav'))
-    return labels,selected
+            selected=[r for r in rows if r['condition']==condition and r['method']==method and float(r['noise_level'])==level]
+            assert sorted(int(r['seed']) for r in selected)==[7,17,27]
+            values=[float(r['mse']) for r in selected];means.append(np.mean(values))
+            ax.scatter([level]*3,values,color=color,s=18,alpha=.35,zorder=3)
+            output.extend(selected)
+        ax.plot(levels,means,style,color=color,marker='o',lw=2.2,ms=5,label=label)
+    ax.set_xticks(levels,['0','0,05','0,10','0,20']);ax.set_ylim(0,.0305)
+    ax.set_xlabel('Desvío del ruido mel (σ)');ax.set_ylabel('MSE frente a la nota limpia')
+    ax.legend(frameon=False,loc='upper left',fontsize=12)
+    ax.grid(axis='y',alpha=.18);ax.spines[['top','right']].set_visible(False)
+    fig.savefig(P/asset('all_noise_levels.png'),dpi=170,bbox_inches='tight',facecolor='white');plt.close(fig)
+    with (R/'plotted_values.csv').open('w',newline='') as stream:
+        writer=csv.DictWriter(stream,fieldnames=list(output[0]));writer.writeheader();writer.writerows(output)
 
 def build():
     R.mkdir(parents=True,exist_ok=True)
-    base=(P/'index.html').read_text()
-    existing=re.findall(r'<section\b.*?</section>',base,re.S)
-    own=[s for s in existing if 'class="nsynth-cnn-add"' in s]
-    for s in own:base=base.replace(s,'')
-    old=re.findall(r'<section\b.*?</section>',base,re.S)
-    assert len(old)==69,'Review the new base deck before rebuilding additions'
-    (R/'base_sections.json').write_text(json.dumps(old,ensure_ascii=False,indent=2))
-    protected={str(p.relative_to(P)):hashlib.sha256(p.read_bytes()).hexdigest() for p in P.rglob('*') if p.is_file()
-               and p.name!='index.html' and not p.name.startswith(PREFIX) and p.name!='extra_nsynth_cnn.css'}
-    _,medians=make_charts();labels,selected=make_examples()
-    sources='Fuentes: reports/nsynth_cnn_study/per_note.csv, per_seed.csv y generation_summary.csv. '
-    intro=sec('Volvemos a NSynth: convoluciones sobre el sonido',
-        '<p class="intro">La pregunta de las figuras, sobre los mismos espectrogramas mel del audio.</p>'
-        '<div class="two"><div><h3>Qué cambia</h3><p>Filtros aprendidos de 3 × 3 sobre tiempo y frecuencia.</p><p>Antes de aplanar, dos convoluciones conservan la vecindad local.</p></div>'
-        '<div><h3>Qué mantenemos</h3><p>Latente 16, ReLU, Adam 0,001 y 200 épocas. Misma pérdida en cada par denso/CNN.</p><p>VAE para reconstruir y generar. AE con entrada deteriorada para denoising.</p></div></div>'
-        '<div class="split"><b>884 notas para entrenar</b><span>224 para probar, de otros instrumentos</span></div>',
-        'Mismo conjunto y partición para las dos arquitecturas. Tres semillas por condición.',
-        sources+'Se usan las1108notas NSynth de10familias del ejemplo. Split nuevo por instrumento exacto:41instrumentos de entrenamiento y12 de prueba, sin compartir instrumentos entre partes. No se reutilizan los pesos viejos entrenados sobre las1108notas. El objetivo aquí es reconstrucción, generación libre y restauración del espectrograma, no encontrar notas omitidas. Las capas se implementan con NumPy y backprop manual, sin cambiar MSE ni KL. La localidad no impone relaciones armónicas. Conv3 implementa correlación cruzada sin invertir el filtro, compartiendo pesos por posición. Kernel3, padding1, stride2 en encoder y1 en decoder.')
-    architecture=sec('La CNN mantiene la compresión a 16 valores',
-        '<p class="intro">Dimensiones por nota: alto × ancho × canales. ReLU en las capas internas.</p>'
-        '<table class="architecture"><tr><th>Encoder CNN</th><th>Decoder CNN</th></tr>'
-        '<tr><td>Mel 128 × 64 × 1<br>Conv 3×3, stride 2, 8 canales<br>64 × 32 × 8<br>Conv 3×3, stride 2, 16 canales<br>32 × 16 × 16<br>Flatten 8192, Dense 512, 128</td>'
-        '<td>Código 16, Dense 128, 512, 8192<br>Reshape 32 × 16 × 16<br>Upsample ×2, Conv 3×3 de 16 a 8<br>64 × 32 × 8<br>Upsample ×2, Conv 3×3 de 8 a 1<br>Sigmoid: 128 × 64 × 1</td></tr></table>'
-        '<p class="detail">En el VAE: salida lineal de 32 valores, μ y log σ²; en el AE: código lineal de 16.</p>'
-        '<p class="detail">Control denso: 8192, 512, 128 y la misma salida latente. Decoder espejo.</p>',
-        'Upsample repite cada píxel. Las convoluciones aprenden los filtros que siguen a esa ampliación.',
-        'Fuentes: src/nn/spatial.py y configs/nsynth_cnn. En el VAE, reparametrización z=mu+exp(0.5logvar)*epsilon, epsilon normalestándar16. Decoder Dense usaReLU, la últimaConv produce logits lineales y el modelo aplica sigmoid. No hay maxpool,ConvTranspose ni capas RGB de refinamiento. EnAE salidaencoder16; enVAE32parámetros de posterior. CNNVAE8537809 parámetros; densoVAE8535328, diferencia0.029%. MSE+0.5KLconwarmup50enVAE, MSEenAE. La comparación por tipo conserva datos, batch64 y pasos, pero no equipara tiempo de cómputo. Fórmula de Conv: Yij,o=bo+sum(u,v=0..2,c)Wuvco Xpad(si+u,sj+v,c).')
-    reconstruction=sec('La CNN reduce un 5,5 % el error de reconstrucción',
-        '<p class="intro">224 notas de instrumentos no vistos por cada modelo. Cada línea une una semilla.</p>'
-        '<figure class="chart">'+image('reconstruction.png','MSE de reconstrucción pareada por semilla, con eje desde cero')+'</figure>',
-        'Mejora media de 0,01570 a 0,01483. La CNN mejora en dos de las tres semillas.',
-        sources+'MSE media sobre8192valores mel normalizados de cada nota, después promedio de224notas y3semillas. No es la medida de diferencia relativa a energía de las slides de generación. No son672entrenamientos independientes: hay tres por condición. Semilla17: CNN0.0148008 frente denso0.0147501, empeora ligeramente. No se afirma significación estadística ni calidad auditiva a partir de MSE. Ambas arquitecturas comparten mismo split y VAEbeta0.5warmup50.')
-    listening='<p class="intro">Misma nota, semilla 7 y exportación PGHI para ambos modelos.</p><div class="listen-grid"><div></div><h3>Referencia con códec</h3><h3>VAE denso</h3><h3>VAE CNN</h3>'
-    names={0:'Bajo electrónico · MIDI 48',2:'Flauta · MIDI 67'}
-    for i in selected:
-        listening+=f'<div class="note-label"><b>{names[i]}</b><p>Velocidad 25</p>'+button(f'original_{i}.wav','Original NSynth')+'</div>'
-        for a in ('codec','mlp','conv'):
-            listening+='<figure>'+image(f'{a}_{i}.png',f'{labels[i]}: {a}, mismo rango mel de0a1')+button(f'{a}_{i}.wav')+'</figure>'
-    listening+='</div>'
-    listening_slide=sec('La misma nota, reconstruida por los dos VAE',listening,
-        'La referencia con códec permite separar la degradación de audio del error que agrega la red.',
-        'Dos ejemplos ilustrativos de los seis prefijados antes de evaluar: posiciones0y2delmanifest, bass_electronic_027-048-025 yflute_acoustic_002-067-025. Todos los ejemplos y tres semillas están en la página de escucha reports/nsynth_cnn_listening/index.html. Selección por etiquetas, no por ventajaCNN. Todos los audios de comparación se exportaron desde sus espectrogramas finales con el mismo códec PGHI+60iteracionesGriffinLim e inversiónmel200. OriginalNSynth no pasa por red ni códec. La MSE de las tablas no cambia al sustituir fase aleatoria por PGHI: se mide en mel antes de la inversión. PGHI es mejora del códec, no evidencia de aprendizajeCNN. Espectrogramas mismaescala0..1, bandas128 ytiempo1segundo.')
-    generation=sec('Generación: diferencias pequeñas entre los VAE',
-        '<p class="intro">Los mismos 64 códigos N(0, I) por semilla. Se muestran las 192 muestras de cada arquitectura.</p>'
-        '<figure class="chart">'+image('generation_relative.png','Diferencia relativa a energía para todas las generaciones densas y CNN')+'</figure>'
-        '<p class="detail">Dividimos el error con la nota más cercana por la energía de la muestra generada.</p>',
-        'La distancia describe cercanía. Escuchar y revisar diversidad sigue siendo necesario para valorar la generación.',
-        'Fuentes: reports/nsynth_cnn_study/vae_*/seed=*/generated.npz y generation.csv. Misma normalización de scripts/presentacion/far_sampling.py: min MSE(generada,nota de entrenamiento)/media(generada²). Se divide por energía en mel de la muestra generada, no por potencia de audioWAV. Referencias884train constantes entre modelos. Se exporta cada una de192muestras en reports/nsynth_cnn_slides/generation_relative.csv. Mediana sobre192salidas, no192modelos: tresmodelos porarquitectura. No se compara este protocolo con el conjunto completo de1108notas de las diapositivas previas. Menor distancia no prueba novedad ni ausencia de memorización. La media MSE entre pares es0.03703denso y0.03532CNN: no permite concluir superioridad tímbrica. No usarla como objetivo de búsqueda.')
-    denoising=sec('El denoising ayudó con ruido fuerte',
-        '<p class="intro">AE entrenados con ruido gaussiano σ = 0,10 en mel. Mismas entradas deterioradas para ambos.</p>'
-        '<figure class="chart">'+image('denoising.png','Curvas de MSE de entrada, AE denso y CNN según ruido mel')+'</figure>',
-        'Con σ = 0,10 ambos empeoran la entrada. Con σ = 0,20, la CNN reduce su error un 40,5 %.',
-        sources+'No se usa VAE para este experimento: ambos sonAEdeMSE,latente16,200épocas. Ruido gaussiano independiente añadido a valores mel yclip0..1, no ruido acústico de micrófono. Aσ0.10entradaMSE0.007413, AE denso0.016585 yCNN0.015362. Aσ0.20entrada0.027086, denso0.020476 yCNN0.016126: reducciones24.4%y40.5%vsidentidad. Sinruido yconruidopequeño la reconstrucción destruye detalles útiles. Los límites se muestran junto con el resultado favorable; no afirmar limpieza universal. Los puntos transparentes son las tres semillas y las líneas sus medias en el mismo test224notas.')
-    conclusions=sec('Qué aportaron las CNN en audio',
-        '<div class="conclusions"><p><b>Reconstrucción:</b> mejora media del 5,5 % en instrumentos no vistos, con una semilla ligeramente peor.</p>'
-        '<p><b>Generación:</b> distancias próximas y muestras para escuchar. La métrica sola no alcanza para valorar el sonido.</p>'
-        '<p><b>Denoising:</b> mejora con deterioro fuerte, pero empeora las entradas con menos ruido.</p>'
-        '<p><b>Notas omitidas:</b> en la prueba sintética aparte, la CNN no logró altura y espectro correctos: 0/27; el denso, 3/27.</p></div>',
-        'La arquitectura espacial ayuda en algunas tareas. La interpolación musical ausente sigue abierta.',
-        sources+'La conclusión conecta tareas y modalidades, sin sumar mejoras de figuras con sonido ni confundir reconstrucción con generación o interpolación. Los resultados de notas omitidas corresponden a otro dataset sintético, no a las224notasNSynth. No hay cambio en fórmula de error delAE/VAE. CalentamientoKL se mantiene fijoenelcontrasteprincipal; una ablación0vs50con200épocas y3semillas no mostró ventaja consistente delwarmup, y se amplió a6semillasparacondición con réplicas independientes, todavía pendientesalprepararestebloque. Los resultados nuevos de esa réplica deben actualizarse después, sin anticiparlos.')
-    additions=[intro,architecture,reconstruction,listening_slide,generation,denoising,conclusions]
-    anchor=next(s for s in old if 'La mejora fue parcial; la lección vuelve al audio' in s)
-    updated=base.replace(anchor,anchor+'\n\n'+'\n\n'.join(additions),1)
-    if 'extra_nsynth_cnn.css' not in updated:updated=updated.replace('</head>','<link rel="stylesheet" href="extra_nsynth_cnn.css">\n</head>')
-    (P/'index.html').write_text(updated)
-    css='''/* Only NSynth CNN additions. Existing layouts remain unchanged. */
-.reveal .nsynth-cnn-add .intro{font-size:24px;color:var(--muted);line-height:1.3;margin:0 0 22px}
-.reveal .nsynth-cnn-add .two{display:grid;grid-template-columns:1fr 1fr;gap:60px;margin:28px 0}
-.reveal .nsynth-cnn-add h3{font-size:28px;color:var(--accent);margin:0 0 14px}
-.reveal .nsynth-cnn-add .two p{font-size:29px;line-height:1.3;margin:0 0 24px}
-.reveal .nsynth-cnn-add .split{border-top:1px solid var(--rule);padding-top:20px;font-size:28px;display:flex;gap:36px}
-.reveal .nsynth-cnn-add .split b{color:var(--accent)}
-.reveal .nsynth-cnn-add .architecture{width:100%;font-size:23px;line-height:1.4;margin:6px 0 15px;border-collapse:collapse}
-.reveal .nsynth-cnn-add td,.reveal .nsynth-cnn-add th{vertical-align:top;padding:10px 18px;border-bottom:1px solid var(--rule)}
-.reveal .nsynth-cnn-add th{font-size:27px;color:var(--accent);text-align:left}
-.reveal .nsynth-cnn-add .detail{font-size:22px;line-height:1.3;margin:12px 0;color:var(--muted)}
-.reveal .nsynth-cnn-add .chart{margin:0;height:380px;display:flex;align-items:center;justify-content:center}
-.reveal .nsynth-cnn-add .chart img{width:100%;height:100%;object-fit:contain;max-height:none;margin:0}
-.reveal .nsynth-cnn-add .listen-grid{display:grid;grid-template-columns:190px repeat(3,1fr);gap:18px 16px;align-items:center;margin-top:18px}
-.reveal .nsynth-cnn-add .listen-grid h3{text-align:center;font-size:23px;margin:0}
-.reveal .nsynth-cnn-add .listen-grid figure{margin:0;text-align:center}
-.reveal .nsynth-cnn-add .listen-grid img{width:100%;height:145px;object-fit:contain;margin:0;max-height:none}
-.reveal .nsynth-cnn-add .note-label{font-size:23px;line-height:1.3}
-.reveal .nsynth-cnn-add .note-label p{font-size:20px;color:var(--muted);margin:12px 0}
-.reveal .nsynth-cnn-add .conclusions p{font-size:29px;line-height:1.35;margin:30px 0}
-.reveal .nsynth-cnn-add .take{font-size:26px;line-height:1.28}
+    source=(P/'index.html').read_text()
+    matches=list(re.finditer(r'<section\b.*?</section>',source,re.S))
+    original=[m.group() for m in matches if not any(x in m.group() for x in ('class="nsynth-cnn-add"','class="nsynth-denoise-add"'))]
+    remote=subprocess.check_output(['git','show','9744710:TP5/presentation/index.html'],cwd=ROOT,text=True)
+    assert original==re.findall(r'<section\b.*?</section>',remote,re.S),'Unrelated slides changed; review before rebuilding'
+    base=source
+    for m in reversed(matches):
+        if any(x in m.group() for x in ('class="nsynth-cnn-add"','class="nsynth-denoise-add"')):
+            base=base[:m.start()]+base[m.end():]
+    base=base.replace('<link rel="stylesheet" href="extra_nsynth_cnn.css">\n','')
+    protected={str(p.relative_to(P)):hashlib.sha256(p.read_bytes()).hexdigest() for p in P.rglob('*')
+               if p.is_file() and p.name!='index.html' and not p.name.startswith(PREFIX) and p.name!='extra_nsynth_denoise.css'}
+    chart()
+    folder=ROOT/'reports/nsynth_cnn_study/dae_conv/seed=7'
+    with np.load(folder/'examples.npz',allow_pickle=False) as data:
+        assert str(data['labels'][0])=='bass_electronic_027-048-025'
+        spectrum(data['noisy_examples'][0],'input.png')
+        spectrum(data['denoised_examples'][0],'output.png')
+    label='bass_electronic_027-048-025'
+    for level in (.1,.2):
+        for kind in ('clean','noisy','dense','cnn'):
+            filename=ROOT/f'reports/nsynth_denoising_listening/audio/seed=7/sigma={level}/{kind}/{label}.wav'
+            assert filename.is_file(),filename
+            shutil.copy2(filename,P/asset(f'{kind}_{level}.wav'))
+    architecture=sec('Probamos CNN sobre el sonido',
+        '<p class="compact-intro">Filtros locales en tiempo y frecuencia, además de las capas densas.</p>'
+        '<div class="cnn-flow">'
+        '<figure>'+img('input.png','Espectrograma mel deteriorado del bajo prefijado')+'<figcaption>Mel 128 × 64</figcaption></figure>'
+        '<div class="operation"><span>Encoder</span><b>Conv 3 × 3</b><small>8 y 16 canales</small></div>'
+        '<div class="bottleneck"><b>16</b><span>valores</span></div>'
+        '<div class="operation"><span>Decoder</span><b>Upsample + Conv</b><small>Reconstruye el mel</small></div>'
+        '<figure>'+img('output.png','Salida del AE convolucional para el mismo ejemplo')+'<figcaption>Mel de salida</figcaption></figure>'
+        '</div>'
+        '<div class="tasks"><p><b>VAE:</b> reconstruir y generar</p><p><b>AE:</b> recuperar entradas con ruido</p></div>'
+        '<p class="protocol">884 notas para entrenar y 224 de otros instrumentos para probar. Tres semillas, 200 épocas.</p>',
+        'Mismos datos, latente y pérdida. El control es la versión densa.',
+        'Propósito: evaluar si localidad y pesos compartidos mejoran tareas del audio NSynth ya presentado. '
+        'Los filtros se aprenden por backpropagation. Conv3 es correlación cruzada3×3,padding1,stride2enencoder y1endecoder. '
+        'Encoder:128×64×1→Conv8→64×32×8→Conv16→32×16×16→Flatten8192→Dense512→128. '
+        'EnAE salida lineal16; enVAE salida32para media ylogvar de16dimensiones y reparametrización. '
+        'Decoder:16→Dense128→512→8192→reshape32×16×16→Upsample2→Conv16a8→Upsample2→Conv8a1→sigmoid. '
+        'ReLU interna, float32, Adam0.001,batch64,200épocas. VAE:MSE+0.5KL,warmup50;AE:MSE. '
+        'Mismo conjunto1108notas de10familias,split porinstrumento:41train y12test; no hay instrumento común. '
+        'No se modificó ninguna fórmula de pérdida. El diagrama ilustra el primer bajo prefijado de test, σ0.1,semilla7; no es selección del mejor caso. '
+        'En esta versión se omiten las diapositivas de resultados de reconstrucción y generación porque las diferencias fueron modestas; '
+        'siguen documentadas en reports/nsynth_cnn_study. No se implica que denoising resuelva las notas omitidas.')
+    audio='<div class="audio-caption"><span>El mismo bajo · MIDI 48 · semilla 7</span>'+btn('clean_0.1.wav','Referencia limpia')+'</div>'
+    audio+='<table class="audio-matrix"><tr><th>Ruido mel</th><th>Entrada con ruido</th><th>AE denso</th><th>AE CNN</th></tr>'
+    for level in (.1,.2):
+        audio+='<tr><th>σ = '+f'{level:.2f}'.replace('.',',')+'</th>'+''.join('<td>'+btn(f'{kind}_{level}.wav')+'</td>' for kind in ('noisy','dense','cnn'))+'</tr>'
+    audio+='</table>'
+    result=sec('Denoising: depende de cuánto ruido hay',
+        '<p class="compact-intro">Todo el rango evaluado. Los modelos se entrenaron con σ = 0,10.</p>'
+        '<div class="denoise-evidence"><figure>'+img('all_noise_levels.png','Error de entrada, AE denso y CNN para los cuatro niveles0,0.05,0.1,0.2 y todas las semillas')+'</figure>'
+        '<div class="findings"><p><b>σ = 0,10</b><span>Ambos empeoran<br>la entrada.</span></p>'
+        '<p><b>σ = 0,20</b><span class="big">−40,5 %</span><span>vs entrada, con CNN<br>−24,4 % con el denso</span></p></div></div>'
+        +audio,
+        'El ruido se agregó al espectrograma mel. Este ensayo no mide eliminación de ruido ambiente.',
+        'Fuentes: reports/nsynth_cnn_study/per_seed.csv yper_note.csv. Gráfico completo con todos los niveles0,0.05,0.1,0.2; '
+        'puntos transparentes:tressemillas ylíneas:medias sobre224notas porsemilla. No son672entrenamientos independientes. '
+        'Ruido gaussiano con desvíoσ sobrevalores mel normalizados,clip0..1. Los dos modelos reciben exactamente la misma entrada porsemilla y nivel. '
+        'Baseline: devolver la entrada sin procesarla. MSE aσ0.1:entrada0.007413,denso0.016585,CNN0.015362; '
+        'aσ0.2:entrada0.027086,denso0.020476,CNN0.016126. Las reducciones24.4%y40.5%se calculan respecto de la entrada, no entre redes. '
+        'La CNN mejora frente al denso pero con ruido bajo ambos pierden detalles útiles y empeoran frente a la identidad. '
+        'Los audios son el primer bajo prefijado,bass_electronic_027-048-025,semilla7; no se eligió por ventaja deCNN. '
+        'Referencia limpia,entrada ruidosa y ambas salidas se exportan conPGHI+60GriffinLim e inversiónmel200. '
+        'La página reports/nsynth_denoising_listening/index.html permite escuchar las seis notas fijas,los cuatro niveles ylas tressemillas. '
+        'No hay efecto de fase desigual entre arquitecturas ni afirmación de calidad auditiva a partir de MSE sola.')
+    anchor=next(s for s in original if 'No logramos generar una nota que no vio' in s)
+    updated=base.replace(anchor,anchor+'\n\n'+architecture+'\n\n'+result,1)
+    if 'extra_nsynth_denoise.css' not in updated:updated=updated.replace('</head>','<link rel="stylesheet" href="extra_nsynth_denoise.css">\n</head>')
+    css='''/* Only the two compact CNN/denoising slides. */
+.reveal .nsynth-denoise-add .compact-intro{font-size:24px;color:var(--muted);margin:0 0 20px;line-height:1.3}
+.reveal .nsynth-denoise-add .cnn-flow{display:grid;grid-template-columns:180px 235px 100px 250px 180px;gap:30px;align-items:center;margin:50px 0 44px}
+.reveal .nsynth-denoise-add .cnn-flow figure{margin:0;text-align:center}
+.reveal .nsynth-denoise-add .cnn-flow img{width:180px;height:150px;object-fit:contain;max-height:none;margin:0}
+.reveal .nsynth-denoise-add figcaption{font-size:23px;margin-top:14px;color:var(--muted)}
+.reveal .nsynth-denoise-add .operation{display:flex;flex-direction:column;gap:12px;position:relative;font-size:27px;line-height:1.2;text-align:center}
+.reveal .nsynth-denoise-add .operation::before{content:'→';position:absolute;left:-30px;top:36px;color:var(--faint)}
+.reveal .nsynth-denoise-add .operation::after{content:'→';position:absolute;right:-30px;top:36px;color:var(--faint)}
+.reveal .nsynth-denoise-add .operation span{color:var(--muted);font-size:24px}
+.reveal .nsynth-denoise-add .operation small{font-size:21px;color:var(--muted)}
+.reveal .nsynth-denoise-add .bottleneck{text-align:center;display:flex;flex-direction:column;color:var(--accent)}
+.reveal .nsynth-denoise-add .bottleneck b{font-size:70px;line-height:1}.reveal .nsynth-denoise-add .bottleneck span{font-size:23px}
+.reveal .nsynth-denoise-add .tasks{display:flex;justify-content:space-between;border-top:1px solid var(--rule);padding-top:24px;font-size:29px}
+.reveal .nsynth-denoise-add .tasks b{color:var(--accent)}
+.reveal .nsynth-denoise-add .protocol{font-size:22px;color:var(--muted);margin-top:30px}
+.reveal .nsynth-denoise-add .denoise-evidence{display:grid;grid-template-columns:850px 270px;gap:30px;align-items:center;height:290px}
+.reveal .nsynth-denoise-add .denoise-evidence figure{margin:0;height:290px}
+.reveal .nsynth-denoise-add .denoise-evidence img{width:850px;height:290px;object-fit:contain;max-height:none;margin:0}
+.reveal .nsynth-denoise-add .findings p{font-size:23px;line-height:1.25;margin:0 0 20px}
+.reveal .nsynth-denoise-add .findings b,.reveal .nsynth-denoise-add .findings span{display:block}
+.reveal .nsynth-denoise-add .findings b{color:var(--muted);font-size:23px;margin-bottom:6px}
+.reveal .nsynth-denoise-add .findings .big{font-size:42px;color:var(--accent);line-height:1.1}
+.reveal .nsynth-denoise-add .audio-caption{display:flex;gap:24px;align-items:center;font-size:22px;margin:13px 0 8px}
+.reveal .nsynth-denoise-add .audio-caption button{margin:0}
+.reveal .nsynth-denoise-add .audio-matrix{width:100%;font-size:21px;border-collapse:collapse;margin:0;text-align:center}
+.reveal .nsynth-denoise-add .audio-matrix th{font-weight:400;color:var(--muted);padding:3px 10px;text-align:center}
+.reveal .nsynth-denoise-add .audio-matrix td{padding:2px 10px}
+.reveal .nsynth-denoise-add .audio-matrix button{margin:0}
+.reveal .nsynth-denoise-add .take{font-size:25px;line-height:1.25}
 '''
-    (P/'extra_nsynth_cnn.css').write_text(css)
+    (P/'index.html').write_text(updated);(P/'extra_nsynth_denoise.css').write_text(css)
     sections=re.findall(r'<section\b.*?</section>',updated,re.S)
-    assert [s for s in sections if 'class="nsynth-cnn-add"' not in s]==old
+    assert len(sections)==71 and [s for s in sections if 'class="nsynth-denoise-add"' not in s]==original
     for name,digest in protected.items():assert hashlib.sha256((P/name).read_bytes()).hexdigest()==digest,name
-    record={'base_commit':'9744710','base_sections':len(old),'new_sections':len(additions),'slides':len(sections),
-            'all_previous_sections_and_notes_exact':True,'protected_files_unchanged':len(protected),
-            'added_pages':list(range(58,65)),'same_audio_phase':'pghi','generation_relative_medians':medians,
-            'source_base_sha256':hashlib.sha256(base.encode()).hexdigest()}
+    record={'base_sections':69,'slides':71,'replacement_sections':2,'added_pages':[50,51],
+            'old_seven_slide_block_removed':True,'all_other_sections_notes_and_order_exact':True,
+            'new_order':'audio through omitted notes -> CNN protocol -> complete denoising -> figures -> conclusions -> appendix',
+            'noise_levels':[0,.05,.1,.2],'same_audio_phase':'pghi','fixed_audio_example':label,'seed':7,
+            'all_previous_assets_preserved':True}
     (R/'verification.json').write_text(json.dumps(record,indent=2))
     print(json.dumps(record,indent=2))
 

@@ -1,0 +1,999 @@
+{
+  "seed": 17,
+  "test_count": 224,
+  "labels": [
+    "bass_electronic_027-048-025",
+    "brass_acoustic_046-053-025",
+    "flute_acoustic_002-067-025",
+    "guitar_acoustic_030-048-025",
+    "keyboard_acoustic_004-050-025",
+    "mallet_acoustic_056-048-127"
+  ],
+  "noise_scope": "all224testnotes_before_selecting6",
+  "noise_hashes": {
+    "0.0": "720367717321aeb1dc914b28c989e7535d97a3cca9d154155735a5b706d3a5c2",
+    "0.05": "ddee51ad3d1f70cf133923685ca582be366536d4320c4c90b7c1392d3aaccad5",
+    "0.1": "68a521bf34e83d8f4080176876a153ed510c1a79da5392b4eaba38000824ed86",
+    "0.2": "b2fa98b2870c1e295179a4d1fc35ac91a9a021b32ff2d67098363a8885f0b200"
+  },
+  "models": [
+    {
+      "condition": "dae_mlp",
+      "weights_sha256": "5b1bc3667aa34259c6451e769ca323d85334c788f05ae27948a3dddc52c7d97c",
+      "summary_sha256": "14fa1f3b8fdb0f5bd975ca9a6740148b5ee70b776bb54140de731cc8547e4808",
+      "per_note_csv_sha256": "c53dcf37c43187ab51f498482e21d31a276cf08a71aac8ba9a13af65acb63740",
+      "weights_unchanged": true,
+      "noise_hashes_match": true
+    },
+    {
+      "condition": "dae_conv",
+      "weights_sha256": "0d690d60a2e7f842e681005b8d72fbdefb15afff03ca39aa8c574f76ded6f689",
+      "summary_sha256": "8e37560d431faeb61af2143f34c39ce5b09dcfe096332848e96974678780a636",
+      "per_note_csv_sha256": "1c24cfdda9c03cd11504d170c8683d7ee415f814dbb47552d7622bd73f47e948",
+      "weights_unchanged": true,
+      "noise_hashes_match": true
+    }
+  ],
+  "mse_checks": [
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "bass_electronic_027-048-025",
+      "sigma": 0.0,
+      "method": "model",
+      "mse": 0.0020046600360816716,
+      "original_mse": 0.0020046601951644503,
+      "absolute_difference": 1.590827786342175e-10
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "brass_acoustic_046-053-025",
+      "sigma": 0.0,
+      "method": "model",
+      "mse": 0.014404827986568898,
+      "original_mse": 0.014404829312473867,
+      "absolute_difference": 1.3259049691516367e-09
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "flute_acoustic_002-067-025",
+      "sigma": 0.0,
+      "method": "model",
+      "mse": 0.007089362615347861,
+      "original_mse": 0.007089364556036646,
+      "absolute_difference": 1.940688785020961e-09
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "guitar_acoustic_030-048-025",
+      "sigma": 0.0,
+      "method": "model",
+      "mse": 0.0021271874846372344,
+      "original_mse": 0.002127187839593103,
+      "absolute_difference": 3.5495586851730376e-10
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "keyboard_acoustic_004-050-025",
+      "sigma": 0.0,
+      "method": "model",
+      "mse": 0.005561692616964862,
+      "original_mse": 0.005561692439734818,
+      "absolute_difference": 1.7723004400865827e-10
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "mallet_acoustic_056-048-127",
+      "sigma": 0.0,
+      "method": "model",
+      "mse": 0.017563866578122242,
+      "original_mse": 0.017563866578122242,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "bass_electronic_027-048-025",
+      "sigma": 0.0,
+      "method": "input",
+      "mse": 0.0,
+      "original_mse": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "brass_acoustic_046-053-025",
+      "sigma": 0.0,
+      "method": "input",
+      "mse": 0.0,
+      "original_mse": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "flute_acoustic_002-067-025",
+      "sigma": 0.0,
+      "method": "input",
+      "mse": 0.0,
+      "original_mse": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "guitar_acoustic_030-048-025",
+      "sigma": 0.0,
+      "method": "input",
+      "mse": 0.0,
+      "original_mse": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "keyboard_acoustic_004-050-025",
+      "sigma": 0.0,
+      "method": "input",
+      "mse": 0.0,
+      "original_mse": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "mallet_acoustic_056-048-127",
+      "sigma": 0.0,
+      "method": "input",
+      "mse": 0.0,
+      "original_mse": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "bass_electronic_027-048-025",
+      "sigma": 0.05,
+      "method": "model",
+      "mse": 0.0016887572902858428,
+      "original_mse": 0.001688757967706171,
+      "absolute_difference": 6.774203281656455e-10
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "brass_acoustic_046-053-025",
+      "sigma": 0.05,
+      "method": "model",
+      "mse": 0.01368029402653449,
+      "original_mse": 0.013680292539645238,
+      "absolute_difference": 1.486889252347301e-09
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "flute_acoustic_002-067-025",
+      "sigma": 0.05,
+      "method": "model",
+      "mse": 0.005944205425782125,
+      "original_mse": 0.005944201973483698,
+      "absolute_difference": 3.452298427165934e-09
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "guitar_acoustic_030-048-025",
+      "sigma": 0.05,
+      "method": "model",
+      "mse": 0.001903380163718035,
+      "original_mse": 0.0019033802747210086,
+      "absolute_difference": 1.1100297352302502e-10
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "keyboard_acoustic_004-050-025",
+      "sigma": 0.05,
+      "method": "model",
+      "mse": 0.004665550571677157,
+      "original_mse": 0.004665550918652144,
+      "absolute_difference": 3.4697498693669893e-10
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "mallet_acoustic_056-048-127",
+      "sigma": 0.05,
+      "method": "model",
+      "mse": 0.03385539489320491,
+      "original_mse": 0.03385539489320491,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "bass_electronic_027-048-025",
+      "sigma": 0.05,
+      "method": "input",
+      "mse": 0.0014580138244008234,
+      "original_mse": 0.0014580138244008234,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "brass_acoustic_046-053-025",
+      "sigma": 0.05,
+      "method": "input",
+      "mse": 0.002145858555133105,
+      "original_mse": 0.002145858555133105,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "flute_acoustic_002-067-025",
+      "sigma": 0.05,
+      "method": "input",
+      "mse": 0.0018092408787085434,
+      "original_mse": 0.0018092408787085434,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "guitar_acoustic_030-048-025",
+      "sigma": 0.05,
+      "method": "input",
+      "mse": 0.0014334220156429847,
+      "original_mse": 0.0014334220156429847,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "keyboard_acoustic_004-050-025",
+      "sigma": 0.05,
+      "method": "input",
+      "mse": 0.0015976465128569183,
+      "original_mse": 0.0015976465128569183,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "mallet_acoustic_056-048-127",
+      "sigma": 0.05,
+      "method": "input",
+      "mse": 0.0013477790140848677,
+      "original_mse": 0.0013477790140848677,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "bass_electronic_027-048-025",
+      "sigma": 0.1,
+      "method": "model",
+      "mse": 0.001965675608223961,
+      "original_mse": 0.00196567467770023,
+      "absolute_difference": 9.305237309853442e-10
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "brass_acoustic_046-053-025",
+      "sigma": 0.1,
+      "method": "model",
+      "mse": 0.01321244053194293,
+      "original_mse": 0.01321243997341117,
+      "absolute_difference": 5.585317590373062e-10
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "flute_acoustic_002-067-025",
+      "sigma": 0.1,
+      "method": "model",
+      "mse": 0.005324467922910343,
+      "original_mse": 0.005324466707492751,
+      "absolute_difference": 1.2154175920917054e-09
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "guitar_acoustic_030-048-025",
+      "sigma": 0.1,
+      "method": "model",
+      "mse": 0.001992591390607385,
+      "original_mse": 0.001992591618492956,
+      "absolute_difference": 2.2788557065694937e-10
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "keyboard_acoustic_004-050-025",
+      "sigma": 0.1,
+      "method": "model",
+      "mse": 0.004079851000791537,
+      "original_mse": 0.004079851833880914,
+      "absolute_difference": 8.330893769975534e-10
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "mallet_acoustic_056-048-127",
+      "sigma": 0.1,
+      "method": "model",
+      "mse": 0.06660766905886517,
+      "original_mse": 0.06660766905886517,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "bass_electronic_027-048-025",
+      "sigma": 0.1,
+      "method": "input",
+      "mse": 0.005738871808282541,
+      "original_mse": 0.005738871808282541,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "brass_acoustic_046-053-025",
+      "sigma": 0.1,
+      "method": "input",
+      "mse": 0.008027865839521225,
+      "original_mse": 0.008027865839521225,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "flute_acoustic_002-067-025",
+      "sigma": 0.1,
+      "method": "input",
+      "mse": 0.006845356403057809,
+      "original_mse": 0.006845356403057809,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "guitar_acoustic_030-048-025",
+      "sigma": 0.1,
+      "method": "input",
+      "mse": 0.005656731909099879,
+      "original_mse": 0.005656731909099879,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "keyboard_acoustic_004-050-025",
+      "sigma": 0.1,
+      "method": "input",
+      "mse": 0.006210220570631118,
+      "original_mse": 0.006210220570631118,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "mallet_acoustic_056-048-127",
+      "sigma": 0.1,
+      "method": "input",
+      "mse": 0.005337271422304961,
+      "original_mse": 0.005337271422304961,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "bass_electronic_027-048-025",
+      "sigma": 0.2,
+      "method": "model",
+      "mse": 0.004930912752009141,
+      "original_mse": 0.0049309149002726895,
+      "absolute_difference": 2.1482635488220825e-09
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "brass_acoustic_046-053-025",
+      "sigma": 0.2,
+      "method": "model",
+      "mse": 0.015081081950653911,
+      "original_mse": 0.0150810861804241,
+      "absolute_difference": 4.2297701886157e-09
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "flute_acoustic_002-067-025",
+      "sigma": 0.2,
+      "method": "model",
+      "mse": 0.006308764944389915,
+      "original_mse": 0.0063087657508949044,
+      "absolute_difference": 8.065049895283893e-10
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "guitar_acoustic_030-048-025",
+      "sigma": 0.2,
+      "method": "model",
+      "mse": 0.0040068004683184565,
+      "original_mse": 0.004006800663657718,
+      "absolute_difference": 1.9533926125941958e-10
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "keyboard_acoustic_004-050-025",
+      "sigma": 0.2,
+      "method": "model",
+      "mse": 0.004660468334794819,
+      "original_mse": 0.004660467297593928,
+      "absolute_difference": 1.0372008902789775e-09
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "mallet_acoustic_056-048-127",
+      "sigma": 0.2,
+      "method": "model",
+      "mse": 0.1414244683942582,
+      "original_mse": 0.1414244683942582,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "bass_electronic_027-048-025",
+      "sigma": 0.2,
+      "method": "input",
+      "mse": 0.022183337330485425,
+      "original_mse": 0.022183337330485425,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "brass_acoustic_046-053-025",
+      "sigma": 0.2,
+      "method": "input",
+      "mse": 0.0288650294351849,
+      "original_mse": 0.0288650294351849,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "flute_acoustic_002-067-025",
+      "sigma": 0.2,
+      "method": "input",
+      "mse": 0.025097007438816328,
+      "original_mse": 0.025097007438816328,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "guitar_acoustic_030-048-025",
+      "sigma": 0.2,
+      "method": "input",
+      "mse": 0.021824491048237707,
+      "original_mse": 0.021824491048237707,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "keyboard_acoustic_004-050-025",
+      "sigma": 0.2,
+      "method": "input",
+      "mse": 0.023486737054983973,
+      "original_mse": 0.023486737054983973,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "label": "mallet_acoustic_056-048-127",
+      "sigma": 0.2,
+      "method": "input",
+      "mse": 0.020961684583802324,
+      "original_mse": 0.020961684583802324,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "bass_electronic_027-048-025",
+      "sigma": 0.0,
+      "method": "model",
+      "mse": 0.0033342236870035616,
+      "original_mse": 0.003334226445266411,
+      "absolute_difference": 2.7582628494594863e-09
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "brass_acoustic_046-053-025",
+      "sigma": 0.0,
+      "method": "model",
+      "mse": 0.013888304801913987,
+      "original_mse": 0.013888305761340024,
+      "absolute_difference": 9.594260368811502e-10
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "flute_acoustic_002-067-025",
+      "sigma": 0.0,
+      "method": "model",
+      "mse": 0.0056029109215851814,
+      "original_mse": 0.005602910911819108,
+      "absolute_difference": 9.766073366668238e-12
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "guitar_acoustic_030-048-025",
+      "sigma": 0.0,
+      "method": "model",
+      "mse": 0.004249851661964839,
+      "original_mse": 0.004249852123726348,
+      "absolute_difference": 4.6176150923782355e-10
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "keyboard_acoustic_004-050-025",
+      "sigma": 0.0,
+      "method": "model",
+      "mse": 0.005600902805350011,
+      "original_mse": 0.005600901981502549,
+      "absolute_difference": 8.238474624722159e-10
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "mallet_acoustic_056-048-127",
+      "sigma": 0.0,
+      "method": "model",
+      "mse": 0.004922066467040094,
+      "original_mse": 0.004922066296331358,
+      "absolute_difference": 1.7070873620933513e-10
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "bass_electronic_027-048-025",
+      "sigma": 0.0,
+      "method": "input",
+      "mse": 0.0,
+      "original_mse": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "brass_acoustic_046-053-025",
+      "sigma": 0.0,
+      "method": "input",
+      "mse": 0.0,
+      "original_mse": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "flute_acoustic_002-067-025",
+      "sigma": 0.0,
+      "method": "input",
+      "mse": 0.0,
+      "original_mse": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "guitar_acoustic_030-048-025",
+      "sigma": 0.0,
+      "method": "input",
+      "mse": 0.0,
+      "original_mse": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "keyboard_acoustic_004-050-025",
+      "sigma": 0.0,
+      "method": "input",
+      "mse": 0.0,
+      "original_mse": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "mallet_acoustic_056-048-127",
+      "sigma": 0.0,
+      "method": "input",
+      "mse": 0.0,
+      "original_mse": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "bass_electronic_027-048-025",
+      "sigma": 0.05,
+      "method": "model",
+      "mse": 0.002112860988308753,
+      "original_mse": 0.0021128611088940133,
+      "absolute_difference": 1.2058526052682872e-10
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "brass_acoustic_046-053-025",
+      "sigma": 0.05,
+      "method": "model",
+      "mse": 0.013838805893247198,
+      "original_mse": 0.013838803951425487,
+      "absolute_difference": 1.941821710371716e-09
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "flute_acoustic_002-067-025",
+      "sigma": 0.05,
+      "method": "model",
+      "mse": 0.005281828449238163,
+      "original_mse": 0.005281828143554166,
+      "absolute_difference": 3.056839972120917e-10
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "guitar_acoustic_030-048-025",
+      "sigma": 0.05,
+      "method": "model",
+      "mse": 0.0035753645594487284,
+      "original_mse": 0.003575365621039983,
+      "absolute_difference": 1.0615912545731965e-09
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "keyboard_acoustic_004-050-025",
+      "sigma": 0.05,
+      "method": "model",
+      "mse": 0.004580523290317665,
+      "original_mse": 0.004580523199650713,
+      "absolute_difference": 9.06669522446335e-11
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "mallet_acoustic_056-048-127",
+      "sigma": 0.05,
+      "method": "model",
+      "mse": 0.00473682100340499,
+      "original_mse": 0.004736821066094615,
+      "absolute_difference": 6.268962432498526e-11
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "bass_electronic_027-048-025",
+      "sigma": 0.05,
+      "method": "input",
+      "mse": 0.0014580138244008234,
+      "original_mse": 0.0014580138244008234,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "brass_acoustic_046-053-025",
+      "sigma": 0.05,
+      "method": "input",
+      "mse": 0.002145858555133105,
+      "original_mse": 0.002145858555133105,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "flute_acoustic_002-067-025",
+      "sigma": 0.05,
+      "method": "input",
+      "mse": 0.0018092408787085434,
+      "original_mse": 0.0018092408787085434,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "guitar_acoustic_030-048-025",
+      "sigma": 0.05,
+      "method": "input",
+      "mse": 0.0014334220156429847,
+      "original_mse": 0.0014334220156429847,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "keyboard_acoustic_004-050-025",
+      "sigma": 0.05,
+      "method": "input",
+      "mse": 0.0015976465128569183,
+      "original_mse": 0.0015976465128569183,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "mallet_acoustic_056-048-127",
+      "sigma": 0.05,
+      "method": "input",
+      "mse": 0.0013477790140848677,
+      "original_mse": 0.0013477790140848677,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "bass_electronic_027-048-025",
+      "sigma": 0.1,
+      "method": "model",
+      "mse": 0.00213211803657281,
+      "original_mse": 0.002132117148960243,
+      "absolute_difference": 8.876125672137303e-10
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "brass_acoustic_046-053-025",
+      "sigma": 0.1,
+      "method": "model",
+      "mse": 0.013804830497379336,
+      "original_mse": 0.013804828970430673,
+      "absolute_difference": 1.526948662997074e-09
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "flute_acoustic_002-067-025",
+      "sigma": 0.1,
+      "method": "model",
+      "mse": 0.005334473925088614,
+      "original_mse": 0.005334473327837576,
+      "absolute_difference": 5.972510385560126e-10
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "guitar_acoustic_030-048-025",
+      "sigma": 0.1,
+      "method": "model",
+      "mse": 0.0037060266779553384,
+      "original_mse": 0.0037060267957384828,
+      "absolute_difference": 1.1778314434884862e-10
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "keyboard_acoustic_004-050-025",
+      "sigma": 0.1,
+      "method": "model",
+      "mse": 0.004191585833025581,
+      "original_mse": 0.004191585698939941,
+      "absolute_difference": 1.3408564016048619e-10
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "mallet_acoustic_056-048-127",
+      "sigma": 0.1,
+      "method": "model",
+      "mse": 0.005281470312168534,
+      "original_mse": 0.005281470621898329,
+      "absolute_difference": 3.0972979476323603e-10
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "bass_electronic_027-048-025",
+      "sigma": 0.1,
+      "method": "input",
+      "mse": 0.005738871808282541,
+      "original_mse": 0.005738871808282541,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "brass_acoustic_046-053-025",
+      "sigma": 0.1,
+      "method": "input",
+      "mse": 0.008027865839521225,
+      "original_mse": 0.008027865839521225,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "flute_acoustic_002-067-025",
+      "sigma": 0.1,
+      "method": "input",
+      "mse": 0.006845356403057809,
+      "original_mse": 0.006845356403057809,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "guitar_acoustic_030-048-025",
+      "sigma": 0.1,
+      "method": "input",
+      "mse": 0.005656731909099879,
+      "original_mse": 0.005656731909099879,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "keyboard_acoustic_004-050-025",
+      "sigma": 0.1,
+      "method": "input",
+      "mse": 0.006210220570631118,
+      "original_mse": 0.006210220570631118,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "mallet_acoustic_056-048-127",
+      "sigma": 0.1,
+      "method": "input",
+      "mse": 0.005337271422304961,
+      "original_mse": 0.005337271422304961,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "bass_electronic_027-048-025",
+      "sigma": 0.2,
+      "method": "model",
+      "mse": 0.005165190080076539,
+      "original_mse": 0.00516518851985761,
+      "absolute_difference": 1.560218928879642e-09
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "brass_acoustic_046-053-025",
+      "sigma": 0.2,
+      "method": "model",
+      "mse": 0.013665645993862833,
+      "original_mse": 0.013665644952769415,
+      "absolute_difference": 1.0410934180721254e-09
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "flute_acoustic_002-067-025",
+      "sigma": 0.2,
+      "method": "model",
+      "mse": 0.006085438366227969,
+      "original_mse": 0.006085437887689004,
+      "absolute_difference": 4.785389653982897e-10
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "guitar_acoustic_030-048-025",
+      "sigma": 0.2,
+      "method": "model",
+      "mse": 0.004889504640094217,
+      "original_mse": 0.004889506365402653,
+      "absolute_difference": 1.725308436048567e-09
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "keyboard_acoustic_004-050-025",
+      "sigma": 0.2,
+      "method": "model",
+      "mse": 0.007544657826872624,
+      "original_mse": 0.007544657840619741,
+      "absolute_difference": 1.374711715990129e-11
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "mallet_acoustic_056-048-127",
+      "sigma": 0.2,
+      "method": "model",
+      "mse": 0.008872498004213561,
+      "original_mse": 0.008872497902633617,
+      "absolute_difference": 1.0157994410897597e-10
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "bass_electronic_027-048-025",
+      "sigma": 0.2,
+      "method": "input",
+      "mse": 0.022183337330485425,
+      "original_mse": 0.022183337330485425,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "brass_acoustic_046-053-025",
+      "sigma": 0.2,
+      "method": "input",
+      "mse": 0.0288650294351849,
+      "original_mse": 0.0288650294351849,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "flute_acoustic_002-067-025",
+      "sigma": 0.2,
+      "method": "input",
+      "mse": 0.025097007438816328,
+      "original_mse": 0.025097007438816328,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "guitar_acoustic_030-048-025",
+      "sigma": 0.2,
+      "method": "input",
+      "mse": 0.021824491048237707,
+      "original_mse": 0.021824491048237707,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "keyboard_acoustic_004-050-025",
+      "sigma": 0.2,
+      "method": "input",
+      "mse": 0.023486737054983973,
+      "original_mse": 0.023486737054983973,
+      "absolute_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "label": "mallet_acoustic_056-048-127",
+      "sigma": 0.2,
+      "method": "input",
+      "mse": 0.020961684583802324,
+      "original_mse": 0.020961684583802324,
+      "absolute_difference": 0.0
+    }
+  ]
+}
