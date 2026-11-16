@@ -201,7 +201,7 @@ def small_failures(report: list[str]) -> None:
         )
 
     figure, axis = plt.subplots(figsize=(12, 3.2))
-    image = axis.imshow(failures, cmap="Blues", vmin=0, vmax=len(by_config[configs[0]]), aspect="auto")
+    image = axis.imshow(failures, cmap="Reds", vmin=0, vmax=len(by_config[configs[0]]), aspect="auto")
     axis.set_xticks(range(len(labels)), labels)
     axis.set_yticks(
         range(len(configs)), [f"latente {k[0]}, ocultas: {hidden_name(list(k[1]))}" for k in configs]
@@ -363,7 +363,7 @@ def noise_types(report: list[str]) -> None:
     noisy = np.array([np.mean([i for i, _ in cells[(kinds[0], e)]]) for e in kinds])
 
     figure, axis = plt.subplots(figsize=(6.4, 4.4))
-    image = axis.imshow(output, cmap="Blues", vmin=0, aspect="auto")
+    image = axis.imshow(output, cmap="Reds", vmin=0, aspect="auto")
     for i in range(len(kinds)):
         for j in range(len(kinds)):
             axis.text(j, i, f"{output[i, j]:.2f}\n± {deviation[i, j]:.2f}", ha="center", va="center",

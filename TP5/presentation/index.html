@@ -203,10 +203,10 @@
 </section>
 
 <section class="figure has-take">
-  <h2>Limpia bien solo el ruido con el que se entrenó</h2>
+  <h2>También limpia ruidos con los que no se entrenó</h2>
   <figure><img src="assets/reports__ej1_pruebas__denoising_tipos_de_ruido.png" alt="Error de salida entrenando con un ruido y probando con otro"></figure>
-  <p class="take">Entrenada apagando píxeles, no sabe qué hacer con los que se prenden: <span class="warm">4,5 a 8,5</span> píxeles mal.</p>
-  <aside class="notes">Latente 8, ocultas 32-16, 3 semillas. Invertir es el ruido más general: entrenada así, limpia los cuatro tipos con menos de medio píxel mal. Apagar solo saca píxeles: la red aprende que todo píxel encendido es real, y cuando el ruido prende píxeles los deja.</aside>
+  <p class="take">De 2,3 a 3,7 píxeles mal en la entrada a <em>menos de 1</em>. La excepción: entrenada apagando píxeles, deja <span class="warm">4,5 a 8,5</span>.</p>
+  <aside class="notes">Latente 8, ocultas 32-16, 3 semillas. Entrenada con invertir, sal y pimienta o gaussiano, limpia los cuatro tipos de ruido, también los que nunca vio, con menos de un píxel mal; la entrada tiene entre 2,3 y 3,7. Invertir es el más general: menos de medio píxel mal en los cuatro. Apagar solo saca píxeles: la red aprende que todo píxel encendido es real, y cuando el ruido prende píxeles los deja.</aside>
 </section>
 
 <!-- ===================================================================== Ejercicio 2 -->
