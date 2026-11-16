@@ -28,3 +28,7 @@ El usuario autorizó rehacer «Otro sorteo acerca el AE a notas conocidas»: aho
 ## Actualización explícita del usuario, 15/11/2026 (4)
 
 Se agregan dos diapositivas después de «Sortear de una gaussiana ajustada acerca a los dos»: qué decodifican AE y VAE lejos de sus códigos (gráfico y espectrogramas con audio). `index.html` queda con 70 diapositivas.
+
+## Actualización explícita del usuario, 15/11/2026 (5)
+
+El usuario autorizó quitar «Las muestras del VAE quedan más cerca de notas reales»: la comparación con N(0,I) ya está en «Sortear de una gaussiana ajustada acerca a los dos», con la medida relativa a la energía. `index.html` queda con 69 diapositivas.
