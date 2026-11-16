@@ -1,0 +1,233 @@
+{
+  "status": "complete",
+  "seeds": [
+    7,
+    17,
+    27
+  ],
+  "levels": [
+    0.0,
+    0.05,
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.5
+  ],
+  "train_noise": 0.1,
+  "no_training": true,
+  "model_audits": [
+    {
+      "condition": "dae_mlp",
+      "seed": 7,
+      "model_sha256": "7fb12cb39b957d94221da8211dc1dbd8e7cdee50923cd0d165b2a7ae748e0384",
+      "weights_unchanged": true,
+      "original_levels_reproduced_max_mse_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 17,
+      "model_sha256": "5b1bc3667aa34259c6451e769ca323d85334c788f05ae27948a3dddc52c7d97c",
+      "weights_unchanged": true,
+      "original_levels_reproduced_max_mse_difference": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "seed": 27,
+      "model_sha256": "40083bb40deb0bcd16a710a92c0dd7953872471a3ab05d7e56b903d67b21cc12",
+      "weights_unchanged": true,
+      "original_levels_reproduced_max_mse_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 7,
+      "model_sha256": "d08bab8773beea761a77a055f61333a0433bdb10bdc2519dcc17ea9386bd33cf",
+      "weights_unchanged": true,
+      "original_levels_reproduced_max_mse_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 17,
+      "model_sha256": "0d690d60a2e7f842e681005b8d72fbdefb15afff03ca39aa8c574f76ded6f689",
+      "weights_unchanged": true,
+      "original_levels_reproduced_max_mse_difference": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "seed": 27,
+      "model_sha256": "d0dfcd9995879e23b74d39243bf3e679ff3aff4d3877bf4c3ef410c07ec4d134",
+      "weights_unchanged": true,
+      "original_levels_reproduced_max_mse_difference": 0.0
+    }
+  ],
+  "aggregates": [
+    {
+      "condition": "dae_mlp",
+      "noise_level": 0.0,
+      "method": "input",
+      "mse": 0.0
+    },
+    {
+      "condition": "dae_mlp",
+      "noise_level": 0.0,
+      "method": "model",
+      "mse": 0.016262791683427463
+    },
+    {
+      "condition": "dae_mlp",
+      "noise_level": 0.05,
+      "method": "input",
+      "mse": 0.0019265529679367056
+    },
+    {
+      "condition": "dae_mlp",
+      "noise_level": 0.05,
+      "method": "model",
+      "mse": 0.01615637249793186
+    },
+    {
+      "condition": "dae_mlp",
+      "noise_level": 0.1,
+      "method": "input",
+      "mse": 0.00741278328627365
+    },
+    {
+      "condition": "dae_mlp",
+      "noise_level": 0.1,
+      "method": "model",
+      "mse": 0.016585180730109287
+    },
+    {
+      "condition": "dae_mlp",
+      "noise_level": 0.2,
+      "method": "input",
+      "mse": 0.027085911176247784
+    },
+    {
+      "condition": "dae_mlp",
+      "noise_level": 0.2,
+      "method": "model",
+      "mse": 0.02047647978593427
+    },
+    {
+      "condition": "dae_mlp",
+      "noise_level": 0.3,
+      "method": "input",
+      "mse": 0.05499912712597096
+    },
+    {
+      "condition": "dae_mlp",
+      "noise_level": 0.3,
+      "method": "model",
+      "mse": 0.030810034733814745
+    },
+    {
+      "condition": "dae_mlp",
+      "noise_level": 0.4,
+      "method": "input",
+      "mse": 0.0869005167424091
+    },
+    {
+      "condition": "dae_mlp",
+      "noise_level": 0.4,
+      "method": "model",
+      "mse": 0.04660695473252673
+    },
+    {
+      "condition": "dae_mlp",
+      "noise_level": 0.5,
+      "method": "input",
+      "mse": 0.11856871324637998
+    },
+    {
+      "condition": "dae_mlp",
+      "noise_level": 0.5,
+      "method": "model",
+      "mse": 0.06286363810875477
+    },
+    {
+      "condition": "dae_conv",
+      "noise_level": 0.0,
+      "method": "input",
+      "mse": 0.0
+    },
+    {
+      "condition": "dae_conv",
+      "noise_level": 0.0,
+      "method": "model",
+      "mse": 0.015674254060205357
+    },
+    {
+      "condition": "dae_conv",
+      "noise_level": 0.05,
+      "method": "input",
+      "mse": 0.0019265529679367056
+    },
+    {
+      "condition": "dae_conv",
+      "noise_level": 0.05,
+      "method": "model",
+      "mse": 0.015459548669767577
+    },
+    {
+      "condition": "dae_conv",
+      "noise_level": 0.1,
+      "method": "input",
+      "mse": 0.00741278328627365
+    },
+    {
+      "condition": "dae_conv",
+      "noise_level": 0.1,
+      "method": "model",
+      "mse": 0.015362316838274903
+    },
+    {
+      "condition": "dae_conv",
+      "noise_level": 0.2,
+      "method": "input",
+      "mse": 0.027085911176247784
+    },
+    {
+      "condition": "dae_conv",
+      "noise_level": 0.2,
+      "method": "model",
+      "mse": 0.016125923804933526
+    },
+    {
+      "condition": "dae_conv",
+      "noise_level": 0.3,
+      "method": "input",
+      "mse": 0.05499912712597096
+    },
+    {
+      "condition": "dae_conv",
+      "noise_level": 0.3,
+      "method": "model",
+      "mse": 0.018666340562075986
+    },
+    {
+      "condition": "dae_conv",
+      "noise_level": 0.4,
+      "method": "input",
+      "mse": 0.0869005167424091
+    },
+    {
+      "condition": "dae_conv",
+      "noise_level": 0.4,
+      "method": "model",
+      "mse": 0.023077680217973098
+    },
+    {
+      "condition": "dae_conv",
+      "noise_level": 0.5,
+      "method": "input",
+      "mse": 0.11856871324637998
+    },
+    {
+      "condition": "dae_conv",
+      "noise_level": 0.5,
+      "method": "model",
+      "mse": 0.028395618792281516
+    }
+  ]
+}

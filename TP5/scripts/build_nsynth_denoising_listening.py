@@ -31,7 +31,7 @@ from src.experiments.runner import load_run
 
 OUTPUT=Path('reports/nsynth_denoising_listening')
 SEEDS=(7,17,27)
-LEVELS=(0.,.05,.1,.2)
+LEVELS=(0.,.05,.1,.2,.3,.4,.5)
 KINDS=('clean','noisy','dense','cnn')
 
 
@@ -72,12 +72,14 @@ def prepare_seed(task):
         old=root/f'reports/nsynth_cnn_study/{condition}/seed={seed}'
         summary=read(old/'summary.json');before=sha((run/'model.npz').read_bytes())
         if before!=summary['model_sha256']:raise ValueError(f'Weights differ from evaluated model: {run}')
-        if summary['corrupted_inputs_sha256']!=audit['noise_hashes']:raise ValueError(f'Test noise hash mismatch: {condition}/{seed}')
+        if any(audit['noise_hashes'][k]!=v for k,v in summary['corrupted_inputs_sha256'].items()):raise ValueError(f'Test noise hash mismatch: {condition}/{seed}')
         model,used=load_run(run)
         if used.labels!=study['train'].labels or set(used.labels).intersection(test.labels):
             raise ValueError('Held-out split or training order mismatch')
         with (old/'per_note.csv').open(newline='') as stream:
             previous={(r['label'],float(r['noise_level']),r['method']):r for r in csv.DictReader(stream)}
+        with (root/'reports/nsynth_denoising_noise_sweep/per_note.csv').open(newline='') as stream:
+            previous.update({(r['label'],float(r['noise_level']),r['method']):r for r in csv.DictReader(stream) if r['condition']==condition and int(r['seed'])==seed})
         for level in LEVELS:
             value=reconstruct_batches(model,inputs[str(level)])
             if not np.isfinite(value).all():raise ValueError('Non-finite denoising output')
@@ -114,11 +116,11 @@ def export_priority(root=ROOT,jobs=2):
     cache=output/'cache';cache.mkdir(exist_ok=True)
     tasks=[('clean',arrays['clean'][0],description,str(cache))]
     tasks.extend((f'{level}/{kind}',arrays[f'{kind}_{level}'][0],description,str(cache))
-                 for level in (.1,.2) for kind in ('noisy','dense','cnn'))
+                 for level in (.1,.5) for kind in ('noisy','dense','cnn'))
     files=[];label=str(arrays['labels'][0])
     with ProcessPoolExecutor(max_workers=jobs) as pool:
         for key,payload,wav_audit in pool.map(decode_one,tasks):
-            levels=(.1,.2) if key=='clean' else (float(key.split('/')[0]),)
+            levels=(.1,.5) if key=='clean' else (float(key.split('/')[0]),)
             kind='clean' if key=='clean' else key.split('/')[1]
             for level in levels:
                 path=output/f'audio/seed=7/sigma={level}/{kind}/{label}.wav'
@@ -126,7 +128,7 @@ def export_priority(root=ROOT,jobs=2):
                 files.append({'label':label,'seed':7,'sigma':level,'kind':kind,'path':str(path.relative_to(root)),**wav_audit})
     (output/'priority_audio_manifest.json').write_text(json.dumps({'files':files,'unique_audio_count':7,
                      'explicit_phase':'pghi','inference_audit':'inference_audit_seed=7.json'},indent=2))
-    print('PRIORITY READY: 7 unique WAV, bass seed7, sigma0.1/0.2',flush=True)
+    print('PRIORITY READY: 7 unique WAV, bass seed7, sigma0.1/0.5',flush=True)
 
 
 def build(root=ROOT,jobs=2,windows_output=None):
@@ -170,7 +172,7 @@ def build(root=ROOT,jobs=2,windows_output=None):
            'codec_input_precision':'float64','cache_version':'float64_atomic_v1',
            'sigma_zero_input_clean_byte_identical_all_18':zero_matches,
            'noise_generated_before_selecting_six':True,'noise_hashes_match_both_original_models':True,
-           'inference':{'notes_per_seed_level_model':6,'models':6,'levels':4,'predictions':144,
+           'inference':{'notes_per_seed_level_model':6,'models':6,'levels':len(LEVELS),'predictions':len(SEEDS)*len(LEVELS)*len(labels)*2,
                         'per_note_mse_checks_including_input':len(mse_checks),
                         'max_mse_absolute_difference':max(r['absolute_difference'] for r in mse_checks)},
            'model_audits':[r for _,result in prepared for r in result['models']],
@@ -179,11 +181,11 @@ def build(root=ROOT,jobs=2,windows_output=None):
            'html_sha256':sha(html.encode()),'no_training':True,'old_waveforms_preserved':True}
     (output/'audio_manifest.json').write_text(json.dumps(audit,indent=2))
     (output/'FUENTES.md').write_text('# Escucha completa de denoising NSynth\n\n'
-        'Seis ejemplos fijados en results/nsynth_cnn_study/data/manifest.json. Modelos AE densos y convolucionales de '
+        'Seis ejemplos fijados en results/nsynth_cnn_study/data/manifest.json. Modelos Densos y convolucionales de '
         'results/ej2_nsynth_cnn_dae_{mlp,conv}/base__seed={7,17,27}. No se entrenan ni modifican.\n\n'
         'La contaminación se regenera con src.analysis.nsynth_cnn_evaluation.corruption sobre las 224 notas de prueba '
-        'antes de seleccionar 6. Los 12 hashes de entrada se verifican contra ambos summary.json originales. '
-        'Las 144 reconstrucciones y 144 entradas tienen MSE por nota comprobada con per_note.csv original, tolerancia 1e-7.\n\n'
+        'antes de seleccionar 6. Los 12 hashes de entrada se verifican originales contra ambos summary.json; los niveles nuevos se verifican contra reports/nsynth_denoising_noise_sweep/per_note.csv. '
+        'Las 252 reconstrucciones y 252 entradas tienen MSE por nota comprobada con per_note.csv original, tolerancia 1e-7.\n\n'
         'El ruido es gaussiano sobre valores mel normalizados, con recorte [0,1], no ruido acústico añadido a la onda. '
         'Todos los audios se regeneran con PGHI y 60 iteraciones Griffin-Lim e inversión mel 200. '
         'Todas las entradas al códec usan float64. El caché incluye versión y codec, y se escribe de forma atómica. '
@@ -204,14 +206,14 @@ def page(payload):
     style=re.search(r'<style>(.*?)</style>',reconstruction_page({}),re.S).group(1)
     return '''<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Denoising NSynth · Escucha comparada</title><style>'''+style+'''</style><main>
-<h1>Ruido añadido.<br>Sonido reconstruido.</h1><p class="intro">Compará la misma nota limpia, su entrada contaminada y lo que recuperan los autoencoders denso y convolucional. Seis instrumentos de prueba, tres semillas y cuatro niveles de ruido.</p>
+<h1>Ruido añadido.<br>Sonido reconstruido.</h1><p class="intro">La misma nota: limpia, con ruido, reconstruida por el denso y por la CNN.</p>
 <div class="controls"><label>Semilla de entrenamiento<select id="seed"><option>7</option><option>17</option><option>27</option></select></label>
-<label>Ruido gaussiano en mel, σ<select id="sigma"><option value="0.0">0 · sin ruido</option><option value="0.05">0,05</option><option value="0.1" selected>0,1 · nivel entrenado</option><option value="0.2">0,2 · mayor ruido</option></select></label><button type="button" id="stop">Detener todo</button><p class="status" id="status" aria-live="polite"></p></div>
-<p class="phase-note"><strong>Ruido en la representación mel, no ruido ambiental.</strong> Se sumó ruido a los valores del espectrograma y se recortó a [0,1]. Toda la fila vuelve a audio con el mismo códec PGHI + Griffin-Lim, incluida la referencia limpia.</p>
-<div class="guide"><div><strong>Nota de prueba</strong><small>La misma en toda la fila</small></div><div><strong>Referencia limpia</strong><small>Mel original pasado por el códec</small></div><div><strong>Entrada con ruido</strong><small>Contaminación que recibe cada red</small></div><div><strong class="dense">AE denso</strong><small>Reconstrucción de la entrada ruidosa</small></div><div><strong class="cnn">AE convolucional</strong><small>Reconstrucción de la misma entrada</small></div></div>
-<div id="notes"></div><footer><p><strong>Qué escuchar:</strong> usá la referencia limpia como destino. Compará qué parte del ruido desaparece y qué parte del sonido original se pierde. El nivel cero muestra si la red altera una entrada limpia.</p><p>Los seis ejemplos se fijaron antes de observar resultados y son idénticos en todos los modelos, semillas y niveles. Las métricas del experimento incluyen las 224 notas de prueba. Estos modelos son AE entrenados con MSE para recuperar mel limpio a partir de mel con ruido de σ = 0,1.</p><p>Un segundo por audio, mono 16kHz. PGHI inicializa la fase y Griffin-Lim la refina en todas las columnas. Las salidas se normalizan por pico, sin igualación de sonoridad. Solo se reproduce un audio por vez. Todo está incluido para escuchar sin conexión.</p></footer></main>
+<label>Ruido gaussiano en mel, σ<select id="sigma"><option value="0.0">0 · sin ruido</option><option value="0.05">0,05</option><option value="0.1" selected>0,1 · nivel entrenado</option><option value="0.2">0,2</option><option value="0.3">0,3</option><option value="0.4">0,4</option><option value="0.5">0,5</option></select></label><button type="button" id="stop">Detener todo</button><p class="status" id="status" aria-live="polite"></p></div>
+<details class="phase-note"><summary>Detalles del experimento</summary>Ruido gaussiano sobre mel, recorte [0,1]. Todos usan el mismo códec PGHI. Modelos entrenados con σ = 0,1.</details>
+<div class="guide"><div><strong>Nota de prueba</strong><small>La misma en toda la fila</small></div><div><strong>Referencia limpia</strong><small>Mel original pasado por el códec</small></div><div><strong>Entrada con ruido</strong><small>Contaminación que recibe cada red</small></div><div><strong class="dense">Denso</strong><small>Reconstrucción de la entrada ruidosa</small></div><div><strong class="cnn">CNN</strong><small>Reconstrucción de la misma entrada</small></div></div>
+<div id="notes"></div><footer>Compará cuánto ruido desaparece y cuánto sonido original se pierde.</footer></main>
 <script id="listening-data" type="application/json">'''+json.dumps(payload,ensure_ascii=False)+'''</script><script>
-'use strict';const study=JSON.parse(document.getElementById('listening-data').textContent);const kinds=['clean','noisy','dense','cnn'];const names=['Referencia limpia','Entrada con ruido','AE denso','AE convolucional'];const tones=['Do','Do♯','Re','Re♯','Mi','Fa','Fa♯','Sol','Sol♯','La','La♯','Si'];let players=[];
+'use strict';const study=JSON.parse(document.getElementById('listening-data').textContent);const kinds=['clean','noisy','dense','cnn'];const names=['Referencia limpia','Entrada con ruido','Denso','CNN'];const tones=['Do','Do♯','Re','Re♯','Mi','Fa','Fa♯','Sol','Sol♯','La','La♯','Si'];let players=[];
 function stopAll(except=null){for(const a of players)if(a!==except){a.pause();a.currentTime=0}}
 function render(){stopAll();players=[];const seed=document.getElementById('seed').value,level=document.getElementById('sigma').value;document.getElementById('notes').replaceChildren();study.notes.forEach((note,index)=>{const row=document.createElement('section');row.className='note';const header=document.createElement('header');const family=document.createElement('div');family.className='family';family.textContent=note.family;header.append(family);const pitch=document.createElement('div');pitch.className='pitch';pitch.textContent=tones[note.pitch%12]+(Math.floor(note.pitch/12)-1)+' · MIDI '+note.pitch+' · velocidad '+note.velocity;header.append(pitch);const metadata=document.createElement('div');metadata.className='metadata';metadata.textContent=note.instrument;header.append(metadata);row.append(header);
 kinds.forEach((kind,column)=>{const cell=document.createElement('div');cell.className='player';const title=document.createElement('label');title.className='audio-label '+(kind==='dense'?'dense':kind==='cnn'?'cnn':'');title.textContent=names[column];cell.append(title);const a=document.createElement('audio');a.controls=true;a.preload='metadata';a.setAttribute('aria-label',names[column]+', '+note.label);const key=kind==='clean'?'clean/'+index:seed+'/'+level+'/'+kind+'/'+index;a.src=study.audio[key];a.addEventListener('play',()=>{stopAll(a);document.getElementById('status').textContent=note.family+' · '+names[column]});a.addEventListener('error',()=>document.getElementById('status').textContent='No se pudo reproducir '+note.label);cell.append(a);row.append(cell);players.push(a)});document.getElementById('notes').append(row)});document.getElementById('status').textContent='Semilla '+seed+' · σ '+level.replace('.',',')+' · fase PGHI'}
