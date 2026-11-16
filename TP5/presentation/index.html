@@ -326,8 +326,35 @@
 <section class="figure has-take">
   <h2>Sortear de una gaussiana ajustada acerca a los dos</h2>
   <figure><img src="assets/reports__presentacion__e2_sorteo_ajustado.png" alt="Diferencia con la nota real más parecida para AE y VAE, sorteando de N(0,I) o de una gaussiana ajustada"></figure>
-  <p class="take">Mediana: autoencoder <span class="warm">33 → 16</span>, VAE <em>17 → 14</em>. Aun ajustado, el autoencoder deja <span class="warm">6/256</span> lejos; el VAE, <em>0</em>.</p>
-  <aside class="notes">Mismo sorteo para los dos modelos. En vez de sortear el código de N(0,I), ajustamos una gaussiana (media y covarianza completas) a los códigos de las notas de entrenamiento de cada modelo; en el VAE, a las medias de q(z|x). Los pesos no cambian. Al autoencoder lo ayuda mucho: N(0,I) cae lejos de donde quedaron sus códigos. Al VAE lo ayuda poco, porque la KL ya acercó sus códigos a N(0,I); aun así sigue quedando más cerca que el autoencoder ajustado, que además deja una cola de muestras lejanas. «Lejos» es la línea punteada: más diferencia que la que tiene el 99 % de las 1.108 notas reales con su vecina más parecida (38,7). Con un umbral más bajo, el del 95 %, el autoencoder ajustado y el VAE quedan parecidos (84 y 75 de 256): la diferencia está en los fallos grandes, no en la muestra típica. Ajustar el sorteo no convierte al autoencoder en VAE. 256 muestras por método, mismos vectores base, una semilla de modelos (7), reentrenados para este control; las medianas difieren en uno o dos puntos de la diapositiva anterior por eso. Fuente: reports/ej2_search/nsynth_sampling_control.</aside>
+  <p class="take">Muestras lejos de toda nota real: autoencoder <span class="warm">104 → 48</span>, VAE <em>49 → 34</em>, de 256.</p>
+  <aside class="notes">Mismo sorteo para los dos modelos. En vez de sortear el código de N(0,I), ajustamos una gaussiana (media y covarianza completas) a los códigos de las notas de entrenamiento de cada modelo; en el VAE, a las medias de q(z|x). Los pesos no cambian. La diferencia con la nota real más parecida se mide relativa a la energía de la propia muestra, porque una salida suave queda cerca de cualquier nota suave; es la misma medida de las dos diapositivas siguientes. «Lejos» es la línea punteada: más diferencia relativa que la que tiene el 99 % de las 1.108 notas reales con su vecina más parecida. Al autoencoder el ajuste lo ayuda mucho: N(0,I) cae lejos de donde quedaron sus códigos. Ajustado, queda como el VAE sin ajustar (48 y 49 de 256). Al VAE lo ayuda menos, porque la KL ya acercó sus códigos a N(0,I); con el mismo sorteo ajustado, sigue mejor que el autoencoder (34 contra 48). Ajustar el sorteo no convierte al autoencoder en VAE. 256 muestras por método, mismos vectores base, una semilla de modelos (7), reentrenados para este control. Fuente: reports/ej2_search/nsynth_sampling_control.</aside>
+</section>
+<section class="figure has-take">
+  <h2>Lejos de las notas, los dos empeoran; el autoencoder antes</h2>
+  <figure><img src="assets/reports__presentacion__e2_lejos.png" alt="Porcentaje de muestras que no se parecen a ninguna nota real, según cuánto nos alejamos de los códigos, para autoencoder y VAE"></figure>
+  <p class="take">Al doble de distancia: autoencoder <span class="warm">47 %</span>, VAE <em>32 %</em>.</p>
+  <aside class="notes">Tomamos la gaussiana ajustada de la diapositiva anterior y la estiramos por un factor s: s = 1 es ese mismo sorteo; s = 2 sortea el doble de lejos. Lo medimos con la nube de cada modelo, porque las coordenadas del autoencoder son el doble de anchas que las del VAE. Mismos 256 vectores base para los dos. Ojo con una trampa: lejos de las notas, el VAE da salidas más suaves (a s = 3, 69 de 256 quedan por debajo del 5 % más suave de las notas reales; el autoencoder, 44), y una salida suave queda cerca de cualquier nota suave. Por eso acá la diferencia se mide relativa a la energía de la propia muestra, y «no se parece» significa más diferencia relativa que la que tiene el 99 % de las notas reales con su vecina. En s = 1 coincide con la diapositiva anterior: 48 y 34 de 256 (19 % y 13 %). Los dos empeoran al alejarse; el autoencoder siempre está peor, unos 15 puntos. Una semilla de modelos.</aside>
+</section>
+<section>
+  <h2>Así suenan los espacios vacíos</h2>
+  <div class="tiles six">
+    <p class="row-label">Autoencoder</p>
+    <figure><img src="assets/reports__presentacion__espectrogramas__lejos_ae_0.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__lejos_ae_0.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__lejos_ae_1.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__lejos_ae_1.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__lejos_ae_2.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__lejos_ae_2.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__lejos_ae_3.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__lejos_ae_3.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__lejos_ae_4.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__lejos_ae_4.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__lejos_ae_5.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__lejos_ae_5.wav">oír</button></figure>
+    <p class="row-label">VAE</p>
+    <figure><img src="assets/reports__presentacion__espectrogramas__lejos_vae_0.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__lejos_vae_0.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__lejos_vae_1.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__lejos_vae_1.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__lejos_vae_2.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__lejos_vae_2.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__lejos_vae_3.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__lejos_vae_3.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__lejos_vae_4.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__lejos_vae_4.wav">oír</button></figure>
+    <figure><img src="assets/reports__presentacion__espectrogramas__lejos_vae_5.png" alt=""><button class="play" data-sound="assets/reports__presentacion__audio__lejos_vae_5.wav">oír</button></figure>
+  </div>
+  <p class="take">Triple de distancia: el autoencoder da ruido granulado; el VAE, notas más suaves y simples.</p>
+  <aside class="notes">Los mismos seis vectores base para los dos modelos, a s = 3: el triple de lejos que el sorteo ajustado, medido con la nube de cada uno. Son los seis primeros, no elegidos. El autoencoder llena las bandas de puntos sueltos, como con N(0, I). El VAE pierde energía y armónicos, pero sigue dando trazos continuos con ataque y caída; dos de las seis son casi una sola línea. No es que el VAE no falle lejos de las notas: falla de otra forma.</aside>
 </section>
 
 <section class="side">

@@ -24,3 +24,7 @@ El usuario autorizó quitar la diapositiva «Una salida diferente no demuestra n
 ## Actualización explícita del usuario, 15/11/2026 (3)
 
 El usuario autorizó rehacer «Otro sorteo acerca el AE a notas conocidas»: ahora es «Sortear de una gaussiana ajustada acerca a los dos», con la gaussiana ajustada aplicada también al VAE.
+
+## Actualización explícita del usuario, 15/11/2026 (4)
+
+Se agregan dos diapositivas después de «Sortear de una gaussiana ajustada acerca a los dos»: qué decodifican AE y VAE lejos de sus códigos (gráfico y espectrogramas con audio). `index.html` queda con 70 diapositivas.
