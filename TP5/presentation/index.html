@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="extra_clarified_latent.css">
 <link rel="stylesheet" href="extra_bottleneck_explanation.css">
 <link rel="stylesheet" href="extra_requested_conclusions.css">
+<link rel="stylesheet" href="extra_appendix_study.css">
 </head>
 <body>
 <div class="reveal"><div class="slides">
@@ -627,6 +628,32 @@
 <section class="audio-focus clarified-latent"><h2>NSynth: el mismo mapa, dos colores</h2><p class="intro">VAE denso de dos dimensiones. Las mismas 224 notas de instrumentos no vistos, en ambos paneles.</p><figure class="clarified-map"><img src="assets/extra_clarified_nsynth_map.png" alt="Las mismas coordenadas reales de NSynth coloreadas por altura MIDI y por familia de instrumento"></figure><p class="take">Cada punto representa un sonido completo. En NSynth también varían timbre y envolvente.</p><aside class="notes">Fuente: reports/nsynth_latent_2d/mlp_z2_seed7/per_note.csv.224testnotasde12instrumentosno vistosporunVAEentrenadocon884notas. Semilla7prefijada como vista ilustrativa, no selección de mejor modelo. Se usa mu posterior z1/z2 de un latente real2D, sinPCA. Mismos puntos enambospaneles, mismosejes, sincontornosnegros. Colores de altura son etiquetas MIDI, no frecuencia estimada. Familia es etiqueta externa usada solo al colorear. Losgrupospuedensolaparse;no seprueba disentanglement niunacoordenadacausalexclusiva. No se promedian ejes de semillasdistintas. Esto ilustra la organización, no prueba capacidad de recuperar alturasomitidas. No contiene CNN, que se introduce después.</aside></section>
 
 <section class="audio-focus pitch-story "><h2>Qué aprendimos al representar sonidos</h2><ol class="closing"><li>El latente representa altura y envolvente; visualizarlo en 2D pierde fidelidad.</li><li>La CNN redujo la MSE de NSynth un 4 % y ayudó con ruido fuerte.</li><li>Las variantes probadas no resolvieron de forma fiable las notas omitidas.</li></ol><p class="take">Reconstruir mejor no garantiza aprender una regla de interpolación musical.</p><aside class="notes">El4%esMSEtestNSynth9pares16D; denoisingAEotra tarea; notasomitidassintéticasexploratorias. Lasvariantesdeinterpolaciónusanunúnicocriterioestable. Noextrapolarporcentajesentredatasets. Las10semillasfavoreceneldensoenel diagnósticoestable65/90vs21/90,pero no prueban recuperacióndeltimbreobjetivo niunaregla musicaluniversal. Lasgaussianaspermanecenenelapéndiceporredundanciaconparteanterior. No seentrena nada, no se cambia pérdida de modelos ni se evalúan referencias finales.</aside></section>
+
+<section class="audio-focus appendix-study"><h2>Notas identificadas en el latente sintético</h2><div class="study-note-map"><img src="assets/extra_appendix_notas_en_el_latente.png"><div><p>22 alturas enteras<br>40 envolventes por altura</p><p>La♯3 y La♯4 comparten aproximadamente una dirección.</p><p>Sol3, Do♯4 y Sol4 están reservadas.</p></div></div><aside class="notes">MismoVAE denso z2 ysemilla7 de46. Son880puntosenteros de1420entrenamiento. Mediasposterioresreales,sinPCA. Laalineaciónpuntualno demuestraequivalenciadeoctavasuniversal.</aside></section>
+
+<section class="audio-focus appendix-study"><h2>Escala del experimento sintético</h2><img class="study-scale" src="assets/extra_appendix_escala_del_experimento.png"><p class="study-summary">22 alturas enteras + 54 alturas microtonales = 76 alturas distintas.<br>880 sonidos enteros + 540 microtonales = 1.420 muestras.</p><aside class="notes">RangoMIDI48–72,paso0.25semitonos.Lasventanas±0.75alrededorde55,61,67seexcluyen.Completoincluye51,57,63.</aside></section>
+
+<section class="audio-focus appendix-study"><h2>Arquitecturas: esquema completo</h2><img class="study-full-network" src="assets/extra_appendix_vae_denso_y_convolucional.png"><aside class="notes">Imagenoriginalcompletacomo referencia. Las dos slides siguientes presentan las capas con letra más grande. Denso6capasconpesos;CNN10. Reparametrización,reshape yupsamplingnoposeenpesos.</aside></section>
+
+<section class="audio-focus appendix-study"><h2>Encoder: capas de ambas redes</h2><div class="study-net-columns"><div><h3>VAE denso</h3><pre>Mel → 8.192 valores
+Densa 512 · ReLU
+Densa 128 · ReLU
+Densa 2d → μ y log σ²</pre><p>3 capas con pesos.</p></div><div><h3>VAE CNN</h3><pre>Mel 128 × 64 × 1
+Conv 3×3, salto 2, 8 canales
+Conv 3×3, salto 2, 16 canales
+Aplanar 8.192 → Densa 512
+Densa 128 → Densa 2d</pre><p>5 capas con pesos.</p></div></div><p class="study-summary">En ambos: z = μ + exp(log σ² / 2) · ε, con ε normal estándar.</p><aside class="notes"></aside></section>
+
+<section class="audio-focus appendix-study"><h2>Decoder: convoluciones como una elección</h2><div class="study-net-columns"><div><h3>VAE denso</h3><pre>z → Densa 128 · ReLU
+Densa 512 · ReLU
+Densa 8.192
+Sigmoide → mel</pre><p>3 capas con pesos.</p></div><div><h3>VAE CNN</h3><pre>z → Densa 128 · ReLU
+Densa 512 · ReLU
+Densa 8.192 · ReLU
+Grilla 32 × 16 × 16
+Ampliar ×2 + Conv 8
+Ampliar ×2 + Conv 1
+Sigmoide → mel</pre><p>5 capas con pesos.</p></div></div><aside class="notes">No esobligatorio usarCNNeneldecoder.Unencoderconvolucionalyun decoderdensoformanunVAEválido. Nuestrocontrastecambiadoslados,porloquenopermiteaislarelaportedecadauno.No sehicieronnuevosentrenamientosmixtos.</aside></section>
 
 
 </div></div>

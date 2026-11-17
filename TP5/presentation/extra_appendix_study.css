@@ -1,0 +1,11 @@
+
+.reveal .study-note-map{display:grid;grid-template-columns:740px 370px;gap:35px;align-items:center}
+.reveal .study-note-map img{width:740px;height:515px;object-fit:contain}
+.reveal .study-note-map p{font-size:27px;line-height:1.4;margin-bottom:28px}
+.reveal .study-scale{width:1160px;height:350px;object-fit:contain}
+.reveal .study-summary{font-size:27px;line-height:1.4;color:var(--muted);margin-top:20px}
+.reveal .study-full-network{width:1160px;height:535px;object-fit:contain}
+.reveal .study-net-columns{display:grid;grid-template-columns:1fr 1fr;gap:50px;margin-top:30px}
+.reveal .study-net-columns h3{font-size:30px;color:var(--accent);margin:0 0 18px}
+.reveal .study-net-columns pre{font:24px/1.65 Consolas,monospace;box-shadow:none;white-space:pre-wrap;margin:0;color:var(--ink);width:auto;background:transparent}
+.reveal .study-net-columns p{font-size:25px;color:var(--muted);margin-top:14px}
