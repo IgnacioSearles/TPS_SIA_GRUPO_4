@@ -1,0 +1,12 @@
+
+.reveal .requested-nsynth figure{margin:2px 0 0}
+.reveal .requested-nsynth img{width:1160px;height:510px;object-fit:contain;margin:0;max-height:none;max-width:none}
+.reveal section.requested-conclusions{display:block!important;padding-top:45px;padding-bottom:35px}
+.reveal .requested-conclusions h2{font-size:54px;margin-bottom:24px}
+.reveal .requested-conclusions li{font-size:30px;line-height:1.23;margin-bottom:20px;padding-left:68px}
+.reveal .requested-conclusions li::before{font-size:46px;top:-5px}
+
+.reveal .requested-nsynth .intro{margin-bottom:0}
+.reveal .requested-nsynth .large-map-layout{display:grid;grid-template-columns:940px 200px;gap:20px;margin-top:0;align-items:start}
+.reveal .requested-nsynth .large-maps{width:940px;height:540px;object-fit:contain}
+.reveal .requested-nsynth .large-key{width:200px;height:540px;object-fit:contain}

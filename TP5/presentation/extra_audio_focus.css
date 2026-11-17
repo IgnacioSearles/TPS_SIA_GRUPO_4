@@ -1,0 +1,44 @@
+.reveal .nsynth-final-image img{width:1160px;height:445px;object-fit:contain}.reveal .nsynth-final-image{margin-top:10px}
+/* Audio-only main narrative. Existing slides/assets remain untouched in the appendix. */
+.reveal .audio-focus .intro{font-size:24px;color:var(--muted);margin:0 0 14px;line-height:1.3}
+.reveal .audio-focus .take{font-size:25px;line-height:1.25}
+.reveal .audio-focus figure{margin:0}
+.reveal .audio-focus img{max-width:none;max-height:none;margin:0;object-fit:contain}
+.reveal .generation-pairs{display:grid;grid-template-columns:1fr 1fr;gap:80px;margin:18px 90px 0}
+.reveal .generation-pairs h3{font-size:25px;margin:12px 0 8px;color:var(--muted);font-weight:400}
+.reveal .generation-pairs figure{display:flex;align-items:center;gap:24px}
+.reveal .generation-pairs img{width:290px;height:170px;object-fit:fill}
+.reveal .pitch-result{display:grid;grid-template-columns:870px 220px;gap:35px;align-items:center;margin-top:26px}
+.reveal .pitch-result img{width:870px;height:380px}
+.reveal .totals p{margin-bottom:36px}.reveal .totals span{display:block;font-size:27px;color:var(--muted)}
+.reveal .totals b{font-size:52px;color:var(--accent);white-space:nowrap}
+.reveal .audio-focus .envelope-image{height:430px;margin:15px -20px 0}
+.reveal .envelope-image img{width:1200px;height:430px}
+.reveal .latent-comparison{display:grid;grid-template-columns:1fr 1fr;gap:70px;margin:35px 45px 40px}
+.reveal .latent-comparison b{font-size:110px;line-height:1;color:var(--accent)}
+.reveal .latent-comparison h3{font-size:29px;margin:12px 0 14px}
+.reveal .latent-comparison p{font-size:27px;color:var(--muted);line-height:1.35}
+.reveal .study-line{font-size:27px;border-top:1px solid var(--rule);padding-top:24px}
+.reveal .noise-evidence{display:grid;grid-template-columns:860px 230px;gap:35px;height:275px;align-items:center}
+.reveal .noise-evidence img{width:860px;height:275px}
+.reveal .noise-findings p{font-size:23px;margin-bottom:12px;line-height:1.2}
+.reveal .noise-findings span{display:block;font-size:22px;color:var(--muted);margin-bottom:3px}
+.reveal .noise-findings b{font-size:35px;color:var(--accent);font-weight:500}
+.reveal .audio-focus .audio-caption{font-size:22px;margin:12px 0 8px;display:flex;align-items:center;gap:25px}
+.reveal .noise-audio{width:100%;border-collapse:collapse;font-size:22px;margin:0;text-align:center}
+.reveal .noise-audio td,.reveal .noise-audio th{border:0;padding:5px 12px;text-align:center}
+.reveal .noise-audio th{color:var(--muted);font-weight:400}
+.reveal .noise-audio button{margin:0}
+.reveal .density-plot{height:375px;margin-top:25px}
+.reveal .density-plot img{width:1160px;height:375px}
+.reveal .projection-label{font-size:22px;color:var(--muted);margin-top:8px}
+.reveal .gmm-result{display:grid;grid-template-columns:520px 590px;gap:30px;margin-top:28px;align-items:center}
+.reveal .gmm-result>figure img{width:520px;height:380px}
+.reveal .gmm-examples{display:grid;grid-template-columns:repeat(3,1fr);gap:17px}
+.reveal .gmm-examples h3{font-size:21px;font-weight:400;color:var(--muted);text-align:center;margin:0 0 12px;white-space:nowrap}
+.reveal .gmm-examples figure{text-align:center;margin:0 0 16px}
+.reveal .gmm-examples img{width:180px;height:125px;object-fit:fill;display:block}
+.reveal .gmm-examples button{margin-top:5px}
+.reveal .closing{list-style:none;counter-reset:item;margin:50px 0 0;padding:0}
+.reveal .closing li{counter-increment:item;position:relative;padding-left:70px;font-size:33px;line-height:1.3;margin-bottom:32px}
+.reveal .closing li::before{content:counter(item);position:absolute;left:0;top:-5px;font-size:48px;color:var(--accent);font-weight:700}

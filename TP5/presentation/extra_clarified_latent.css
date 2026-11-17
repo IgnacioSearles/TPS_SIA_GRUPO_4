@@ -1,0 +1,8 @@
+
+.reveal .clarified-map img{width:1160px;height:420px;object-fit:contain}
+.reveal .clarified-map{margin-top:10px}
+.reveal .clarified-comparison img{width:1160px;height:340px;object-fit:contain}
+.reveal .clarified-context{display:grid;grid-template-columns:1fr 1fr;gap:50px;margin-top:9px}
+.reveal .clarified-context p{font-size:21px;line-height:1.4;color:var(--muted);margin:0}
+.reveal .clarified-context b{color:var(--ink);font-weight:500}
+.reveal .clarified-latent .take{font-size:24px}
