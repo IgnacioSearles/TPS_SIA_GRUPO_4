@@ -6,11 +6,9 @@ Abrir `index.html` en el navegador. Funciona sin conexión: reveal.js está en `
 - `F`: pantalla completa. `Esc`: vista general.
 - Los botones ▶ reproducen un sonido por vez; cambiar de diapositiva lo corta.
 
-La versión vigente tiene **69 diapositivas**, incluidos los agregados de audio y figuras. Reemplaza a las propuestas alternativas; `index.html` es el único archivo de presentación. Los 92 botones de audio conservan sus recursos.
+La presentación tiene **111 diapositivas**: 1–57 son la exposición y 58–111 el apéndice de respaldo para preguntas. `index.html` es el único archivo de presentación; los 136 botones de audio tienen sus recursos en `assets/`.
 
-La tabla siguiente conserva la numeración de la base de 58 diapositivas, anterior a los agregados.
-
-## Consigna → diapositivas de la base original
+## Consigna → diapositivas
 
 | Consigna | Diapositivas |
 |---|---|
@@ -21,10 +19,11 @@ La tabla siguiente conserva la numeración de la base de 58 diapositivas, anteri
 | 1.b.1 Arquitectura para denoising y por qué | 22–23, 25 |
 | 1.b.2 Distintos niveles de ruido | 24, 26–27 |
 | 2.a Conjunto de datos nuevo (NSynth) | 30–32 |
-| 2.b Esquema variacional, el problema de la representación y activaciones | 34–41 |
-| 2.c Generar muestras nuevas | 43–45 |
-| Extras: tema de techno y notas omitidas | 46–47 |
-| Apéndice | 50–58 |
+| 2.b Esquema variacional, el problema de la representación y activaciones | 34–43 |
+| 2.c Generar muestras nuevas | 45–46 |
+| 2 (extra) CNN y latente 2D: envolvente, reconstrucción, notas omitidas y denoising | 48–56 |
+| Conclusiones | 57 |
+| Apéndice: gráficos de respaldo, tema de techno, notas omitidas, figuras y arquitecturas | 58–111 |
 
 ## Regenerar
 
@@ -37,10 +36,6 @@ python presentation/sync_assets.py      # copia a assets/ lo que usa index.html
 
 `python -m scripts.presentacion font`, `audio`, `redes`, `activaciones` u `omitidas` regenera una sola parte. `activaciones` necesita antes las corridas de `configs/ej2_{ae,vae}_activations_he.json` (leaky ReLU) y `configs/ej2_{ae,vae}_activations_xavier.json` (tanh y sigmoide), que se entrenan con `python main.py <config>`. Los gráficos de `reports/ej1_pruebas/` salen de `python -m scripts.ej1_figuras` sobre los experimentos `ej1a_stability`, `ej1a_small_failures`, `ej1b_denoising_architectures` y `ej1b_noise_types`; `omitidas` lee la evidencia guardada en `reports/ej2_notas_omitidas/puntos_medios.csv`. Al reentrenar en otra máquina los números pueden moverse un poco (redondeo de punto flotante), sin cambiar las conclusiones. `FUENTES.json` indica de qué archivo sale cada asset.
 
-## Extensión NSynth con CNN — 16/11/2026
+## Bloque NSynth con CNN
 
-La presentación vigente tiene76 diapositivas. Las páginas58–64 agregan protocolo, arquitectura exacta, reconstrucción, escucha pareada, generación, denoising y conclusiones. Las69 secciones pulleadas de9744710 se conservaron literalmente. Guion: docs/nsynth_cnn_conclusiones.md. Comparador autónomo de las mismas notas: reports/nsynth_cnn_listening/index.html. Regeneración del bloque: python -m scripts.build_nsynth_cnn_slides.
-
-## Versión compacta vigente — 16/11/2026
-
-La presentación tiene71diapositivas. Por pedido del usuario, el bloque NSynth CNN de siete páginas se redujo a dos:50explica qué probamos y51muestra denoising completo, incluidos todos los niveles y audios comparables. Queda antes de las figuras, dentro del tramo de sonido. La escucha ampliada está en `reports/nsynth_denoising_listening/index.html`.
+Guion: `docs/nsynth_cnn_conclusiones.md`. Regeneración: `python -m scripts.build_nsynth_cnn_slides`. Páginas de escucha autónomas (no son presentaciones): `reports/nsynth_cnn_listening/index.html` y `reports/nsynth_denoising_listening/index.html`.

@@ -33,6 +33,11 @@ plano se completa interpolando entre las muestras vecinas.
 Para el ejercicio 2 hay que descargar una vez el split de test de NSynth (349 MB,
 no se versiona): `python scripts/download_nsynth.py`.
 
+## Presentación
+
+`presentation/index.html` (abrir en el navegador, funciona sin conexión). Las notas del orador se ven con `S`.
+Ver [cómo usarla, qué diapositiva responde cada punto de la consigna y cómo regenerarla](presentation/README.md).
+
 ## Archivo de configuración
 
 Todas las claves son opcionales; `{}` es un experimento válido (autoencoder
