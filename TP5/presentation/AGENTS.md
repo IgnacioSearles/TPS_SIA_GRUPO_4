@@ -50,3 +50,5 @@ El usuario pidió quitar el texto de relleno y las salvedades de las diapositiva
 Se agregó la diapositiva de sección «Generar» (roadmap Los datos · Autoencoder contra VAE · Generar) antes de «Generación: sonidos distintos de sus vecinas», que antes seguía sin transición a la sección «Autoencoder contra VAE».
 
 Se agregó además la diapositiva de sección «CNN y latente 2D» (dentro del ejercicio 2, sin divisor numerado) antes de «El latente también representa la envolvente» (primera aparición). El roadmap de «Generar» nuevo incluye ese cuarto paso.
+
+Con autorización explícita del usuario (17/11/2026) se agregó «· CNN y latente 2D» a los roadmaps existentes de «Los datos», «Autoencoder contra VAE» y del «Generar» del tramo final, para que todos muestren los cuatro pasos.
