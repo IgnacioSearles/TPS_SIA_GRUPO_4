@@ -44,3 +44,9 @@ El usuario autorizó rehacer el bloque propio de siete slides como solo dos: qu�
 ## Actualización explícita del usuario, 16/11/2026
 
 El usuario pidió quitar el texto de relleno y las salvedades de las diapositivas CNN (denoising de audio y figuras) y reescribir sus notas. Se conservaron todas las figuras, audios y diapositivas.
+
+## Agregado, 17/11/2026
+
+Se agregó la diapositiva de sección «Generar» (roadmap Los datos · Autoencoder contra VAE · Generar) antes de «Generación: sonidos distintos de sus vecinas», que antes seguía sin transición a la sección «Autoencoder contra VAE».
+
+Se agregó además la diapositiva de sección «CNN y latente 2D» (dentro del ejercicio 2, sin divisor numerado) antes de «El latente también representa la envolvente» (primera aparición). El roadmap de «Generar» nuevo incluye ese cuarto paso.
